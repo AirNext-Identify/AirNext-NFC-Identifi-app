@@ -1,0 +1,419 @@
+@import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Lobster', cursive;
+  --font-script: 'Pacifico', cursive;
+  --font-hand: 'Caveat', cursive;
+  --font-kalam: 'Kalam', cursive;
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-neon: #3b82f6;
+  --color-surface: #09090b;
+  --color-surface-50: #fafafa;
+  --color-surface-100: #f4f4f5;
+  --color-surface-200: #e4e4e7;
+  --color-surface-700: #3f3f46;
+  --color-surface-800: #27272a;
+  --color-surface-900: #18181b;
+}
+
+/*
+ * Temas da UI interna (dashboard/admin), aplicados via atributo data-theme
+ * na tag <html>. Isso é independente dos 35+ temas de perfil público que já
+ * existem em PublicProfile.tsx (THEME_MAP) — aqueles continuam intactos.
+ *
+ * Ativar um tema: document.documentElement.setAttribute('data-theme', 'neon')
+ * (ver src/lib/theme.ts para o helper + ThemeProvider).
+ */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --ui-bg: #09090b;
+  --ui-surface: #18181b;
+  --ui-border: rgba(255,255,255,0.08);
+  --ui-text: #fafafa;
+  --ui-muted: #a1a1aa;
+  --ui-accent: #6366f1;
+}
+[data-theme="light"] {
+  color-scheme: light;
+  --ui-bg: #fafafa;
+  --ui-surface: #ffffff;
+  --ui-border: rgba(0,0,0,0.08);
+  --ui-text: #18181b;
+  --ui-muted: #71717a;
+  --ui-accent: #4f46e5;
+}
+[data-theme="neon"] {
+  color-scheme: dark;
+  --ui-bg: #05060f;
+  --ui-surface: #0d0f1f;
+  --ui-border: rgba(99,255,222,0.18);
+  --ui-text: #f0fdfa;
+  --ui-muted: #5eead4;
+  --ui-accent: #22d3ee;
+}
+[data-theme="minimal"] {
+  color-scheme: light;
+  --ui-bg: #ffffff;
+  --ui-surface: #ffffff;
+  --ui-border: #e4e4e7;
+  --ui-text: #09090b;
+  --ui-muted: #71717a;
+  --ui-accent: #18181b;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  * { box-sizing: border-box; }
+  body { font-family: var(--font-sans); overflow-x: hidden; }
+  ::-webkit-scrollbar { width: 0px; height: 0px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 100px; }
+  ::selection { background: #3b82f640; }
+  * { -webkit-tap-highlight-color: transparent; }
+  /* Prevent iOS zoom on input focus — keep font ≥ 16px */
+  input, textarea, select { font-size: 16px !important; }
+  @media (min-width: 640px) {
+    input, textarea, select { font-size: 14px !important; }
+  }
+  button, a { touch-action: manipulation; }
+}
+
+@layer utilities {
+  .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(32px) saturate(1.5); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 32px 0 rgba(0,0,0,0.15); }
+  .glass-light { background: rgba(255,255,255,0.85); backdrop-filter: blur(32px) saturate(1.5); border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 8px 32px 0 rgba(0,0,0,0.05); }
+  .dot-grid { background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0); background-size: 24px 24px; }
+  .text-gradient { background: linear-gradient(135deg, #60a5fa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  
+  /* ── Identidade visual AirNext para Login / Cadastro / Ativação ──
+     Paleta oficial da marca (azul #2563EB / #3B82F6 / #60A5FA), fundo escuro
+     com leve varredura de luz em movimento, e um "bloco" (card) elegante com
+     borda em degradê e brilho superior — usado nas 3 telas de acesso. */
+  .auth-card {
+    position: relative;
+    border-radius: 1.5rem;
+    background: rgba(255,255,255,0.055);
+    backdrop-filter: blur(36px) saturate(1.6);
+    border: 1px solid transparent;
+    background-image: linear-gradient(rgba(255,255,255,0.055), rgba(255,255,255,0.055)), linear-gradient(140deg, rgba(37,99,235,0.55), rgba(96,165,250,0.22) 45%, rgba(37,99,235,0.4));
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    box-shadow: 0 24px 70px -20px rgba(30,58,138,0.35), 0 8px 32px 0 rgba(0,0,0,0.35);
+  }
+  .auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 8%; right: 8%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(96,165,250,0.6), transparent);
+  }
+  .auth-bg-sweep {
+    position: absolute;
+    inset: -20%;
+    background: conic-gradient(from 0deg at 50% 50%, rgba(37,99,235,0.10), rgba(59,130,246,0.08), rgba(37,99,235,0.10));
+    animation: authSweep 22s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes authSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+
+  .input-dark { @apply w-full border rounded-2xl px-5 py-4 text-[15px] focus:outline-none focus:ring-2 transition-all duration-300 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus:ring-blue-500/50 focus:border-blue-500/50; }
+  .input-light { @apply w-full border rounded-2xl px-5 py-4 text-[15px] focus:outline-none focus:ring-2 transition-all duration-300 bg-zinc-50 border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:ring-blue-500/30 focus:border-blue-500/50 shadow-sm; }
+  
+  /* Buttons Premium */
+  .btn-base { @apply flex items-center justify-center gap-2.5 font-bold transition-all duration-300 active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100; }
+  
+  .fade-up { animation: fadeUp .5s cubic-bezier(.16,1,.3,1) both; }
+  .slide-up { animation: slideUp .6s cubic-bezier(.16,1,.3,1) both; }
+  .pop-in { animation: popIn .35s cubic-bezier(.16,1,.3,1) both; }
+  .scale-in { animation: scaleIn .3s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+  @keyframes slideUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+  @keyframes popIn { 0% { transform: scale(.8); opacity:0; } 60% { transform: scale(1.03); } 100% { transform: scale(1); opacity:1; } }
+  @keyframes scaleIn { from { opacity:0; transform: scale(.95); } to { opacity:1; transform: scale(1); } }
+  .pulse-sos { animation: pulseSOS 2s ease-in-out infinite; }
+  @keyframes pulseSOS { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 16px rgba(239,68,68,0); } }
+  .toast-in { animation: toastIn .4s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes toastIn { from { opacity:0; transform: translateY(16px) scale(.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+
+  /* ── Mascote Foguete AirNext (login/cadastro) ──
+     Reaproveita a mesma trajetória em arco do antigo astronauta (mesmos
+     pontos de translate/tempo, para continuar sincronizado com o brilho
+     do logo), mas com ângulos de rotação recalculados para o nariz do
+     foguete acompanhar a direção do voo (sobe apontando para cima,
+     nivela no topo, desce apontando para baixo). */
+  .rocket-fly { animation: rocketFly 17s ease-in-out infinite; will-change: transform; }
+  @keyframes rocketFly {
+    0%   { transform: translate(-18vw, 58vh) rotate(28deg) scale(0.82); opacity: 0; }
+    6%   { opacity: 1; }
+    22%  { transform: translate(14vw, 30vh) rotate(14deg) scale(0.96); }
+    36%  { transform: translate(34vw, 9vh) rotate(4deg) scale(1.06); }
+    44%  { transform: translate(46vw, 2vh) rotate(-4deg) scale(1.16); }
+    50%  { transform: translate(54vw, 4vh) rotate(-8deg) scale(1.14); }
+    58%  { transform: translate(64vw, 13vh) rotate(-14deg) scale(1.02); }
+    78%  { transform: translate(88vw, 42vh) rotate(-22deg) scale(0.9); }
+    93%  { opacity: 1; }
+    100% { transform: translate(116vw, 66vh) rotate(-30deg) scale(0.8); opacity: 0; }
+  }
+  .rocket-bob { animation: rocketBob 2.4s ease-in-out infinite; }
+  @keyframes rocketBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .rocket-flame { animation: rocketFlame .35s ease-in-out infinite alternate; }
+  @keyframes rocketFlame {
+    0%   { transform: scaleY(0.85) scaleX(0.92); opacity: 0.8; }
+    100% { transform: scaleY(1.2) scaleX(1.05); opacity: 1; }
+  }
+  .star-twinkle { animation: starTwinkle 2.8s ease-in-out infinite; }
+  @keyframes starTwinkle { 0%, 100% { opacity: 0.15; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1.15); } }
+  .logo-touch-glow { animation: logoTouchGlow 17s ease-in-out infinite; }
+  @keyframes logoTouchGlow {
+    0%, 33%, 62%, 100% { opacity: 0; transform: scale(0.75); }
+    44%, 50% { opacity: 1; transform: scale(1.35); }
+  }
+  .logo-touch-spark { animation: logoTouchSpark 17s ease-in-out infinite; }
+  @keyframes logoTouchSpark {
+    0%, 33%, 62%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+    44%, 50% { opacity: 1; transform: scale(1) rotate(90deg); }
+  }
+
+  /* ── Logo AirNext: efeito de clique (anel de onda + flash) ── */
+  .logo-click-ring {
+    animation: logoClickRing .6s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes logoClickRing {
+    0% { opacity: .9; transform: scale(0.6); }
+    100% { opacity: 0; transform: scale(2.2); }
+  }
+  .logo-click-flash {
+    animation: logoClickFlash .45s ease-out both;
+  }
+  @keyframes logoClickFlash {
+    0% { transform: scale(0.92); filter: brightness(1.6) saturate(1.3); }
+    50% { transform: scale(1.12); filter: brightness(1.35) saturate(1.2); }
+    100% { transform: scale(1); filter: brightness(1) saturate(1); }
+  }
+}
+
+/*
+ * Classes usadas exclusivamente pela LandingPage (site institucional AirNect).
+ * Variáveis e seletores aqui são escopados a classes próprias — não tocam em
+ * html/body/scrollbar globais, que continuam definidos acima para o dashboard.
+ */
+:root {
+  --blue: #0071e3;
+  --blue-hover: #0077ed;
+}
+
+/* Typography */
+.h1-apple { font-size: clamp(2.8rem,7vw,5.5rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1.02; }
+.h2-apple { font-size: clamp(2rem,4.5vw,3.5rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.08; }
+.h3-apple { font-size: clamp(1.4rem,2.2vw,2rem); font-weight: 600; letter-spacing: -0.015em; }
+.eyebrow { font-size: .65rem; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; }
+
+/* Buttons */
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+  padding: .75rem 1.75rem;
+  border-radius: 980px;
+  font-size: .875rem;
+  font-weight: 600;
+  transition: all .3s cubic-bezier(.2,.8,.2,1);
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+.btn-primary:hover {
+  background: var(--blue-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -8px rgba(0,113,227,.6);
+}
+
+/* Glass nav */
+.glass-nav {
+  background: rgba(251,251,253,.82);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* Float animation */
+@keyframes floatY { 0%,100%{ transform: translateY(0) rotate(var(--r,0deg)); } 50%{ transform: translateY(-20px) rotate(var(--r,0deg)); } }
+.float-anim { animation: floatY 6s ease-in-out infinite; }
+.float-delay-1 { animation-delay: .6s; }
+.float-delay-2 { animation-delay: 1.2s; }
+.float-delay-3 { animation-delay: 1.8s; }
+
+/* NFC pulse */
+@keyframes nfcPulse { 0%{ transform: scale(.7); opacity: .8; } 100%{ transform: scale(2.2); opacity: 0; } }
+.nfc-pulse::before, .nfc-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid rgba(0,113,227,.5);
+  animation: nfcPulse 2.4s ease-out infinite;
+}
+.nfc-pulse::after { animation-delay: 1.2s; }
+
+/* Shimmer */
+@keyframes shimmer { 0%{ background-position: -200% 0; } 100%{ background-position: 200% 0; } }
+.shimmer-text {
+  background: linear-gradient(90deg, #fff 0%, #8ab8ff 30%, #fff 50%, #c4a7ff 70%, #fff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 5s linear infinite;
+}
+
+/* Scan line */
+@keyframes scanLine { 0%{ top: -5%; } 100%{ top: 105%; } }
+.scan-line { animation: scanLine 3s linear infinite; }
+
+/* Swiper overrides (usados nos carrosséis de produtos da LandingPage) */
+.swiper-button-next,
+.swiper-button-prev {
+  width: 48px !important;
+  height: 48px !important;
+  background: rgba(255,255,255,.9) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,.1) !important;
+  transition: all .3s !important;
+}
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: #fff !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,.15) !important;
+}
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #1d1d1f !important;
+}
+.swiper-pagination-bullet {
+  background: #c7c7cc !important;
+  opacity: 1 !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+.swiper-pagination-bullet-active {
+  background: var(--blue) !important;
+  width: 24px !important;
+  border-radius: 4px !important;
+}
+
+/* Dark swiper */
+.dark-swiper .swiper-button-next,
+.dark-swiper .swiper-button-prev {
+  background: rgba(255,255,255,.1) !important;
+}
+.dark-swiper .swiper-button-next::after,
+.dark-swiper .swiper-button-prev::after {
+  color: #fff !important;
+}
+.dark-swiper .swiper-pagination-bullet {
+  background: rgba(255,255,255,.3) !important;
+}
+.dark-swiper .swiper-pagination-bullet-active {
+  background: #fff !important;
+}
+
+/* Fonte do logo "AirNext" na LandingPage */
+.font-lobster { font-family: 'Lobster', cursive; }
+
+/* Grid pattern (hero da LandingPage) */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/*
+ * Corrige o autofill do navegador (Chrome/Safari) forçando texto e fundo
+ * transparentes na cor do tema. Sem isso, ao autopreencher email/senha o
+ * navegador aplica fundo branco + texto preto por cima do input escuro,
+ * deixando o texto digitado invisível nas páginas de Login, Cadastro e
+ * Ativar Produto.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.06) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(255,255,255,0.06) inset !important;
+  transition: background-color 9999s ease-in-out 0s, color 9999s ease-in-out 0s;
+}
+[data-theme="light"] input:-webkit-autofill,
+[data-theme="light"] input:-webkit-autofill:hover,
+[data-theme="light"] input:-webkit-autofill:focus,
+[data-theme="light"] input:-webkit-autofill:active,
+[data-theme="minimal"] input:-webkit-autofill,
+[data-theme="minimal"] input:-webkit-autofill:hover,
+[data-theme="minimal"] input:-webkit-autofill:focus,
+[data-theme="minimal"] input:-webkit-autofill:active {
+  -webkit-text-fill-color: #18181b !important;
+  caret-color: #18181b;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0.03) inset !important;
+  box-shadow: 0 0 0px 1000px rgba(0,0,0,0.03) inset !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+ * PROFILE PREMIUM — polish visual sutil aplicado ao Perfil Público.
+ * Só afeta o estado de HOVER (interação do usuário) — a aparência
+ * padrão da página, em repouso, permanece exatamente igual à
+ * original. Não altera cores, paleta ou estrutura.
+ * ══════════════════════════════════════════════════════════════════ */
+
+@keyframes ppShine {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+/* Confete ao salvar contato (perfil público) — cada "peça" é criada
+   dinamicamente via JS (fireConfetti em PublicProfile.tsx) e usa esta
+   animação para cair com leve rotação e deriva lateral. */
+@keyframes ppConfettiFall {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--pp-drift, 0px), 100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Sweep de brilho nos botões de ação principais — só aparece no hover */
+.pp-btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.pp-btn-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.28), transparent);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.pp-btn-shine:hover::after {
+  animation: ppShine 0.9s ease forwards;
+}
+
+/* Chips de rede social com leve elevação no hover */
+.pp-social-chip {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.pp-social-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -8px rgba(0,0,0,0.4);
+}
