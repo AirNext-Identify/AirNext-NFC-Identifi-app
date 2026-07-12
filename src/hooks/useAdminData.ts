@@ -216,6 +216,7 @@ export function useAdminData() {
   const [renewalRows, setRenewalRows] = useState<any[]>([]);
   const [logRows, setLogRows] = useState<any[]>([]);
   const [notifRows, setNotifRows] = useState<any[]>([]);
+  const [visitRows, setVisitRows] = useState<any[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
   // URL base gravada nos chips/QR codes. Começa com o fallback (env/origin)
   // e é substituída pelo valor salvo em app_settings assim que carrega —
@@ -261,7 +262,7 @@ export function useAdminData() {
 
   const reloadAll = useCallback(async () => {
     setLoading(true);
-    const [profilesRes, custProfRes, productsRes, lotsRes, nfcRes, renewalsRes, logsRes, notifRes, settingsRes] = await Promise.all([
+    const [profilesRes, custProfRes, productsRes, lotsRes, nfcRes, renewalsRes, logsRes, notifRes, settingsRes, visitsRes] = await Promise.all([
       supabase.from('profiles').select('user_id, name, email, created_at'),
       supabase.from('customer_profiles').select('*'),
       supabase.from('products').select(PRODUCT_SELECT).order('created_at', { ascending: false }),
@@ -271,6 +272,7 @@ export function useAdminData() {
       supabase.from('admin_logs').select('*').order('performed_at', { ascending: false }).limit(300),
       supabase.from('admin_notifications').select('*').order('sent_at', { ascending: false }),
       supabase.from('app_settings').select('key, value').eq('key', 'nfc_base_url').maybeSingle(),
+      supabase.from('visits').select('id, product_id, type, action, city, device, created_at').order('created_at', { ascending: false }).limit(2000),
     ]);
 
     const loadErrors: string[] = [];
@@ -282,6 +284,7 @@ export function useAdminData() {
     if (renewalsRes.error) { console.error('Falha ao carregar renewals:', renewalsRes.error); loadErrors.push(`renewals: ${renewalsRes.error.message}`); }
     if (logsRes.error) { console.error('Falha ao carregar admin_logs:', logsRes.error); loadErrors.push(`admin_logs: ${logsRes.error.message}`); }
     if (notifRes.error) { console.error('Falha ao carregar admin_notifications:', notifRes.error); loadErrors.push(`admin_notifications: ${notifRes.error.message}`); }
+    if (visitsRes.error) { console.error('Falha ao carregar visits:', visitsRes.error); loadErrors.push(`visits: ${visitsRes.error.message}`); }
     // app_settings é opcional: se a tabela ainda não existir (script SQL
     // delta não rodado), não trava o resto do painel — só mantém o fallback.
     if (settingsRes.error) {
@@ -305,6 +308,7 @@ export function useAdminData() {
     setRenewalRows(renewalsRes.data || []);
     setLogRows(logsRes.data || []);
     setNotifRows(notifRes.data || []);
+    setVisitRows(visitsRes.data || []);
 
     usedNfcUuids.current = new Set(products.map((p) => p.nfc_uuid).filter(Boolean) as string[]);
     usedActivationCodes.current = new Set(products.map((p) => p.code).filter(Boolean) as string[]);
@@ -341,6 +345,25 @@ export function useAdminData() {
   const renewals: Renewal[] = useMemo(() => renewalRows.map(mapRenewal), [renewalRows]);
   const logs: LogEntry[] = useMemo(() => logRows.map(mapLog), [logRows]);
   const notifications: Notification[] = useMemo(() => notifRows.map(mapNotification), [notifRows]);
+
+  // ─── Visitas/acessos reais, já ligadas ao cliente dono do produto ───────
+  // Usado pela aba "Acessos" em CustomerDetailView. Antes essa aba nunca
+  // buscava dado nenhum (sempre mostrava "Sem registros"), mesmo havendo
+  // acessos reais registrados na tabela `visits`.
+  const visits = useMemo(() => {
+    const ownerByProduct = new Map<string, string | undefined>();
+    for (const p of productRows) ownerByProduct.set(p.id, p.user_id || undefined);
+    return visitRows.map((v: any) => ({
+      id: v.id,
+      productId: v.product_id as string | undefined,
+      customerId: v.product_id ? ownerByProduct.get(v.product_id) : undefined,
+      type: v.type as 'nfc' | 'qr' | 'link' | undefined,
+      action: v.action as string | undefined,
+      city: v.city as string | undefined,
+      device: v.device as string | undefined,
+      createdAt: v.created_at as string,
+    }));
+  }, [visitRows, productRows]);
 
   // ─── Clientes: junta profiles (nome/e-mail do cartão) + customer_profiles
   // (CRM/cobrança) + agregados calculados a partir dos produtos já carregados.
@@ -633,6 +656,7 @@ export function useAdminData() {
 
   const deleteProduct = useCallback(
     async (id: string) => {
+      const product = productRows.find((p) => p.id === id);
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) {
         console.error('Falha ao excluir produto:', error);
@@ -640,10 +664,36 @@ export function useAdminData() {
         return;
       }
       setProductRows((prev) => prev.filter((p) => p.id !== id));
+
+      // Mantém used_quantity/available_quantity do lote batendo com a
+      // realidade: sem isto, apagar um produto gerado a partir de um lote
+      // deixava o lote "mentindo" sobre quantos produtos ainda restam para
+      // programar/já foram programados. `quantity` (total histórico gerado)
+      // é mantido como está de propósito — é o registro de quantos produtos
+      // aquele lote efetivamente encomendou/gerou, e a tabela não permite
+      // quantity <= 0, então não faz sentido decrementá-lo aqui.
+      if (product?.lot_id) {
+        const lot = lotRows.find((l) => l.id === product.lot_id);
+        if (lot) {
+          const wasProgrammed = product.status !== 'NAO_PROGRAMADO';
+          const nextUsed = wasProgrammed ? Math.max(0, (lot.used_quantity || 0) - 1) : (lot.used_quantity || 0);
+          const nextAvailable = wasProgrammed ? (lot.available_quantity || 0) : Math.max(0, (lot.available_quantity || 0) - 1);
+          const { error: lotError } = await supabase
+            .from('lots')
+            .update({ used_quantity: nextUsed, available_quantity: nextAvailable })
+            .eq('id', lot.id);
+          if (lotError) {
+            console.error('Falha ao atualizar contadores do lote após exclusão:', lotError);
+          } else {
+            setLotRows((prev) => prev.map((l) => (l.id === lot.id ? { ...l, used_quantity: nextUsed, available_quantity: nextAvailable } : l)));
+          }
+        }
+      }
+
       await addLog('Exclusão', 'Product', id, 'Produto removido permanentemente (chip/cartão físico deve ser descartado ou reaproveitado com nova gravação).');
       addToast('Produto excluído com sucesso.', 'success');
     },
-    [addLog, addToast]
+    [productRows, lotRows, addLog, addToast]
   );
 
   const duplicateProduct = useCallback(
@@ -668,10 +718,23 @@ export function useAdminData() {
         return;
       }
       setProductRows((prev) => [inserted as ProductRow, ...prev]);
+
+      // Produto duplicado nasce NAO_PROGRAMADO e conta como "disponível" (a
+      // programar) no lote de origem, se houver — sem isto o contador do
+      // lote ficava desatualizado assim que a duplicata era criada.
+      if (source.lot_id) {
+        const lot = lotRows.find((l) => l.id === source.lot_id);
+        if (lot) {
+          const nextAvailable = (lot.available_quantity || 0) + 1;
+          const { error: lotError } = await supabase.from('lots').update({ available_quantity: nextAvailable }).eq('id', lot.id);
+          if (!lotError) setLotRows((prev) => prev.map((l) => (l.id === lot.id ? { ...l, available_quantity: nextAvailable } : l)));
+        }
+      }
+
       await addLog('Cadastro', 'Product', inserted.id, `Produto duplicado a partir de ${source.id} com novo UUID único — precisa ser gravado no Programador NFC antes de ficar disponível.`);
       addToast('Produto duplicado com sucesso — novo UUID gerado.', 'success');
     },
-    [productRows, generateProductIdentity, addLog, addToast]
+    [productRows, lotRows, generateProductIdentity, addLog, addToast]
   );
 
   // Suporte/atendimento: atribui (ou remove) manualmente um produto DISPONÍVEL
@@ -1061,6 +1124,21 @@ export function useAdminData() {
     []
   );
 
+  const deleteNotification = useCallback(
+    async (id: string) => {
+      const { error } = await supabase.from('admin_notifications').delete().eq('id', id);
+      if (error) {
+        console.error('Falha ao excluir notificação:', error);
+        addToast(`Não foi possível excluir a notificação: ${error.message}`, 'error');
+        return;
+      }
+      setNotifRows((prev) => prev.filter((n) => n.id !== id));
+      await addLog('Exclusão', 'Notification', id, 'Notificação removida do painel.');
+      addToast('Notificação excluída.', 'success');
+    },
+    [addLog, addToast]
+  );
+
   const sendNotification = useCallback(
     async (title: string, message: string, channel: Notification['channel'], customerId?: string, productId?: string) => {
       const row = {
@@ -1100,6 +1178,7 @@ export function useAdminData() {
     stats,
     monthlyStats,
     growthMapData,
+    visits,
     updateCustomer,
     changeCustomerStatus,
     deleteCustomer,
@@ -1116,6 +1195,7 @@ export function useAdminData() {
     programNFC,
     updateNotification,
     sendNotification,
+    deleteNotification,
     appUrl,
     updateAppUrl,
     addLog,

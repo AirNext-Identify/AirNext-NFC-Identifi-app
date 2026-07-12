@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -11,17 +11,28 @@ export default function LoginPage() {
   const [show, setShow] = useState(false); const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
-  const { login, loginWithGoogle } = useAuth(); const nav = useNavigate();
+  const { login, loginWithGoogle, blockedReason, clearBlockedReason } = useAuth(); const nav = useNavigate();
+
+  // Se a sessão foi encerrada à força (conta bloqueada/suspensa detectada
+  // após login social ou ao restaurar uma sessão existente), mostra o
+  // motivo aqui assim que o usuário cair de volta na tela de login.
+  useEffect(() => {
+    if (blockedReason) {
+      setError(blockedReason);
+      clearBlockedReason();
+    }
+  }, [blockedReason, clearBlockedReason]);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setBusy(true);
     try {
       const data = await login(email, pw);
-      const role = data?.user?.user_metadata?.role;
+      const role = data?.user?.app_metadata?.role;
       nav(role === 'ADMIN' ? '/admin' : '/dashboard');
-    } catch {
-      setError('Email ou senha incorretos.');
+    } catch (err: any) {
+      setError(err?.blocked ? err.message : 'Email ou senha incorretos.');
     } finally {
       setBusy(false);
     }

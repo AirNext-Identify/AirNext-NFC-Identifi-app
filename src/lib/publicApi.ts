@@ -15,6 +15,17 @@ export async function getPublicProfile(slug: string): Promise<Product | undefine
     .single();
 
   if (error || !data) return undefined;
+
+  // O status 'ATIVO' na coluna do banco não é atualizado sozinho quando a
+  // validade vence (isso só acontecia visualmente no painel admin, que
+  // calculava "Expirado" no cliente sem nunca gravar isso de volta no
+  // banco). Sem esta checagem, um perfil expirado continuava 100% público
+  // e acessível via NFC/QR/link indefinidamente. Reforçamos aqui, no ponto
+  // de leitura pública, independente de qualquer job/cron rodar no banco.
+  if (data.expires_at && new Date(data.expires_at).getTime() < Date.now()) {
+    return undefined;
+  }
+
   const product = mapProduct(data);
   if (product.visibility === 'private' || product.visibility === 'hidden') return undefined;
   return product;

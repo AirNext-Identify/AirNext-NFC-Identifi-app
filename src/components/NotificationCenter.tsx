@@ -20,6 +20,7 @@ const typeStyles: Record<AppNotification['type'], { icon: React.ElementType; cla
   activation: { icon: CheckCheck, classes: 'text-emerald-400 bg-emerald-500/10' },
   update: { icon: Bell, classes: 'text-amber-400 bg-amber-500/10' },
   system: { icon: Bell, classes: 'text-amber-400 bg-amber-500/10' },
+  admin: { icon: Bell, classes: 'text-indigo-400 bg-indigo-500/10' },
 };
 
 export default function NotificationCenter({
@@ -154,6 +155,11 @@ export default function NotificationCenter({
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
+                      {n.title && (
+                        <p className={`text-sm ${n.read ? 'text-zinc-300' : 'text-white font-semibold'}`}>
+                          {n.title}
+                        </p>
+                      )}
                       <p className={`text-sm ${n.read ? 'text-zinc-400' : 'text-zinc-100 font-medium'}`}>
                         {n.message}
                       </p>

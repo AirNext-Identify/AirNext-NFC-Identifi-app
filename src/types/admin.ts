@@ -157,6 +157,17 @@ export interface Toast {
   message: string;
 }
 
+export interface AdminVisit {
+  id: string;
+  productId?: string;
+  customerId?: string;
+  type?: 'nfc' | 'qr' | 'link';
+  action?: string;
+  city?: string;
+  device?: string;
+  createdAt: string;
+}
+
 export type AdminModule =
   | 'dashboard'
   | 'customers'

@@ -12,12 +12,13 @@ import { LotsView } from '@/components/admin/modules/LotsView';
 import { NFCProgrammerView } from '@/components/admin/modules/NFCProgrammerView';
 import { ValidityView } from '@/components/admin/modules/ValidityView';
 import { NotificationsView } from '@/components/admin/modules/NotificationsView';
+import { NotifyModal } from '@/components/admin/modules/NotifyModal';
 import { AnalyticsView } from '@/components/admin/modules/AnalyticsView';
 import { SettingsView } from '@/components/admin/modules/SettingsView';
 import { GuideView } from '@/components/admin/modules/GuideView';
 import { useAdminData } from '@/hooks/useAdminData';
 import { useAuth } from '@/contexts/AuthContext';
-import type { AdminModule } from '@/types/admin';
+import type { AdminModule, Customer } from '@/types/admin';
 
 const moduleTitles: Record<AdminModule, { title: string; subtitle?: string }> = {
   dashboard: { title: 'Dashboard', subtitle: 'Visão executiva da plataforma' },
@@ -49,6 +50,7 @@ export default function AdminPanel() {
   const [detailProductId, setDetailProductId] = useState<string | null>(null);
   const [nfcPreselectedLot, setNfcPreselectedLot] = useState<string | null>(null);
   const [nfcPreselectedProduct, setNfcPreselectedProduct] = useState<string | null>(null);
+  const [notifyTarget, setNotifyTarget] = useState<{ fixed: boolean; customer: Customer | null } | null>(null);
 
   const {
     user,
@@ -64,6 +66,7 @@ export default function AdminPanel() {
     stats,
     monthlyStats,
     growthMapData,
+    visits,
     updateCustomer,
     changeCustomerStatus,
     deleteCustomer,
@@ -80,6 +83,7 @@ export default function AdminPanel() {
     programNFC,
     updateNotification,
     sendNotification,
+    deleteNotification,
     appUrl,
     updateAppUrl,
     removeToast,
@@ -141,6 +145,7 @@ export default function AdminPanel() {
           notifications={notifications}
           renewals={renewals}
           logs={logs}
+          visits={visits}
           onBack={() => setDetailCustomerId(null)}
           onUpdate={updateCustomer}
           onChangeStatus={changeCustomerStatus}
@@ -149,8 +154,9 @@ export default function AdminPanel() {
             setDetailCustomerId(null);
             setModule('customers');
           }}
-          onNotify={(c) => sendNotification('Notificação importante', 'Mensagem enviada pela equipe AirNext.', 'Painel', c.id)}
+          onNotify={(c) => setNotifyTarget({ fixed: true, customer: c })}
           onAddNote={addCustomerNote}
+          onDeleteNotification={deleteNotification}
         />
       );
     }
@@ -184,7 +190,7 @@ export default function AdminPanel() {
             onView={setDetailCustomerId}
             onChangeStatus={changeCustomerStatus}
             onDelete={deleteCustomer}
-            onNotify={(c) => sendNotification('Notificação importante', 'Mensagem enviada pela equipe AirNext.', 'Painel', c.id)}
+            onNotify={(c) => setNotifyTarget({ fixed: true, customer: c })}
           />
         );
       case 'products':
@@ -230,7 +236,9 @@ export default function AdminPanel() {
             customers={customers}
             products={products}
             onUpdate={updateNotification}
-            onSend={sendNotification}
+            onSend={() => setNotifyTarget({ fixed: false, customer: null })}
+            onResend={sendNotification}
+            onDelete={deleteNotification}
           />
         );
       case 'analytics':
@@ -238,14 +246,14 @@ export default function AdminPanel() {
       case 'guide':
         return <GuideView onNavigate={handleNavigate} />;
       case 'settings':
-        return <SettingsView appUrl={appUrl} onUpdateAppUrl={updateAppUrl} />;
+        return <SettingsView appUrl={appUrl} onUpdateAppUrl={updateAppUrl} logs={logs} />;
       default:
         return <DashboardView stats={stats} customers={customers} products={products} monthlyStats={monthlyStats} growthMapData={growthMapData} />;
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="flex min-h-screen overflow-x-hidden bg-zinc-950 text-zinc-100">
       <Sidebar
         active={module}
         onNavigate={handleNavigate}
@@ -255,7 +263,7 @@ export default function AdminPanel() {
         userEmail={user?.email}
         onLogout={handleLogout}
       />
-      <div className="flex flex-1 flex-col lg:pl-64">
+      <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
         <Header
           title={moduleTitles[module].title}
           subtitle={moduleTitles[module].subtitle}
@@ -266,11 +274,18 @@ export default function AdminPanel() {
           onNavigate={handleNavigate}
           onResolveNotification={(id) => updateNotification(id, { status: 'Resolvido', resolvedAt: new Date().toISOString() })}
         />
-        <main className="flex-1 overflow-y-auto">
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
           {renderContent()}
         </main>
       </div>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <NotifyModal
+        isOpen={!!notifyTarget}
+        onClose={() => setNotifyTarget(null)}
+        customers={customers}
+        fixedCustomer={notifyTarget?.fixed ? notifyTarget.customer : null}
+        onSend={(title, message, channel, customerId) => sendNotification(title, message, channel, customerId)}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import {
@@ -16,8 +16,7 @@ import {
   CreditCard, KeyRound, Tag as TagIcon, Move, PawPrint, Building2,
   RotateCcw, RotateCw, ZoomIn, FlipHorizontal2, Share2, Loader2,
   Watch, Square, Circle, RectangleHorizontal, ChevronUp,
-  Menu, Fingerprint, Gem, Layers, ScanLine, ShieldCheck, EyeOff,
-  Wand2, Gauge, Waves, BadgeCheck, MousePointerClick
+  Phone, Wifi, AlertTriangle
 } from 'lucide-react';
 
 type CP = React.CSSProperties & Record<string, string>;
@@ -179,147 +178,22 @@ const CUSTOM_COLORS = [
 ];
 
 // =====================================================================
-// --- Acabamentos premium: texturas aplicadas por cima da cor escolhida.
-// Cada acabamento tem uma versão CSS (usada na prévia ao vivo, 100%
-// responsiva) e uma versão Canvas (usada na exportação final em alta
-// resolução), para que o mockup que o cliente vê seja sempre idêntico
-// à peça que é enviada para produção.
-// =====================================================================
-type FinishId = 'solido' | 'fosco' | 'carbono' | 'metalico' | 'holografico' | 'couro';
-
-interface FinishOption {
-  id: FinishId;
-  label: string;
-  short: string;
-  icon: React.ReactNode;
-}
-
-const FINISHES: FinishOption[] = [
-  { id: 'solido', label: 'Sólido', short: 'Cor lisa clássica', icon: <Palette size={15} /> },
-  { id: 'fosco', label: 'Fosco Premium', short: 'Acabamento aveludado, anti-reflexo', icon: <Moon size={15} /> },
-  { id: 'carbono', label: 'Fibra de Carbono', short: 'Trama esportiva em relevo', icon: <Layers size={15} /> },
-  { id: 'metalico', label: 'Metálico Escovado', short: 'Reflexo de alumínio escovado', icon: <Gem size={15} /> },
-  { id: 'holografico', label: 'Holográfico', short: 'Efeito prisma iridescente', icon: <Sparkles size={15} /> },
-  { id: 'couro', label: 'Couro Sintético', short: 'Textura premium costurada', icon: <Wand2 size={15} /> },
-];
-
-// Estilo CSS do acabamento (prévia ao vivo — 100% responsivo, sem canvas).
-function getFinishStyle(finish: FinishId, color: string): React.CSSProperties {
-  switch (finish) {
-    case 'carbono':
-      return {
-        backgroundColor: '#0a0a0a',
-        backgroundImage:
-          `repeating-linear-gradient(45deg, ${color}33 0px, ${color}33 2px, transparent 2px, transparent 5px),` +
-          `repeating-linear-gradient(-45deg, rgba(255,255,255,0.07) 0px, rgba(255,255,255,0.07) 2px, transparent 2px, transparent 5px),` +
-          `linear-gradient(135deg, #1c1c1e, #030303)`,
-      };
-    case 'metalico':
-      return {
-        backgroundImage:
-          `linear-gradient(115deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 20%, rgba(255,255,255,0.18) 42%, rgba(255,255,255,0) 58%, rgba(255,255,255,0.32) 100%),` +
-          `linear-gradient(135deg, ${color}, ${color}99)`,
-      };
-    case 'fosco':
-      return {
-        backgroundImage: `radial-gradient(130% 130% at 18% 12%, ${color}dd, #0c0c0e 72%)`,
-      };
-    case 'holografico':
-      return {
-        backgroundImage: `linear-gradient(120deg, #ff9ee5 0%, #a0e9ff 25%, #c6ffb0 50%, #ffe08a 75%, #d8a0ff 100%)`,
-        filter: 'saturate(1.15)',
-      };
-    case 'couro':
-      return {
-        backgroundImage:
-          `repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0px, rgba(0,0,0,0.10) 1px, transparent 1px, transparent 3px),` +
-          `linear-gradient(135deg, ${color}, #2b1608)`,
-      };
-    default:
-      return { backgroundImage: `linear-gradient(135deg, ${color}, ${color}cc)` };
-  }
-}
-
-// Pinta o acabamento escolhido no canvas de exportação final — aproximação
-// fiel da versão CSS acima, em alta resolução, para o mockup enviado à produção.
-function paintFinish(ctx: CanvasRenderingContext2D, finish: FinishId, color: string, w: number, h: number) {
-  if (finish === 'carbono') {
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0, 0, w, h);
-    const step = Math.max(7, w * 0.016);
-    ctx.save();
-    ctx.lineWidth = step * 0.5;
-    ctx.globalAlpha = 0.3;
-    ctx.strokeStyle = color;
-    for (let y = -h; y < w + h; y += step * 2) {
-      ctx.beginPath(); ctx.moveTo(y, -h); ctx.lineTo(y - h, w + h); ctx.stroke();
-    }
-    ctx.globalAlpha = 0.1;
-    ctx.strokeStyle = '#ffffff';
-    for (let y = -h + step; y < w + h; y += step * 2) {
-      ctx.beginPath(); ctx.moveTo(y, h + h); ctx.lineTo(y + h, -h); ctx.stroke();
-    }
-    ctx.restore();
-    return;
-  }
-  if (finish === 'metalico') {
-    const grad = ctx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, `${color}`); grad.addColorStop(0.32, `${color}cc`);
-    grad.addColorStop(0.5, '#ffffff66'); grad.addColorStop(0.68, `${color}cc`); grad.addColorStop(1, `${color}`);
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
-    return;
-  }
-  if (finish === 'fosco') {
-    const grad = ctx.createRadialGradient(w * 0.18, h * 0.12, 10, w * 0.5, h * 0.5, w * 0.85);
-    grad.addColorStop(0, `${color}dd`); grad.addColorStop(1, '#0c0c0e');
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
-    return;
-  }
-  if (finish === 'holografico') {
-    const grad = ctx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, '#ff9ee5'); grad.addColorStop(0.25, '#a0e9ff'); grad.addColorStop(0.5, '#c6ffb0');
-    grad.addColorStop(0.75, '#ffe08a'); grad.addColorStop(1, '#d8a0ff');
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
-    return;
-  }
-  if (finish === 'couro') {
-    const grad = ctx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, color); grad.addColorStop(1, '#2b1608');
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
-    ctx.save(); ctx.globalAlpha = 0.09; ctx.strokeStyle = '#000';
-    for (let y = 0; y < h; y += 4) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-    ctx.restore();
-    return;
-  }
-  const grad = ctx.createLinearGradient(0, 0, w, h);
-  grad.addColorStop(0, color); grad.addColorStop(1, `${color}cc`);
-  ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
-}
-
-// =====================================================================
 // --- Personalizador AirNext: interactive multi-format customizer ---
 // Lets the client pick a product line, physical format, colour, and a
 // freely-positionable/zoomable/rotatable photo for BOTH sides (frente e
 // verso) of the piece, save the project locally, and send the finished
 // mockup (both sides) straight to AirNext's WhatsApp for production.
 // =====================================================================
-// Todas as posições livres (foto, texto, QR Code) são guardadas em PORCENTAGEM
-// relativa ao centro da peça (não em pixels). Isso é o que torna a
-// personalização verdadeiramente responsiva: o mesmo valor produz a MESMA
-// posição visual em qualquer tamanho de tela ou de canvas final, sem nenhuma
-// conversão manual e sem depender da largura da prévia no momento do arraste.
-interface Offset2D { x: number; y: number } // porcentagem (-100..100) a partir do centro
-
 interface SideState {
   image: string | null;
-  offset: Offset2D; // posição da foto — % do próprio tamanho, arraste livre
+  offset: { x: number; y: number };
   scaleX: number;
   scaleY: number;
   rotation: number;
   text: string; // opcional — nome, telefone, instrução etc.
-  textOffset: Offset2D; // cliente arrasta o texto livremente — sempre dentro da área visível, mesmo em peças redondas
+  textOffset: { x: number; y: number }; // cliente pode arrastar o texto livremente sobre a peça
   showQr: boolean; // opcional — cliente decide se quer QR Code impresso neste lado
-  qrOffset: Offset2D; // cliente arrasta o QR Code livremente, também protegido contra corte
+  qrOffset: { x: number; y: number }; // cliente pode arrastar o QR Code livremente também
 }
 
 interface SavedProject {
@@ -331,59 +205,14 @@ interface SavedProject {
   shapeId?: string;
   shapeLabel?: string;
   color: string;
-  finish?: FinishId; // ausente em projetos antigos -> assume 'solido'
   sides: { front: SideState; back: SideState };
   createdAt: string;
 }
 
-// v3: formato de posicionamento mudou de pixels para porcentagem — projetos
-// salvos no formato antigo (v2) não são compatíveis e não serão carregados.
-const CUSTOM_PROJECTS_KEY = 'airnext_custom_projects_v3';
-const AIRNEXT_WHATSAPP = '5511987654321';
+const CUSTOM_PROJECTS_KEY = 'airnext_custom_projects_v2';
+const AIRNEXT_WHATSAPP = '5547996287761';
 
-// Posições iniciais discretas — o cliente só vê texto/QR se ele mesmo os
-// ativar; a posição inicial é só um ponto de partida sensato para arrastar.
-const DEFAULT_TEXT_OFFSET: Offset2D = { x: 0, y: 30 };
-const DEFAULT_QR_OFFSET: Offset2D = { x: 28, y: 30 };
-
-const emptySide = (): SideState => ({
-  image: null,
-  offset: { x: 0, y: 0 },
-  scaleX: 1,
-  scaleY: 1,
-  rotation: 0,
-  text: '',
-  textOffset: { ...DEFAULT_TEXT_OFFSET },
-  showQr: false,
-  qrOffset: { ...DEFAULT_QR_OFFSET },
-});
-
-// Área segura de arraste (em % de raio/eixo a partir do centro) para cada
-// formato — evita que texto/QR fiquem "cortados" nas bordas ou, em peças
-// redondas, escondidos fora do círculo visível.
-function getSafeZone(formatId: string, shape: ShapeOption, isShapeable: boolean): { x: number; y: number; circle: boolean } {
-  const circle = isShapeable ? shape.dims.circle === true : formatId === 'adesivo';
-  if (circle) return { x: 32, y: 32, circle: true };
-  if (formatId === 'pulseira') return { x: 40, y: 24, circle: false };
-  if (formatId === 'chaveiro') return { x: 34, y: 34, circle: false };
-  return { x: 40, y: 40, circle: false }; // cartão, tag, retangular
-}
-
-function clampToSafeZone(offset: Offset2D, zone: { x: number; y: number; circle: boolean }): Offset2D {
-  if (zone.circle) {
-    const r = Math.min(zone.x, zone.y);
-    const mag = Math.hypot(offset.x, offset.y);
-    if (mag > r && mag > 0) {
-      const s = r / mag;
-      return { x: offset.x * s, y: offset.y * s };
-    }
-    return offset;
-  }
-  return {
-    x: Math.max(-zone.x, Math.min(zone.x, offset.x)),
-    y: Math.max(-zone.y, Math.min(zone.y, offset.y)),
-  };
-}
+const emptySide = (): SideState => ({ image: null, offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0, text: '', textOffset: { x: 0, y: 0 }, showQr: false, qrOffset: { x: 0, y: 0 } });
 
 // Resize + compress an uploaded image client-side before it's ever stored,
 // so previews stay high quality on screen while saved projects remain small
@@ -420,12 +249,13 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+// Dimensões em alta definição — prontas para produção/impressão, não só tela.
 const CANVAS_DIMS: Record<string, { w: number; h: number; radius: number; circle?: boolean }> = {
-  cartao: { w: 900, h: 567, radius: 46 },
-  tag: { w: 480, h: 640, radius: 56 },
-  chaveiro: { w: 520, h: 520, radius: 52 },
-  pulseira: { w: 900, h: 250, radius: 125 },
-  adesivo: { w: 520, h: 520, radius: 260, circle: true },
+  cartao: { w: 1800, h: 1134, radius: 92 },
+  tag: { w: 960, h: 1280, radius: 112 },
+  chaveiro: { w: 1040, h: 1040, radius: 104 },
+  pulseira: { w: 1800, h: 500, radius: 250 },
+  adesivo: { w: 1040, h: 1040, radius: 520, circle: true },
 };
 
 // Tag e Adesivo aceitam um "corte" físico escolhido pelo cliente
@@ -433,10 +263,10 @@ const CANVAS_DIMS: Record<string, { w: number; h: number; radius: number; circle
 function getCanvasDims(formatId: string, shape?: ShapeOption): { w: number; h: number; radius: number; circle?: boolean } {
   const base = CANVAS_DIMS[formatId] || CANVAS_DIMS.cartao;
   if (!shape || !SHAPEABLE_FORMATS.includes(formatId)) return base;
-  const size = 560;
+  const size = 1120;
   if (shape.id === 'redondo') return { w: size, h: size, radius: size / 2, circle: true };
-  if (shape.id === 'retangular') return { w: 480, h: 640, radius: 40 };
-  return { w: size, h: size, radius: 44 }; // quadrado
+  if (shape.id === 'retangular') return { w: 960, h: 1280, radius: 80 };
+  return { w: size, h: size, radius: 88 }; // quadrado
 }
 
 // Desenha um pequeno ícone de "ondas de aproximação" (NFC) no canvas —
@@ -512,13 +342,9 @@ async function renderSideToCanvas(
   color: string,
   lineName: string,
   formatLabel: string,
-  shape: ShapeOption | undefined,
-  isShapeable: boolean,
-  finish: FinishId = 'solido'
+  previewWidthPx: number,
+  shape?: ShapeOption
 ): Promise<string> {
-  // Canvas sempre em alta resolução fixa (definida em CANVAS_DIMS), independente
-  // do tamanho da prévia na tela — por isso a exportação final é sempre nítida,
-  // em qualquer dispositivo (celular pequeno, tablet ou desktop).
   const d = getCanvasDims(formatId, shape);
   const canvas = document.createElement('canvas');
   canvas.width = d.w;
@@ -529,15 +355,19 @@ async function renderSideToCanvas(
   tracePath(ctx, d.w, d.h, d);
   ctx.clip();
 
-  paintFinish(ctx, finish, color, d.w, d.h);
+  const grad = ctx.createLinearGradient(0, 0, d.w, d.h);
+  grad.addColorStop(0, color);
+  grad.addColorStop(1, `${color}cc`);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, d.w, d.h);
 
   if (side.image) {
     const img = await loadImage(side.image);
+    const scaleFactor = d.w / Math.max(previewWidthPx, 1);
     const baseScale = Math.max(d.w / img.width, d.h / img.height);
     ctx.save();
     ctx.translate(d.w / 2, d.h / 2);
-    // Posição em % do próprio eixo — idêntica em qualquer resolução de canvas.
-    ctx.translate((side.offset.x / 100) * d.w, (side.offset.y / 100) * d.h);
+    ctx.translate(side.offset.x * scaleFactor, side.offset.y * scaleFactor);
     ctx.rotate((side.rotation * Math.PI) / 180);
     ctx.scale(side.scaleX, side.scaleY);
     const drawW = img.width * baseScale;
@@ -552,41 +382,40 @@ async function renderSideToCanvas(
     ctx.fillRect(0, 0, d.w, d.h);
   }
 
-  // Símbolo de aproximação padrão AirNext + nome da marca — presente em
-  // TODAS as categorias/formatos, sempre no canto superior esquerdo.
+  // Símbolo de aproximação padrão AirNext + nome da marca, em fonte Lobster —
+  // presente em TODAS as categorias/formatos, sempre no canto superior esquerdo.
+  await document.fonts.load(`${Math.round(d.w * 0.04)}px Lobster`);
   drawNfcGlyph(ctx, d.w * 0.075, d.h * 0.085, d.w * 0.018);
-  ctx.fillStyle = 'rgba(255,255,255,0.92)';
-  ctx.font = `bold ${Math.round(d.w * 0.032)}px sans-serif`;
-  ctx.fillText('AIRNEXT', d.w * 0.115, d.h * 0.095);
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.font = `${Math.round(d.w * 0.04)}px Lobster, cursive`;
+  ctx.textBaseline = 'middle';
+  ctx.fillText('AirNext', d.w * 0.115, d.h * 0.095);
+  ctx.textBaseline = 'alphabetic';
 
-  // Texto (nome/instrução) é opcional e segue exatamente a posição — em %
-  // a partir do centro, já dentro da área segura — que o cliente escolheu
-  // ao arrastar livremente na prévia. Sempre a mesma posição relativa,
-  // não importa a resolução final.
+  // Texto (nome/instrução) é opcional e segue exatamente a posição que o
+  // cliente escolheu ao arrastar livremente na prévia — âncora central seleada
+  // (igual à prévia), segura em qualquer formato, inclusive redondo.
   if (side.text) {
-    const zone = getSafeZone(formatId, shape || SHAPES[0], isShapeable);
-    const safeText = clampToSafeZone(side.textOffset, zone);
+    const scaleFactor = d.w / Math.max(previewWidthPx, 1);
     ctx.fillStyle = '#ffffff';
-    ctx.font = `bold ${Math.round(d.w * 0.052)}px sans-serif`;
+    ctx.font = `bold ${Math.round(d.w * 0.05)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0,0,0,0.45)';
-    ctx.shadowBlur = d.w * 0.01;
-    const x = d.w * (0.5 + safeText.x / 100);
-    const y = d.h * (0.5 + safeText.y / 100);
-    ctx.fillText(side.text, x, y);
-    ctx.shadowBlur = 0;
+    const baseX = d.w * 0.5 + side.textOffset.x * scaleFactor;
+    const baseY = d.h * 0.55 + side.textOffset.y * scaleFactor;
+    ctx.fillText(side.text, baseX, baseY);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
   }
 
   // QR Code também é opcional — só entra na peça se o cliente marcar a opção,
-  // e fica exatamente onde o cliente arrastou (dentro da área segura).
+  // e respeita a posição livre escolhida pelo cliente.
   if (side.showQr) {
-    const zone = getSafeZone(formatId, shape || SHAPES[0], isShapeable);
-    const safeQr = clampToSafeZone(side.qrOffset, zone);
-    const qrSize = Math.min(d.w, d.h) * 0.18;
-    const cx = d.w * (0.5 + safeQr.x / 100);
-    const cy = d.h * (0.5 + safeQr.y / 100);
-    drawQrBadge(ctx, cx - qrSize / 2, cy - qrSize / 2, qrSize);
+    const scaleFactor = d.w / Math.max(previewWidthPx, 1);
+    const qrSize = Math.min(d.w, d.h) * 0.16;
+    const centerX = d.w * 0.5 + side.qrOffset.x * scaleFactor;
+    const centerY = d.h * 0.78 + side.qrOffset.y * scaleFactor;
+    drawQrBadge(ctx, centerX - qrSize / 2, centerY - qrSize / 2, qrSize);
   }
 
   ctx.restore();
@@ -614,7 +443,6 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
   const [selectedFormat, setSelectedFormat] = useState<AirNextFormat>(availableFormats[0]);
   const [shape, setShape] = useState<ShapeOption>(SHAPES[0]);
   const [color, setColor] = useState(selectedLine.color);
-  const [finish, setFinish] = useState<FinishId>('solido');
   const [sides, setSides] = useState<{ front: SideState; back: SideState }>({ front: emptySide(), back: emptySide() });
   const [activeSide, setActiveSide] = useState<'front' | 'back'>('front');
   const [uploading, setUploading] = useState(false);
@@ -628,15 +456,41 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
   // e pode ser minimizada para não atrapalhar os campos de edição.
   const [mobilePreviewMinimized, setMobilePreviewMinimized] = useState(false);
 
+  // --- Configurador em tela cheia ---------------------------------------
+  // Inspirado no padrão usado por grandes marcas (ex.: Apple Watch Studio,
+  // Nike By You): a ferramenta fica escondida por trás de uma vitrine/teaser
+  // na página, e só assume a tela inteira — como uma "página dentro da
+  // página" — quando o cliente decide personalizar. Dentro dela, o processo
+  // vira um wizard guiado por etapas, com prévia ao vivo sempre visível.
+  const [isOpen, setIsOpen] = useState(false);
+  const [wizardStep, setWizardStep] = useState(0);
+  const WIZARD_STEPS = [
+    { label: 'Linha', icon: <Briefcase size={14} /> },
+    { label: 'Formato', icon: <TagIcon size={14} /> },
+    { label: 'Cor', icon: <Palette size={14} /> },
+    { label: 'Foto & Texto', icon: <ImageIcon size={14} /> },
+    { label: 'Revisar', icon: <Check size={14} /> },
+  ];
+  const lastStep = WIZARD_STEPS.length - 1;
+  const goToStep = (n: number) => setWizardStep(Math.max(0, Math.min(lastStep, n)));
+  const openWizard = () => { setIsOpen(true); setWizardStep(0); };
+  const closeWizard = () => setIsOpen(false);
+
+  // Trava o scroll da página por trás enquanto o configurador em tela cheia
+  // está aberto — reforça a sensação de "outra página" sobre a atual.
+  useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [isOpen]);
+
   const isShapeable = SHAPEABLE_FORMATS.includes(selectedFormat.id);
   const effectiveShapeClass = isShapeable ? shape.shapeClass : selectedFormat.shapeClass;
-  // Área segura de arraste do texto/QR para o formato+corte atuais — recalculada
-  // sempre que o cliente troca de formato, pra nunca deixar nada "escondido".
-  const safeZone = getSafeZone(selectedFormat.id, shape, isShapeable);
 
-  const dragState = useRef<{ startX: number; startY: number; origX: number; origY: number; rectW: number; rectH: number } | null>(null);
-  const textDragState = useRef<{ startX: number; startY: number; origX: number; origY: number; rectW: number; rectH: number; side: 'front' | 'back' } | null>(null);
-  const qrDragState = useRef<{ startX: number; startY: number; origX: number; origY: number; rectW: number; rectH: number; side: 'front' | 'back' } | null>(null);
+  const dragState = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const textDragState = useRef<{ startX: number; startY: number; origX: number; origY: number; side: 'front' | 'back' } | null>(null);
+  const qrDragState = useRef<{ startX: number; startY: number; origX: number; origY: number; side: 'front' | 'back' } | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const current = sides[activeSide];
@@ -650,14 +504,11 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
       const raw = localStorage.getItem(CUSTOM_PROJECTS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        // A chave já é versionada (v3 = posições em %), então só preenchemos
-        // eventuais campos ausentes com os padrões — sem conversões manuais.
         const migrated = parsed.map((p: any) => ({
           ...p,
-          finish: (p.finish as FinishId) || 'solido',
           sides: {
-            front: { ...emptySide(), ...p.sides?.front },
-            back: { ...emptySide(), ...p.sides?.back },
+            front: { ...emptySide(), ...p.sides?.front, scaleX: p.sides?.front?.scaleX ?? p.sides?.front?.scale ?? 1, scaleY: p.sides?.front?.scaleY ?? p.sides?.front?.scale ?? 1, textOffset: p.sides?.front?.textOffset ?? { x: 0, y: 0 }, qrOffset: p.sides?.front?.qrOffset ?? { x: 0, y: 0 }, showQr: p.sides?.front?.showQr ?? false },
+            back: { ...emptySide(), ...p.sides?.back, scaleX: p.sides?.back?.scaleX ?? p.sides?.back?.scale ?? 1, scaleY: p.sides?.back?.scaleY ?? p.sides?.back?.scale ?? 1, textOffset: p.sides?.back?.textOffset ?? { x: 0, y: 0 }, qrOffset: p.sides?.back?.qrOffset ?? { x: 0, y: 0 }, showQr: p.sides?.back?.showQr ?? false },
           },
         }));
         setSavedProjects(migrated);
@@ -684,6 +535,8 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
     setSelectedLine(line);
     setSelectedFormat(format);
     setColor(line.color);
+    setWizardStep(0);
+    setIsOpen(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset?.nonce]);
 
@@ -717,59 +570,60 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
     reader.readAsDataURL(file);
   };
 
-  // Todo arraste converte o deslocamento em pixels do ponteiro para % do
-  // tamanho real da peça no momento — por isso funciona igual em qualquer
-  // tela, resolução ou zoom do navegador, sem nenhum "salto" ao redimensionar.
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!current.image) return;
     (e.target as Element).setPointerCapture(e.pointerId);
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    dragState.current = { startX: e.clientX, startY: e.clientY, origX: current.offset.x, origY: current.offset.y, rectW: rect.width || 1, rectH: rect.height || 1 };
+    dragState.current = { startX: e.clientX, startY: e.clientY, origX: current.offset.x, origY: current.offset.y };
   };
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragState.current) return;
-    const { startX, startY, origX, origY, rectW, rectH } = dragState.current;
-    const dxPct = ((e.clientX - startX) / rectW) * 100;
-    const dyPct = ((e.clientY - startY) / rectH) * 100;
-    updateSide({ offset: { x: origX + dxPct, y: origY + dyPct } });
+    const dx = e.clientX - dragState.current.startX;
+    const dy = e.clientY - dragState.current.startY;
+    updateSide({ offset: { x: dragState.current.origX + dx, y: dragState.current.origY + dy } });
   };
   const onPointerUp = () => { dragState.current = null; };
 
-  // Arraste livre do texto — funciona igual ao da foto, mas move só o texto,
-  // e é automaticamente contido na área segura da peça (evita corte/sobreposição).
+  // Funcionalidade extra: zoom da foto direto com o scroll do mouse (desktop),
+  // sem precisar usar o slider — some agilidade a mais no ajuste da imagem.
+  const onImageWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (!current.image) return;
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.05 : 0.05;
+    const nextX = Math.min(3, Math.max(0.3, current.scaleX + delta));
+    const nextY = lockAspect ? nextX : Math.min(3, Math.max(0.3, current.scaleY + delta));
+    updateSide({ scaleX: nextX, scaleY: nextY });
+  };
+
+  // Funcionalidade extra: espelhar a foto horizontalmente (útil para fotos de rosto/logo invertidos)
+  const flipImageHorizontal = () => updateSide({ scaleX: current.scaleX * -1 });
+
+  // Arraste livre do texto — funciona igual ao da foto, mas move só o texto
   const onTextPointerDown = (e: React.PointerEvent<HTMLParagraphElement>, sideKey: 'front' | 'back') => {
     e.stopPropagation();
     (e.target as Element).setPointerCapture(e.pointerId);
-    const rect = previewRef.current?.getBoundingClientRect();
-    textDragState.current = { startX: e.clientX, startY: e.clientY, origX: sides[sideKey].textOffset.x, origY: sides[sideKey].textOffset.y, rectW: rect?.width || 1, rectH: rect?.height || 1, side: sideKey };
+    textDragState.current = { startX: e.clientX, startY: e.clientY, origX: sides[sideKey].textOffset.x, origY: sides[sideKey].textOffset.y, side: sideKey };
   };
   const onTextPointerMove = (e: React.PointerEvent<HTMLParagraphElement>) => {
     if (!textDragState.current) return;
     e.stopPropagation();
-    const { startX, startY, origX, origY, rectW, rectH, side } = textDragState.current;
-    const dxPct = ((e.clientX - startX) / rectW) * 100;
-    const dyPct = ((e.clientY - startY) / rectH) * 100;
-    const zone = getSafeZone(selectedFormat.id, shape, isShapeable);
-    updateSide({ textOffset: clampToSafeZone({ x: origX + dxPct, y: origY + dyPct }, zone) }, side);
+    const dx = e.clientX - textDragState.current.startX;
+    const dy = e.clientY - textDragState.current.startY;
+    updateSide({ textOffset: { x: textDragState.current.origX + dx, y: textDragState.current.origY + dy } }, textDragState.current.side);
   };
   const onTextPointerUp = () => { textDragState.current = null; };
 
-  // Arraste livre do QR Code — mesmo mecanismo do texto, também contido na
-  // área segura, então nunca fica cortado nem escondido nas bordas.
+  // Arraste livre do QR Code — mesma lógica, elemento independente
   const onQrPointerDown = (e: React.PointerEvent<HTMLDivElement>, sideKey: 'front' | 'back') => {
     e.stopPropagation();
     (e.target as Element).setPointerCapture(e.pointerId);
-    const rect = previewRef.current?.getBoundingClientRect();
-    qrDragState.current = { startX: e.clientX, startY: e.clientY, origX: sides[sideKey].qrOffset.x, origY: sides[sideKey].qrOffset.y, rectW: rect?.width || 1, rectH: rect?.height || 1, side: sideKey };
+    qrDragState.current = { startX: e.clientX, startY: e.clientY, origX: sides[sideKey].qrOffset.x, origY: sides[sideKey].qrOffset.y, side: sideKey };
   };
   const onQrPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!qrDragState.current) return;
     e.stopPropagation();
-    const { startX, startY, origX, origY, rectW, rectH, side } = qrDragState.current;
-    const dxPct = ((e.clientX - startX) / rectW) * 100;
-    const dyPct = ((e.clientY - startY) / rectH) * 100;
-    const zone = getSafeZone(selectedFormat.id, shape, isShapeable);
-    updateSide({ qrOffset: clampToSafeZone({ x: origX + dxPct, y: origY + dyPct }, zone) }, side);
+    const dx = e.clientX - qrDragState.current.startX;
+    const dy = e.clientY - qrDragState.current.startY;
+    updateSide({ qrOffset: { x: qrDragState.current.origX + dx, y: qrDragState.current.origY + dy } }, qrDragState.current.side);
   };
   const onQrPointerUp = () => { qrDragState.current = null; };
 
@@ -784,7 +638,6 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
         shapeId: isShapeable ? shape.id : undefined,
         shapeLabel: isShapeable ? shape.label : undefined,
         color,
-        finish,
         sides,
         createdAt: new Date().toISOString(),
       };
@@ -808,10 +661,10 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
     setSelectedFormat(format);
     if (p.shapeId) setShape(SHAPES.find(s => s.id === p.shapeId) || SHAPES[0]);
     setColor(p.color);
-    setFinish(p.finish || 'solido');
     setSides(p.sides);
     setActiveSide('front');
-    previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setWizardStep(3);
+    setIsOpen(true);
   };
 
   const deleteProject = (id: number) => {
@@ -831,8 +684,9 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
     setSending(true);
     setSendError(null);
     try {
-      const frontDataUrl = await renderSideToCanvas(sides.front, selectedFormat.id, color, selectedLine.name, selectedFormat.label, shape, isShapeable, finish);
-      const backDataUrl = await renderSideToCanvas(sides.back, selectedFormat.id, color, selectedLine.name, selectedFormat.label, shape, isShapeable, finish);
+      const previewWidth = previewRef.current?.getBoundingClientRect().width || 400;
+      const frontDataUrl = await renderSideToCanvas(sides.front, selectedFormat.id, color, selectedLine.name, selectedFormat.label, previewWidth, shape);
+      const backDataUrl = await renderSideToCanvas(sides.back, selectedFormat.id, color, selectedLine.name, selectedFormat.label, previewWidth, shape);
 
       const now = new Date();
       const orderNumber = genOrderNumber();
@@ -847,7 +701,6 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
         `📅 Data/Hora: ${dataHora}\n\n` +
         `• Linha: ${selectedLine.name}\n` +
         `• Formato: ${selectedFormat.label}${isShapeable ? ` (corte ${shape.label.toLowerCase()})` : ''}\n` +
-        `• Acabamento: ${FINISHES.find(f => f.id === finish)?.label || 'Sólido'}\n` +
         `• Cor: ${color}\n` +
         `• Texto (frente): ${sides.front.text || 'não informado (opcional)'}\n` +
         `• QR Code (frente): ${sides.front.showQr ? 'Sim, incluir' : 'Não incluir'}\n` +
@@ -891,15 +744,11 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
   const renderFace = (sideKey: 'front' | 'back') => {
     const s = sides[sideKey];
     const isActive = activeSide === sideKey;
-    // Texto e QR sempre desenhados dentro da área segura do formato/corte atual
-    // — assim nunca ficam cortados nas bordas nem escondidos em peças redondas.
-    const safeText = clampToSafeZone(s.textOffset, safeZone);
-    const safeQr = clampToSafeZone(s.qrOffset, safeZone);
     return (
       <div
         className={`absolute inset-0 ${effectiveShapeClass} overflow-hidden select-none border shadow-2xl`}
         style={{
-          ...getFinishStyle(finish, color),
+          background: `linear-gradient(135deg, ${color}, ${color}cc)`,
           borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)',
           touchAction: 'none',
           backfaceVisibility: 'hidden',
@@ -910,33 +759,15 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
         onPointerMove={isActive ? onPointerMove : undefined}
         onPointerUp={isActive ? onPointerUp : undefined}
         onPointerLeave={isActive ? onPointerUp : undefined}
+        onWheel={isActive ? onImageWheel : undefined}
       >
-        {/* Brilho animado exclusivo dos acabamentos Metálico e Holográfico —
-            reforça a sensação de peça física premium, não é decoração fixa. */}
-        {(finish === 'metalico' || finish === 'holografico') && (
-          <motion.div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none mix-blend-overlay"
-            style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 48%, transparent 66%)', backgroundSize: '250% 250%' }}
-            animate={{ backgroundPosition: ['180% 0%', '-80% 100%'] }}
-            transition={{ duration: 3.2, repeat: Infinity, ease: 'linear', repeatDelay: 0.6 }}
-          />
-        )}
-        {finish === 'carbono' && (
-          <div className="absolute inset-0 pointer-events-none" style={{ boxShadow: 'inset 0 0 40px rgba(0,0,0,0.55)' }} />
-        )}
         {s.image ? (
           <img
             src={s.image}
             alt={`Personalização — ${sideKey === 'front' ? 'frente' : 'verso'}`}
             draggable={false}
             className={`absolute inset-0 w-full h-full object-cover ${isActive ? 'cursor-grab active:cursor-grabbing' : ''}`}
-            style={{
-              // Posição em % do próprio tamanho da imagem (que ocupa 100% do
-              // container) — responsivo em qualquer resolução de tela.
-              transform: `translate(${s.offset.x}%, ${s.offset.y}%) rotate(${s.rotation}deg) scale(${s.scaleX}, ${s.scaleY})`,
-              transition: dragState.current ? 'none' : 'transform 0.05s linear',
-            }}
+            style={{ transform: `translate(${s.offset.x}px, ${s.offset.y}px) rotate(${s.rotation}deg) scale(${s.scaleX}, ${s.scaleY})`, transition: dragState.current ? 'none' : 'transform 0.05s linear' }}
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/90 p-6 text-center">
@@ -954,32 +785,31 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
           <div className={`absolute top-4 right-4 w-4 h-4 rounded-full border-2 ${isDark ? 'border-white/50 bg-[#121212]' : 'border-white/70 bg-white'}`} />
         )}
 
-        <div className="absolute top-4 left-4 flex items-center gap-1.5 text-white/90 pointer-events-none">
+        <div className="absolute top-4 left-4 flex items-center gap-1.5 text-white/90">
           <Nfc size={16} />
-          <span className="text-[10px] font-bold uppercase tracking-widest">AirNext</span>
+          <span style={{ fontFamily: "'Lobster', cursive" }} className="text-sm tracking-wide leading-none translate-y-[1px]">AirNext</span>
         </div>
 
         {/* Indicador de lado — só um pontinho discreto, sem texto poluindo a peça */}
-        <div className="absolute top-4 right-4 flex items-center gap-1 pointer-events-none">
+        <div className="absolute top-4 right-4 flex items-center gap-1">
           <span className={`w-1.5 h-1.5 rounded-full ${sideKey === 'front' ? 'bg-white' : 'bg-white/35'}`} />
           <span className={`w-1.5 h-1.5 rounded-full ${sideKey === 'back' ? 'bg-white' : 'bg-white/35'}`} />
         </div>
 
-        {/* QR Code totalmente opcional e livremente arrastável — ancorado por %
-            a partir do centro e sempre contido na área segura da peça, então
-            nunca fica cortado nem sobreposto ao texto por acidente. */}
+        {/* QR Code opcional — âncora sempre no centro visível da peça (segura em qualquer
+            formato, inclusive redondo), e arrastável livremente pelo cliente a partir daí */}
         {s.showQr && (
           <div
             onPointerDown={isActive ? (e) => onQrPointerDown(e, sideKey) : undefined}
             onPointerMove={isActive ? onQrPointerMove : undefined}
             onPointerUp={isActive ? onQrPointerUp : undefined}
             onPointerLeave={isActive ? onQrPointerUp : undefined}
-            className={`absolute w-[16%] aspect-square min-w-[34px] rounded-lg bg-white/95 flex items-center justify-center shadow-lg ${isActive ? 'cursor-grab active:cursor-grabbing' : ''}`}
+            className={`absolute w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-lg ${isActive ? 'cursor-grab active:cursor-grabbing' : ''}`}
             style={{
-              left: `${50 + safeQr.x}%`,
-              top: `${50 + safeQr.y}%`,
-              transform: 'translate(-50%, -50%)',
-              transition: qrDragState.current ? 'none' : 'left 0.05s linear, top 0.05s linear',
+              left: '50%',
+              top: '78%',
+              transform: `translate(-50%, -50%) translate(${s.qrOffset.x}px, ${s.qrOffset.y}px)`,
+              transition: qrDragState.current ? 'none' : 'transform 0.05s linear',
               touchAction: 'none',
               pointerEvents: isActive ? 'auto' : 'none',
             }}
@@ -988,21 +818,21 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
           </div>
         )}
 
-        {/* Texto totalmente opcional e arrastável livremente pelo cliente — some
-            por completo quando vazio, sem placeholder poluindo a peça. Ancorado
-            por % a partir do centro, sempre dentro da área segura e legível. */}
+        {/* Texto totalmente opcional e arrastável livremente pelo cliente — âncora central
+            visível (segura em qualquer formato, inclusive redondo). Some por completo quando
+            vazio, sem placeholder poluindo a peça. */}
         {s.text && (
           <p
             onPointerDown={isActive ? (e) => onTextPointerDown(e, sideKey) : undefined}
             onPointerMove={isActive ? onTextPointerMove : undefined}
             onPointerUp={isActive ? onTextPointerUp : undefined}
             onPointerLeave={isActive ? onTextPointerUp : undefined}
-            className={`absolute max-w-[80%] text-center text-white text-lg font-bold leading-tight drop-shadow-md whitespace-nowrap overflow-hidden text-ellipsis ${isActive ? 'cursor-grab active:cursor-grabbing' : ''}`}
+            className={`absolute max-w-[80%] text-center text-white text-lg font-bold leading-tight drop-shadow-md whitespace-nowrap ${isActive ? 'cursor-grab active:cursor-grabbing' : ''}`}
             style={{
-              left: `${50 + safeText.x}%`,
-              top: `${50 + safeText.y}%`,
-              transform: 'translate(-50%, -50%)',
-              transition: textDragState.current ? 'none' : 'left 0.05s linear, top 0.05s linear',
+              left: '50%',
+              top: '55%',
+              transform: `translate(-50%, -50%) translate(${s.textOffset.x}px, ${s.textOffset.y}px)`,
+              transition: textDragState.current ? 'none' : 'transform 0.05s linear',
               touchAction: 'none',
               pointerEvents: isActive ? 'auto' : 'none',
             }}
@@ -1015,591 +845,627 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
   };
 
   return (
-    <section id="personalizado" className={`py-20 md:py-28 lg:py-32 transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-white text-gray-900'}`}>
-      <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        <div className="text-center mb-12 md:mb-16">
-          <p className="eyebrow text-[#0071e3] mb-3">Personalização Total</p>
-          <h2 className="h2-apple mb-4">Monte o seu AirNext, ao vivo.</h2>
-          <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto`}>
-            Escolha a linha, o formato físico, a cor e a sua foto de frente e verso — veja o resultado em tempo real, salve e envie direto para produção pelo WhatsApp.
-          </p>
-        </div>
-
-        <div className="grid lg:grid-cols-5 gap-10 md:gap-12 lg:gap-16 items-start">
-          {/* ---------------- Controls (left / top) ---------------- */}
-          <div className="lg:col-span-3 space-y-8 md:space-y-10 order-2 lg:order-1">
-            {/* Step 1: product line */}
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>1</span>
-                Escolha a linha AirNext
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {PRODUCTS.map(line => (
-                  <button
-                    key={line.id}
-                    onClick={() => selectLine(line)}
-                    className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 ${
-                      selectedLine.id === line.id
-                        ? 'ring-2 ring-offset-2 shadow-md'
-                        : isDark ? 'border-white/10 hover:border-white/25' : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    style={selectedLine.id === line.id ? {
-                      borderColor: line.color,
-                      // @ts-ignore -- ring offset colour follows theme
-                      '--tw-ring-color': line.color,
-                      '--tw-ring-offset-color': isDark ? '#121212' : '#ffffff',
-                      background: isDark ? `${line.color}14` : `${line.color}0d`,
-                    } as CP : undefined}
-                  >
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${line.color}25`, color: line.color }}>
-                      {line.icon}
-                    </div>
-                    <div>
-                      <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{line.name}</p>
-                      <p className={`text-[11px] mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{line.tag}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 2: format */}
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>2</span>
-                Escolha o formato
-              </p>
-              <div className="flex flex-wrap gap-3">
-                {availableFormats.map(f => (
-                  <button
-                    key={f.id}
-                    onClick={() => setSelectedFormat(f)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs font-bold transition ${
-                      selectedFormat.id === f.id
-                        ? 'bg-[#0071e3] text-white border-[#0071e3]'
-                        : isDark ? 'border-white/15 text-gray-300 hover:border-white/30' : 'border-gray-200 text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    {f.icon} {f.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Corte físico — só faz sentido para Tag e Adesivo */}
-              {isShapeable && (
-                <div className="mt-5">
-                  <p className={`text-[11px] font-semibold mb-2.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                    Formato do corte da {selectedFormat.label.toLowerCase()}
-                  </p>
-                  <div className="flex flex-wrap gap-2.5">
-                    {SHAPES.map(sh => (
-                      <button
-                        key={sh.id}
-                        onClick={() => setShape(sh)}
-                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[11px] font-bold transition ${
-                          shape.id === sh.id
-                            ? 'bg-[#0071e3] text-white border-[#0071e3]'
-                            : isDark ? 'border-white/15 text-gray-300 hover:border-white/30' : 'border-gray-200 text-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        {sh.icon} {sh.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Step 3: colour */}
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>3</span>
-                Escolha a cor do cartão
-              </p>
-              <div className="flex flex-wrap items-center gap-3">
-                {CUSTOM_COLORS.map(c => (
-                  <button
-                    key={c}
-                    onClick={() => setColor(c)}
-                    aria-label={`Cor ${c}`}
-                    className={`w-9 h-9 rounded-full border-2 transition-transform hover:scale-110 ${color === c ? 'ring-2 ring-offset-2' : 'border-black/10'}`}
-                    style={{
-                      background: c,
-                      borderColor: color === c ? c : undefined,
-                      // @ts-ignore
-                      '--tw-ring-color': c,
-                      '--tw-ring-offset-color': isDark ? '#121212' : '#ffffff',
-                    } as CP}
-                  />
-                ))}
-                {/* Free colour picker — unlimited colours, not just the palette */}
-                <label className={`relative w-9 h-9 rounded-full border flex items-center justify-center cursor-pointer overflow-hidden ${isDark ? 'border-white/20 bg-white/5' : 'border-gray-300 bg-gray-50'}`}>
-                  <Palette size={16} className={isDark ? 'text-gray-300' : 'text-gray-600'} />
-                  <input
-                    type="color"
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    aria-label="Escolher cor personalizada"
-                  />
-                </label>
-                <span className={`text-xs font-mono px-2 py-1 rounded-lg ${isDark ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>{color}</span>
-              </div>
-            </div>
-
-            {/* Step 4: premium finish/texture — carbon fiber, brushed metal, holographic etc. */}
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-1.5 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>4</span>
-                Acabamento premium
-                <span className={`normal-case font-medium tracking-normal flex items-center gap-1 ${isDark ? 'text-amber-300/80' : 'text-amber-600'}`}>
-                  <Gem size={11} /> novo
-                </span>
-              </p>
-              <p className={`text-[12px] mb-4 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                Vá além da cor lisa: escolha uma textura de verdade para a superfície da sua peça.
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {FINISHES.map(f => (
-                  <button
-                    key={f.id}
-                    onClick={() => setFinish(f.id)}
-                    className={`group relative overflow-hidden rounded-2xl border text-left transition-all ${
-                      finish === f.id
-                        ? 'ring-2 ring-offset-2 border-transparent shadow-md'
-                        : isDark ? 'border-white/10 hover:border-white/25' : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    style={finish === f.id ? {
-                      // @ts-ignore -- ring colour follows the selected card colour
-                      '--tw-ring-color': color,
-                      '--tw-ring-offset-color': isDark ? '#121212' : '#ffffff',
-                    } as CP : undefined}
-                  >
-                    <div className="h-14 w-full relative" style={getFinishStyle(f.id, color)}>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
-                      <span className="absolute bottom-1.5 left-2 text-white/95">{f.icon}</span>
-                      {finish === f.id && (
-                        <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-white/95 flex items-center justify-center">
-                          <Check size={12} className="text-gray-900" />
-                        </span>
-                      )}
-                    </div>
-                    <div className={`px-2.5 py-2 ${isDark ? 'bg-white/[0.03]' : 'bg-white'}`}>
-                      <p className={`text-[11px] font-bold leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{f.label}</p>
-                      <p className={`text-[9.5px] mt-0.5 leading-snug ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{f.short}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Step 5: side selector + photo + free positioning/zoom/rotation */}
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>5</span>
-                Foto — frente e verso
-              </p>
-
-              {/* Frente / Verso tabs */}
-              <div className={`inline-flex p-1 rounded-full mb-4 ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
-                {(['front', 'back'] as const).map(k => (
-                  <button
-                    key={k}
-                    onClick={() => setActiveSide(k)}
-                    className={`px-5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 ${
-                      activeSide === k
-                        ? 'bg-[#0071e3] text-white shadow'
-                        : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
-                    }`}
-                  >
-                    <FlipHorizontal2 size={13} /> {k === 'front' ? 'Frente' : 'Verso'}
-                    {sides[k].image && <Check size={12} className="text-green-400" />}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <label className={`flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl border-2 border-dashed cursor-pointer text-sm font-semibold transition flex-1 ${
-                  isDark ? 'border-white/20 text-gray-300 hover:border-[#0071e3] hover:bg-white/5' : 'border-gray-300 text-gray-700 hover:border-[#0071e3] hover:bg-blue-50/40'
-                }`}>
-                  <Upload size={16} />
-                  {uploading ? 'Processando imagem...' : current.image ? `Trocar imagem (${activeSide === 'front' ? 'frente' : 'verso'})` : `Enviar imagem do ${activeSide === 'front' ? 'frente' : 'verso'} em alta qualidade`}
-                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                </label>
-                {current.image && (
-                  <button
-                    onClick={() => updateSide({ image: null, offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0 })}
-                    className={`flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-2xl text-xs font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                  >
-                    <Trash2 size={14} /> Remover
-                  </button>
-                )}
-              </div>
-              {uploadError && <p className="text-xs text-red-500 mt-2">{uploadError}</p>}
-
-              {current.image && (
-                <div className="mt-5 space-y-4">
-                  <div className={`flex items-center gap-3 text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    <Move size={14} /> Arraste a imagem dentro do preview para posicionar livremente
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                      <ZoomIn size={13} /> Ajuste da imagem
-                    </span>
-                    <button
-                      onClick={() => setLockAspect(v => !v)}
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition ${lockAspect ? (isDark ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600') : 'bg-[#0071e3] text-white'}`}
-                    >
-                      {lockAspect ? 'Destravar e esticar livremente' : 'Ajuste livre ativado'}
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}><ZoomIn size={13} /> Zoom</span>
-                    <input
-                      type="range"
-                      min={0.2}
-                      max={4}
-                      step={0.01}
-                      value={current.scaleX}
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value);
-                        updateSide(lockAspect ? { scaleX: v, scaleY: v } : { scaleX: v });
-                      }}
-                      className="w-full accent-[#0071e3]"
-                    />
-                    <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{Math.round(current.scaleX * 100)}%</span>
-                  </div>
-
-                  {!lockAspect && (
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Altura</span>
-                      <input
-                        type="range"
-                        min={0.2}
-                        max={4}
-                        step={0.01}
-                        value={current.scaleY}
-                        onChange={(e) => updateSide({ scaleY: parseFloat(e.target.value) })}
-                        className="w-full accent-[#0071e3]"
-                      />
-                      <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{Math.round(current.scaleY * 100)}%</span>
-                    </div>
-                  )}
-                  {!lockAspect && (
-                    <p className={`text-[11px] -mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                      Modo livre: estique a largura e a altura de forma independente até a imagem ficar exatamente do seu jeito.
-                    </p>
-                  )}
-
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}><RotateCw size={13} /> Girar</span>
-                    <input
-                      type="range"
-                      min={-180}
-                      max={180}
-                      step={1}
-                      value={current.rotation}
-                      onChange={(e) => updateSide({ rotation: parseFloat(e.target.value) })}
-                      className="w-full accent-[#0071e3]"
-                    />
-                    <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{current.rotation}°</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button onClick={() => updateSide({ rotation: current.rotation - 90 })} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                      <RotateCcw size={13} /> -90°
-                    </button>
-                    <button onClick={() => updateSide({ rotation: current.rotation + 90 })} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                      <RotateCw size={13} /> +90°
-                    </button>
-                    <button onClick={() => updateSide({ offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0 })} className={`px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                      Redefinir ajuste
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Step 6: name / engraving text (per side) — totalmente opcional */}
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>6</span>
-                Nome ou texto do {activeSide === 'front' ? 'frente' : 'verso'}
-                <span className={`normal-case font-medium tracking-normal ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>(opcional)</span>
-              </p>
-              <input
-                type="text"
-                maxLength={28}
-                placeholder={activeSide === 'front' ? 'Ex: João Silva, ou Nome do seu Pet — pode deixar em branco' : 'Ex: Telefone, endereço ou instrução — pode deixar em branco'}
-                value={current.text}
-                onChange={(e) => updateSide({ text: e.target.value })}
-                className={`w-full px-5 py-3.5 rounded-2xl border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition ${
-                  isDark ? 'bg-[#050505] border-white/10 text-white placeholder:text-gray-500' : 'bg-white border-gray-200 text-gray-900 placeholder:text-gray-400'
-                }`}
-              />
-
-              {current.text && (
-                <div className="flex items-center justify-between mt-2.5 px-1">
-                  <p className={`text-[11px] flex items-center gap-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                    <Move size={12} /> Arraste o texto na prévia para posicionar
-                  </p>
-                  <button
-                    onClick={() => updateSide({ textOffset: { x: 0, y: 0 } })}
-                    className={`text-[11px] font-semibold underline underline-offset-2 ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
-                  >
-                    Centralizar
-                  </button>
-                </div>
-              )}
-              <label className={`mt-3 flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border cursor-pointer transition ${isDark ? 'bg-[#050505] border-white/10 hover:border-white/20' : 'bg-white border-gray-200 hover:border-gray-300'}`}>
-                <span className="flex items-center gap-2.5">
-                  <QrCode size={16} className={isDark ? 'text-gray-400' : 'text-gray-500'} />
-                  <span className={`text-xs font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Incluir QR Code no {activeSide === 'front' ? 'frente' : 'verso'} <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>(opcional)</span>
-                  </span>
-                </span>
-                <span className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition ${current.showQr ? 'bg-[#0071e3]' : isDark ? 'bg-white/15' : 'bg-gray-300'}`}>
-                  <input
-                    type="checkbox"
-                    checked={current.showQr}
-                    onChange={(e) => updateSide({ showQr: e.target.checked })}
-                    className="sr-only"
-                  />
-                  <span className={`inline-block h-[18px] w-[18px] transform rounded-full bg-white shadow transition-transform ${current.showQr ? 'translate-x-[22px]' : 'translate-x-[3px]'}`} />
-                </span>
-              </label>
-              {current.showQr && (
-                <div className="flex items-center justify-between mt-2.5 px-1">
-                  <p className={`text-[11px] flex items-center gap-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                    <Move size={12} /> Arraste o QR Code na prévia para posicionar
-                  </p>
-                  <button
-                    onClick={() => updateSide({ qrOffset: { ...DEFAULT_QR_OFFSET } })}
-                    className={`text-[11px] font-semibold underline underline-offset-2 ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
-                  >
-                    Redefinir posição
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Save + Send actions */}
-            <div className="flex flex-col gap-4 pt-2">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <button
-                  onClick={saveProject}
-                  className="inline-flex items-center justify-center gap-2 bg-[#0071e3] hover:bg-[#0077ed] text-white px-8 py-4 rounded-full text-sm font-bold transition shadow-lg shadow-blue-500/25 w-full sm:w-auto"
-                >
-                  <Save size={16} /> Salvar meu projeto
-                </button>
-                <button
-                  onClick={handleSendWhatsApp}
-                  disabled={sending}
-                  className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold transition shadow-lg w-full sm:w-auto ${
-                    sending ? 'opacity-60 cursor-wait' : ''
-                  } bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-green-500/25`}
-                >
-                  {sending ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
-                  {sending ? 'Preparando envio...' : 'Enviar pelo WhatsApp'}
-                </button>
-              </div>
-              <AnimatePresence>
-                {saveStatus === 'success' && (
-                  <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-green-500 flex items-center gap-1.5">
-                    <Check size={16} /> Projeto salvo com sucesso!
-                  </motion.p>
-                )}
-                {saveStatus === 'error' && (
-                  <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-red-500">
-                    Não foi possível salvar. Tente uma imagem menor.
-                  </motion.p>
-                )}
-                {sendError && (
-                  <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-red-500">
-                    {sendError}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-              <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                O envio gera as imagens de frente e verso do seu projeto e abre o compartilhamento nativo (ou o WhatsApp) já com tudo pronto.
-              </p>
-            </div>
-          </div>
-
-          {/* ---------------- Live preview ----------------
-              No mobile: fica fixa/flutuando (sticky) por cima do conteúdo enquanto o
-              cliente rola e edita mais abaixo, com botão para minimizar.
-              No desktop: sticky ao lado dos controles, como já era. */}
-          <div className="lg:col-span-2 order-1 lg:order-2 sticky top-[76px] lg:top-28 z-30 self-start">
-            <div className={`rounded-[28px] transition-all ${
-              mobilePreviewMinimized ? 'p-2' : 'p-3 pb-4'
-            } lg:p-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:shadow-none ${
-              isDark ? 'bg-[#121212]/90 border border-white/10' : 'bg-white/95 border border-gray-200'
-            } backdrop-blur-xl shadow-xl lg:shadow-none`}>
-
-              {/* Mobile-only header: keeps the preview reachable/collapsible while editing */}
-              <button
-                onClick={() => setMobilePreviewMinimized(v => !v)}
-                className={`lg:hidden w-full flex items-center justify-between gap-2 px-2 py-1 mb-1 rounded-xl text-[11px] font-bold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
-              >
-                <span className="flex items-center gap-1.5">
-                  <Eye size={13} /> Prévia ao vivo — {selectedLine.name} · {selectedFormat.label}
-                  {finish !== 'solido' && <span className="hidden sm:inline">· {FINISHES.find(f => f.id === finish)?.label}</span>}
-                </span>
-                <motion.span animate={{ rotate: mobilePreviewMinimized ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                  <ChevronUp size={15} />
-                </motion.span>
-              </button>
-
-              <AnimatePresence initial={false}>
-                {!mobilePreviewMinimized && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="overflow-hidden lg:!h-auto lg:!opacity-100"
-                  >
-                    <div className="flex flex-col items-center gap-4 lg:gap-6 pt-1 lg:pt-0">
-                      <div className="w-full flex justify-center" style={{ perspective: '1500px' }}>
-                        <motion.div
-                          ref={previewRef}
-                          animate={{ rotateY: activeSide === 'front' ? 0 : 180 }}
-                          transition={{ duration: 0.6, ease: 'easeInOut' }}
-                          className={`w-full ${cardShapeExtra} mx-auto relative ${effectiveShapeClass} max-h-[38vh] lg:max-h-none`}
-                          style={{ transformStyle: 'preserve-3d' }}
-                        >
-                          {renderFace('front')}
-                          {renderFace('back')}
-                        </motion.div>
-                      </div>
-
-                      <button
-                        onClick={() => setActiveSide(activeSide === 'front' ? 'back' : 'front')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
-                      >
-                        <FlipHorizontal2 size={14} /> Virar para {activeSide === 'front' ? 'o verso' : 'a frente'}
-                      </button>
-
-                      <p className={`hidden lg:block text-xs text-center max-w-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                        Arraste a foto, ajuste zoom e rotação para o enquadramento perfeito em cada lado.
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-
-        {/* ---------------- Saved projects ---------------- */}
-        {savedProjects.length > 0 && (
-          <div className={`mt-16 md:mt-20 pt-10 border-t border-dashed ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
-            <p className={`text-xs font-bold uppercase tracking-widest mb-6 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              <FolderOpen size={14} /> Meus projetos salvos ({savedProjects.length})
+    <section id="personalizado" className={`relative transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-white text-gray-900'}`}>
+      {/* ---------------- Vitrine / gatilho (a ferramenta fica "escondida" aqui) ----------------
+          Mesmo padrão usado por grandes marcas para configuradores de produto (ex.: Apple
+          Watch Studio, Nike By You): na página só existe um convite elegante — o construtor
+          completo só assume a tela, como uma "página dentro da página", quando o cliente
+          decide personalizar. */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-20 md:py-28 lg:py-32">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div>
+            <p className="eyebrow text-[#0071e3] mb-3">Personalização Total</p>
+            <h2 className="h2-apple mb-5">Monte o seu AirNext, ao vivo.</h2>
+            <p className={`text-lg leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-lg mb-8`}>
+              Escolha a linha, o formato físico, a cor e a sua própria foto de frente e verso.
+              Acompanhe o resultado em tempo real, num configurador em tela cheia — a mesma
+              experiência que marcas como Apple e Nike usam para personalizar produtos — e
+              envie direto para produção pelo WhatsApp.
             </p>
-            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-              {savedProjects.map(p => (
-                <div key={p.id} className={`flex-shrink-0 w-40 rounded-2xl border overflow-hidden ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'}`}>
-                  <div className="relative h-24" style={getFinishStyle(p.finish || 'solido', p.color)}>
-                    {p.sides.front.image && <img src={p.sides.front.image} alt={p.lineName} className="absolute inset-0 w-full h-full object-cover opacity-90" />}
+            <div className="flex flex-wrap items-center gap-5">
+              <button
+                onClick={openWizard}
+                className="inline-flex items-center gap-2.5 bg-[#0071e3] hover:bg-[#0077ed] text-white px-8 py-4 rounded-full text-sm font-bold transition shadow-xl shadow-blue-500/25"
+              >
+                <Palette size={17} /> Personalizar agora
+              </button>
+              <span className={`text-xs font-semibold ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                5 linhas · 5 formatos · cor e foto 100% livres
+              </span>
+            </div>
+
+            {/* Meus projetos salvos — retomar de onde parou, sem abrir a ferramenta inteira */}
+            {savedProjects.length > 0 && (
+              <div className={`mt-10 pt-8 border-t border-dashed ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+                <p className={`text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <FolderOpen size={14} /> Meus projetos salvos ({savedProjects.length})
+                </p>
+                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                  {savedProjects.map(p => (
                     <button
-                      onClick={() => deleteProject(p.id)}
-                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition"
-                      aria-label="Excluir projeto"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                  <div className="p-3">
-                    <p className={`text-[11px] font-bold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.sides.front.text || p.lineName}</p>
-                    <p className={`text-[10px] mb-2 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.lineName} · {p.formatLabel}</p>
-                    <button
+                      key={p.id}
                       onClick={() => loadProject(p)}
-                      className={`w-full text-[10px] font-bold py-2 rounded-full transition ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
+                      className={`flex-shrink-0 w-28 rounded-2xl border overflow-hidden text-left transition hover:-translate-y-0.5 ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'}`}
                     >
-                      Editar novamente
+                      <div className="relative h-16" style={{ background: `linear-gradient(135deg, ${p.color}, ${p.color}cc)` }}>
+                        {p.sides.front.image && <img src={p.sides.front.image} alt={p.lineName} className="absolute inset-0 w-full h-full object-cover opacity-90" />}
+                      </div>
+                      <div className="p-2">
+                        <p className={`text-[10px] font-bold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.lineName}</p>
+                        <p className={`text-[9px] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.formatLabel}</p>
+                      </div>
                     </button>
-                  </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Vitrine visual — várias peças/formatos, convite para abrir o configurador */}
+          <button
+            onClick={openWizard}
+            className={`group relative w-full aspect-[4/3] rounded-[32px] overflow-hidden border text-left transition-shadow shadow-lg hover:shadow-2xl ${isDark ? 'border-white/10' : 'border-gray-200'}`}
+            style={{ background: `linear-gradient(135deg, ${selectedLine.color}, ${selectedLine.color}99)` }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center gap-5 sm:gap-7 p-8">
+              {FORMATS.slice(0, 3).map((f, i) => (
+                <div
+                  key={f.id}
+                  className={`bg-white/15 backdrop-blur-sm border border-white/25 shadow-xl flex items-center justify-center text-white/90 ${f.shapeClass}`}
+                  style={{ width: i === 1 ? '34%' : '24%', transform: `rotate(${i === 0 ? -8 : i === 2 ? 8 : 0}deg) translateY(${i === 1 ? '-6px' : '0'})` }}
+                >
+                  {f.icon}
                 </div>
               ))}
             </div>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// =====================================================================
-// --- Central de Privacidade: em vez de uma parede de "selos" que a AirNext
-// ainda não possui, mostramos o produto de verdade — o cliente decide, campo
-// a campo, o que aparece no perfil dele. Interativo e honesto.
-// =====================================================================
-function PrivacyControlPanel({ isDark }: { isDark: boolean }) {
-  const [fields, setFields] = useState([
-    { id: 'whats', label: 'WhatsApp', icon: <MessageCircle size={15} />, on: true },
-    { id: 'insta', label: 'Instagram', icon: <Camera size={15} />, on: true },
-    { id: 'end', label: 'Endereço residencial', icon: <Globe size={15} />, on: false },
-    { id: 'saude', label: 'Dados médicos', icon: <Heart size={15} />, on: false },
-  ]);
-  const toggle = (id: string) => setFields(prev => prev.map(f => f.id === id ? { ...f, on: !f.on } : f));
-  const visibleCount = fields.filter(f => f.on).length;
-
-  return (
-    <div className={`rounded-[40px] border p-8 md:p-10 relative overflow-hidden ${isDark ? 'bg-white/5 border-white/10' : 'bg-[#f5f5f7] border-gray-200'}`}>
-      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl pointer-events-none" />
-      <div className="relative flex items-center justify-between mb-2">
-        <h3 className={`text-xl md:text-2xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-          <EyeOff size={22} className="text-blue-400" /> Central de Privacidade
-        </h3>
-        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${isDark ? 'bg-white/10 text-gray-300' : 'bg-white text-gray-600 border border-gray-200'}`}>
-          <MousePointerClick size={10} className="inline -mt-0.5 mr-1" />teste
-        </span>
-      </div>
-      <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-        Toque nos campos abaixo — é assim que você decide, em tempo real, o que aparece no seu perfil AirNext.
-      </p>
-
-      <div className="space-y-2.5">
-        {fields.map(f => (
-          <button
-            key={f.id}
-            onClick={() => toggle(f.id)}
-            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border transition ${
-              f.on
-                ? isDark ? 'bg-blue-500/10 border-blue-500/30' : 'bg-blue-50 border-blue-200'
-                : isDark ? 'bg-white/[0.02] border-white/5' : 'bg-white border-gray-100'
-            }`}
-          >
-            <span className={`flex items-center gap-2.5 text-sm font-semibold ${f.on ? (isDark ? 'text-white' : 'text-gray-900') : (isDark ? 'text-gray-500' : 'text-gray-400')}`}>
-              {f.icon} {f.label}
-            </span>
-            <span className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition ${f.on ? 'bg-[#0071e3]' : isDark ? 'bg-white/15' : 'bg-gray-300'}`}>
-              <span className={`inline-block h-[18px] w-[18px] transform rounded-full bg-white shadow transition-transform ${f.on ? 'translate-x-[22px]' : 'translate-x-[3px]'}`} />
-            </span>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-black/10" />
+            <div className="absolute top-5 left-5 flex items-center gap-1.5 text-white/90">
+              <Nfc size={15} />
+              <span style={{ fontFamily: "'Lobster', cursive" }} className="text-xs tracking-wide leading-none translate-y-[1px]">AirNext</span>
+            </div>
+            <div className="absolute bottom-0 inset-x-0 p-6 flex items-center justify-between gap-3">
+              <span className="text-white font-bold text-sm">Toque para abrir o configurador</span>
+              <span className="w-10 h-10 rounded-full bg-white/20 group-hover:bg-white/30 backdrop-blur-sm flex items-center justify-center text-white transition">
+                <ArrowRight size={16} />
+              </span>
+            </div>
           </button>
-        ))}
+        </div>
       </div>
 
-      <div className={`mt-6 pt-6 border-t flex items-center justify-between ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
-        <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-          {visibleCount} de {fields.length} campos visíveis no seu perfil público agora.
-        </p>
-        <p className={`text-[11px] font-semibold flex items-center gap-1 ${isDark ? 'text-blue-300' : 'text-[#0071e3]'}`}>
-          <ShieldCheck size={13} /> Ninguém vê o que você desligar
-        </p>
-      </div>
-    </div>
+      {/* ---------------- Configurador em tela cheia (wizard guiado por etapas) ---------------- */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className={`fixed inset-0 z-[200] flex flex-col ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-white text-gray-900'}`}
+          >
+            {/* Top bar — fechar + progresso das etapas, como num configurador Apple/Nike */}
+            <div className={`flex-shrink-0 border-b ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
+              <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
+                <button
+                  onClick={closeWizard}
+                  className={`flex items-center gap-2 text-xs font-bold px-3 py-2 rounded-full transition ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
+                >
+                  <X size={16} /> <span className="hidden sm:inline">Fechar</span>
+                </button>
+
+                <div className="hidden md:flex items-center gap-1">
+                  {WIZARD_STEPS.map((s, i) => (
+                    <button
+                      key={s.label}
+                      onClick={() => goToStep(i)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition ${
+                        i === wizardStep
+                          ? 'bg-[#0071e3] text-white'
+                          : i < wizardStep
+                            ? (isDark ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900')
+                            : (isDark ? 'text-gray-600' : 'text-gray-300')
+                      }`}
+                    >
+                      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${i === wizardStep ? 'bg-white/25' : isDark ? 'bg-white/10' : 'bg-black/5'}`}>
+                        {i < wizardStep ? <Check size={10} /> : i + 1}
+                      </span>
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+
+                <p className={`text-xs font-bold truncate max-w-[40%] text-right ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {selectedLine.name} · {selectedFormat.label}
+                </p>
+              </div>
+              {/* Barra de progresso — visível no mobile no lugar dos labels */}
+              <div className={`md:hidden h-1 ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>
+                <div className="h-full bg-[#0071e3] transition-all duration-300" style={{ width: `${((wizardStep + 1) / WIZARD_STEPS.length) * 100}%` }} />
+              </div>
+            </div>
+
+            {/* Corpo — prévia ao vivo + conteúdo da etapa atual */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8 md:py-10 grid lg:grid-cols-5 gap-10 md:gap-12 items-start">
+                {/* ---------------- Prévia ao vivo ---------------- */}
+                <div className="lg:col-span-2 order-1 lg:sticky lg:top-8 self-start">
+                  <div className={`rounded-[28px] transition-all ${mobilePreviewMinimized ? 'p-2' : 'p-3 pb-4'} lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none ${isDark ? 'bg-[#121212] border border-white/10' : 'bg-[#f5f5f7] border border-gray-200'}`}>
+                    <button
+                      onClick={() => setMobilePreviewMinimized(v => !v)}
+                      className={`lg:hidden w-full flex items-center justify-between gap-2 px-2 py-1 mb-1 rounded-xl text-[11px] font-bold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Eye size={13} /> Prévia ao vivo
+                      </span>
+                      <motion.span animate={{ rotate: mobilePreviewMinimized ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                        <ChevronUp size={15} />
+                      </motion.span>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {!mobilePreviewMinimized && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25 }}
+                          className="overflow-hidden lg:!h-auto lg:!opacity-100"
+                        >
+                          <div className="flex flex-col items-center gap-4 lg:gap-6 pt-1 lg:pt-0">
+                            <div className="w-full flex justify-center" style={{ perspective: '1500px' }}>
+                              <motion.div
+                                ref={previewRef}
+                                animate={{ rotateY: activeSide === 'front' ? 0 : 180 }}
+                                transition={{ duration: 0.6, ease: 'easeInOut' }}
+                                className={`w-full ${cardShapeExtra} mx-auto relative ${effectiveShapeClass} max-h-[34vh] lg:max-h-none`}
+                                style={{ transformStyle: 'preserve-3d' }}
+                              >
+                                {renderFace('front')}
+                                {renderFace('back')}
+                              </motion.div>
+                            </div>
+
+                            <button
+                              onClick={() => setActiveSide(activeSide === 'front' ? 'back' : 'front')}
+                              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-white text-gray-800 hover:bg-gray-100 border border-gray-200'}`}
+                            >
+                              <FlipHorizontal2 size={14} /> Virar para {activeSide === 'front' ? 'o verso' : 'a frente'}
+                            </button>
+
+                            <p className={`hidden lg:block text-xs text-center max-w-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                              Arraste a foto, ajuste zoom e rotação para o enquadramento perfeito em cada lado.
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* ---------------- Conteúdo da etapa atual ---------------- */}
+                <div className="lg:col-span-3 order-2 min-h-[380px] flex flex-col">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={wizardStep}
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -16 }}
+                      transition={{ duration: 0.25 }}
+                      className="flex-1"
+                    >
+                      {/* Etapa 1 — Linha */}
+                      {wizardStep === 0 && (
+                        <div>
+                          <h3 className="text-xl font-bold mb-1.5">Escolha a linha AirNext</h3>
+                          <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Cada linha tem um propósito — a personalização se adapta a ela.</p>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {PRODUCTS.map(line => (
+                              <button
+                                key={line.id}
+                                onClick={() => selectLine(line)}
+                                className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 ${
+                                  selectedLine.id === line.id
+                                    ? 'ring-2 ring-offset-2 shadow-md'
+                                    : isDark ? 'border-white/10 hover:border-white/25' : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                                style={selectedLine.id === line.id ? {
+                                  borderColor: line.color,
+                                  // @ts-ignore -- ring offset colour follows theme
+                                  '--tw-ring-color': line.color,
+                                  '--tw-ring-offset-color': isDark ? '#0a0a0a' : '#ffffff',
+                                  background: isDark ? `${line.color}14` : `${line.color}0d`,
+                                } as CP : undefined}
+                              >
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${line.color}25`, color: line.color }}>
+                                  {line.icon}
+                                </div>
+                                <div>
+                                  <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{line.name}</p>
+                                  <p className={`text-[11px] mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{line.tag}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Etapa 2 — Formato + corte físico */}
+                      {wizardStep === 1 && (
+                        <div>
+                          <h3 className="text-xl font-bold mb-1.5">Escolha o formato</h3>
+                          <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Cartão, tag, chaveiro, pulseira ou adesivo NFC.</p>
+                          <div className="flex flex-wrap gap-3">
+                            {availableFormats.map(f => (
+                              <button
+                                key={f.id}
+                                onClick={() => setSelectedFormat(f)}
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs font-bold transition ${
+                                  selectedFormat.id === f.id
+                                    ? 'bg-[#0071e3] text-white border-[#0071e3]'
+                                    : isDark ? 'border-white/15 text-gray-300 hover:border-white/30' : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                                }`}
+                              >
+                                {f.icon} {f.label}
+                              </button>
+                            ))}
+                          </div>
+
+                          {isShapeable && (
+                            <div className="mt-6">
+                              <p className={`text-[11px] font-semibold mb-2.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                                Formato do corte da {selectedFormat.label.toLowerCase()}
+                              </p>
+                              <div className="flex flex-wrap gap-2.5">
+                                {SHAPES.map(sh => (
+                                  <button
+                                    key={sh.id}
+                                    onClick={() => setShape(sh)}
+                                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[11px] font-bold transition ${
+                                      shape.id === sh.id
+                                        ? 'bg-[#0071e3] text-white border-[#0071e3]'
+                                        : isDark ? 'border-white/15 text-gray-300 hover:border-white/30' : 'border-gray-200 text-gray-700 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    {sh.icon} {sh.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Etapa 3 — Cor */}
+                      {wizardStep === 2 && (
+                        <div>
+                          <h3 className="text-xl font-bold mb-1.5">Escolha a cor</h3>
+                          <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Uma paleta curada — ou qualquer cor que você preferir.</p>
+                          <div className="flex flex-wrap items-center gap-3">
+                            {CUSTOM_COLORS.map(c => (
+                              <button
+                                key={c}
+                                onClick={() => setColor(c)}
+                                aria-label={`Cor ${c}`}
+                                className={`w-10 h-10 rounded-full border-2 transition-transform hover:scale-110 ${color === c ? 'ring-2 ring-offset-2' : 'border-black/10'}`}
+                                style={{
+                                  background: c,
+                                  borderColor: color === c ? c : undefined,
+                                  // @ts-ignore
+                                  '--tw-ring-color': c,
+                                  '--tw-ring-offset-color': isDark ? '#0a0a0a' : '#ffffff',
+                                } as CP}
+                              />
+                            ))}
+                            <label className={`relative w-10 h-10 rounded-full border flex items-center justify-center cursor-pointer overflow-hidden ${isDark ? 'border-white/20 bg-white/5' : 'border-gray-300 bg-gray-50'}`}>
+                              <Palette size={16} className={isDark ? 'text-gray-300' : 'text-gray-600'} />
+                              <input
+                                type="color"
+                                value={color}
+                                onChange={(e) => setColor(e.target.value)}
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                aria-label="Escolher cor personalizada"
+                              />
+                            </label>
+                            <span className={`text-xs font-mono px-2 py-1 rounded-lg ${isDark ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>{color}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Etapa 4 — Foto (frente/verso) + texto opcional + QR */}
+                      {wizardStep === 3 && (
+                        <div className="space-y-8">
+                          <div>
+                            <h3 className="text-xl font-bold mb-1.5">Foto — frente e verso</h3>
+                            <p className={`text-sm mb-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Envie, arraste, gire e dê zoom até ficar do seu jeito.</p>
+
+                            <div className={`inline-flex p-1 rounded-full mb-4 ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                              {(['front', 'back'] as const).map(k => (
+                                <button
+                                  key={k}
+                                  onClick={() => setActiveSide(k)}
+                                  className={`px-5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 ${
+                                    activeSide === k
+                                      ? 'bg-[#0071e3] text-white shadow'
+                                      : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+                                  }`}
+                                >
+                                  <FlipHorizontal2 size={13} /> {k === 'front' ? 'Frente' : 'Verso'}
+                                  {sides[k].image && <Check size={12} className="text-green-400" />}
+                                </button>
+                              ))}
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <label className={`flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl border-2 border-dashed cursor-pointer text-sm font-semibold transition flex-1 ${
+                                isDark ? 'border-white/20 text-gray-300 hover:border-[#0071e3] hover:bg-white/5' : 'border-gray-300 text-gray-700 hover:border-[#0071e3] hover:bg-blue-50/40'
+                              }`}>
+                                <Upload size={16} />
+                                {uploading ? 'Processando imagem...' : current.image ? `Trocar imagem (${activeSide === 'front' ? 'frente' : 'verso'})` : `Enviar imagem do ${activeSide === 'front' ? 'frente' : 'verso'} em alta qualidade`}
+                                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                              </label>
+                              {current.image && (
+                                <button
+                                  onClick={() => updateSide({ image: null, offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0 })}
+                                  className={`flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-2xl text-xs font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                >
+                                  <Trash2 size={14} /> Remover
+                                </button>
+                              )}
+                            </div>
+                            {uploadError && <p className="text-xs text-red-500 mt-2">{uploadError}</p>}
+
+                            {current.image && (
+                              <div className="mt-5 space-y-4">
+                                <div className={`flex items-center gap-3 text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                  <Move size={14} /> Arraste a imagem dentro do preview para posicionar livremente
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                  <span className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    <ZoomIn size={13} /> Ajuste da imagem
+                                  </span>
+                                  <button
+                                    onClick={() => setLockAspect(v => !v)}
+                                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition ${lockAspect ? (isDark ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600') : 'bg-[#0071e3] text-white'}`}
+                                  >
+                                    {lockAspect ? 'Destravar e esticar livremente' : 'Ajuste livre ativado'}
+                                  </button>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                  <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}><ZoomIn size={13} /> Zoom</span>
+                                  <input
+                                    type="range"
+                                    min={0.2}
+                                    max={4}
+                                    step={0.01}
+                                    value={current.scaleX}
+                                    onChange={(e) => {
+                                      const v = parseFloat(e.target.value);
+                                      updateSide(lockAspect ? { scaleX: v, scaleY: v } : { scaleX: v });
+                                    }}
+                                    className="w-full accent-[#0071e3]"
+                                  />
+                                  <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{Math.round(current.scaleX * 100)}%</span>
+                                </div>
+
+                                {!lockAspect && (
+                                  <div className="flex items-center gap-3">
+                                    <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Altura</span>
+                                    <input
+                                      type="range"
+                                      min={0.2}
+                                      max={4}
+                                      step={0.01}
+                                      value={current.scaleY}
+                                      onChange={(e) => updateSide({ scaleY: parseFloat(e.target.value) })}
+                                      className="w-full accent-[#0071e3]"
+                                    />
+                                    <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{Math.round(current.scaleY * 100)}%</span>
+                                  </div>
+                                )}
+                                {!lockAspect && (
+                                  <p className={`text-[11px] -mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                                    Modo livre: estique a largura e a altura de forma independente até a imagem ficar exatamente do seu jeito.
+                                  </p>
+                                )}
+
+                                <div className="flex items-center gap-3">
+                                  <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}><RotateCw size={13} /> Girar</span>
+                                  <input
+                                    type="range"
+                                    min={-180}
+                                    max={180}
+                                    step={1}
+                                    value={current.rotation}
+                                    onChange={(e) => updateSide({ rotation: parseFloat(e.target.value) })}
+                                    className="w-full accent-[#0071e3]"
+                                  />
+                                  <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{current.rotation}°</span>
+                                </div>
+
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <button onClick={() => updateSide({ rotation: current.rotation - 90 })} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                                    <RotateCcw size={13} /> -90°
+                                  </button>
+                                  <button onClick={() => updateSide({ rotation: current.rotation + 90 })} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                                    <RotateCw size={13} /> +90°
+                                  </button>
+                                  <button onClick={flipImageHorizontal} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                                    <FlipHorizontal2 size={13} /> Espelhar
+                                  </button>
+                                  <button onClick={() => updateSide({ offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0 })} className={`px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                                    Redefinir ajuste
+                                  </button>
+                                </div>
+                                <p className={`text-[10px] mt-2 flex items-center gap-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                                  <Move size={11} /> Arraste a foto na prévia para posicionar · role o scroll do mouse para dar zoom
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <p className={`text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                              Nome ou texto do {activeSide === 'front' ? 'frente' : 'verso'}
+                              <span className={`normal-case font-medium tracking-normal ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>(opcional)</span>
+                            </p>
+                            <input
+                              type="text"
+                              maxLength={28}
+                              placeholder={activeSide === 'front' ? 'Ex: João Silva, ou Nome do seu Pet — pode deixar em branco' : 'Ex: Telefone, endereço ou instrução — pode deixar em branco'}
+                              value={current.text}
+                              onChange={(e) => updateSide({ text: e.target.value })}
+                              className={`w-full px-5 py-3.5 rounded-2xl border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition ${
+                                isDark ? 'bg-[#121212] border-white/10 text-white placeholder:text-gray-500' : 'bg-white border-gray-200 text-gray-900 placeholder:text-gray-400'
+                              }`}
+                            />
+
+                            {current.text && (
+                              <div className="flex items-center justify-between mt-2.5 px-1">
+                                <p className={`text-[11px] flex items-center gap-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                                  <Move size={12} /> Arraste o texto na prévia para posicionar
+                                </p>
+                                <button
+                                  onClick={() => updateSide({ textOffset: { x: 0, y: 0 } })}
+                                  className={`text-[11px] font-semibold underline underline-offset-2 ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+                                >
+                                  Centralizar
+                                </button>
+                              </div>
+                            )}
+                            <label className={`mt-3 flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border cursor-pointer transition ${isDark ? 'bg-[#121212] border-white/10 hover:border-white/20' : 'bg-white border-gray-200 hover:border-gray-300'}`}>
+                              <span className="flex items-center gap-2.5">
+                                <QrCode size={16} className={isDark ? 'text-gray-400' : 'text-gray-500'} />
+                                <span className={`text-xs font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                  Incluir QR Code no {activeSide === 'front' ? 'frente' : 'verso'} <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>(opcional)</span>
+                                </span>
+                              </span>
+                              <span className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition ${current.showQr ? 'bg-[#0071e3]' : isDark ? 'bg-white/15' : 'bg-gray-300'}`}>
+                                <input
+                                  type="checkbox"
+                                  checked={current.showQr}
+                                  onChange={(e) => updateSide({ showQr: e.target.checked })}
+                                  className="sr-only"
+                                />
+                                <span className={`inline-block h-[18px] w-[18px] transform rounded-full bg-white shadow transition-transform ${current.showQr ? 'translate-x-[22px]' : 'translate-x-[3px]'}`} />
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Etapa 5 — Revisar e enviar */}
+                      {wizardStep === 4 && (
+                        <div>
+                          <h3 className="text-xl font-bold mb-1.5">Revisar e enviar</h3>
+                          <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Confira o resumo do seu projeto antes de salvar ou enviar para produção.</p>
+
+                          <div className={`rounded-2xl border p-5 mb-6 space-y-2.5 ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-[#f5f5f7]'}`}>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Linha</span>
+                              <span className="font-semibold">{selectedLine.name}</span>
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Formato</span>
+                              <span className="font-semibold">{selectedFormat.label}{isShapeable ? ` · corte ${shape.label.toLowerCase()}` : ''}</span>
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Cor</span>
+                              <span className="font-semibold flex items-center gap-2">
+                                <span className="w-4 h-4 rounded-full border border-black/10" style={{ background: color }} /> {color}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Frente</span>
+                              <span className="font-semibold">{sides.front.image ? 'Foto enviada' : 'Sem foto'}{sides.front.text ? ` · "${sides.front.text}"` : ''}</span>
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Verso</span>
+                              <span className="font-semibold">{sides.back.image ? 'Foto enviada' : 'Sem foto'}{sides.back.text ? ` · "${sides.back.text}"` : ''}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                              <button
+                                onClick={saveProject}
+                                className="inline-flex items-center justify-center gap-2 bg-[#0071e3] hover:bg-[#0077ed] text-white px-8 py-4 rounded-full text-sm font-bold transition shadow-lg shadow-blue-500/25 w-full sm:w-auto"
+                              >
+                                <Save size={16} /> Salvar meu projeto
+                              </button>
+                              <button
+                                onClick={handleSendWhatsApp}
+                                disabled={sending}
+                                className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold transition shadow-lg w-full sm:w-auto ${
+                                  sending ? 'opacity-60 cursor-wait' : ''
+                                } bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-green-500/25`}
+                              >
+                                {sending ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
+                                {sending ? 'Preparando envio...' : 'Enviar pelo WhatsApp'}
+                              </button>
+                            </div>
+                            <AnimatePresence>
+                              {saveStatus === 'success' && (
+                                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-green-500 flex items-center gap-1.5">
+                                  <Check size={16} /> Projeto salvo com sucesso!
+                                </motion.p>
+                              )}
+                              {saveStatus === 'error' && (
+                                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-red-500">
+                                  Não foi possível salvar. Tente uma imagem menor.
+                                </motion.p>
+                              )}
+                              {sendError && (
+                                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-red-500">
+                                  {sendError}
+                                </motion.p>
+                              )}
+                            </AnimatePresence>
+                            <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                              O envio gera as imagens de frente e verso do seu projeto e abre o compartilhamento nativo (ou o WhatsApp) já com tudo pronto.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* Navegação entre etapas */}
+                  <div className={`flex items-center justify-between gap-4 mt-10 pt-6 border-t ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
+                    <button
+                      onClick={() => goToStep(wizardStep - 1)}
+                      disabled={wizardStep === 0}
+                      className={`inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold transition ${
+                        wizardStep === 0
+                          ? 'opacity-0 pointer-events-none'
+                          : isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                      }`}
+                    >
+                      <ArrowLeft size={15} /> Voltar
+                    </button>
+                    {wizardStep < lastStep && (
+                      <button
+                        onClick={() => goToStep(wizardStep + 1)}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold bg-[#0071e3] hover:bg-[#0077ed] text-white transition shadow-lg shadow-blue-500/20"
+                      >
+                        Continuar <ArrowRight size={15} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
   );
 }
 
 function WhatsAppButton() {
   return (
-    <a href="https://wa.me/5511987654321" target="_blank" rel="noopener noreferrer" 
+    <a href="https://wa.me/5547996287761" target="_blank" rel="noopener noreferrer" 
        className="fixed bottom-8 left-8 z-[100] bg-[#25D366] text-white p-4 rounded-full shadow-xl hover:scale-110 transition-transform hover:shadow-2xl flex items-center justify-center"
        aria-label="Fale conosco no WhatsApp">
       <MessageCircle size={28} />
@@ -1623,24 +1489,6 @@ export default function LandingPage() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [activeEveryone, setActiveEveryone] = useState(0);
-
-  // --- Interactive tilt for the hero's signature card mockup (desktop) ---
-  // Innovation: the card mockup responds to the pointer with a subtle 3D tilt
-  // + light sheen, like a physical premium card catching the light.
-  const tiltX = useMotionValue(0);
-  const tiltY = useMotionValue(0);
-  const tiltSpringX = useSpring(tiltX, { stiffness: 180, damping: 22 });
-  const tiltSpringY = useSpring(tiltY, { stiffness: 180, damping: 22 });
-  const heroRotateX = useTransform(tiltSpringY, [-50, 50], [10, -10]);
-  const heroRotateY = useTransform(tiltSpringX, [-50, 50], [-10, 10]);
-  const heroSheenX = useTransform(tiltSpringX, [-50, 50], [0, 100]);
-  const heroSheenPos = useTransform(heroSheenX, v => `${v}%`);
-  const handleHeroCardMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    tiltX.set(((e.clientX - rect.left) / rect.width - 0.5) * 100);
-    tiltY.set(((e.clientY - rect.top) / rect.height - 0.5) * 100);
-  };
-  const handleHeroCardLeave = () => { tiltX.set(0); tiltY.set(0); };
 
   // Video Demo state
   const [playing, setPlaying] = useState(false);
@@ -1728,17 +1576,15 @@ export default function LandingPage() {
   };
 
   const links = [
-    { label: 'Produtos', href: '#produtos', icon: <ShoppingBag size={16} /> },
-    { label: 'Personalizar', href: '#personalizado', icon: <Palette size={16} /> },
-    { label: 'Galeria', href: '#galeria', icon: <ImageIcon size={16} /> },
-    { label: 'Casos', href: '#casos-uso', icon: <Target size={16} /> },
-    { label: 'Dispositivos', href: '#dispositivos', icon: <Smartphone size={16} /> },
-    { label: 'Segurança', href: '#seguranca', icon: <ShieldCheck size={16} /> },
-    { label: 'Planeta', href: '#sustentabilidade', icon: <Leaf size={16} /> },
-    { label: 'Inclusão', href: '#para-todos', icon: <Accessibility size={16} /> },
-    { label: 'Quem Somos', href: '#quem-somos', icon: <Users size={16} /> },
-    { label: 'Empresas', href: '#b2b', icon: <Building2 size={16} /> },
-    { label: 'Suporte', href: '#ajuda', icon: <LifeBuoy size={16} /> },
+    { label: 'Produtos', href: '#produtos' },
+    { label: 'Galeria', href: '#galeria' },
+    { label: 'Casos', href: '#casos-uso' },
+    { label: 'Dispositivos', href: '#dispositivos' },
+    { label: 'Segurança', href: '#seguranca' },
+    { label: 'Inclusão', href: '#para-todos' },
+    { label: 'Quem Somos', href: '#quem-somos' },
+    { label: 'Empresas', href: '#b2b' },
+    { label: 'Suporte', href: '#ajuda' },
   ];
 
   const addToCart = (product: Product, formatId?: string) => {
@@ -1860,12 +1706,13 @@ export default function LandingPage() {
       desc: 'Compartilhe seu portfólio, LinkedIn, e-mail e contato direto para a agenda do cliente.',
       screen: {
         bg: 'linear-gradient(135deg, #0f172a, #1e293b)',
+        avatarBg: 'linear-gradient(135deg, #3b82f6, #6366f1)',
         title: 'Ana Souza',
         subtitle: 'Connect to Profile',
         items: [
-          { label: 'WhatsApp', val: '(11) 98765-4321', color: 'bg-green-500/20 text-green-300' },
-          { label: 'LinkedIn', val: 'linkedin.com/in/anasouza', color: 'bg-blue-500/20 text-blue-300' },
-          { label: 'Instagram', val: '@ana.design', color: 'bg-pink-500/20 text-pink-300' }
+          { label: 'WhatsApp', val: '(11) 98765-4321', color: 'bg-green-500/20 text-green-300', icon: <Phone size={14} /> },
+          { label: 'LinkedIn', val: 'linkedin.com/in/anasouza', color: 'bg-blue-500/20 text-blue-300', icon: <Globe size={14} /> },
+          { label: 'Instagram', val: '@ana.design', color: 'bg-pink-500/20 text-pink-300', icon: <Camera size={14} /> }
         ],
         btn: 'Adicionar aos Contatos'
       }
@@ -1877,12 +1724,13 @@ export default function LandingPage() {
       desc: 'Se o seu pet fugir, quem encontrá-lo pode ler a tag e ligar diretamente para você.',
       screen: {
         bg: 'linear-gradient(135deg, #052e16, #14532d)',
+        avatarBg: 'linear-gradient(135deg, #22c55e, #059669)',
         title: 'Achei o Fred',
         subtitle: 'Macho · Golden Retriever',
         items: [
-          { label: 'Dono', val: 'Roberto Souza', color: 'bg-white/10 text-white' },
-          { label: 'Telefone', val: '(11) 99999-8888', color: 'bg-emerald-500/20 text-emerald-300' },
-          { label: 'Clínica Vet', val: 'VetCare Jardins', color: 'bg-white/10 text-white' }
+          { label: 'Dono', val: 'Roberto Souza', color: 'bg-white/10 text-white', icon: <UserRound size={14} /> },
+          { label: 'Telefone', val: '(11) 99999-8888', color: 'bg-emerald-500/20 text-emerald-300', icon: <Phone size={14} /> },
+          { label: 'Clínica Vet', val: 'VetCare Jardins', color: 'bg-white/10 text-white', icon: <Building2 size={14} /> }
         ],
         btn: 'Ligar para o Dono'
       }
@@ -1894,12 +1742,13 @@ export default function LandingPage() {
       desc: 'Centraliza cardápio digital, senha do Wi-Fi e demais informações da casa em um único toque — sem precisar chamar o garçom para perguntar.',
       screen: {
         bg: 'linear-gradient(135deg, #7c2d12, #451a03)',
+        avatarBg: 'linear-gradient(135deg, #f59e0b, #b45309)',
         title: 'Mesa 14 · Bistro Paris',
         subtitle: 'Informações da Mesa',
         items: [
-          { label: 'Wi-Fi da Casa', val: 'Senha: bistropass', color: 'bg-amber-500/20 text-amber-300' },
-          { label: 'Cardápio Digital', val: 'Ver menu completo', color: 'bg-white/10 text-white' },
-          { label: 'Avaliar a Casa', val: 'Deixe sua avaliação', color: 'bg-white/10 text-white' }
+          { label: 'Wi-Fi da Casa', val: 'Senha: bistropass', color: 'bg-amber-500/20 text-amber-300', icon: <Wifi size={14} /> },
+          { label: 'Cardápio Digital', val: 'Ver menu completo', color: 'bg-white/10 text-white', icon: <BookOpen size={14} /> },
+          { label: 'Avaliar a Casa', val: 'Deixe sua avaliação', color: 'bg-white/10 text-white', icon: <Star size={14} /> }
         ],
         btn: 'Abrir Cardápio Digital'
       }
@@ -1911,17 +1760,22 @@ export default function LandingPage() {
       desc: 'Pulseiras de identificação com dados médicos cruciais, tipo sanguíneo e alergias.',
       screen: {
         bg: 'linear-gradient(135deg, #7f1d1d, #450a0a)',
+        avatarBg: 'linear-gradient(135deg, #ef4444, #b91c1c)',
         title: 'Ficha Médica de Emergência',
         subtitle: 'Paciente: João Carlos',
         items: [
-          { label: 'Tipo Sanguíneo', val: 'O Positivo (O+)', color: 'bg-red-500/20 text-red-300' },
-          { label: 'Alergias', val: 'Penicilina, Glúten', color: 'bg-red-500/20 text-red-300' },
-          { label: 'Contato SOS', val: 'Esposa: (11) 97777-6666', color: 'bg-white/10 text-white' }
+          { label: 'Tipo Sanguíneo', val: 'O Positivo (O+)', color: 'bg-red-500/20 text-red-300', icon: <Droplets size={14} /> },
+          { label: 'Alergias', val: 'Penicilina, Glúten', color: 'bg-red-500/20 text-red-300', icon: <AlertTriangle size={14} /> },
+          { label: 'Contato SOS', val: 'Esposa: (11) 97777-6666', color: 'bg-white/10 text-white', icon: <Phone size={14} /> }
         ],
         btn: 'Contato de Emergência'
       }
     }
   ];
+
+  // Iniciais para o "avatar de perfil" do mockup — ex: "Ana Souza" -> "AS"
+  const getInitials = (name: string) =>
+    name.replace(/[^\p{L}\s]/gu, '').trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() || '').join('') || 'AN';
 
   // Filtered products for search
   const filteredProducts = searchQuery
@@ -1930,6 +1784,11 @@ export default function LandingPage() {
 
   return (
     <div className={`min-h-screen transition-colors duration-500 antialiased ${isDark ? 'bg-[#050505] text-white' : 'bg-[#fbfbfd] text-gray-900'}`}>
+
+      {/* Fonte da marca — usada no "AirNext" gravado em cada peça personalizada */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet" />
 
       {/* Ajustes globais e elegantes para os indicadores (bullets) de todos os carrosséis do site —
           ficam sempre abaixo dos blocos, nunca sobrepondo conteúdo. */}
@@ -1954,8 +1813,8 @@ export default function LandingPage() {
           ? `w-[95%] max-w-6xl ${isDark ? 'bg-[#121212]/85 border-white/10 text-white' : 'bg-white/85 border-gray-200 text-gray-900'} backdrop-blur-xl rounded-full shadow-lg shadow-black/10 border`
           : `w-[95%] max-w-7xl ${isDark ? 'bg-[#121212]/60 border-white/5 text-white' : 'bg-white/60 border-gray-200/50 text-gray-900'} backdrop-blur-md rounded-full border`
       }`}>
-        <div className="px-6 h-14 flex items-center justify-between">
-          <Logo size="sm" dark={isDark} />
+        <div className="px-6 h-16 flex items-center justify-between">
+          <Logo size="md" dark={isDark} />
           <div className="hidden xl:flex items-center gap-5">
             {links.map(l => (
               <a key={l.label} href={l.href} className={`text-[12px] font-semibold tracking-tight transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
@@ -2009,12 +1868,8 @@ export default function LandingPage() {
             </a>
 
             {/* Mobile Menu Trigger */}
-            <button
-              onClick={() => setMobileOpen(true)}
-              aria-label="Abrir menu"
-              className={`xl:hidden w-9 h-9 rounded-full flex items-center justify-center transition ${isDark ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'}`}
-            >
-              <Menu size={16} />
+            <button onClick={() => setMobileOpen(true)} className={`xl:hidden w-9 h-9 rounded-full flex items-center justify-center ${isDark ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-900'}`}>
+              <ChevronDown size={16} />
             </button>
           </div>
         </div>
@@ -2048,12 +1903,8 @@ export default function LandingPage() {
               
               <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto px-2 no-scrollbar">
                 {links.map(l => (
-                  <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className={`text-base font-semibold py-3 border-b ${isDark ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'} flex items-center justify-between`}>
-                    <span className="flex items-center gap-3">
-                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-white/5 text-blue-300' : 'bg-gray-100 text-[#0071e3]'}`}>{l.icon}</span>
-                      {l.label}
-                    </span>
-                    <ChevronRight size={18} className={isDark ? 'text-gray-500' : 'text-gray-400'} />
+                  <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className={`text-lg font-semibold py-3 border-b ${isDark ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'} flex items-center justify-between`}>
+                    {l.label} <ChevronRight size={18} className={isDark ? 'text-gray-500' : 'text-gray-400'} />
                   </a>
                 ))}
               </div>
@@ -2275,27 +2126,8 @@ export default function LandingPage() {
       <main>
         {/* --- Hero --- */}
         <section id="top" className={`relative pt-32 md:pt-40 pb-12 md:pb-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#050505]' : 'bg-[#fbfbfd]'}`}>
-          {/* Aurora de fundo — usa a mesma paleta azul/roxo/rosa do resto do site
-              (barra de anúncio, demo em vídeo, cartões), pra criar continuidade
-              visual real entre o banner e o restante da página. */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <motion.div
-              className="absolute -top-32 -left-24 w-[500px] h-[500px] rounded-full blur-[120px]"
-              style={{ background: isDark ? 'radial-gradient(circle, rgba(0,113,227,0.28), transparent 70%)' : 'radial-gradient(circle, rgba(0,113,227,0.16), transparent 70%)' }}
-              animate={{ scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }}
-              transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.div
-              className="absolute top-10 -right-32 w-[460px] h-[460px] rounded-full blur-[120px]"
-              style={{ background: isDark ? 'radial-gradient(circle, rgba(168,85,247,0.22), transparent 70%)' : 'radial-gradient(circle, rgba(168,85,247,0.14), transparent 70%)' }}
-              animate={{ scale: [1.1, 1, 1.1], opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-            />
-            <div className="absolute inset-0 grid-pattern opacity-[0.04]" />
-          </div>
-
-          <div className="max-w-7xl mx-auto px-6 relative">
-            <div className="text-center mb-14 md:mb-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .8 }}>
                 <p className="eyebrow text-[#0071e3] mb-4 flex items-center justify-center gap-2">
                   <Nfc size={12} /> NFC + QR Code · Tecnologia Premium
@@ -2304,7 +2136,7 @@ export default function LandingPage() {
                 <p className={`text-xl md:text-2xl ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-3xl mx-auto mb-10 font-medium leading-relaxed`}>
                   AirNext simplifica conexões. Um toque para compartilhar,<br className="hidden md:block" /> um gesto para impactar.
                 </p>
-                <div className="flex flex-wrap justify-center gap-4 mb-9">
+                <div className="flex flex-wrap justify-center gap-4">
                   <a href="#produtos" className={`group px-8 py-3.5 rounded-full flex items-center gap-3 transition-all shadow-xl text-[15px] font-semibold ${
                     isDark ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'
                   }`}>
@@ -2319,69 +2151,36 @@ export default function LandingPage() {
                     <Play size={16} /> Assistir Demo
                   </a>
                 </div>
-
-                {/* Trust row — comportamentos reais e verificáveis, sem alegar
-                    certificações/selos que a AirNext ainda não possui. */}
-                <div className={`flex flex-wrap justify-center items-center gap-x-7 gap-y-3 text-xs font-semibold ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                  <span className="flex items-center gap-1.5"><Waves size={14} className="text-blue-400" /> Envio para todo o Brasil</span>
-                  <span className="flex items-center gap-1.5"><MessageCircle size={14} className="text-green-400" /> Suporte direto via WhatsApp</span>
-                  <span className="flex items-center gap-1.5"><Gauge size={14} className="text-amber-400" /> Perfil no ar em minutos</span>
-                </div>
               </motion.div>
             </div>
 
-            {/* --------- Desktop / tablet: composição flutuante + tilt 3D --------- */}
-            <div className="hidden md:block relative h-[600px] max-w-6xl mx-auto">
-              {/* AirNext Card — mockup principal, com tilt 3D interativo ao mover o mouse */}
+            {/* Floating Products */}
+            <div className="relative h-[520px] md:h-[600px] max-w-6xl mx-auto">
+              {/* AirNext Card */}
               <motion.div
                 initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: .3, duration: .9 }}
-                className="absolute left-[8%] top-[5%] w-[360px] float-anim"
+                className="absolute left-[2%] md:left-[8%] top-[5%] w-[260px] md:w-[360px] float-anim"
                 style={{ '--r': '-8deg' } as CP}
               >
-                <div
-                  onMouseMove={handleHeroCardMove}
-                  onMouseLeave={handleHeroCardLeave}
-                  style={{ perspective: 1000 }}
-                >
-                  <motion.div
-                    className="rounded-[24px] p-6 md:p-8 text-white shadow-2xl shadow-blue-900/30 relative overflow-hidden"
-                    style={{
-                      background: 'linear-gradient(145deg, #0a1f3d, #06101f)',
-                      rotateX: heroRotateX,
-                      rotateY: heroRotateY,
-                      transformStyle: 'preserve-3d',
-                    }}
-                  >
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
-                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/15 rounded-full blur-3xl" />
-                    {/* Brilho que segue o ponteiro — reforça a sensação de peça física premium */}
-                    <motion.div
-                      className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-60"
-                      style={{
-                        background: 'linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.5) 48%, transparent 66%)',
-                        backgroundSize: '250% 250%',
-                        backgroundPositionX: heroSheenPos,
-                      }}
-                    />
-                    <div className="relative z-10 flex items-center justify-between mb-12 md:mb-20">
-                      <Logo dark size="sm" />
-                      <div className="nfc-pulse relative w-10 h-10 rounded-full flex items-center justify-center bg-white/5 backdrop-blur">
-                        <Nfc size={14} className="text-blue-300" />
-                      </div>
+                <div className="rounded-[24px] p-6 md:p-8 text-white shadow-2xl shadow-blue-900/30 relative overflow-hidden"
+                  style={{ background: 'linear-gradient(145deg, #0a1f3d, #06101f)' }}>
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/15 rounded-full blur-3xl" />
+                  <div className="relative z-10 flex items-center justify-between mb-12 md:mb-20">
+                    <Logo dark size="sm" />
+                    <div className="nfc-pulse relative w-10 h-10 rounded-full flex items-center justify-center bg-white/5 backdrop-blur">
+                      <Nfc size={14} className="text-blue-300" />
                     </div>
-                    <div className="relative z-10 flex items-center justify-between">
-                      <div className="flex gap-1">
-                        <div className="w-8 h-5 rounded" style={{ background: 'linear-gradient(135deg, #d4af37, #ffd700)' }} />
-                      </div>
-                      <p className="text-[10px] tracking-[.3em] text-blue-200/70 font-medium">TAP TO CONNECT</p>
+                  </div>
+                  <div className="relative z-10 flex items-center justify-between">
+                    <div className="flex gap-1">
+                      <div className="w-8 h-5 rounded" style={{ background: 'linear-gradient(135deg, #d4af37, #ffd700)' }} />
                     </div>
-                  </motion.div>
+                    <p className="text-[10px] tracking-[.3em] text-blue-200/70 font-medium">TAP TO CONNECT</p>
+                  </div>
                 </div>
-                <span className={`mt-3 flex items-center justify-center gap-1.5 text-[10px] font-bold tracking-wider ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
-                  <MousePointerClick size={11} /> mova o mouse sobre o cartão
-                </span>
               </motion.div>
 
               {/* Phone */}
@@ -2389,7 +2188,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 80 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: .5, duration: .9 }}
-                className="absolute right-[10%] top-0 w-[260px] float-anim float-delay-1"
+                className="absolute right-[2%] md:right-[10%] top-0 w-[200px] md:w-[260px] float-anim float-delay-1"
                 style={{ '--r': '5deg' } as CP}
               >
                 <div className="rounded-[40px] p-[8px] shadow-2xl shadow-black/30" style={{ background: 'linear-gradient(160deg, #1c1c1e, #000)' }}>
@@ -2424,10 +2223,10 @@ export default function LandingPage() {
                 initial={{ opacity: 0, scale: .8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: .7, duration: .9 }}
-                className="absolute left-1/2 -translate-x-1/2 bottom-[8%] float-anim float-delay-2"
+                className="absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[8%] float-anim float-delay-2"
                 style={{ '--r': '0deg' } as CP}
               >
-                <div className="w-44 h-44 rounded-full flex items-center justify-center shadow-2xl shadow-black/20 relative"
+                <div className="w-36 h-36 md:w-44 md:h-44 rounded-full flex items-center justify-center shadow-2xl shadow-black/20 relative"
                   style={{ background: 'radial-gradient(circle at 30% 30%, #2a2a2e, #0a0a0f)' }}>
                   <div className="absolute inset-3 rounded-full border border-white/10" />
                   <div className="text-center relative z-10">
@@ -2444,10 +2243,10 @@ export default function LandingPage() {
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: .9, duration: .8 }}
-                className="absolute left-[5%] bottom-[25%] float-anim float-delay-3"
+                className="absolute left-[5%] bottom-[20%] md:bottom-[25%] float-anim float-delay-3"
                 style={{ '--r': '6deg' } as CP}
               >
-                <div className="w-36 h-24 rounded-2xl bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-white shadow-xl">
+                <div className="w-28 h-20 md:w-36 md:h-24 rounded-2xl bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-white shadow-xl">
                   <div className="text-center">
                     <QrCode size={22} className="mx-auto mb-1" />
                     <p className="text-[7px] tracking-[.2em] text-blue-300 font-semibold">MENU</p>
@@ -2460,75 +2259,15 @@ export default function LandingPage() {
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 1, duration: .8 }}
-                className="absolute right-[5%] bottom-[30%] float-anim"
+                className="absolute right-[5%] bottom-[25%] md:bottom-[30%] float-anim"
                 style={{ '--r': '-4deg' } as CP}
               >
                 <div className="flex gap-1.5">
                   {['#0071e3', '#ff3b30', '#34c759'].map((c) => (
-                    <div key={c} className="w-10 h-16 rounded-xl shadow-lg" style={{ background: `linear-gradient(160deg, ${c}, ${c}cc)` }} />
+                    <div key={c} className="w-8 h-14 md:w-10 md:h-16 rounded-xl shadow-lg" style={{ background: `linear-gradient(160deg, ${c}, ${c}cc)` }} />
                   ))}
                 </div>
               </motion.div>
-            </div>
-
-            {/* --------- Mobile: carrossel dedicado, sem sobreposição de camadas ---------
-                Em vez de tentar encaixar a composição flutuante do desktop em telas
-                pequenas (o que gera sobreposição em aparelhos estreitos), o mobile
-                recebe um carrossel horizontal — sempre legível, sempre 100% dentro
-                da tela, e ainda assim interativo (arraste para navegar). */}
-            <div className="md:hidden -mx-6 px-6">
-              <Swiper modules={[Pagination]} spaceBetween={16} slidesPerView={1.15} pagination={{ clickable: true }} className="pb-2">
-                {[
-                  { key: 'card', node: (
-                    <div className="rounded-[24px] p-6 text-white shadow-xl relative overflow-hidden aspect-[1.586/1] flex flex-col justify-between" style={{ background: 'linear-gradient(145deg, #0a1f3d, #06101f)' }}>
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl" />
-                      <div className="relative z-10 flex items-center justify-between">
-                        <Logo dark size="sm" />
-                        <div className="nfc-pulse relative w-9 h-9 rounded-full flex items-center justify-center bg-white/5 backdrop-blur"><Nfc size={13} className="text-blue-300" /></div>
-                      </div>
-                      <p className="relative z-10 text-[10px] tracking-[.3em] text-blue-200/70 font-medium">TAP TO CONNECT</p>
-                    </div>
-                  ) },
-                  { key: 'phone', node: (
-                    <div className="rounded-[28px] p-[7px] shadow-xl mx-auto w-[190px]" style={{ background: 'linear-gradient(160deg, #1c1c1e, #000)' }}>
-                      <div className="rounded-[22px] overflow-hidden bg-gradient-to-b from-[#0b1326] to-[#050810] text-white pt-6 pb-5 px-4 text-center">
-                        <Logo dark size="sm" />
-                        <div className="w-12 h-12 rounded-full mx-auto my-3 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center ring-2 ring-blue-400/30">A</div>
-                        <p className="text-[10px] font-semibold">Ana Souza</p>
-                        <p className="text-[8px] text-slate-400 mb-3">Designer de Produto</p>
-                        <div className="space-y-1 text-left">
-                          {[{ icon: <MessageCircle size={9} className="text-green-400" />, label: 'WhatsApp' }, { icon: <Camera size={9} className="text-pink-400" />, label: 'Instagram' }].map(i => (
-                            <div key={i.label} className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2 py-1 text-[8px]">{i.icon}{i.label}</div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ) },
-                  { key: 'pet', node: (
-                    <div className="w-36 h-36 rounded-full flex items-center justify-center shadow-xl mx-auto relative" style={{ background: 'radial-gradient(circle at 30% 30%, #2a2a2e, #0a0a0f)' }}>
-                      <div className="absolute inset-3 rounded-full border border-white/10" />
-                      <div className="text-center relative z-10"><Heart size={24} className="text-rose-300 mx-auto mb-1" fill="#f43f5e44" /><p className="text-[8px] tracking-[.2em] text-blue-300 font-bold">PET TAG</p></div>
-                    </div>
-                  ) },
-                  { key: 'qr', node: (
-                    <div className="w-full aspect-[3/2] rounded-2xl bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-white shadow-xl">
-                      <div className="text-center"><QrCode size={22} className="mx-auto mb-1" /><p className="text-[7px] tracking-[.2em] text-blue-300 font-semibold">MENU</p></div>
-                    </div>
-                  ) },
-                  { key: 'band', node: (
-                    <div className="flex gap-1.5 justify-center items-center h-full">
-                      {['#0071e3', '#ff3b30', '#34c759'].map((c) => (
-                        <div key={c} className="w-10 h-16 rounded-xl shadow-lg" style={{ background: `linear-gradient(160deg, ${c}, ${c}cc)` }} />
-                      ))}
-                    </div>
-                  ) },
-                ].map(slide => (
-                  <SwiperSlide key={slide.key}>
-                    <div className="h-48 flex items-center justify-center">{slide.node}</div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <SwipeIndicator isDark={isDark} />
             </div>
           </div>
         </section>
@@ -2736,20 +2475,17 @@ export default function LandingPage() {
               <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Escolha o produto perfeito para sua jornada digital e corporativa.</p>
             </div>
 
-            {/* Filtro por categoria — estilo minimalista, texto com sublinhado, rolável no mobile.
-                Rolagem horizontal simples e garantida: nowrap real, sem w-max/mx-auto
-                conflitando (o que travava o scroll quando o conteúdo passava da tela),
-                com desvanecimento nas bordas para indicar que dá pra arrastar. */}
-            <style>{`.airnext-filter-scroll{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}.airnext-filter-scroll::-webkit-scrollbar{display:none;width:0;height:0;}`}</style>
-            <div className="mb-10 relative">
-              <div className={`pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-0 z-10 bg-gradient-to-r ${isDark ? 'from-[#050505]' : 'from-[#f5f5f7]'} to-transparent`} />
-              <div className={`pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-0 z-10 bg-gradient-to-l ${isDark ? 'from-[#050505]' : 'from-[#f5f5f7]'} to-transparent`} />
-              <div className="airnext-filter-scroll overflow-x-auto overflow-y-hidden">
-                <div className="flex flex-nowrap items-center justify-start sm:justify-center gap-7 sm:gap-8 px-6 sm:px-0 w-fit mx-auto">
+            {/* Filtro por categoria — estilo minimalista, texto com sublinhado, rolável no mobile */}
+            <style>{`.airnext-filter-scroll::-webkit-scrollbar{display:none}`}</style>
+            <div className="mb-10">
+              <div
+                className="airnext-filter-scroll overflow-x-auto"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                <div className="flex items-center gap-7 sm:gap-8 w-max mx-auto px-6 sm:px-0">
                   {[{ id: 'todos', label: 'Todos' }, ...FORMATS].map(f => (
                     <button
                       key={f.id}
-                      type="button"
                       onClick={() => setProductFormatFilter(f.id)}
                       className={`relative flex-shrink-0 pb-3 pt-1 text-[11px] font-medium uppercase tracking-[0.12em] transition-colors whitespace-nowrap ${
                         productFormatFilter === f.id
@@ -2788,42 +2524,44 @@ export default function LandingPage() {
               {shopProducts.map(p => (
                 <SwiperSlide key={p.id}>
                   <motion.div
-                    whileHover={{ y: -4 }}
+                    whileHover={{ y: -6 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
                     onClick={() => setSelectedProduct(p)}
-                    className="group cursor-pointer h-[430px] flex flex-col"
+                    className="group cursor-pointer h-[420px] flex flex-col"
                   >
-                    <div className={`aspect-[4/3] rounded-[22px] overflow-hidden mb-4 relative ${isDark ? 'bg-gray-900' : 'bg-gray-100'}`}>
-                      <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                      {/* Selo padrão AirNext + símbolo de aproximação — presente em todas as categorias */}
-                      <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm text-white">
-                        <Nfc size={11} />
-                        <span className="text-[8px] font-bold uppercase tracking-widest">AirNext</span>
-                      </div>
+                    {/* Imagem — grande, sem selos ou ruído visual, foco total no produto */}
+                    <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
+                      <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+
+                      {/* Botão de sacola — some para "levar modelo padrão" sem precisar abrir o card */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addToCart(p); }}
+                        aria-label={`Adicionar ${p.name} à sacola`}
+                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition opacity-0 group-hover:opacity-100 focus:opacity-100 ${
+                          isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
+                        }`}
+                      >
+                        <ShoppingBag size={15} />
+                      </button>
                     </div>
 
-                    <span className="text-[9px] font-semibold uppercase tracking-widest mb-1.5 block" style={{ color: p.color }}>{p.tag}</span>
-                    <h3 className={`text-[15px] font-semibold mb-1 leading-snug ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
-                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'} leading-relaxed mb-3 line-clamp-1`}>{p.desc}</p>
-                    <p className={`text-sm font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {p.price}</p>
+                    {/* Texto — hierarquia limpa, uma linha por informação, sem excesso de badges */}
+                    <div className="flex flex-col flex-1">
+                      <span className={`text-[11px] font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
+                      <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
+                      <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
 
-                    {/* CTAs discretos, estilo Tesla/Apple */}
-                    <div className="mt-auto flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => goPersonalize(p)}
-                        className={`w-full py-2.5 rounded-full text-[11px] font-semibold uppercase tracking-wide border transition-colors ${
-                          isDark ? 'border-white/20 text-white hover:bg-white hover:text-black' : 'border-gray-900/70 text-gray-900 hover:bg-gray-900 hover:text-white'
-                        }`}
-                      >
-                        Personalizar
-                      </button>
-                      <button
-                        onClick={() => addToCart(p)}
-                        className={`w-full py-1 text-[11px] font-medium transition-colors flex items-center justify-center gap-1 ${
-                          isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-700'
-                        }`}
-                      >
-                        ou levar modelo padrão
-                      </button>
+                      <div className="mt-auto flex items-center justify-between gap-3">
+                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {p.price}</p>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); goPersonalize(p); }}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
+                            isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
+                          }`}
+                        >
+                          Personalizar <ChevronRight size={13} />
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 </SwiperSlide>
@@ -2857,7 +2595,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex md:justify-end">
                   <button
-                    onClick={() => document.getElementById('personalizado')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    onClick={() => goPersonalize(PRODUCTS[0])}
                     className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#0077ed] transition shadow-xl shadow-blue-500/20"
                   >
                     <Palette size={16} /> Ir para o Personalizador
@@ -2889,7 +2627,7 @@ export default function LandingPage() {
                     <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#050505]' : 'from-white'} via-transparent to-transparent`} />
                     <div className="absolute top-6 left-6 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/45 backdrop-blur-sm text-white">
                       <Nfc size={13} />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">AirNext</span>
+                      <span style={{ fontFamily: "'Lobster', cursive" }} className="text-xs tracking-wide leading-none translate-y-[1px]">AirNext</span>
                     </div>
                   </div>
 
@@ -3072,9 +2810,19 @@ export default function LandingPage() {
                         key={activeUseCase}
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="w-16 h-16 rounded-full mx-auto mb-4 bg-white/10 flex items-center justify-center shadow-lg border border-white/20"
+                        className="relative w-20 h-20 mx-auto mb-4"
                       >
-                        {useCaseScenarios[activeUseCase].icon}
+                        {/* Imagem de perfil (avatar com iniciais) */}
+                        <div
+                          className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg border-2 border-white/25 text-2xl font-extrabold text-white"
+                          style={{ background: useCaseScenarios[activeUseCase].screen.avatarBg }}
+                        >
+                          {getInitials(useCaseScenarios[activeUseCase].screen.title)}
+                        </div>
+                        {/* Selinho com o ícone do cenário, sobre o avatar */}
+                        <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#111] border-2 border-white/20 flex items-center justify-center shadow-md">
+                          {useCaseScenarios[activeUseCase].icon}
+                        </div>
                       </motion.div>
                       <h3 className="text-xl font-extrabold mb-1">{useCaseScenarios[activeUseCase].screen.title}</h3>
                       <p className="text-xs text-blue-200/80 font-medium mb-8">{useCaseScenarios[activeUseCase].screen.subtitle}</p>
@@ -3082,7 +2830,7 @@ export default function LandingPage() {
                       <div className="space-y-3">
                         {useCaseScenarios[activeUseCase].screen.items.map((item, idx) => (
                           <div key={idx} className={`p-3.5 rounded-2xl flex items-center justify-between text-xs border border-white/5 shadow-sm ${item.color}`}>
-                            <span className="font-semibold">{item.label}</span>
+                            <span className="font-semibold flex items-center gap-2">{item.icon}{item.label}</span>
                             <span className="font-bold">{item.val}</span>
                           </div>
                         ))}
@@ -3163,25 +2911,23 @@ export default function LandingPage() {
         <section id="seguranca" className="py-20 md:py-28 bg-gradient-to-b from-gray-900 to-black text-white relative overflow-hidden">
           <div className="absolute inset-0 grid-pattern opacity-10" />
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/10 rounded-full blur-[100px]" />
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
-                <p className="eyebrow text-blue-400 mb-3 flex items-center gap-2"><Fingerprint size={13} /> Privacidade por padrão</p>
-                <h2 className="h2-apple mb-6 text-white">Quem manda no seu perfil é você.</h2>
+                <p className="eyebrow text-blue-400 mb-3">Segurança absoluta</p>
+                <h2 className="h2-apple mb-6 text-white">Seus dados. Suas regras. 100% LGPD.</h2>
                 <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                  Sem letra miúda. O AirNext foi desenhado para que cada informação do seu perfil só apareça se você quiser —
-                  e você pode mudar de ideia a qualquer momento, direto pelo seu painel.
+                  Levamos sua privacidade a sério. O AirNext foi desenvolvido seguindo os mais rigorosos padrões da Lei Geral de Proteção de Dados (LGPD) e criptografia militar.
                 </p>
                 <div className="space-y-6">
                   {[
-                    { icon: <ScanLine size={20} />, title: 'Sem contato físico com o chip', desc: 'A leitura por NFC ou QR Code é feita pelo próprio celular de quem se aproxima — não existe troca de dados com a peça em si.' },
-                    { icon: <EyeOff size={20} />, title: 'Você decide o que é público', desc: 'Edite, desative ou oculte qualquer campo do seu perfil quando quiser. Nada fica visível sem sua permissão.' },
-                    { icon: <BadgeCheck size={20} />, title: 'Sem venda de dados', desc: 'Não vendemos nem repassamos suas informações para terceiros com fins publicitários. Ponto final.' },
+                    { title: 'Criptografia Ponta a Ponta', desc: 'As chaves do chip NFC são gravadas com criptografia do fórum NFC oficial.' },
+                    { title: 'Custódia do Perfil', desc: 'Você controla 100% de quais links e redes aparecem. Edite, desative ou oculte seu perfil a qualquer momento.' },
+                    { title: 'Sem Rastreamento', desc: 'Não vendemos dados nem rastreamos o comportamento dos seus clientes. Apenas conectamos você a eles.' }
                   ].map((s, i) => (
                     <div key={i} className="flex gap-4">
                       <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center text-blue-400 flex-shrink-0">
-                        {s.icon}
+                        <Lock size={20} />
                       </div>
                       <div>
                         <h4 className="font-bold text-base mb-1 text-white">{s.title}</h4>
@@ -3190,12 +2936,30 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <p className={`text-xs text-gray-500 mt-8 flex items-center gap-2`}>
-                  <Shield size={13} /> Estamos em fase de obtenção de certificações formais de segurança — este compromisso já vale a partir do primeiro dia.
-                </p>
               </div>
-
-              <PrivacyControlPanel isDark={true} />
+              <div className="bg-white/5 rounded-[40px] border border-white/10 p-8 md:p-12 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl" />
+                <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                  <Shield className="text-blue-400" /> Selo de Conformidade
+                </h3>
+                <div className="space-y-4 text-sm text-gray-300">
+                  <p className="flex items-center gap-2.5">
+                    <Check size={16} className="text-green-400" /> Criptografia AES de 256 bits
+                  </p>
+                  <p className="flex items-center gap-2.5">
+                    <Check size={16} className="text-green-400" /> Compatível com RGPD e LGPD
+                  </p>
+                  <p className="flex items-center gap-2.5">
+                    <Check size={16} className="text-green-400" /> Armazenamento seguro na nuvem
+                  </p>
+                  <p className="flex items-center gap-2.5">
+                    <Check size={16} className="text-green-400" /> Exclusão definitiva de conta em 1 clique
+                  </p>
+                </div>
+                <div className="mt-8 pt-8 border-t border-white/10 text-center">
+                  <p className="text-xs text-gray-500">AirNext usa servidores da AWS com uptime de 99.9% e proteção contra-ataques DDoS.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -3500,7 +3264,7 @@ export default function LandingPage() {
                   { q: 'Qual a durabilidade do chip?', a: 'Nossos chips têm 100.000+ ciclos de gravação e duração superior a 10 anos. Resistentes à água (IP65) e impacto.' },
                   { q: 'Tem mensalidade?', a: 'Zero mensalidade. O plano básico é gratuito para sempre. Upgrade opcional para analytics e domínio personalizado.' },
                   { q: 'Funciona em celulares sem NFC?', a: 'Sim! Todo produto vem com QR Code backup. Funciona em qualquer dispositivo com câmera — inclusive tablets e notebooks.' },
-                  { q: 'Fazem personalização para empresas?', a: 'Sim! Cartões com logo, cores corporativas, gravação em lote e dashboard administrativo. Fale conosco: contato@airnext.com.br' },
+                  { q: 'Fazem personalização para empresas?', a: 'Sim! Cartões com logo, cores corporativas, gravação em lote e dashboard administrativo. Fale conosco: 0800suport@gmail.com' },
                 ].map((item, i) => (
                   <details key={i} className={`group rounded-2xl ${isDark ? 'bg-[#121212] border-white/5 text-white' : 'bg-[#f5f5f7] border-gray-100 text-gray-900'} border px-6 py-5 cursor-pointer transition-all`}>
                     <summary className="flex items-center justify-between list-none font-semibold">
@@ -3681,11 +3445,26 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
       { name: 'iPhone 13 Pro', nfc: true, qr: true },
       { name: 'iPhone 13', nfc: true, qr: true },
       { name: 'iPhone SE (3ª geração)', nfc: true, qr: true },
+      { name: 'iPhone 12 Pro Max', nfc: true, qr: true },
+      { name: 'iPhone 12', nfc: true, qr: true },
+      { name: 'iPhone 11 Pro Max', nfc: true, qr: true },
+      { name: 'iPhone 11', nfc: true, qr: true },
+      { name: 'iPhone XR', nfc: true, qr: true },
+      { name: 'iPhone XS', nfc: true, qr: true },
+      { name: 'iPhone X', nfc: true, qr: true },
+      { name: 'iPhone 8 Plus', nfc: true, qr: true },
+      { name: 'iPhone 8', nfc: true, qr: true },
+      { name: 'iPhone 7 Plus', nfc: true, qr: true },
+      { name: 'iPhone 7', nfc: true, qr: true },
+      { name: 'iPhone 6s / SE (1ª geração)', nfc: false, qr: true },
+      { name: 'iPhone 6 ou anterior', nfc: false, qr: true },
       { name: 'Apple Watch Series 9', nfc: true, qr: false },
       { name: 'Apple Watch Ultra 2', nfc: true, qr: false },
+      { name: 'Apple Watch Series 3 a 6', nfc: true, qr: false },
       { name: 'iPad Pro (todas gerações)', nfc: false, qr: true },
       { name: 'iPad Air', nfc: false, qr: true },
       { name: 'iPad Mini', nfc: false, qr: true },
+      { name: 'iPad (6ª geração ou superior)', nfc: false, qr: true },
       { name: 'MacBook Pro', nfc: false, qr: true },
       { name: 'MacBook Air', nfc: false, qr: true },
       { name: 'iMac', nfc: false, qr: true },
@@ -3701,9 +3480,21 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
       { name: 'Galaxy A35 5G', nfc: true, qr: true },
       { name: 'Galaxy A15', nfc: true, qr: true },
       { name: 'Galaxy A05', nfc: false, qr: true },
+      { name: 'Galaxy S22 Ultra', nfc: true, qr: true },
+      { name: 'Galaxy S21', nfc: true, qr: true },
+      { name: 'Galaxy S20', nfc: true, qr: true },
+      { name: 'Galaxy Note 20 Ultra', nfc: true, qr: true },
+      { name: 'Galaxy Note 10', nfc: true, qr: true },
+      { name: 'Galaxy S10', nfc: true, qr: true },
+      { name: 'Galaxy S9', nfc: true, qr: true },
+      { name: 'Galaxy A54', nfc: true, qr: true },
+      { name: 'Galaxy A20s', nfc: true, qr: true },
+      { name: 'Galaxy J7 (2017) ou anterior', nfc: false, qr: true },
       { name: 'Galaxy Tab S9', nfc: false, qr: true },
+      { name: 'Galaxy Tab A (todas)', nfc: false, qr: true },
       { name: 'Galaxy Watch 6', nfc: true, qr: false },
       { name: 'Galaxy Watch 6 Classic', nfc: true, qr: false },
+      { name: 'Galaxy Watch 4 / 5', nfc: true, qr: false },
       { name: 'Galaxy Book 4', nfc: false, qr: true },
     ]},
     'Google': { icon: <Smartphone size={24} />, devices: [
@@ -3714,6 +3505,11 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
       { name: 'Pixel 8', nfc: true, qr: true },
       { name: 'Pixel 7a', nfc: true, qr: true },
       { name: 'Pixel Fold', nfc: true, qr: true },
+      { name: 'Pixel 6 Pro', nfc: true, qr: true },
+      { name: 'Pixel 6', nfc: true, qr: true },
+      { name: 'Pixel 5', nfc: true, qr: true },
+      { name: 'Pixel 4a', nfc: true, qr: true },
+      { name: 'Pixel 3 ou anterior', nfc: true, qr: true },
       { name: 'Pixel Tablet', nfc: false, qr: true },
       { name: 'Pixel Watch 3', nfc: true, qr: false },
       { name: 'Pixel Watch 2', nfc: true, qr: false },
@@ -3727,6 +3523,11 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
       { name: 'Xiaomi 13T', nfc: true, qr: true },
       { name: 'Redmi Note 13 Pro+', nfc: true, qr: true },
       { name: 'Redmi Note 13', nfc: false, qr: true },
+      { name: 'Redmi Note 9', nfc: false, qr: true },
+      { name: 'Redmi Note 8', nfc: false, qr: true },
+      { name: 'Mi 11', nfc: true, qr: true },
+      { name: 'Mi 9', nfc: true, qr: true },
+      { name: 'Mi A2 / A1', nfc: false, qr: true },
       { name: 'POCO F5 Pro', nfc: true, qr: true },
       { name: 'POCO F5', nfc: true, qr: true },
       { name: 'POCO X6', nfc: true, qr: true },
@@ -3744,6 +3545,10 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
       { name: 'Moto G54', nfc: true, qr: true },
       { name: 'Moto G34', nfc: false, qr: true },
       { name: 'Moto G14', nfc: false, qr: true },
+      { name: 'Moto G7', nfc: true, qr: true },
+      { name: 'Moto G6', nfc: false, qr: true },
+      { name: 'Moto Z3 / Z2', nfc: true, qr: true },
+      { name: 'Moto E (5ª geração ou anterior)', nfc: false, qr: true },
     ]},
     'OnePlus': { icon: <Smartphone size={24} />, devices: [
       { name: 'OnePlus 12', nfc: true, qr: true },
@@ -3751,6 +3556,9 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
       { name: 'OnePlus 11', nfc: true, qr: true },
       { name: 'OnePlus Nord 4', nfc: true, qr: true },
       { name: 'OnePlus Nord 3', nfc: true, qr: true },
+      { name: 'OnePlus 9', nfc: true, qr: true },
+      { name: 'OnePlus 7T', nfc: true, qr: true },
+      { name: 'OnePlus 6', nfc: false, qr: true },
       { name: 'OnePlus Pad', nfc: false, qr: true },
     ]},
     'Huawei': { icon: <Smartphone size={24} />, devices: [
@@ -3759,6 +3567,9 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
       { name: 'Huawei P60 Pro', nfc: true, qr: true },
       { name: 'Huawei Mate 60 Pro', nfc: true, qr: true },
       { name: 'Huawei Nova 12', nfc: true, qr: true },
+      { name: 'Huawei P30 / P20', nfc: true, qr: true },
+      { name: 'Huawei Mate 20', nfc: true, qr: true },
+      { name: 'Huawei P Smart (todas)', nfc: false, qr: true },
       { name: 'Huawei MatePad Pro', nfc: false, qr: true },
     ]},
     'Realme': { icon: <Smartphone size={24} />, devices: [
@@ -3766,7 +3577,22 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
       { name: 'Realme GT 5', nfc: true, qr: true },
       { name: 'Realme 12 Pro+', nfc: true, qr: true },
       { name: 'Realme 12', nfc: false, qr: true },
+      { name: 'Realme 8 / 7', nfc: false, qr: true },
       { name: 'Realme C67', nfc: false, qr: true },
+      { name: 'Realme C25 ou anterior', nfc: false, qr: true },
+    ]},
+    'LG': { icon: <Smartphone size={24} />, devices: [
+      { name: 'LG Velvet', nfc: true, qr: true },
+      { name: 'LG G8 ThinQ', nfc: true, qr: true },
+      { name: 'LG G7 ThinQ', nfc: true, qr: true },
+      { name: 'LG K52 / K42', nfc: false, qr: true },
+      { name: 'LG K10 (2017) ou anterior', nfc: false, qr: true },
+    ]},
+    'Nokia': { icon: <Smartphone size={24} />, devices: [
+      { name: 'Nokia X30 5G', nfc: true, qr: true },
+      { name: 'Nokia G60', nfc: true, qr: true },
+      { name: 'Nokia 8.1', nfc: true, qr: true },
+      { name: 'Nokia 6.1 ou anterior', nfc: false, qr: true },
     ]},
   };
 

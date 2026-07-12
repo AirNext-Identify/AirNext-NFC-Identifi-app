@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Shield, Bell, Users, Database, Lock, Globe, Loader2, Save, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Shield, Bell, Users, Database, Lock, Globe, Loader2, Save, AlertTriangle, CheckCircle2, Search } from 'lucide-react';
+import { EmptyState } from '@/components/admin/ui/EmptyState';
+import { formatDateTime } from '@/lib/adminUtils';
+import type { LogEntry } from '@/types/admin';
 
 interface SettingsViewProps {
   appUrl: string;
   onUpdateAppUrl: (url: string) => void | Promise<void>;
+  logs: LogEntry[];
 }
 
-export function SettingsView({ appUrl, onUpdateAppUrl }: SettingsViewProps) {
+export function SettingsView({ appUrl, onUpdateAppUrl, logs }: SettingsViewProps) {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       <DomainSettingCard appUrl={appUrl} onUpdate={onUpdateAppUrl} />
@@ -49,15 +53,72 @@ export function SettingsView({ appUrl, onUpdateAppUrl }: SettingsViewProps) {
         </SettingCard>
       </div>
 
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+      <LogsCard logs={logs} />
+    </div>
+  );
+}
+
+/**
+ * Antes esse card só dizia "todas as ações são registradas" sem nunca
+ * mostrar log nenhum — nenhuma tela do painel exibia a tabela admin_logs
+ * de fato (só uma aba quebrada dentro da ficha do cliente). Agora mostra
+ * de verdade os últimos registros, com busca.
+ */
+function LogsCard({ logs }: { logs: LogEntry[] }) {
+  const [search, setSearch] = useState('');
+  const filtered = logs.filter((l) => {
+    const q = search.toLowerCase();
+    if (!q) return true;
+    return (
+      l.action.toLowerCase().includes(q) ||
+      l.entityType.toLowerCase().includes(q) ||
+      l.performedBy.toLowerCase().includes(q) ||
+      l.details.toLowerCase().includes(q)
+    );
+  });
+
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Lock className="h-5 w-5 text-zinc-500" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-800">
+            <Lock className="h-4.5 w-4.5 text-zinc-400" />
+          </div>
           <div>
             <h3 className="text-sm font-semibold text-zinc-200">Logs administrativos</h3>
-            <p className="text-xs text-zinc-500">Todas as ações administrativas são registradas e auditáveis.</p>
+            <p className="text-xs text-zinc-500">Todas as ações administrativas são registradas e auditáveis ({logs.length} registros).</p>
           </div>
         </div>
+        <div className="relative w-full sm:w-64">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por ação, entidade, autor..."
+            className="h-9 w-full rounded-lg border border-zinc-800 bg-zinc-950 pl-9 pr-3 text-sm text-zinc-100 outline-none focus:border-zinc-700"
+          />
+        </div>
       </div>
+
+      {filtered.length === 0 ? (
+        <EmptyState title="Nenhum log encontrado" description={search ? 'Tente outro termo de busca.' : 'Nenhuma ação administrativa foi registrada ainda.'} />
+      ) : (
+        <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
+          {filtered.slice(0, 100).map((log) => (
+            <div key={log.id} className="rounded-xl border border-zinc-800 p-3 text-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-300">{log.action}</span>
+                <span className="text-xs text-zinc-500">{log.entityType}</span>
+                <span className="text-xs text-zinc-600">•</span>
+                <span className="text-xs text-zinc-500">{formatDateTime(log.performedAt)}</span>
+                <span className="text-xs text-zinc-600">•</span>
+                <span className="text-xs text-zinc-500">{log.performedBy}</span>
+              </div>
+              <p className="mt-1 break-words text-sm text-zinc-400">{log.details}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

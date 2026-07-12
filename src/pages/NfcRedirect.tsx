@@ -45,7 +45,7 @@ export default function NfcRedirect() {
       // /a/:code busca pelo código de ativação do produto.
       const query = supabase
         .from("products")
-        .select("code, slug, status, nfc_uuid");
+        .select("code, slug, status, nfc_uuid, expires_at");
 
       const { data, error } = await (uuid
         ? query.eq("nfc_uuid", uuid)
@@ -60,6 +60,17 @@ export default function NfcRedirect() {
       }
 
       const status = data.status as ProductStatus;
+
+      // A coluna `status` não vira 'EXPIRADO' sozinha quando a validade
+      // vence — isso antes só era calculado visualmente no painel admin,
+      // nunca gravado de volta no banco. Sem esta checagem, um chip NFC
+      // vencido continuava redirecionando normalmente para o perfil.
+      const isPastValidity = !!data.expires_at && new Date(data.expires_at).getTime() < Date.now();
+
+      if (status === "ATIVO" && isPastValidity) {
+        setState({ kind: "expired" });
+        return;
+      }
 
       if (status === "ATIVO") {
         if (!data.slug) {

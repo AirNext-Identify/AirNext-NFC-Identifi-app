@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Bell, Mail, MessageCircle, RefreshCw, CheckCircle, Zap } from 'lucide-react';
+import { Bell, Mail, MessageCircle, RefreshCw, CheckCircle, Zap, Trash2 } from 'lucide-react';
 import { SearchBar } from '@/components/admin/ui/SearchBar';
 import { Badge } from '@/components/admin/ui/Badge';
 import { EmptyState } from '@/components/admin/ui/EmptyState';
@@ -11,7 +11,9 @@ interface NotificationsViewProps {
   customers: Customer[];
   products: Product[];
   onUpdate: (id: string, data: Partial<Notification>) => void;
-  onSend: (title: string, message: string, channel: Notification['channel'], customerId?: string, productId?: string) => void;
+  onSend: () => void;
+  onResend: (title: string, message: string, channel: Notification['channel'], customerId?: string, productId?: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const statusConfig: Record<Notification['status'], { color: string; dot: string }> = {
@@ -22,7 +24,7 @@ const statusConfig: Record<Notification['status'], { color: string; dot: string 
   Falhou: { color: 'bg-red-500/10 text-red-400', dot: 'bg-red-500' },
 };
 
-export function NotificationsView({ notifications, customers, products, onUpdate, onSend }: NotificationsViewProps) {
+export function NotificationsView({ notifications, customers, products, onUpdate, onSend, onResend, onDelete }: NotificationsViewProps) {
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
@@ -56,7 +58,7 @@ export function NotificationsView({ notifications, customers, products, onUpdate
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <SearchBar value={search} onChange={setSearch} placeholder="Buscar notificação, cliente, produto..." className="sm:max-w-xs" />
-        <button onClick={() => onSend('Teste de notificação', 'Notificação manual enviada pelo painel.', 'Painel')} className="flex items-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600">
+        <button onClick={onSend} className="flex items-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600">
           <Bell className="h-4 w-4" /> Enviar notificação
         </button>
       </div>
@@ -89,7 +91,7 @@ export function NotificationsView({ notifications, customers, products, onUpdate
                     <p className="mt-2 text-xs text-zinc-600">{formatDateTime(n.sentAt)} • {n.channel}</p>
                   </div>
                   <div className="flex gap-1">
-                    <button onClick={() => onSend(n.title, n.message, n.channel, n.customerId, n.productId)} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="Reenviar">
+                    <button onClick={() => onResend(n.title, n.message, n.channel, n.customerId, n.productId)} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="Reenviar">
                       <RefreshCw className="h-4 w-4" />
                     </button>
                     <button onClick={() => window.open(`mailto:${customer?.email}`, '_blank')} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="Email">
@@ -100,6 +102,13 @@ export function NotificationsView({ notifications, customers, products, onUpdate
                     </button>
                     <button onClick={() => onUpdate(n.id, { status: 'Resolvido', resolvedAt: new Date().toISOString() })} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="Marcar resolvido">
                       <CheckCircle className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => { if (confirm('Excluir esta notificação permanentemente?')) onDelete(n.id); }}
+                      className="rounded-lg p-2 text-zinc-400 hover:bg-red-500/10 hover:text-red-400"
+                      title="Excluir"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>

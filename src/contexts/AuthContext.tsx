@@ -47,8 +47,9 @@ export interface Visit {
 
 export interface AppNotification {
   id: string;
-  type: 'visit' | 'update' | 'activation' | 'system' | 'login';
+  type: 'visit' | 'update' | 'activation' | 'system' | 'login' | 'admin';
   message: string;
+  title?: string;
   productId?: string;
   productName?: string;
   userId?: string;
@@ -67,6 +68,9 @@ interface Ctx {
   unreadCount: number;
   loading: boolean;
   hasProfile: boolean | null;
+  /** Motivo de bloqueio/suspensão exibido na tela de login após um logout forçado. */
+  blockedReason: string | null;
+  clearBlockedReason: () => void;
 
   // Admin-only data (populated only when user.role === 'ADMIN', carregado
   // sob demanda — ver loadAdminData e AdminLayout.tsx)
@@ -206,14 +210,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [adminProducts, setAdminProducts] = useState<Product[]>([]);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [adminDataLoaded, setAdminDataLoaded] = useState(false);
+  const [blockedReason, setBlockedReason] = useState<string | null>(null);
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const clearBlockedReason = useCallback(() => setBlockedReason(null), []);
+
+  // ─── Bloqueio/suspensão de conta ────────────────────────────────────────
+  // customer_profiles.status é o status COMERCIAL controlado pelo painel
+  // admin. Como o client não tem a service_role key, não é possível banir a
+  // sessão do Supabase Auth diretamente — mas podemos (e devemos) checar o
+  // status a cada login/boot de sessão e encerrar a sessão do lado do
+  // cliente assim que detectarmos Bloqueado/Suspenso, para que "Bloquear"/
+  // "Suspender" no painel realmente impeça o uso do app, e não só mude um
+  // rótulo cosmético.
+  const checkAccountBlocked = useCallback(async (userId: string): Promise<string | null> => {
+    const { data, error } = await supabase
+      .from('customer_profiles')
+      .select('status')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error || !data) return null;
+    if (data.status === 'Bloqueado') {
+      return 'Sua conta foi bloqueada pelo administrador. Entre em contato com o suporte AirNext para mais informações.';
+    }
+    if (data.status === 'Suspenso') {
+      return 'Sua conta está suspensa no momento. Entre em contato com o suporte AirNext para regularizar.';
+    }
+    return null;
+  }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
+    // Só clientes (USER) têm status comercial em customer_profiles — admin
+    // nunca é bloqueado por essa tabela. Checa ANTES de devolver o login
+    // como bem-sucedido, para nunca deixar a tela navegar para o dashboard
+    // e só depois "kickar" o usuário (evita o flash de conteúdo protegido).
+    const role = data.user?.app_metadata?.role === 'ADMIN' ? 'ADMIN' : 'USER';
+    if (role === 'USER' && data.user) {
+      const reason = await checkAccountBlocked(data.user.id);
+      if (reason) {
+        await supabase.auth.signOut();
+        const err: any = new Error(reason);
+        err.blocked = true;
+        throw err;
+      }
+    }
     return data;
-  }, []);
+  }, [checkAccountBlocked]);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({
@@ -260,6 +306,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // tudo isso rodava 2x por causa do bug de boot duplicado (ver useEffect
   // mais abaixo). Agora é 1 query em `products` + 1 query em `visits`, com
   // as notificações de acesso derivadas do mesmo array de visitas já buscado.
+  // Notificações enviadas manualmente (ou por gatilho) pelo admin ao cliente
+  // — tabela `admin_notifications` (ver supabase/admin_panel.sql). Antes o
+  // painel admin gravava aqui mas NADA no app do cliente lia essa tabela: a
+  // notificação "enviada" só aparecia de volta no próprio painel admin, sem
+  // nunca chegar ao cliente de fato. Buscamos aqui e mesclamos com as
+  // notificações de acesso/login já existentes.
+  const loadAdminNotifications = useCallback(async (userId: string): Promise<AppNotification[]> => {
+    const { data, error } = await supabase
+      .from('admin_notifications')
+      .select('id, title, message, channel, sent_at, opened_at')
+      .eq('user_id', userId)
+      .order('sent_at', { ascending: false })
+      .limit(100);
+    if (error || !data) {
+      if (error) console.error('Falha ao carregar notificações do admin:', error);
+      return [];
+    }
+    return data.map((n: any): AppNotification => ({
+      id: n.id,
+      type: 'admin',
+      title: n.title,
+      message: n.message,
+      read: !!n.opened_at,
+      createdAt: n.sent_at,
+      origin: n.channel,
+    }));
+  }, []);
+
   const loadUserData = useCallback(async (userId: string) => {
     const { data: prods, error: prodErr } = await supabase
       .from('products')
@@ -268,10 +342,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .order('created_at', { ascending: false });
 
     const dismissed = readDismissedIds(userId);
+    const adminNotifs = await loadAdminNotifications(userId);
 
     if (prodErr || !prods) {
       setAllProducts([]); setHasProfile(false); setVisits([]);
-      setNotifications(readStoredLoginNotifs(userId).filter(n => !dismissed.has(n.id)));
+      const merged = [...readStoredLoginNotifs(userId), ...adminNotifs]
+        .filter(n => !dismissed.has(n.id))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setNotifications(merged);
       return;
     }
 
@@ -281,7 +359,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!prods.length) {
       setVisits([]);
-      setNotifications(readStoredLoginNotifs(userId).filter(n => !dismissed.has(n.id)));
+      const merged = [...readStoredLoginNotifs(userId), ...adminNotifs]
+        .filter(n => !dismissed.has(n.id))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setNotifications(merged);
       return;
     }
 
@@ -297,7 +378,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (visitErr || !visitRows) {
       console.error('Falha ao carregar visitas:', visitErr);
       setVisits([]);
-      setNotifications(readStoredLoginNotifs(userId).filter(n => !dismissed.has(n.id)));
+      const merged = [...readStoredLoginNotifs(userId), ...adminNotifs]
+        .filter(n => !dismissed.has(n.id))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setNotifications(merged);
       return;
     }
 
@@ -322,11 +406,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const loginNotifs = readStoredLoginNotifs(userId);
-    const merged = [...loginNotifs, ...visitNotifs]
+    const merged = [...loginNotifs, ...visitNotifs, ...adminNotifs]
       .filter(n => !dismissed.has(n.id))
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     setNotifications(merged);
-  }, []);
+  }, [loadAdminNotifications]);
 
   // Mantido por compatibilidade: telas como Onboarding.tsx chamam
   // loadProducts(userId) para recarregar tudo após uma ação pontual.
@@ -587,6 +671,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         const loginOnes = updated.filter(n => n.type === 'login');
         writeStoredLoginNotifs(user.id, loginOnes);
+
+        // Marca também no banco as notificações do admin ainda não abertas,
+        // para refletir "Aberto" de volta no painel administrativo.
+        const unopenedAdminIds = prev.filter(n => n.type === 'admin' && !n.read).map(n => n.id);
+        if (unopenedAdminIds.length > 0) {
+          const now = new Date().toISOString();
+          supabase
+            .from('admin_notifications')
+            .update({ opened_at: now, status: 'Aberto' })
+            .in('id', unopenedAdminIds)
+            .eq('user_id', user.id)
+            .then(({ error }) => {
+              if (error) console.error('Falha ao marcar notificação como aberta:', error);
+            });
+        }
       }
       return updated;
     });
@@ -702,9 +801,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: session.user.id,
         name: session.user.user_metadata?.name || '',
         email: session.user.email || '',
-        role: session.user.user_metadata?.role === 'ADMIN' ? 'ADMIN' : 'USER',
+        role: session.user.app_metadata?.role === 'ADMIN' ? 'ADMIN' : 'USER',
         createdAt: session.user.created_at.slice(0, 10),
       };
+
+      // Cobre login social (Google) e restauração de sessão existente (F5),
+      // casos que não passam pela checagem síncrona feita em login(). Sem
+      // isso, um cliente bloqueado DEPOIS de já estar logado continuaria
+      // usando o app normalmente até fazer logout manual.
+      if (u.role === 'USER') {
+        const reason = await checkAccountBlocked(u.id);
+        if (cancelled) return;
+        if (reason) {
+          await supabase.auth.signOut();
+          clearTabSessionNotified();
+          setUser(null); setAllProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
+          setAdminUsers([]); setAdminProducts([]); setFeedbacks([]); setAdminDataLoaded(false);
+          setBlockedReason(reason);
+          setLoading(false);
+          return;
+        }
+      }
+
       setUser(u);
 
       await loadUserData(u.id);
@@ -725,7 +843,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
-  }, [loadUserData, recordLoginNotification]);
+  }, [loadUserData, recordLoginNotification, checkAccountBlocked]);
 
 
   // ─── Realtime filtrado no servidor ──────────────────────────────────────
@@ -771,16 +889,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { supabase.removeChannel(channel); };
   }, [user, allProducts]);
 
+  // ─── Notificações do admin em tempo real ────────────────────────────────
+  // Sem isto, uma notificação enviada pelo painel admin só apareceria para
+  // o cliente no próximo F5/login (loadUserData). Com o canal abaixo ela
+  // chega instantaneamente, igual às notificações de acesso.
+  useEffect(() => {
+    if (!user) return;
+    const dismissed = readDismissedIds(user.id);
+
+    const channel = supabase
+      .channel(`admin-notifications-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'admin_notifications', filter: `user_id=eq.${user.id}` },
+        (payload: any) => {
+          if (dismissed.has(payload.new.id)) return;
+          const notif: AppNotification = {
+            id: payload.new.id,
+            type: 'admin',
+            title: payload.new.title,
+            message: payload.new.message,
+            origin: payload.new.channel,
+            read: false,
+            createdAt: payload.new.sent_at || new Date().toISOString(),
+          };
+          setNotifications(prev => (prev.some(n => n.id === notif.id) ? prev : [notif, ...prev]));
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
   const value = useMemo<Ctx>(() => ({
     user, products: allProducts, allProducts, visits, notifications, unreadCount,
     loading, hasProfile, adminUsers, adminProducts, feedbacks, adminDataLoaded,
+    blockedReason, clearBlockedReason,
     login, register, loginWithGoogle, logout, activateProduct, setupProfile,
     updateProfile, updateTheme, updateVisibility, getPublicProfile, loadProducts, loadAdminData,
     markNotificationsRead, deleteNotification, clearAllNotifications, requestAccountDeletion, recordVisit,
     adminCreateBatch, adminBlockProduct,
   }), [
     user, allProducts, visits, notifications, unreadCount, loading, hasProfile,
-    adminUsers, adminProducts, feedbacks, adminDataLoaded,
+    adminUsers, adminProducts, feedbacks, adminDataLoaded, blockedReason, clearBlockedReason,
     login, register, loginWithGoogle, logout, activateProduct, setupProfile, updateProfile,
     updateTheme, updateVisibility, loadProducts, loadAdminData,
     markNotificationsRead, deleteNotification, clearAllNotifications, requestAccountDeletion,

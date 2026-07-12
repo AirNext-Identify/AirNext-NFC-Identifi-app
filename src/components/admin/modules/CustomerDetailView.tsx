@@ -26,7 +26,7 @@ import { Badge } from '@/components/admin/ui/Badge';
 import { Modal } from '@/components/admin/ui/Modal';
 import { EmptyState } from '@/components/admin/ui/EmptyState';
 import { cn, formatCurrency, formatDate, formatDateTime, getInitials, getValidityStatus } from '@/lib/adminUtils';
-import type { Customer, CustomerStatus, Product, Notification, Renewal, LogEntry } from '@/types/admin';
+import type { Customer, CustomerStatus, Product, Notification, Renewal, LogEntry, AdminVisit } from '@/types/admin';
 
 interface CustomerDetailViewProps {
   customer: Customer;
@@ -34,12 +34,14 @@ interface CustomerDetailViewProps {
   notifications: Notification[];
   renewals: Renewal[];
   logs: LogEntry[];
+  visits: AdminVisit[];
   onBack: () => void;
   onUpdate: (id: string, data: Partial<Customer>) => void;
   onChangeStatus: (id: string, status: CustomerStatus) => void;
   onDelete: (id: string) => void;
   onNotify: (customer: Customer) => void;
   onAddNote: (id: string, note: string) => void;
+  onDeleteNotification: (id: string) => void;
 }
 
 const tabs = [
@@ -60,12 +62,14 @@ export function CustomerDetailView({
   notifications,
   renewals,
   logs,
+  visits,
   onBack,
   onUpdate,
   onChangeStatus,
   onDelete,
   onNotify,
   onAddNote,
+  onDeleteNotification,
 }: CustomerDetailViewProps) {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
@@ -77,7 +81,15 @@ export function CustomerDetailView({
   const activatedProducts = customerProducts.filter((p) => p.status === 'Ativado' || p.status === 'Renovado' || p.status === 'Expirando' || p.status === 'Expirado');
   const customerNotifications = notifications.filter((n) => n.customerId === customer.id);
   const customerRenewals = renewals.filter((r) => r.customerId === customer.id);
+  // "Histórico completo": todas as ações administrativas relacionadas a este
+  // cliente (edição, mudança de status, notificações, renovações de seus
+  // produtos...). "Logs administrativos" (aba seguinte) é o subconjunto
+  // específico de ações feitas diretamente sobre a ficha do cliente.
   const customerLogs = logs.filter((l) => l.entityId === customer.id || l.details.includes(customer.id));
+  const customerAdminLogs = customerLogs.filter((l) => l.entityType === 'Customer');
+  const customerVisits = visits
+    .filter((v) => v.customerId === customer.id)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const handleSave = () => {
     onUpdate(customer.id, form);
@@ -100,78 +112,79 @@ export function CustomerDetailView({
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="rounded-xl border border-zinc-800 bg-zinc-900 p-2 text-zinc-400 hover:text-zinc-200">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <button onClick={onBack} className="shrink-0 rounded-xl border border-zinc-800 bg-zinc-900 p-2 text-zinc-400 hover:text-zinc-200">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-800 text-lg font-semibold text-zinc-300">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-800 text-base font-semibold text-zinc-300 sm:h-14 sm:w-14 sm:text-lg">
               {getInitials(customer.name)}
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-zinc-100">{customer.name}</h2>
-              <p className="text-sm text-zinc-500">{customer.company}</p>
+            <div className="min-w-0">
+              <h2 className="truncate text-lg font-semibold text-zinc-100 sm:text-xl">{customer.name}</h2>
+              <p className="truncate text-sm text-zinc-500">{customer.company || '—'}</p>
             </div>
           </div>
           <Badge variant="dot" colorClass={cfg.color} dotColor={cfg.dot}>{cfg.label}</Badge>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {isEditing ? (
-            <button onClick={handleSave} className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600">
-              <Save className="h-4 w-4" /> Salvar
+            <button onClick={handleSave} className="flex items-center gap-2 rounded-xl bg-emerald-500 px-2.5 py-2 text-sm font-semibold text-white hover:bg-emerald-600 sm:px-4" title="Salvar">
+              <Save className="h-4 w-4" /> <span className="hidden sm:inline">Salvar</span>
             </button>
           ) : (
-            <button onClick={() => setIsEditing(true)} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
-              <Edit3 className="h-4 w-4" /> Editar
+            <button onClick={() => setIsEditing(true)} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Editar">
+              <Edit3 className="h-4 w-4" /> <span className="hidden sm:inline">Editar</span>
             </button>
           )}
-          <button onClick={() => onNotify(customer)} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
-            <Bell className="h-4 w-4" /> Notificar
+          <button onClick={() => onNotify(customer)} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Notificar">
+            <Bell className="h-4 w-4" /> <span className="hidden sm:inline">Notificar</span>
           </button>
-          <button onClick={() => window.open(`mailto:${customer.email}`, '_blank')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
-            <Mail className="h-4 w-4" /> Email
+          <button onClick={() => window.open(`mailto:${customer.email}`, '_blank')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Email">
+            <Mail className="h-4 w-4" /> <span className="hidden sm:inline">Email</span>
           </button>
-          <button onClick={() => window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}`, '_blank')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
-            <MessageCircle className="h-4 w-4" /> WhatsApp
+          <button onClick={() => window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}`, '_blank')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="WhatsApp">
+            <MessageCircle className="h-4 w-4" /> <span className="hidden sm:inline">WhatsApp</span>
           </button>
           {customer.status === 'Ativo' ? (
-            <button onClick={() => onChangeStatus(customer.id, 'Bloqueado')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
-              <Lock className="h-4 w-4" /> Bloquear
+            <button onClick={() => onChangeStatus(customer.id, 'Bloqueado')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Bloquear">
+              <Lock className="h-4 w-4" /> <span className="hidden sm:inline">Bloquear</span>
             </button>
           ) : (
-            <button onClick={() => onChangeStatus(customer.id, 'Ativo')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
-              <Unlock className="h-4 w-4" /> Desbloquear
+            <button onClick={() => onChangeStatus(customer.id, 'Ativo')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Desbloquear">
+              <Unlock className="h-4 w-4" /> <span className="hidden sm:inline">Desbloquear</span>
             </button>
           )}
           {customer.status === 'Suspenso' ? (
-            <button onClick={() => onChangeStatus(customer.id, 'Ativo')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
-              <PlayCircle className="h-4 w-4" /> Reativar
+            <button onClick={() => onChangeStatus(customer.id, 'Ativo')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Reativar">
+              <PlayCircle className="h-4 w-4" /> <span className="hidden sm:inline">Reativar</span>
             </button>
           ) : (
-            <button onClick={() => onChangeStatus(customer.id, 'Suspenso')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
-              <PauseCircle className="h-4 w-4" /> Suspender
+            <button onClick={() => onChangeStatus(customer.id, 'Suspenso')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Suspender">
+              <PauseCircle className="h-4 w-4" /> <span className="hidden sm:inline">Suspender</span>
             </button>
           )}
-          <button onClick={() => setShowDelete(true)} className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20">
-            <Trash2 className="h-4 w-4" /> Excluir
+          <button onClick={() => setShowDelete(true)} className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-2.5 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20 sm:px-4" title="Excluir">
+            <Trash2 className="h-4 w-4" /> <span className="hidden sm:inline">Excluir</span>
           </button>
         </div>
       </div>
 
-      <div className="no-scrollbar flex gap-2 overflow-x-auto border-b border-zinc-800 pb-1">
+      <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-zinc-800 pb-1 sm:gap-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex shrink-0 items-center gap-2 rounded-t-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+              title={tab.label}
+              className={`flex shrink-0 items-center gap-2 rounded-t-xl px-3 py-2.5 text-sm font-medium transition-colors sm:px-4 ${
                 activeTab === tab.id ? 'border-b-2 border-indigo-500 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <Icon className="h-4 w-4" />
-              {tab.label}
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           );
         })}
@@ -219,14 +232,14 @@ export function CustomerDetailView({
                 <StickyNote className="mb-2 h-4 w-4 text-zinc-500" />
                 {customer.internalNotes || 'Nenhuma observação interna registrada.'}
               </div>
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                 <input
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder="Adicionar observação..."
-                  className="flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none focus:border-zinc-700"
+                  className="h-10 flex-1 rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none focus:border-zinc-700"
                 />
-                <button onClick={handleAddNote} className="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600">
+                <button onClick={handleAddNote} className="shrink-0 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600">
                   Adicionar
                 </button>
               </div>
@@ -278,11 +291,11 @@ export function CustomerDetailView({
           ) : (
             <div className="relative space-y-6 pl-4 before:absolute before:left-1.5 before:top-2 before:h-full before:w-px before:bg-zinc-800">
               {customerLogs.map((log) => (
-                <div key={log.id} className="relative">
+                <div key={log.id} className="relative min-w-0">
                   <span className="absolute -left-[21px] top-1.5 h-3 w-3 rounded-full border-2 border-zinc-900 bg-indigo-500" />
                   <p className="text-sm font-medium text-zinc-200">{log.action}</p>
-                  <p className="text-xs text-zinc-500">{formatDateTime(log.performedAt)} • {log.performedBy}</p>
-                  <p className="mt-1 text-sm text-zinc-400">{log.details}</p>
+                  <p className="break-words text-xs text-zinc-500">{formatDateTime(log.performedAt)} • {log.performedBy}</p>
+                  <p className="mt-1 break-words text-sm text-zinc-400">{log.details}</p>
                 </div>
               ))}
             </div>
@@ -292,15 +305,15 @@ export function CustomerDetailView({
 
       {activeTab === 'logs' && (
         <SectionCard title="Logs administrativos">
-          {customerLogs.filter((l) => l.performedBy === 'AirNext Admin').length === 0 ? (
-            <EmptyState title="Sem logs" />
+          {customerAdminLogs.length === 0 ? (
+            <EmptyState title="Sem logs" description="Nenhuma ação administrativa foi registrada diretamente sobre a ficha deste cliente ainda." />
           ) : (
             <div className="space-y-3">
-              {customerLogs.filter((l) => l.performedBy === 'AirNext Admin').map((log) => (
-                <div key={log.id} className="rounded-xl border border-zinc-800 p-3 text-sm">
+              {customerAdminLogs.map((log) => (
+                <div key={log.id} className="min-w-0 rounded-xl border border-zinc-800 p-3 text-sm">
                   <p className="font-medium text-zinc-200">{log.action}</p>
-                  <p className="text-xs text-zinc-500">{formatDateTime(log.performedAt)}</p>
-                  <p className="mt-1 text-zinc-400">{log.details}</p>
+                  <p className="break-words text-xs text-zinc-500">{formatDateTime(log.performedAt)} • {log.performedBy}</p>
+                  <p className="mt-1 break-words text-zinc-400">{log.details}</p>
                 </div>
               ))}
             </div>
@@ -315,12 +328,12 @@ export function CustomerDetailView({
           ) : (
             <div className="space-y-3">
               {customerProducts.filter((p) => p.activatedAt).map((p) => (
-                <div key={p.id} className="flex items-center justify-between rounded-xl border border-zinc-800 p-3">
-                  <div>
+                <div key={p.id} className="flex flex-col gap-2 rounded-xl border border-zinc-800 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <p className="text-sm font-medium text-zinc-200">{p.internalCode} {p.type ? `— ${p.type}` : ''}</p>
-                    <p className="text-xs text-zinc-500">{p.uuid}</p>
+                    <p className="break-all text-xs text-zinc-500">{p.uuid}</p>
                   </div>
-                  <div className="text-right text-sm text-zinc-400">
+                  <div className="text-sm text-zinc-400 sm:text-right">
                     <p>Ativado em {formatDateTime(p.activatedAt)}</p>
                     <p className="text-xs">Expira em {formatDate(p.expiresAt)}</p>
                   </div>
@@ -338,12 +351,12 @@ export function CustomerDetailView({
           ) : (
             <div className="space-y-3">
               {customerRenewals.map((r) => (
-                <div key={r.id} className="flex items-center justify-between rounded-xl border border-zinc-800 p-3">
-                  <div>
+                <div key={r.id} className="flex flex-col gap-2 rounded-xl border border-zinc-800 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <p className="text-sm font-medium text-zinc-200">Produto {r.productId.slice(-6)}</p>
                     <p className="text-xs text-zinc-500">{r.periodYears} ano(s) • {formatCurrency(r.amount)}</p>
                   </div>
-                  <div className="text-right text-sm text-zinc-400">
+                  <div className="text-sm text-zinc-400 sm:text-right">
                     <p>{formatDate(r.renewedAt)}</p>
                     <p className="text-xs">Expira em {formatDate(r.newExpiresAt)}</p>
                   </div>
@@ -361,12 +374,21 @@ export function CustomerDetailView({
           ) : (
             <div className="space-y-3">
               {customerNotifications.map((n) => (
-                <div key={n.id} className="flex items-center justify-between rounded-xl border border-zinc-800 p-3">
-                  <div>
-                    <p className="text-sm font-medium text-zinc-200">{n.title}</p>
+                <div key={n.id} className="flex items-center justify-between gap-3 rounded-xl border border-zinc-800 p-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-zinc-200">{n.title}</p>
                     <p className="text-xs text-zinc-500">{n.channel} • {n.status}</p>
                   </div>
-                  <p className="text-xs text-zinc-500">{formatDateTime(n.sentAt)}</p>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <p className="text-xs text-zinc-500">{formatDateTime(n.sentAt)}</p>
+                    <button
+                      onClick={() => { if (confirm('Excluir esta notificação? O cliente deixará de vê-la.')) onDeleteNotification(n.id); }}
+                      className="rounded-lg p-1.5 text-zinc-500 hover:bg-red-500/10 hover:text-red-400"
+                      title="Excluir notificação"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -374,9 +396,32 @@ export function CustomerDetailView({
         </SectionCard>
       )}
 
-      {(activeTab === 'access' || activeTab === 'login') && (
-        <SectionCard title={activeTab === 'access' ? 'Acessos' : 'Histórico de login'}>
-          <EmptyState title="Sem registros" description="O histórico será exibido aqui." />
+      {activeTab === 'access' && (
+        <SectionCard title="Acessos">
+          {customerVisits.length === 0 ? (
+            <EmptyState title="Sem registros" description="Nenhum acesso via NFC, QR code ou link registrado para os produtos deste cliente ainda." />
+          ) : (
+            <div className="space-y-3">
+              {customerVisits.map((v) => (
+                <div key={v.id} className="flex flex-col gap-2 rounded-xl border border-zinc-800 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="break-words text-sm font-medium text-zinc-200">{v.action || 'Acesso ao perfil'} {v.type ? `via ${v.type.toUpperCase()}` : ''}</p>
+                    <p className="break-words text-xs text-zinc-500">{v.city || 'Localização não identificada'} • {v.device || 'Dispositivo não identificado'}</p>
+                  </div>
+                  <p className="shrink-0 text-xs text-zinc-500">{formatDateTime(v.createdAt)}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </SectionCard>
+      )}
+
+      {activeTab === 'login' && (
+        <SectionCard title="Histórico de login">
+          <EmptyState
+            title="Não disponível"
+            description="O Supabase Auth não expõe o histórico de logins para o cliente da aplicação — apenas via API administrativa com service_role, que este painel não usa. Para habilitar este histórico, é necessário registrar cada login em uma tabela própria (ex.: login_history) a partir de uma Edge Function."
+          />
         </SectionCard>
       )}
 
@@ -412,9 +457,9 @@ function SectionCard({ title, children }: { title: string; children: React.React
 
 function ReadOnly({ label, value }: { label: string; value: string }) {
   return (
-    <div>
+    <div className="min-w-0">
       <p className="text-xs font-medium text-zinc-500">{label}</p>
-      <p className="text-sm text-zinc-200">{value}</p>
+      <p className="break-words text-sm text-zinc-200">{value || '—'}</p>
     </div>
   );
 }
