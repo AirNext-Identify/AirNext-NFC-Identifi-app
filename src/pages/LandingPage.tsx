@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
+import { useSiteImages } from '../hooks/useSiteImages';
 import {
   ChevronDown, ChevronRight, ShoppingBag, Nfc, QrCode,
   Shield, ArrowUp, Check, ArrowRight, ArrowLeft,
@@ -16,7 +17,7 @@ import {
   CreditCard, KeyRound, Tag as TagIcon, Move, PawPrint, Building2,
   RotateCcw, RotateCw, ZoomIn, FlipHorizontal2, Share2, Loader2,
   Watch, Square, Circle, RectangleHorizontal, ChevronUp,
-  Phone, Wifi, AlertTriangle
+  Phone, Wifi, AlertTriangle, Menu, Sparkle
 } from 'lucide-react';
 
 type CP = React.CSSProperties & Record<string, string>;
@@ -1474,6 +1475,7 @@ function WhatsAppButton() {
 }
 
 export default function LandingPage() {
+  const { resolve: resolveImg } = useSiteImages();
   const [isDark, setIsDark] = useState(true); // Default Black theme, toggleable to White
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -1582,7 +1584,7 @@ export default function LandingPage() {
     { label: 'Dispositivos', href: '#dispositivos' },
     { label: 'Segurança', href: '#seguranca' },
     { label: 'Inclusão', href: '#para-todos' },
-    { label: 'Quem Somos', href: '#quem-somos' },
+    { label: 'Sobre', href: '#quem-somos' },
     { label: 'Empresas', href: '#b2b' },
     { label: 'Suporte', href: '#ajuda' },
   ];
@@ -1664,14 +1666,16 @@ export default function LandingPage() {
 
   const everyoneData = [
     {
+      id: 'tea',
       label: 'Autistas',
       icon: <Accessibility size={18} />,
       title: 'Segurança & Comunicação Assistida',
-      text: 'Tags AirNext podem conter informações médicas cruciais, contatos de emergência e instruções de comunicação para auxiliar pessoas no espectro autista em situações de crise ou desconforto. Um simples toque no celular revela dados vitais para quem encontra a pessoa — sem precisar de app.',
-      howTo: 'Basta gravar os dados no perfil AirNext e colocar a tag na pulseira ou coleira de identificação. Qualquer smartphone lê automaticamente.',
+      text: 'A identificação inteligente AirNext pode armazenar informações médicas cruciais, contatos de emergência e instruções de comunicação para auxiliar pessoas no espectro autista em situações de crise ou desconforto. Basta aproximar um smartphone compatível com NFC para acessar os dados instantaneamente.',
+      howTo: 'Após a compra, você recebe um código de ativação exclusivo. Basta ativar escolher sua categoria AirNext, configurar o perfil e preencher as informações que deseja compartilhar. Qualquer smartphone compatível com NFC pode acessar o perfil com um simples toque, sem necessidade de instalar aplicativos.',
       img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     },
     {
+      id: 'kids',
       label: 'Kids',
       icon: <Baby size={18} />,
       title: 'Proteção Inteligente para Crianças',
@@ -1680,14 +1684,16 @@ export default function LandingPage() {
       img: 'https://images.pexels.com/photos/5275817/pexels-photo-5275817.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     },
     {
+      id: 'senior',
       label: 'Sênior',
       icon: <Heart size={18} />,
       title: 'Independência Assistida para Idosos',
       text: 'Facilidade para idosos compartilharem contatos e endereços sem precisar decorar números ou navegar em aplicativos complexos. Dados médicos de emergência, alergias e medicamentos sempre acessíveis.',
-      howTo: 'Grave os dados de emergência no perfil. A tag pode ficar no colar, na carteira ou na pulseira. Qualquer celular lê os dados.',
+      howTo: 'Preencha as informações de emergência no seu perfil AirNext e utilize o dispositivo de identificação da forma que preferir. Com um simples toque de um smartphone compatível com NFC, os dados ficam disponíveis instantaneamente.',
       img: 'https://images.pexels.com/photos/7394608/pexels-photo-7394608.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     },
     {
+      id: 'business',
       label: 'Business',
       icon: <Briefcase size={18} />,
       title: 'Networking de Elite para Profissionais',
@@ -1800,76 +1806,93 @@ export default function LandingPage() {
       `}</style>
       
       {/* Upper Announcement Bar */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white text-center py-2.5 px-4 text-[11px] font-bold tracking-wider uppercase shadow-md flex items-center justify-center gap-2">
-        <Sparkles size={14} className="animate-spin" /> FRETE GRÁTIS PARA TODO O BRASIL EM COMPRAS ACIMA DE R$150 · PARCELE EM ATÉ 12X
+      <div className="relative overflow-hidden bg-gradient-to-r from-[#0a1128] via-[#0071e3] to-[#5e17eb] text-white text-center py-2.5 px-4 text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-2">
+        <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.18),transparent)] bg-[length:200%_100%] animate-[shine_5s_linear_infinite]" />
+        <Sparkle size={13} className="relative shrink-0" />
+        <span className="relative">Frete grátis para todo o Brasil em compras acima de R$150 · Parcele em até 12x</span>
+        <style>{`@keyframes shine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
       </div>
 
       {/* --- Scroll-driven Progress bar --- */}
       <div className="fixed top-0 left-0 h-[3px] z-[60] rounded-r-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-[width] duration-150 ease-out" style={{ width: `${scrollProgress}%` }} />
 
       {/* --- Navbar --- */}
-      <nav className={`fixed top-12 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${
+      <nav className={`fixed top-12 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 group/nav ${
         scrolled
-          ? `w-[95%] max-w-6xl ${isDark ? 'bg-[#121212]/85 border-white/10 text-white' : 'bg-white/85 border-gray-200 text-gray-900'} backdrop-blur-xl rounded-full shadow-lg shadow-black/10 border`
-          : `w-[95%] max-w-7xl ${isDark ? 'bg-[#121212]/60 border-white/5 text-white' : 'bg-white/60 border-gray-200/50 text-gray-900'} backdrop-blur-md rounded-full border`
+          ? `w-[95%] max-w-6xl ${isDark ? 'bg-[#0a0a0a]/80 border-white/10' : 'bg-white/80 border-gray-200/70'} backdrop-blur-2xl rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] border`
+          : `w-[95%] max-w-7xl ${isDark ? 'bg-white/[0.04] border-white/10' : 'bg-white/50 border-gray-200/40'} backdrop-blur-md rounded-full border`
       }`}>
-        <div className="px-6 h-16 flex items-center justify-between">
+        {/* Subtle animated gradient ring on hover — a small "alive" touch instead of a static bar */}
+        <div className="pointer-events-none absolute -inset-px rounded-full opacity-0 group-hover/nav:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-purple-500/0 blur-sm" />
+
+        <div className="relative px-5 sm:px-6 h-16 flex items-center justify-between gap-4">
           <Logo size="md" dark={isDark} />
-          <div className="hidden xl:flex items-center gap-5">
+
+          {/* Center nav links with animated underline on hover */}
+          <div className="hidden xl:flex items-center gap-1">
             {links.map(l => (
-              <a key={l.label} href={l.href} className={`text-[12px] font-semibold tracking-tight transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
+              <a
+                key={l.label}
+                href={l.href}
+                className={`relative px-3.5 py-2 text-[12.5px] font-semibold tracking-tight rounded-full transition-colors ${
+                  isDark ? 'text-gray-400 hover:text-white hover:bg-white/[0.06]' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-900/[0.04]'
+                }`}
+              >
                 {l.label}
               </a>
             ))}
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-2">
             {/* Dark / Light Mode Toggle Button */}
             <button
               onClick={() => setIsDark(!isDark)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition ${
-                isDark ? 'bg-white/10 border-white/20 text-yellow-300 hover:bg-white/20' : 'bg-gray-100 border-gray-300 text-gray-800 hover:bg-gray-200'
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border transition-all ${
+                isDark ? 'bg-white/[0.06] border-white/10 text-yellow-300 hover:bg-white/10' : 'bg-gray-900/[0.04] border-gray-200 text-gray-700 hover:bg-gray-900/[0.08]'
               }`}
               aria-label="Alternar tema"
             >
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
-              <span className="hidden sm:inline">{isDark ? 'White' : 'Black'}</span>
             </button>
 
             {/* Search Trigger */}
-            <button onClick={() => setSearchOpen(true)} className={`p-2 rounded-full transition ${isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-800'}`}>
-              <Search size={18} />
+            <button onClick={() => setSearchOpen(true)} className={`p-2.5 rounded-full transition-all ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-900/[0.06] text-gray-700'}`} aria-label="Buscar">
+              <Search size={17} />
             </button>
 
             {/* Cart Trigger */}
-            <button onClick={() => setCartOpen(true)} className={`relative p-2 rounded-full transition ${isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-800'}`}>
-              <ShoppingBag size={18} />
+            <button onClick={() => setCartOpen(true)} className={`relative p-2.5 rounded-full transition-all ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-900/[0.06] text-gray-700'}`} aria-label="Carrinho">
+              <ShoppingBag size={17} />
               {cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#0071e3] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute top-0.5 right-0.5 bg-[#0071e3] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {cart.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               )}
             </button>
 
+            {/* Divider */}
+            <div className={`hidden sm:block w-px h-6 mx-0.5 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />
+
             {/* Login -> rota interna do app (dashboard) */}
             <Link
               to="/login"
-              className={`hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full border transition ${
-                isDark ? 'border-white/20 text-white hover:bg-white/10' : 'border-gray-300 text-gray-900 hover:bg-gray-100'
+              className={`hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full border transition-all ${
+                isDark ? 'border-white/15 text-white hover:bg-white/10' : 'border-gray-300 text-gray-900 hover:bg-gray-900/[0.05]'
               }`}
             >
               <UserRound size={14} /> Login
             </Link>
 
             {/* Buy Action Button */}
-            <a href="#produtos" className={`hidden sm:inline-flex items-center gap-2 text-xs font-bold px-5 py-2 rounded-full transition ${
-              isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'
+            <a href="#produtos" className={`hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-full transition-all shadow-sm hover:shadow-md hover:-translate-y-px ${
+              isDark ? 'bg-white text-black hover:bg-gray-100' : 'bg-gray-900 text-white hover:bg-black'
             }`}>
-              Comprar
+              Comprar <ArrowRight size={13} />
             </a>
 
             {/* Mobile Menu Trigger */}
-            <button onClick={() => setMobileOpen(true)} className={`xl:hidden w-9 h-9 rounded-full flex items-center justify-center ${isDark ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-900'}`}>
-              <ChevronDown size={16} />
+            <button onClick={() => setMobileOpen(true)} className={`xl:hidden w-10 h-10 rounded-full flex items-center justify-center transition-all ${isDark ? 'bg-white/[0.08] text-white hover:bg-white/[0.14]' : 'bg-gray-900/[0.06] text-gray-900 hover:bg-gray-900/[0.1]'}`} aria-label="Abrir menu">
+              <Menu size={18} />
             </button>
           </div>
         </div>
@@ -1954,7 +1977,7 @@ export default function LandingPage() {
                   {filteredProducts.length > 0 ? (
                     filteredProducts.map(p => (
                       <div key={p.id} onClick={() => { setSelectedProduct(p); setSearchOpen(false); }} className={`${isDark ? 'bg-[#121212] border-white/5' : 'bg-gray-50 border-gray-100'} border rounded-3xl p-4 cursor-pointer hover:shadow-lg transition`}>
-                        <img src={p.img} alt={p.name} className="w-full aspect-[4/3] rounded-2xl object-cover mb-4" />
+                        <img src={resolveImg(`search-${p.id}`, p.img)} alt={p.name} className="w-full aspect-[4/3] rounded-2xl object-cover mb-4" />
                         <h4 className="font-bold text-sm">{p.name}</h4>
                         <p className="text-xs text-gray-400 mt-1">{p.desc}</p>
                       </div>
@@ -2071,7 +2094,7 @@ export default function LandingPage() {
                   <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
                     {cart.map(item => (
                       <div key={item.key} className={`flex gap-4 p-3 rounded-2xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
-                        <img src={item.product.img} alt={item.product.name} className="w-16 h-16 rounded-xl object-cover" />
+                        <img src={resolveImg(`cart-${item.product.id}`, item.product.img)} alt={item.product.name} className="w-16 h-16 rounded-xl object-cover" />
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-sm truncate">{item.product.name}</h4>
                           <p className="text-xs text-gray-400 mb-2">Formato: {item.formatLabel}</p>
@@ -2293,7 +2316,7 @@ export default function LandingPage() {
                 className="w-full h-full object-cover cursor-pointer"
                 loop
                 playsInline
-                src="https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4"
+                src={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
               />
 
               <AnimatePresence>
@@ -2408,7 +2431,7 @@ export default function LandingPage() {
                     onClick={() => setDemoLightbox(p)}
                     className="group relative w-full aspect-[4/5] rounded-[28px] overflow-hidden block text-left"
                   >
-                    <img src={p.img} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <img src={resolveImg(`demo-${p.id}`, p.img)} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/20" />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
@@ -2449,7 +2472,7 @@ export default function LandingPage() {
                   onClick={(e) => e.stopPropagation()}
                   className="relative w-full max-w-2xl aspect-[4/5] sm:aspect-video rounded-[28px] overflow-hidden shadow-2xl"
                 >
-                  <img src={demoLightbox.img} alt={demoLightbox.name} className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={resolveImg(`demo-${demoLightbox.id}`, demoLightbox.img)} alt={demoLightbox.name} className="absolute inset-0 w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/10" />
                   <div className="absolute bottom-0 inset-x-0 p-6 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${demoLightbox.color}30`, color: demoLightbox.color }}>
@@ -2477,37 +2500,7 @@ export default function LandingPage() {
 
             {/* Filtro por categoria — estilo minimalista, texto com sublinhado, rolável no mobile */}
             <style>{`.airnext-filter-scroll::-webkit-scrollbar{display:none}`}</style>
-            <div className="mb-10">
-              <div
-                className="airnext-filter-scroll overflow-x-auto"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                <div className="flex items-center gap-7 sm:gap-8 w-max mx-auto px-6 sm:px-0">
-                  {[{ id: 'todos', label: 'Todos' }, ...FORMATS].map(f => (
-                    <button
-                      key={f.id}
-                      onClick={() => setProductFormatFilter(f.id)}
-                      className={`relative flex-shrink-0 pb-3 pt-1 text-[11px] font-medium uppercase tracking-[0.12em] transition-colors whitespace-nowrap ${
-                        productFormatFilter === f.id
-                          ? isDark ? 'text-white' : 'text-gray-900'
-                          : isDark ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                      }`}
-                    >
-                      {f.label}
-                      {productFormatFilter === f.id && (
-                        <motion.span
-                          layoutId="productFilterUnderline"
-                          className={`absolute left-0 right-0 -bottom-px h-[1.5px] ${isDark ? 'bg-white' : 'bg-gray-900'}`}
-                          transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-                        />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className={`h-px max-w-md mx-auto ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />
-            </div>
-
+      
             {/* Carrossel de produtos */}
             <Swiper
               modules={[Pagination]}
@@ -2531,7 +2524,7 @@ export default function LandingPage() {
                   >
                     {/* Imagem — grande, sem selos ou ruído visual, foco total no produto */}
                     <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+                      <img src={resolveImg(`shop-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
 
                       {/* Botão de sacola — some para "levar modelo padrão" sem precisar abrir o card */}
                       <button
@@ -2623,7 +2616,7 @@ export default function LandingPage() {
                   </button>
 
                   <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">
-                    <img src={selectedProduct.img} alt={selectedProduct.name} className="w-full h-full object-cover" />
+                    <img src={resolveImg(`modal-${selectedProduct.id}`, selectedProduct.img)} alt={selectedProduct.name} className="w-full h-full object-cover" />
                     <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#050505]' : 'from-white'} via-transparent to-transparent`} />
                     <div className="absolute top-6 left-6 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/45 backdrop-blur-sm text-white">
                       <Nfc size={13} />
@@ -2719,16 +2712,16 @@ export default function LandingPage() {
               className="pb-10"
             >
               {[
-                { img: PRODUCTS[0].img, title: 'Feiras & Congressos', caption: 'Cartões AirNext Pro trocados em segundos, sem fila e sem papel.' },
-                { img: PRODUCTS[2].img, title: 'Passeios com o Pet', caption: 'Tranquilidade extra em cada caminhada pelo bairro com AirNext Pet.' },
-                { img: PRODUCTS[1].img, title: 'Recepções & Restaurantes', caption: 'Cardápios e check-ins que impressionam com AirNext Stand.' },
-                { img: PRODUCTS[3].img, title: 'Parques & Passeios em Família', caption: 'Pais localizados em segundos com AirNext Kids.' },
-                { img: PRODUCTS[4].img, title: 'Cuidado com quem a gente ama', caption: 'Independência e segurança com AirNext Senior.' },
-                { img: PRODUCTS[5].img, title: 'Comunicação Assistida', caption: 'Informações vitais sempre à mão com AirNext TEA.' },
+                { id: 'pro', img: PRODUCTS[0].img, title: 'Feiras & Congressos', caption: 'Cartões AirNext Pro trocados em segundos, sem fila e sem papel.' },
+                { id: 'pet', img: PRODUCTS[2].img, title: 'Passeios com o Pet', caption: 'Tranquilidade extra em cada caminhada pelo bairro com AirNext Pet.' },
+                { id: 'stand', img: PRODUCTS[1].img, title: 'Recepções & Restaurantes', caption: 'Cardápios e check-ins que impressionam com AirNext Stand.' },
+                { id: 'kids', img: PRODUCTS[3].img, title: 'Parques & Passeios em Família', caption: 'Pais localizados em segundos com AirNext Kids.' },
+                { id: 'senior', img: PRODUCTS[4].img, title: 'Cuidado com quem a gente ama', caption: 'Independência e segurança com AirNext Senior.' },
+                { id: 'tea', img: PRODUCTS[5].img, title: 'Comunicação Assistida', caption: 'Informações vitais sempre à mão com AirNext TEA.' },
               ].map((item, i) => (
                 <SwiperSlide key={i}>
                   <div className="relative rounded-[28px] overflow-hidden aspect-[3/4] group">
-                    <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={resolveImg(`moments-${item.id}`, item.img)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-6">
                       <h3 className="text-white text-lg font-bold mb-1.5">{item.title}</h3>
@@ -2908,56 +2901,92 @@ export default function LandingPage() {
         </section>
 
         {/* --- Security Section --- */}
-        <section id="seguranca" className="py-20 md:py-28 bg-gradient-to-b from-gray-900 to-black text-white relative overflow-hidden">
+        <section id="seguranca" className="py-20 md:py-28 bg-[#050810] text-white relative overflow-hidden">
           <div className="absolute inset-0 grid-pattern opacity-10" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px]" />
+          <div className="absolute top-0 right-0 w-[520px] h-[520px] bg-blue-500/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[110px]" />
+
           <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div>
-                <p className="eyebrow text-blue-400 mb-3">Segurança absoluta</p>
-                <h2 className="h2-apple mb-6 text-white">Seus dados. Suas regras. 100% LGPD.</h2>
-                <p className="text-lg text-gray-400 mb-8 leading-relaxed">
-                  Levamos sua privacidade a sério. O AirNext foi desenvolvido seguindo os mais rigorosos padrões da Lei Geral de Proteção de Dados (LGPD) e criptografia militar.
-                </p>
-                <div className="space-y-6">
-                  {[
-                    { title: 'Criptografia Ponta a Ponta', desc: 'As chaves do chip NFC são gravadas com criptografia do fórum NFC oficial.' },
-                    { title: 'Custódia do Perfil', desc: 'Você controla 100% de quais links e redes aparecem. Edite, desative ou oculte seu perfil a qualquer momento.' },
-                    { title: 'Sem Rastreamento', desc: 'Não vendemos dados nem rastreamos o comportamento dos seus clientes. Apenas conectamos você a eles.' }
-                  ].map((s, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center text-blue-400 flex-shrink-0">
-                        <Lock size={20} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-base mb-1 text-white">{s.title}</h4>
-                        <p className="text-sm text-gray-400">{s.desc}</p>
-                      </div>
+            {/* Header banner */}
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400" />
+                </span>
+                <p className="text-[11px] font-bold tracking-wider uppercase text-blue-300">Privacidade por padrão · Segurança de nível bancário</p>
+              </div>
+              <h2 className="h2-apple mb-5 text-white">
+                Seus dados. Suas regras. <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Inteligência que protege.</span>
+              </h2>
+              <p className="text-lg text-gray-400 leading-relaxed">
+                O AirNext foi construído com uma arquitetura <strong className="text-gray-200">privacy-first</strong>: criptografia de nível militar, conformidade total
+                com a LGPD e monitoramento contínuo — para que você compartilhe o que quiser, com quem quiser, e nada além disso.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-5 gap-6 items-stretch">
+              {/* Left: feature cards */}
+              <div className="lg:col-span-3 grid sm:grid-cols-2 gap-5">
+                {[
+                  { icon: <Lock size={20} />, title: 'Criptografia ponta a ponta', desc: 'Cada chip NFC é gravado com criptografia AES-256 e chaves seguindo o padrão oficial do fórum NFC — praticamente impossível de clonar.', accent: 'from-blue-500/20 to-blue-500/5 text-blue-300' },
+                  { icon: <Eye size={20} />, title: 'Você no controle total', desc: 'Ative, edite ou oculte qualquer link do seu perfil em segundos. Nada aparece sem sua permissão explícita.', accent: 'from-purple-500/20 to-purple-500/5 text-purple-300' },
+                  { icon: <Target size={20} />, title: 'Zero rastreamento comercial', desc: 'Não vendemos, não compartilhamos e não monitoramos o comportamento de quem escaneia seu perfil. Ponto final.', accent: 'from-emerald-500/20 to-emerald-500/5 text-emerald-300' },
+                  { icon: <Zap size={20} />, title: 'Monitoramento 24/7', desc: 'Infraestrutura com detecção automática de anomalias e resposta a incidentes em tempo real, todos os dias do ano.', accent: 'from-amber-500/20 to-amber-500/5 text-amber-300' },
+                ].map((s, i) => (
+                  <motion.div
+                    key={i}
+                    whileHover={{ y: -4 }}
+                    className="p-6 rounded-[26px] bg-white/[0.03] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] transition-all"
+                  >
+                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${s.accent} flex items-center justify-center mb-4`}>
+                      {s.icon}
                     </div>
+                    <h4 className="font-bold text-[15px] mb-2 text-white">{s.title}</h4>
+                    <p className="text-[13px] text-gray-400 leading-relaxed">{s.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Right: compliance seal card */}
+              <div className="lg:col-span-2 bg-gradient-to-b from-white/[0.06] to-white/[0.02] rounded-[32px] border border-white/10 p-8 md:p-9 relative overflow-hidden flex flex-col">
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
+                <div className="relative flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/15 flex items-center justify-center text-blue-300 flex-shrink-0">
+                    <Shield size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white leading-tight">Selo de Conformidade</h3>
+                    <p className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">Auditado e certificado</p>
+                  </div>
+                </div>
+
+                <div className="relative space-y-3.5 text-sm text-gray-300 mb-6">
+                  {[
+                    'Criptografia AES de 256 bits em todos os chips',
+                    'Conformidade com LGPD e GDPR',
+                    'Armazenamento seguro em nuvem, com backup redundante',
+                    'Exclusão definitiva e irreversível de conta em 1 clique',
+                    'Certificação ISO 27001 em andamento',
+                  ].map((t, i) => (
+                    <p key={i} className="flex items-start gap-2.5">
+                      <span className="mt-0.5 w-4 h-4 rounded-full bg-emerald-400/15 flex items-center justify-center flex-shrink-0">
+                        <Check size={11} className="text-emerald-400" />
+                      </span>
+                      {t}
+                    </p>
                   ))}
                 </div>
-              </div>
-              <div className="bg-white/5 rounded-[40px] border border-white/10 p-8 md:p-12 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl" />
-                <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                  <Shield className="text-blue-400" /> Selo de Conformidade
-                </h3>
-                <div className="space-y-4 text-sm text-gray-300">
-                  <p className="flex items-center gap-2.5">
-                    <Check size={16} className="text-green-400" /> Criptografia AES de 256 bits
-                  </p>
-                  <p className="flex items-center gap-2.5">
-                    <Check size={16} className="text-green-400" /> Compatível com RGPD e LGPD
-                  </p>
-                  <p className="flex items-center gap-2.5">
-                    <Check size={16} className="text-green-400" /> Armazenamento seguro na nuvem
-                  </p>
-                  <p className="flex items-center gap-2.5">
-                    <Check size={16} className="text-green-400" /> Exclusão definitiva de conta em 1 clique
-                  </p>
-                </div>
-                <div className="mt-8 pt-8 border-t border-white/10 text-center">
-                  <p className="text-xs text-gray-500">AirNext usa servidores da AWS com uptime de 99.9% e proteção contra-ataques DDoS.</p>
+
+                <div className="relative mt-auto grid grid-cols-2 gap-3 pt-6 border-t border-white/10">
+                  <div className="text-center">
+                    <p className="text-xl font-extrabold text-white">99.9%</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Uptime AWS</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xl font-extrabold text-white">Anti-DDoS</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Proteção ativa</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3129,7 +3158,7 @@ export default function LandingPage() {
                       initial={{ scale: 1.1 }}
                       animate={{ scale: 1 }}
                       transition={{ duration: .8 }}
-                      src={everyoneData[activeEveryone].img}
+                      src={resolveImg(`everyone-${everyoneData[activeEveryone].id}`, everyoneData[activeEveryone].img)}
                       alt={everyoneData[activeEveryone].label}
                       className="w-full h-full object-cover min-h-[300px]"
                     />
@@ -3227,7 +3256,13 @@ export default function LandingPage() {
         <section id="ajuda" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
-              <p className="font-lobster text-6xl md:text-8xl text-[#0071e3] mb-4">Suporte AirNext</p>
+              <p className={`text-4xl md:text-6xl font-extrabold tracking-tight mb-4 flex items-center justify-center gap-3 flex-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                <span>Suporte</span>
+                <span className="font-lobster text-6xl md:text-8xl leading-none">
+                  <span className={isDark ? 'text-white' : 'text-gray-900'}>Air</span>
+                  <span className="text-[#0071e3]">Next</span>
+                </span>
+              </p>
               <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-xl mx-auto`}>Estamos aqui para você. Manuais, ajuda e suporte técnico em tempo real.</p>
             </div>
 

@@ -14,6 +14,7 @@ import {
   BookOpen,
   LogOut,
   ArrowLeftCircle,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn, getInitials } from '@/lib/adminUtils';
@@ -96,6 +97,16 @@ export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userNa
               </button>
             );
           })}
+
+          <a
+            href="/painel-imagens"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-500 transition-all hover:bg-zinc-900/50 hover:text-zinc-200"
+          >
+            <ImageIcon className="h-4.5 w-4.5 text-zinc-500" />
+            Imagens do site
+          </a>
 
           <Link
             to="/dashboard"

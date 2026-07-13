@@ -8,6 +8,7 @@ import DashboardLayout from './components/DashboardLayout';
 import AdminLayout from './components/AdminLayout';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const ImageAdmin = lazy(() => import('./pages/ImageAdmin'));
 const NfcRedirect = lazy(() => import('./pages/NfcRedirect'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -110,6 +111,9 @@ export default function App() {
 
             {/* Landing page institucional (site AirNect) */}
             <Route path="/" element={<LandingPage />} />
+
+            {/* Atalho secreto para trocar as imagens do site (protegido por senha própria) */}
+            <Route path="/painel-imagens" element={<ImageAdmin />} />
 
             {/* NFC */}
             <Route path="/n/:uuid" element={<NfcRedirect />} />
