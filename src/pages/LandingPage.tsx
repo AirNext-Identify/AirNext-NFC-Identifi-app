@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
@@ -23,6 +23,31 @@ import {
 } from 'lucide-react';
 
 type CP = React.CSSProperties & Record<string, string>;
+
+/**
+ * ─── AirNext Design System — referência rápida ──────────────────────────
+ * Escala de espaçamento (Tailwind, base 4px): 2=8px · 3=12px · 4=16px ·
+ * 6=24px · 8=32px · 12=48px · 16=64px · 24=96px. Ao adicionar padding/gap
+ * novo, prefira sempre um destes steps em vez de valores "soltos" (ex.: p-5,
+ * p-10, p-14) para manter o ritmo visual consistente entre seções.
+ *
+ * Ritmo vertical de seção: py-20 md:py-28 é o padrão em todas as <section>
+ * de conteúdo (já aplicado de forma consistente). Exceções legítimas: o
+ * hero (#top, usa pt-32 md:pt-40 pb-12 md:pb-16 por causa da navbar fixa) e
+ * o footer (py-16 md:py-20, mais compacto por natureza).
+ *
+ * Container: max-w-7xl para o corpo das seções · max-w-4xl/3xl para blocos
+ * de leitura/texto centralizado · max-w-2xl para CTAs e cards estreitos.
+ * Larguras "especiais" (max-w-6xl na navbar/configurador, max-w-5xl no
+ * player de vídeo 16:9) são propositais — não são inconsistências.
+ *
+ * Raio de borda: 2xl/3xl (Tailwind) para elementos pequenos · [24px] ·
+ * [28px] · [32px] · [40px] · [48px] para cards/painéis maiores. Os valores
+ * dentro de FORMATS/SHAPES (ex.: rounded-[22px], rounded-[26px]) são o
+ * corte físico real dos produtos (cartão, chaveiro etc.) e não fazem parte
+ * dessa escala decorativa — não normalizar.
+ * ─────────────────────────────────────────────────────────────────────────
+ */
 
 // --- Type definitions ---
 interface CartItem {
@@ -1409,7 +1434,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
                           <h3 className="text-xl font-bold mb-1.5">Revisar e enviar</h3>
                           <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Confira o resumo do seu projeto antes de salvar ou enviar para produção.</p>
 
-                          <div className={`rounded-2xl border p-5 mb-6 space-y-2.5 ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-[#f5f5f7]'}`}>
+                          <div className={`rounded-2xl border p-6 mb-6 space-y-2.5 ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-[#f5f5f7]'}`}>
                             <div className="flex items-center justify-between text-sm">
                               <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Linha</span>
                               <span className="font-semibold">{selectedLine.name}</span>
@@ -1535,6 +1560,29 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
+  // Drag gesture for the mobile drawer is scoped ONLY to the handle bar (see
+  // dragControls.start on the handle's onPointerDown below). Previously the
+  // whole drawer had `drag="y"`, which made touch taps anywhere in the panel
+  // — including the close (X) button and nav links — get interpreted as the
+  // start of a drag instead of a tap, silently swallowing the click and
+  // making the menu impossible to close on touch devices.
+  const mobileDragControls = useDragControls();
+
+  // Lock body scroll while the mobile drawer is open, and allow closing it
+  // with the Escape key (parity with clicking the backdrop / X button).
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [mobileOpen]);
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [activeEveryone, setActiveEveryone] = useState(0);
@@ -1959,6 +2007,8 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm" onClick={() => setMobileOpen(false)}>
             <motion.div
               drag="y"
+              dragListener={false}
+              dragControls={mobileDragControls}
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={0.2}
               onDragEnd={(_, info) => {
@@ -1971,10 +2021,23 @@ export default function LandingPage() {
               onClick={(e) => e.stopPropagation()}
               className={`absolute bottom-0 inset-x-0 ${isDark ? 'bg-[#121212] text-white' : 'bg-white text-gray-900'} rounded-t-[32px] p-6 pb-12 shadow-2xl`}
             >
-              <div className="flex items-center justify-between mb-4">
+              {/* Only this handle row starts the drag gesture (via dragControls),
+                  so the rest of the drawer — X button, links, CTAs — receives
+                  normal click/tap events instead of having them swallowed by
+                  a drag gesture recognizer covering the whole panel. */}
+              <div
+                className="flex items-center justify-between mb-4 -mt-1 py-2 touch-none"
+                style={{ touchAction: 'none' }}
+                onPointerDown={(e) => mobileDragControls.start(e)}
+              >
                 <div className="w-10 opacity-0" /> {/* Spacer for centering */}
                 <div className={`w-12 h-1.5 ${isDark ? 'bg-gray-700' : 'bg-gray-300'} rounded-full cursor-grab active:cursor-grabbing`} />
-                <button onClick={() => setMobileOpen(false)} className={`p-2 rounded-full transition ${isDark ? 'bg-white/10 hover:bg-white/20' : 'bg-gray-100 hover:bg-gray-200'}`}>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  aria-label="Fechar menu"
+                  className={`p-2 rounded-full transition ${isDark ? 'bg-white/10 hover:bg-white/20' : 'bg-gray-100 hover:bg-gray-200'}`}
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -2392,7 +2455,7 @@ export default function LandingPage() {
                     initial={{ y: -50, opacity: 0, scale: 0.9 }}
                     animate={{ y: 0, opacity: 1, scale: 1 }}
                     exit={{ y: -50, opacity: 0, scale: 0.9 }}
-                    className="absolute top-20 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-xs bg-[#1c1c1e]/95 backdrop-blur-md text-white rounded-[20px] p-4 flex items-center gap-4 border border-white/10 shadow-2xl"
+                    className="absolute top-20 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-xs bg-[#1c1c1e]/95 backdrop-blur-md text-white rounded-[24px] p-4 flex items-center gap-4 border border-white/10 shadow-2xl"
                   >
                     <div className="w-10 h-10 rounded-full bg-[#0071e3] flex items-center justify-center text-white font-bold animate-pulse">
                       <Nfc size={20} />
@@ -2503,7 +2566,7 @@ export default function LandingPage() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       
                     </div>
-                    <div className="absolute bottom-0 inset-x-0 p-5">
+                    <div className="absolute bottom-0 inset-x-0 p-6">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${p.color}30`, color: p.color }}>
                         {p.icon}
                       </div>
@@ -2708,7 +2771,7 @@ export default function LandingPage() {
                       ))}
                     </div>
 
-                    <div className={`mb-10 p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center gap-4 justify-between ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
+                    <div className={`mb-10 p-6 rounded-2xl border flex flex-col sm:flex-row sm:items-center gap-4 justify-between ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
                       <div>
                         <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Quer deixar do seu jeito?</p>
                         <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Personalize cor, foto e texto — ou leve o modelo padrão AirNext, pronto para usar.</p>
@@ -2811,7 +2874,7 @@ export default function LandingPage() {
           </div>
         </section>
            {/* Personalized products promo block */}
-            <div className={`mt-10 rounded-[32px] p-8 md:p-10 border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#0a0a0a] to-purple-950/20 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'}`}>
+            <div className={`mt-10 rounded-[32px] p-8 md:p-12 border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#0a0a0a] to-purple-950/20 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'}`}>
               <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
               <div className="relative grid md:grid-cols-3 gap-6 items-center">
                 <div className="md:col-span-2">
@@ -3083,7 +3146,7 @@ export default function LandingPage() {
                   <motion.div
                     key={i}
                     whileHover={{ y: -4 }}
-                    className="p-6 rounded-[26px] bg-white/[0.03] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] transition-all"
+                    className="p-6 rounded-[24px] bg-white/[0.03] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] transition-all"
                   >
                     <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${s.accent} flex items-center justify-center mb-4`}>
                       {s.icon}
@@ -3095,7 +3158,7 @@ export default function LandingPage() {
               </div>
 
               {/* Right: compliance seal card */}
-              <div className="lg:col-span-2 bg-gradient-to-b from-white/[0.06] to-white/[0.02] rounded-[32px] border border-white/10 p-8 md:p-9 relative overflow-hidden flex flex-col">
+              <div className="lg:col-span-2 bg-gradient-to-b from-white/[0.06] to-white/[0.02] rounded-[32px] border border-white/10 p-8 md:p-12 relative overflow-hidden flex flex-col">
                 <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
                 <div className="relative flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-blue-500/15 flex items-center justify-center text-blue-300 flex-shrink-0">
@@ -3160,7 +3223,7 @@ export default function LandingPage() {
                   { val: '1.200+', label: 'Árvores plantadas\nem parceria com ONGs', icon: <TreePine size={20} /> },
                   { val: '100%', label: 'Embalagens\nBiodegradáveis', icon: <Droplets size={20} /> },
                 ].map((s, i) => (
-                  <div key={i} className="p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm min-w-0 overflow-hidden">
+                  <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm min-w-0 overflow-hidden">
                     <div className="w-9 h-9 rounded-xl bg-green-500/20 flex items-center justify-center text-green-400 mx-auto mb-3">
                       {s.icon}
                     </div>
@@ -3191,7 +3254,7 @@ export default function LandingPage() {
             </div>
 
             {/* Ecological Calculator Enhanced */}
-            <div className="mt-12 p-8 md:p-14 rounded-[40px] bg-gradient-to-br from-white/10 via-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm">
+            <div className="mt-12 p-8 md:p-12 rounded-[40px] bg-gradient-to-br from-white/10 via-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm">
               <div className="grid lg:grid-cols-5 gap-10 items-center">
                 <div className="lg:col-span-3">
                   <div className="flex items-center gap-3 mb-4">
@@ -3279,7 +3342,7 @@ export default function LandingPage() {
                   transition={{ duration: .4 }}
                   className="grid lg:grid-cols-2"
                 >
-                  <div className="p-10 md:p-16 flex flex-col justify-center order-2 lg:order-1">
+                  <div className="p-8 md:p-16 flex flex-col justify-center order-2 lg:order-1">
                     <motion.div
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
@@ -3421,7 +3484,7 @@ export default function LandingPage() {
                 <motion.div
                   key={i}
                   whileHover={{ y: -8, scale: 1.02 }}
-                  className={`p-10 rounded-[32px] ${isDark ? 'bg-[#121212] border-white/5' : 'bg-[#fbfbfd] border-gray-100'} border flex flex-col items-center text-center group cursor-pointer hover:shadow-xl transition-all`}
+                  className={`p-8 rounded-[32px] ${isDark ? 'bg-[#121212] border-white/5' : 'bg-[#fbfbfd] border-gray-100'} border flex flex-col items-center text-center group cursor-pointer hover:shadow-xl transition-all`}
                 >
                   <div className={`w-20 h-20 rounded-3xl ${isDark ? 'bg-[#050505]' : 'bg-white'} shadow-sm flex items-center justify-center mb-6 text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white transition-all duration-300`}>
                     {s.icon}
@@ -3801,7 +3864,7 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
           <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mb-8`}>O AirNext é universal. Compatível com dispositivos Apple, Android e leitores tradicionais.</p>
 
           {/* Barra de busca sempre visível — a lupa fica acessível mesmo antes de expandir a lista */}
-          <div className={`max-w-2xl mx-auto rounded-[24px] border p-5 sm:p-6 flex flex-col gap-5 ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-200 shadow-sm'}`}>
+          <div className={`max-w-2xl mx-auto rounded-[24px] border p-4 sm:p-6 flex flex-col gap-5 ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-200 shadow-sm'}`}>
             <div className="flex flex-col sm:flex-row items-center gap-5 justify-between">
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-blue-500/15 text-blue-300' : 'bg-blue-50 text-blue-600'}`}>
@@ -3909,7 +3972,7 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
         </AnimatePresence>
 
         {/* Info Banner — Universal Compatibility Notice (always visible, compact) */}
-        <div className={`mt-10 rounded-[28px] p-8 md:p-10 border relative overflow-hidden ${
+        <div className={`mt-10 rounded-[28px] p-8 md:p-12 border relative overflow-hidden ${
           isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#050505] to-purple-950/30 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'
         }`}>
           <div className="absolute top-0 right-0 w-60 h-60 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />

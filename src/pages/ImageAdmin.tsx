@@ -4,52 +4,21 @@ import { useSiteImages } from '../hooks/useSiteImages';
 import { isVideoUrl } from '../lib/media';
 import { uploadSiteMedia } from '../lib/siteMedia';
 
-// Troque essa senha por uma sua. É só uma trava simples para visitantes não
-// acharem o atalho por acaso — não é segurança de verdade (o código roda no
-// navegador). Se quiser algo mais sério, proteja essa rota no back-end.
-const ADMIN_PASSWORD = 'airnext2026';
-const SESSION_KEY = 'airnext_admin_unlocked';
+// 🔒 FIX (auditoria de segurança): a senha fixa no código-fonte foi removida.
+// Ela era só uma trava cosmética — qualquer visitante conseguia lê-la no
+// bundle JS publicado, e mesmo sem ela era possível escrever direto na API
+// do Supabase com a anon key (pública). A proteção de verdade agora é:
+//   1) a rota /painel-imagens exige login real de ADMIN (ver App.tsx,
+//      <SmartProtected adminOnly>);
+//   2) as policies de escrita em site_images/site-media no banco exigem
+//      is_admin() = true (ver supabase/fix_critico_seguranca_2026-07.sql).
+// Sem estar autenticado como admin de verdade, nem a tela abre nem a API
+// aceita a escrita.
 
 // Agora os arquivos vão pro Supabase Storage (não mais base64 no localStorage),
 // então o limite é só pra manter o site rápido — pode subir se precisar.
 const MAX_IMAGE_MB = 8;
 const MAX_VIDEO_MB = 50;
-
-function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
-  const [value, setValue] = useState('');
-  const [error, setError] = useState(false);
-
-  const tryUnlock = () => {
-    if (value === ADMIN_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      onUnlock();
-    } else {
-      setError(true);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4 sm:px-6">
-      <div className="w-full max-w-sm bg-[#121212] border border-white/10 rounded-3xl p-6 sm:p-8">
-        <h1 className="text-white text-lg font-bold mb-1">Admin de Mídia</h1>
-        <p className="text-gray-400 text-sm mb-6">Digite a senha para editar as imagens e vídeos do site.</p>
-        <input
-          type="password"
-          value={value}
-          onChange={(e) => { setValue(e.target.value); setError(false); }}
-          onKeyDown={(e) => e.key === 'Enter' && tryUnlock()}
-          placeholder="Senha"
-          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm mb-3 focus:outline-none focus:border-[#0071e3]"
-          autoFocus
-        />
-        {error && <p className="text-red-400 text-xs mb-3">Senha incorreta.</p>}
-        <button onClick={tryUnlock} className="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold rounded-xl py-3 text-sm transition active:scale-[0.98]">
-          Entrar
-        </button>
-      </div>
-    </div>
-  );
-}
 
 function MediaSlotRow({
   slot,
@@ -188,10 +157,7 @@ function MediaSlotRow({
 }
 
 export default function ImageAdmin() {
-  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(SESSION_KEY) === '1');
   const { images, setImage, resetImage, resetAll, loading } = useSiteImages();
-
-  if (!unlocked) return <PasswordGate onUnlock={() => setUnlocked(true)} />;
 
   if (loading) {
     return (

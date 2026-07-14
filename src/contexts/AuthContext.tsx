@@ -11,6 +11,7 @@ import {
 import { supabase } from '../lib/supabase';
 import { mapProduct } from '../lib/mapProduct';
 import { getPublicProfile, recordVisit } from '../lib/publicApi';
+import { generateActivationCode } from '../lib/adminUtils';
 import type { Product } from '../types/product';
 import type { Feedback } from '../types/feedback';
 
@@ -529,17 +530,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAdminDataLoaded(true);
   }, []);
 
-  // Formato OFICIAL do código de ativação em todo o sistema: "AIR-" + 8
-  // caracteres, um único traço, 12 caracteres no total. Precisa ser
-  // idêntico ao gerador real usado pelo painel novo (ver
-  // src/lib/adminUtils.ts generateActivationCode) para não gerar códigos
-  // que não cabem/batem no campo de digitação da Ativação de Produto.
-  const generateActivationCode = () => {
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // sem caracteres ambíguos (0/O, 1/I/L)
-    let s = '';
-    for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
-    return `AIR-${s}`;
-  };
+  // 🔒 FIX (achado #10 da auditoria): esta função duplicava a geração de
+  // código com Math.random() (não criptográfico, CWE-338). A implementação
+  // oficial e criptograficamente segura já existia em src/lib/adminUtils.ts
+  // (usa crypto.getRandomValues) — agora importada abaixo e usada aqui, sem
+  // duas versões divergentes da mesma lógica no projeto.
 
   const adminCreateBatch = useCallback((type: ProductType, qty: number, loteName: string): string[] => {
     const codes = Array.from({ length: Math.max(1, qty) }, generateActivationCode);
@@ -636,12 +631,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, loadUserData]);
 
   const updateProfile = useCallback(async (productId: string, data: any) => {
+    // 🔒 FIX (IDOR/BOLA): sem usuário autenticado não há dono para validar.
+    if (!user) return { ok: false, error: 'Usuário não autenticado' };
+
     const { mediaCarousel, ...profileData } = data;
     const payload: any = { profile_data: profileData, updated_at: new Date().toISOString() };
     if (mediaCarousel !== undefined) payload.media_carousel = mediaCarousel;
 
-    // Sem .select() no update: o retorno não era usado, só somava payload.
-    const { error } = await supabase.from('products').update(payload).eq('id', productId);
+    // 🔒 FIX: .eq('user_id', user.id) garante que só o DONO do produto pode
+    // alterá-lo. Antes, qualquer usuário autenticado podia editar o perfil de
+    // QUALQUER produto (o id do produto é público, exposto em getPublicProfile).
+    const { error } = await supabase
+      .from('products')
+      .update(payload)
+      .eq('id', productId)
+      .eq('user_id', user.id);
     if (error) { console.error('Falha ao atualizar perfil:', error); return { ok: false, error }; }
 
     // Optimistic update local — sem refetch completo de `products` depois
@@ -651,19 +655,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { ...p, profileData, mediaCarousel: mediaCarousel ?? p.mediaCarousel };
     }));
     return { ok: true, error: undefined };
-  }, []);
+  }, [user]);
 
   const updateTheme = useCallback(async (productId: string, theme: string) => {
-    const { error } = await supabase.from('products').update({ theme }).eq('id', productId);
+    // 🔒 FIX (IDOR/BOLA): mesma correção — só o dono pode trocar o tema.
+    if (!user) return;
+    const { error } = await supabase
+      .from('products')
+      .update({ theme })
+      .eq('id', productId)
+      .eq('user_id', user.id);
     if (error) { console.error('Falha ao atualizar tema:', error); return; }
     setAllProducts(prev => prev.map(p => p.id === productId ? { ...p, theme } : p));
-  }, []);
+  }, [user]);
 
   const updateVisibility = useCallback(async (productId: string, visibility: 'public' | 'private' | 'hidden') => {
-    const { error } = await supabase.from('products').update({ visibility }).eq('id', productId);
+    // 🔒 FIX (IDOR/BOLA): mesma correção — só o dono pode mudar a visibilidade.
+    if (!user) return;
+    const { error } = await supabase
+      .from('products')
+      .update({ visibility })
+      .eq('id', productId)
+      .eq('user_id', user.id);
     if (error) { console.error('Falha ao atualizar visibilidade:', error); return; }
     setAllProducts(prev => prev.map(p => p.id === productId ? { ...p, visibility } : p));
-  }, []);
+  }, [user]);
 
   const markNotificationsRead = useCallback(() => {
     setNotifications(prev => {

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Suspense, lazy } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
+import SmartProtected from './routes/SmartProtected';
 
 
 import DashboardLayout from './components/DashboardLayout';
@@ -112,8 +113,20 @@ export default function App() {
             {/* Landing page institucional (site AirNect) */}
             <Route path="/" element={<LandingPage />} />
 
-            {/* Atalho secreto para trocar as imagens do site (protegido por senha própria) */}
-            <Route path="/painel-imagens" element={<ImageAdmin />} />
+            {/* Painel de imagens do site — agora exige login real de ADMIN
+                (Supabase Auth + is_admin() no banco), não mais uma senha
+                fixa no código-fonte. Ver fix_critico_seguranca_2026-07.sql:
+                as policies de escrita em site_images/site-media agora só
+                aceitam usuário autenticado com is_admin() = true, então a
+                senha antiga deixaria de funcionar mesmo se mantida aqui. */}
+            <Route
+              path="/painel-imagens"
+              element={
+                <SmartProtected adminOnly>
+                  <ImageAdmin />
+                </SmartProtected>
+              }
+            />
 
             {/* NFC */}
             <Route path="/n/:uuid" element={<NfcRedirect />} />

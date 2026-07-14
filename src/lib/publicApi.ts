@@ -9,7 +9,10 @@ import type { Product } from '../types/product';
 export async function getPublicProfile(slug: string): Promise<Product | undefined> {
   const { data, error } = await supabase
     .from('products')
-    .select('id, code, user_id, status, activated_at, expires_at, created_at, category, slug, theme, visibility, lote_name, product_type, profile_data, media_carousel, stats')
+    // 🔒 FIX: user_id removido do select público — não é usado pela página
+    // pública (/u/:slug) e só ampliava a superfície de exposição (permitia
+    // cruzar múltiplos produtos do mesmo dono a partir de uma página pública).
+    .select('id, code, status, activated_at, expires_at, created_at, category, slug, theme, visibility, lote_name, product_type, profile_data, media_carousel, stats')
     .eq('slug', slug)
     .eq('status', 'ATIVO')
     .single();
@@ -36,6 +39,16 @@ export async function recordVisit(
   type: 'nfc' | 'qr' | 'link' = 'link',
   action?: string
 ): Promise<void> {
+  // 🔒 FIX (achado #11 da auditoria): validação de negócio (produto existe e
+  // está ATIVO) não pode viver só aqui no client — quem quiser forjar
+  // visitas chama a API REST do Supabase direto, sem passar por esta
+  // função. Por isso a validação de verdade agora é um trigger no Postgres
+  // (ver supabase/fix_visits_validacao_2026-07.sql, trg_validate_visit_insert),
+  // que rejeita o INSERT se product_id não existir ou não estiver ATIVO.
+  // Aqui mantemos só uma saída antecipada óbvia, para não gastar uma
+  // requisição com um product_id vazio.
+  if (!productId) return;
+
   const device = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
 
   // Sem .select() no final: o retorno do insert nunca era usado pelo
@@ -50,5 +63,7 @@ export async function recordVisit(
     },
   ]);
 
+  // Erro esperado quando o trigger rejeita (produto inexistente/não ativo)
+  // — não é uma falha real da função, só a validação de negócio funcionando.
   if (error) console.error('Falha ao registrar acesso:', error);
 }
