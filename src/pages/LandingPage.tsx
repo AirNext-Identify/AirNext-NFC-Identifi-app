@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
+import { isVideoUrl } from '../lib/media';
 import {
   ChevronDown, ChevronRight, ShoppingBag, Nfc, QrCode,
   Shield, ArrowUp, Check, ArrowRight, ArrowLeft,
@@ -17,7 +18,8 @@ import {
   CreditCard, KeyRound, Tag as TagIcon, Move, PawPrint, Building2,
   RotateCcw, RotateCw, ZoomIn, FlipHorizontal2, Share2, Loader2,
   Watch, Square, Circle, RectangleHorizontal, ChevronUp,
-  Phone, Wifi, AlertTriangle, Menu, Sparkle
+  Phone, Wifi, AlertTriangle, Menu, Sparkle,
+  Ticket, BedDouble, Gem
 } from 'lucide-react';
 
 type CP = React.CSSProperties & Record<string, string>;
@@ -169,7 +171,52 @@ const PRODUCTS: Product[] = [
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
     specs: ['Instruções de comunicação', 'Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
   },
+  // --- Segunda fileira: novas linhas AirNext, exibidas na seção própria logo
+  // abaixo de "Produtos" (ver ORIGINAL_LINE_IDS / seção "Mais Produtos").
+  // Continuam no mesmo array PRODUCTS de propósito: assim carrinho, busca e
+  // personalizador funcionam normalmente para elas também, sem código extra.
+  {
+    id: 'corporate', name: 'AirNext Corporate', tag: 'Empresas', price: 99,
+    desc: 'Crachás e cartões NFC inteligentes para equipes e colaboradores.',
+    longDesc: 'Emita identidade digital para toda a equipe: crachá com NFC, controle de acesso, perfil corporativo e dados de contato centralizados — tudo com a marca da sua empresa.',
+    img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    color: '#5e17eb', icon: <Users size={22} />,
+    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
+    specs: ['Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC NTAG216 · 888 bytes', 'QR Code Dinâmico', 'Dashboard de gestão'],
+  },
+  {
+    id: 'evento', name: 'AirNext Evento', tag: 'Eventos', price: 45,
+    desc: 'Crachás inteligentes para congressos, feiras e eventos.',
+    longDesc: 'Participantes trocam contato, acessam a programação e fazem check-in com um toque. Ideal para congressos, feiras e eventos corporativos que quere reduzir fricção.',
+    img: 'https://images.pexels.com/photos/5239822/pexels-photo-5239822.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    color: '#ff2d55', icon: <Ticket size={22} />,
+    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
+    specs: ['Check-in por aproximação', 'Programação e mapa do evento', 'QR Code de backup', 'Networking pós-evento', 'PVC Premium Matte'],
+  },
+  {
+    id: 'hotel', name: 'AirNext Hotel', tag: 'Hotelaria', price: 69,
+    desc: 'Pulseiras e cartões NFC para hóspedes — acesso, quarto e consumo em um toque.',
+    longDesc: 'Hóspedes acessam o quarto, áreas comuns e consomem no bar ou restaurante com uma simples aproximação. Sem chave física, sem cartão magnético.',
+    img: 'https://images.pexels.com/photos/7394608/pexels-photo-7394608.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    color: '#00c2a8', icon: <BedDouble size={22} />,
+    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
+    specs: ['Acesso ao quarto e áreas comuns', 'Consumo integrado (bar/restaurante)', 'IP68 · Resistente à água', 'Dashboard de analytics', 'Personalização com logo do hotel'],
+  },
+  {
+    id: 'vip', name: 'AirNext Black', tag: 'Executivos', price: 189,
+    desc: 'Edição premium em metal escovado para quem exige exclusividade.',
+    longDesc: 'A versão mais exclusiva do AirNext: acabamento em metal escovado, gravação a laser e experiência de unboxing premium — para executivos e clientes VIP.',
+    img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    color: '#1c1c1e', icon: <Gem size={22} />,
+    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
+    specs: ['Acabamento em metal escovado', 'Gravação a laser personalizada', 'Chip NFC NTAG216 · 888 bytes', 'Caixa premium de unboxing', 'Edição numerada'],
+  },
 ];
+
+// IDs das 6 linhas originais — usados para manter a vitrine principal e o
+// carrossel "Veja o AirNext em ação" exatamente como eram, mesmo com os
+// novos produtos acima presentes no mesmo array PRODUCTS.
+const ORIGINAL_LINE_IDS = ['pro', 'stand', 'pet', 'kids', 'senior', 'tea'];
 
 // Curated colour palette offered in the customizer — kept separate from each
 // line's default brand colour so a client can pick *any* card colour freely.
@@ -1508,9 +1555,12 @@ export default function LandingPage() {
 
   // Products section — filter by physical format/category, makes the section functional
   const [productFormatFilter, setProductFormatFilter] = useState<string>('todos');
+  const mainLineProducts = PRODUCTS.filter(p => ORIGINAL_LINE_IDS.includes(p.id));
   const shopProducts = productFormatFilter === 'todos'
-    ? PRODUCTS
-    : PRODUCTS.filter(p => p.formats.includes(productFormatFilter));
+    ? mainLineProducts
+    : mainLineProducts.filter(p => p.formats.includes(productFormatFilter));
+  // Segunda fileira — novas linhas AirNext, exibidas na seção própria abaixo de "Produtos"
+  const row2Products = PRODUCTS.filter(p => !ORIGINAL_LINE_IDS.includes(p.id));
 
   // "Veja como funciona na prática" — lightbox de imagem/vídeo, sem levar para produtos
   const [demoLightbox, setDemoLightbox] = useState<Product | null>(null);
@@ -1844,10 +1894,10 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Dark / Light Mode Toggle Button */}
+            {/* Dark / Light Mode Toggle Button — sempre visível, em qualquer tamanho de tela */}
             <button
               onClick={() => setIsDark(!isDark)}
-              className={`hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border transition-all ${
                 isDark ? 'bg-white/[0.06] border-white/10 text-yellow-300 hover:bg-white/10' : 'bg-gray-900/[0.04] border-gray-200 text-gray-700 hover:bg-gray-900/[0.08]'
               }`}
               aria-label="Alternar tema"
@@ -1883,11 +1933,16 @@ export default function LandingPage() {
               <UserRound size={14} /> Login
             </Link>
 
-            {/* Buy Action Button */}
-            <a href="#produtos" className={`hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-5 py-2.5 rounded-full transition-all shadow-sm hover:shadow-md hover:-translate-y-px ${
-              isDark ? 'bg-white text-black hover:bg-gray-100' : 'bg-gray-900 text-white hover:bg-black'
-            }`}>
-              Comprar <ArrowRight size={13} />
+            {/* Buy Action Button — sacola compacta, mesmo tamanho dos outros ícones (antes era um botão largo com texto "Comprar") */}
+            <a
+              href="#produtos"
+              aria-label="Ir para produtos"
+              title="Comprar"
+              className={`hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-full transition-all shadow-sm hover:shadow-md hover:-translate-y-px ${
+                isDark ? 'bg-white text-black hover:bg-gray-100' : 'bg-gray-900 text-white hover:bg-black'
+              }`}
+            >
+              <ShoppingBag size={16} />
             </a>
 
             {/* Mobile Menu Trigger */}
@@ -1924,6 +1979,22 @@ export default function LandingPage() {
                 </button>
               </div>
               
+              {/* Dark / Light Mode Toggle — também disponível aqui no menu mobile, não só na navbar */}
+              <button
+                onClick={() => setIsDark(!isDark)}
+                className={`w-full mb-3 flex items-center justify-between px-4 py-3 rounded-2xl border transition ${
+                  isDark ? 'bg-white/[0.06] border-white/10 text-white' : 'bg-gray-900/[0.04] border-gray-200 text-gray-900'
+                }`}
+              >
+                <span className="text-sm font-semibold flex items-center gap-2">
+                  {isDark ? <Sun size={16} className="text-yellow-300" /> : <Moon size={16} />}
+                  Modo {isDark ? 'Claro' : 'Escuro'}
+                </span>
+                <span className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition ${isDark ? 'bg-[#0071e3]' : 'bg-gray-300'}`}>
+                  <span className={`inline-block h-[18px] w-[18px] transform rounded-full bg-white transition-transform ${isDark ? 'translate-x-[22px]' : 'translate-x-[3px]'}`} />
+                </span>
+              </button>
+
               <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto px-2 no-scrollbar">
                 {links.map(l => (
                   <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className={`text-lg font-semibold py-3 border-b ${isDark ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'} flex items-center justify-between`}>
@@ -1932,8 +2003,8 @@ export default function LandingPage() {
                 ))}
               </div>
               <div className="px-2 flex flex-col gap-3">
-                <a href="#produtos" onClick={() => setMobileOpen(false)} className={`mt-6 w-full py-4 rounded-full text-center font-semibold block ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}>
-                  Comprar Agora
+                <a href="#produtos" onClick={() => setMobileOpen(false)} className={`mt-6 w-full py-4 rounded-full text-center font-semibold flex items-center justify-center gap-2 ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                  <ShoppingBag size={16} /> Comprar Agora
                 </a>
                 <Link
                   to="/login"
@@ -2413,7 +2484,7 @@ export default function LandingPage() {
               <p className="eyebrow text-[#0071e3] mb-3">Veja Como Funciona na Prática</p>
               <h2 className="h2-apple mb-4">Veja o AirNext em ação, linha por linha.</h2>
               <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto`}>
-                Um vislumbre real de como cada linha AirNext resolve um problema do dia a dia — apenas fotos e vídeo, sem compromisso.
+                Um vislumbre real de como cada linha AirNext resolve um problema do dia a dia — foto ou vídeo, sem compromisso.
               </p>
             </div>
 
@@ -2425,13 +2496,20 @@ export default function LandingPage() {
               breakpoints={{ 640: { slidesPerView: 2.2 }, 1024: { slidesPerView: 3.2 } }}
               className="pb-10"
             >
-              {PRODUCTS.map(p => (
+              {PRODUCTS.filter(p => ORIGINAL_LINE_IDS.includes(p.id)).map(p => {
+                const demoSrc = resolveImg(`demo-${p.id}`, p.img);
+                const demoIsVideo = isVideoUrl(demoSrc);
+                return (
                 <SwiperSlide key={p.id}>
                   <button
                     onClick={() => setDemoLightbox(p)}
                     className="group relative w-full aspect-[4/5] rounded-[28px] overflow-hidden block text-left"
                   >
-                    <img src={resolveImg(`demo-${p.id}`, p.img)} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    {demoIsVideo ? (
+                      <video src={demoSrc} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" muted loop playsInline autoPlay />
+                    ) : (
+                      <img src={demoSrc} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/20" />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
@@ -2447,7 +2525,8 @@ export default function LandingPage() {
                     </div>
                   </button>
                 </SwiperSlide>
-              ))}
+                );
+              })}
             </Swiper>
             <SwipeIndicator isDark={isDark} />
           </div>
@@ -2472,8 +2551,16 @@ export default function LandingPage() {
                   onClick={(e) => e.stopPropagation()}
                   className="relative w-full max-w-2xl aspect-[4/5] sm:aspect-video rounded-[28px] overflow-hidden shadow-2xl"
                 >
-                  <img src={resolveImg(`demo-${demoLightbox.id}`, demoLightbox.img)} alt={demoLightbox.name} className="absolute inset-0 w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/10" />
+                  {isVideoUrl(resolveImg(`demo-${demoLightbox.id}`, demoLightbox.img)) ? (
+                    <video
+                      src={resolveImg(`demo-${demoLightbox.id}`, demoLightbox.img)}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      autoPlay loop controls playsInline
+                    />
+                  ) : (
+                    <img src={resolveImg(`demo-${demoLightbox.id}`, demoLightbox.img)} alt={demoLightbox.name} className="absolute inset-0 w-full h-full object-cover" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/10 pointer-events-none" />
                   <div className="absolute bottom-0 inset-x-0 p-6 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${demoLightbox.color}30`, color: demoLightbox.color }}>
                       {demoLightbox.icon}
@@ -2526,11 +2613,11 @@ export default function LandingPage() {
                     <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
                       <img src={resolveImg(`shop-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
 
-                      {/* Botão de sacola — some para "levar modelo padrão" sem precisar abrir o card */}
+                      {/* Botão de sacola — sempre visível (antes só aparecia no hover) */}
                       <button
                         onClick={(e) => { e.stopPropagation(); addToCart(p); }}
                         aria-label={`Adicionar ${p.name} à sacola`}
-                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition opacity-0 group-hover:opacity-100 focus:opacity-100 ${
+                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition ${
                           isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
                         }`}
                       >
@@ -2569,33 +2656,7 @@ export default function LandingPage() {
               </div>
             )}
 
-            {/* Personalized products promo block */}
-            <div className={`mt-10 rounded-[32px] p-8 md:p-10 border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#0a0a0a] to-purple-950/20 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'}`}>
-              <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-              <div className="relative grid md:grid-cols-3 gap-6 items-center">
-                <div className="md:col-span-2">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles size={18} className="text-[#0071e3]" />
-                    <p className={`eyebrow ${isDark ? 'text-blue-300' : 'text-[#0071e3]'}`}>100% Personalizado</p>
-                  </div>
-                  <h3 className={`text-xl md:text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Não achou o padrão perfeito? Monte o seu do zero.
-                  </h3>
-                  <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Escolha a linha AirNext, o formato (cartão, tag, chaveiro, pulseira ou adesivo), a cor e a sua própria foto — ajuste tudo
-                    do seu jeito e envie direto para produção pelo WhatsApp.
-                  </p>
-                </div>
-                <div className="flex md:justify-end">
-                  <button
-                    onClick={() => goPersonalize(PRODUCTS[0])}
-                    className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#0077ed] transition shadow-xl shadow-blue-500/20"
-                  >
-                    <Palette size={16} /> Ir para o Personalizador
-                  </button>
-                </div>
-              </div>
-            </div>
+          
           </div>
           <AnimatePresence>
             {selectedProduct && (
@@ -2691,6 +2752,104 @@ export default function LandingPage() {
           </AnimatePresence>
         </section>
 
+        {/* --- Second Products Row: new AirNext lines (Corporate, Evento, Hotel, Black) --- */}
+        <section id="mais-produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-14">
+              <p className="eyebrow text-[#0071e3] mb-3">Novas Linhas</p>
+              <h2 className="h2-apple">Mais produtos AirNext.</h2>
+              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Novas linhas para empresas, eventos, hotelaria e uma edição exclusiva para executivos.</p>
+            </div>
+
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={20}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              breakpoints={{
+                640: { slidesPerView: 2 },
+                768: { slidesPerView: 3 },
+                1024: { slidesPerView: 4 }
+              }}
+              className="pb-10"
+            >
+              {row2Products.map(p => (
+                <SwiperSlide key={p.id}>
+                  <motion.div
+                    whileHover={{ y: -6 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    onClick={() => setSelectedProduct(p)}
+                    className="group cursor-pointer h-[420px] flex flex-col"
+                  >
+                    <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
+                      <img src={resolveImg(`row2-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addToCart(p); }}
+                        aria-label={`Adicionar ${p.name} à sacola`}
+                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition ${
+                          isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
+                        }`}
+                      >
+                        <ShoppingBag size={15} />
+                      </button>
+
+                      <span className={`absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-1 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/90 text-white'}`}>
+                        Novo
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col flex-1">
+                      <span className={`text-[11px] font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
+                      <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
+                      <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
+
+                      <div className="mt-auto flex items-center justify-between gap-3">
+                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {p.price}</p>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); goPersonalize(p); }}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
+                            isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
+                          }`}
+                        >
+                          Personalizar <ChevronRight size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <SwipeIndicator isDark={isDark} />
+          </div>
+        </section>
+           {/* Personalized products promo block */}
+            <div className={`mt-10 rounded-[32px] p-8 md:p-10 border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#0a0a0a] to-purple-950/20 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'}`}>
+              <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+              <div className="relative grid md:grid-cols-3 gap-6 items-center">
+                <div className="md:col-span-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles size={18} className="text-[#0071e3]" />
+                    <p className={`eyebrow ${isDark ? 'text-blue-300' : 'text-[#0071e3]'}`}>100% Personalizado</p>
+                  </div>
+                  <h3 className={`text-xl md:text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    Não achou o padrão perfeito? Monte o seu do zero.
+                  </h3>
+                  <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Escolha a linha AirNext, o formato (cartão, tag, chaveiro, pulseira ou adesivo), a cor e a sua própria foto — ajuste tudo
+                    do seu jeito e envie direto para produção pelo WhatsApp.
+                  </p>
+                </div>
+                <div className="flex md:justify-end">
+                  <button
+                    onClick={() => goPersonalize(PRODUCTS[0])}
+                    className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#0077ed] transition shadow-xl shadow-blue-500/20"
+                  >
+                    <Palette size={16} /> Ir para o Personalizador
+                  </button>
+                </div>
+              </div>
+            </div>
         {/* --- AirNext Personalizador: interactive multi-format customizer --- */}
         <PersonalizadorSection isDark={isDark} preset={configuratorPreset} />
 

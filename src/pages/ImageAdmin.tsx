@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import { ALL_SITE_MEDIA_SLOTS, ImageSlot } from '../config/site-images';
 import { useSiteImages } from '../hooks/useSiteImages';
+import { isVideoUrl } from '../lib/media';
+import { uploadSiteMedia } from '../lib/siteMedia';
 
 // Troque essa senha por uma sua. É só uma trava simples para visitantes não
 // acharem o atalho por acaso — não é segurança de verdade (o código roda no
@@ -8,10 +10,10 @@ import { useSiteImages } from '../hooks/useSiteImages';
 const ADMIN_PASSWORD = 'airnext2026';
 const SESSION_KEY = 'airnext_admin_unlocked';
 
-// Limite de tamanho por tipo de arquivo ao enviar do computador (fica salvo
-// como base64 no localStorage, que tem ~5MB de limite total no navegador).
-const MAX_IMAGE_MB = 1.5;
-const MAX_VIDEO_MB = 4;
+// Agora os arquivos vão pro Supabase Storage (não mais base64 no localStorage),
+// então o limite é só pra manter o site rápido — pode subir se precisar.
+const MAX_IMAGE_MB = 8;
+const MAX_VIDEO_MB = 50;
 
 function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
   const [value, setValue] = useState('');
@@ -57,49 +59,67 @@ function MediaSlotRow({
 }: {
   slot: ImageSlot;
   currentUrl: string;
-  onChange: (url: string) => void;
+  onChange: (url: string) => Promise<void>;
   onReset: () => void;
 }) {
-  const isVideo = slot.type === 'video';
+  // Slots "flexíveis" (ex: "Veja o AirNext em ação") aceitam foto OU vídeo no
+  // mesmo espaço — nesse caso, decide pelo conteúdo atual, não por um tipo fixo.
+  const isVideo = slot.type === 'video' || (slot.flexibleMedia === true && isVideoUrl(currentUrl));
   const [urlDraft, setUrlDraft] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const flashSaved = () => {
     setSavedFlash(true);
     setTimeout(() => setSavedFlash(false), 1200);
   };
 
-  const handleUrlSave = () => {
+  const handleUrlSave = async () => {
     if (!urlDraft.trim()) return;
-    onChange(urlDraft.trim());
-    setUrlDraft('');
-    flashSaved();
+    setErrorMsg('');
+    try {
+      await onChange(urlDraft.trim());
+      setUrlDraft('');
+      flashSaved();
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Erro ao salvar.');
+    }
   };
 
-  const handleFile = (file: File) => {
-    // localStorage tem limite (~5MB no total). Para arquivos grandes, o ideal
-    // é hospedar em algum lugar (ex: Cloudinary, YouTube/Vimeo p/ vídeo, seu
-    // storage) e colar o link em vez de enviar do computador.
-    const maxMb = isVideo ? MAX_VIDEO_MB : MAX_IMAGE_MB;
+  const handleFile = async (file: File) => {
+    // Em slots flexíveis, o tipo do ARQUIVO enviado decide o limite — não o
+    // que já estava salvo ali antes.
+    const fileIsVideo = slot.flexibleMedia ? file.type.startsWith('video') : isVideo;
+    const maxMb = fileIsVideo ? MAX_VIDEO_MB : MAX_IMAGE_MB;
     if (file.size > maxMb * 1024 * 1024) {
       alert(
-        isVideo
-          ? `Esse vídeo tem mais de ${maxMb}MB. Hospede em algum lugar (ex: YouTube, Vimeo, Cloudinary, seu storage) e cole o link, em vez de enviar o arquivo direto.`
+        fileIsVideo
+          ? `Esse vídeo tem mais de ${maxMb}MB. Comprima antes ou hospede em outro lugar (ex: YouTube, Vimeo) e cole o link.`
           : `Essa imagem tem mais de ${maxMb}MB. Comprima antes (ex: squoosh.app) ou cole uma URL já hospedada.`
       );
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      onChange(reader.result as string);
+    setErrorMsg('');
+    setUploading(true);
+    try {
+      // Sobe o arquivo pro Supabase Storage (bucket "site-media") e salva a
+      // URL pública na tabela — assim o arquivo fica disponível pra qualquer
+      // visitante, em qualquer servidor, não só neste navegador.
+      const { url, error } = await uploadSiteMedia(slot.id, file);
+      if (error || !url) throw new Error(error || 'Falha no upload.');
+      await onChange(url);
       flashSaved();
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Erro ao enviar arquivo.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
-    <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row gap-4 sm:gap-5">
+    <div id={`slot-${slot.id}`} className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row gap-4 sm:gap-5 scroll-mt-24">
       <div className="w-full md:w-36 flex-shrink-0">
         <div className={`w-full ${isVideo ? 'aspect-video' : 'aspect-square'} rounded-xl overflow-hidden bg-black/40 border border-white/10`}>
           {currentUrl && (
@@ -114,11 +134,20 @@ function MediaSlotRow({
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
-          <h3 className="text-white font-bold text-sm">{slot.label}</h3>
+          <h3 className="text-white font-bold text-sm flex items-center gap-2">
+            {slot.label}
+            {slot.flexibleMedia && (
+              <span className="text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#0071e3]/20 text-[#4da3ff]">
+                Foto ou vídeo
+              </span>
+            )}
+          </h3>
           {savedFlash && <span className="text-xs text-green-400 font-semibold">Salvo ✓</span>}
+          {uploading && <span className="text-xs text-[#4da3ff] font-semibold">Enviando...</span>}
         </div>
         <p className="text-[#0071e3] text-xs font-semibold mb-1">Tamanho recomendado: {slot.recommendedSize}</p>
         <p className="text-gray-400 text-xs mb-3 leading-relaxed">{slot.note}</p>
+        {errorMsg && <p className="text-red-400 text-xs mb-3">{errorMsg}</p>}
 
         <div className="flex flex-col sm:flex-row gap-2 mb-2">
           <input
@@ -126,22 +155,26 @@ function MediaSlotRow({
             value={urlDraft}
             onChange={(e) => setUrlDraft(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleUrlSave()}
-            placeholder={isVideo ? 'Colar link (URL) do novo vídeo (.mp4)...' : 'Colar link (URL) da nova imagem...'}
+            placeholder={
+              slot.flexibleMedia
+                ? 'Colar link (URL) da foto ou do vídeo...'
+                : isVideo ? 'Colar link (URL) do novo vídeo (.mp4)...' : 'Colar link (URL) da nova imagem...'
+            }
             className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#0071e3]"
           />
-          <button onClick={handleUrlSave} className="bg-[#0071e3] hover:bg-[#0077ed] text-white text-sm font-semibold px-4 py-2 rounded-xl transition whitespace-nowrap active:scale-[0.98]">
+          <button onClick={handleUrlSave} disabled={uploading} className="bg-[#0071e3] hover:bg-[#0077ed] disabled:opacity-50 text-white text-sm font-semibold px-4 py-2 rounded-xl transition whitespace-nowrap active:scale-[0.98]">
             Usar link
           </button>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => fileInputRef.current?.click()} className="bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-medium px-3 py-1.5 rounded-xl transition active:scale-[0.98]">
-            Enviar do computador
+          <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="bg-white/5 hover:bg-white/10 disabled:opacity-50 border border-white/10 text-white text-xs font-medium px-3 py-1.5 rounded-xl transition active:scale-[0.98]">
+            {uploading ? 'Enviando...' : 'Enviar do computador'}
           </button>
           <input
             ref={fileInputRef}
             type="file"
-            accept={isVideo ? 'video/*' : 'image/*'}
+            accept={slot.flexibleMedia ? 'image/*,video/*' : isVideo ? 'video/*' : 'image/*'}
             className="hidden"
             onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
           />
@@ -156,15 +189,39 @@ function MediaSlotRow({
 
 export default function ImageAdmin() {
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(SESSION_KEY) === '1');
-  const { images, setImage, resetImage, resetAll } = useSiteImages();
+  const { images, setImage, resetImage, resetAll, loading } = useSiteImages();
 
   if (!unlocked) return <PasswordGate onUnlock={() => setUnlocked(true)} />;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <p className="text-gray-400 text-sm">Carregando imagens...</p>
+      </div>
+    );
+  }
 
   // Agrupa os slots (imagens e vídeos) pelo bloco/contexto onde aparecem no site
   const groups = ALL_SITE_MEDIA_SLOTS.reduce<Record<string, ImageSlot[]>>((acc, slot) => {
     (acc[slot.context] ||= []).push(slot);
     return acc;
   }, {});
+
+  // Atalhos de vídeo — todo slot que HOJE contém um vídeo (fixo tipo "video"
+  // ou um slot flexível onde o arquivo salvo é um vídeo), pra achar rápido
+  // sem precisar rolar a página toda.
+  const videoSlots = ALL_SITE_MEDIA_SLOTS.filter(
+    (slot) => slot.type === 'video' || (slot.flexibleMedia === true && isVideoUrl(images[slot.id]))
+  );
+
+  // Atalhos da seção "Veja o AirNext em ação" — TODOS os slots que aceitam
+  // foto OU vídeo (independente do que está salvo ali agora), pra ficar fácil
+  // achar onde trocar por um vídeo, mesmo que hoje esteja com uma foto.
+  const flexibleMediaSlots = ALL_SITE_MEDIA_SLOTS.filter((slot) => slot.flexibleMedia === true);
+
+  const scrollToSlot = (id: string) => {
+    document.getElementById(`slot-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-8 sm:py-12 px-4 sm:px-6">
@@ -178,10 +235,48 @@ export default function ImageAdmin() {
             Restaurar tudo
           </button>
         </div>
-        <p className="text-gray-400 text-sm mb-8 sm:mb-10 leading-relaxed">
+        <p className="text-gray-400 text-sm mb-6 leading-relaxed">
           Cada bloco abaixo tem sua própria imagem ou vídeo — trocar um não afeta os outros, mesmo que
           seja do mesmo produto. É só colar um link ou enviar um arquivo.
         </p>
+
+        {flexibleMediaSlots.length > 0 && (
+          <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 mb-4 sm:mb-6">
+            <h2 className="text-white text-sm font-bold mb-1">Vídeos de "Veja o AirNext em ação"</h2>
+            <p className="text-gray-400 text-xs mb-3 leading-relaxed">
+              Esses cards aceitam foto OU vídeo. Clique num deles pra ir direto lá e enviar um vídeo,
+              mesmo que hoje ainda esteja com uma foto.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {flexibleMediaSlots.map((slot) => (
+                <button
+                  key={slot.id}
+                  onClick={() => scrollToSlot(slot.id)}
+                  className="flex items-center gap-1.5 bg-[#0071e3]/10 hover:bg-[#0071e3]/20 border border-[#0071e3]/30 text-[#4da3ff] text-xs font-semibold px-3 py-1.5 rounded-full transition active:scale-[0.98]"
+                >
+                  🎬 {slot.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {videoSlots.length > 0 && (
+          <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 sm:p-5 mb-8 sm:mb-10">
+            <h2 className="text-white text-sm font-bold mb-3">Atalhos de vídeos do site</h2>
+            <div className="flex flex-wrap gap-2">
+              {videoSlots.map((slot) => (
+                <button
+                  key={slot.id}
+                  onClick={() => scrollToSlot(slot.id)}
+                  className="flex items-center gap-1.5 bg-[#0071e3]/10 hover:bg-[#0071e3]/20 border border-[#0071e3]/30 text-[#4da3ff] text-xs font-semibold px-3 py-1.5 rounded-full transition active:scale-[0.98]"
+                >
+                  ▶ {slot.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-10 sm:space-y-12">
           {Object.entries(groups).map(([context, slots]) => (
