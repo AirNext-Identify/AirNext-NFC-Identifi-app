@@ -2356,11 +2356,7 @@ export default function LandingPage() {
                 className="absolute right-[5%] bottom-[25%] md:bottom-[30%] float-anim"
                 style={{ '--r': '-4deg' } as CP}
               >
-                <div className="flex gap-1.5">
-                  {['#0071e3', '#ff3b30', '#34c759'].map((c) => (
-                    <div key={c} className="w-8 h-14 md:w-10 md:h-16 rounded-xl shadow-lg" style={{ background: `linear-gradient(160deg, ${c}, ${c}cc)` }} />
-                  ))}
-                </div>
+                
               </motion.div>
             </div>
           </div>
@@ -2412,14 +2408,7 @@ export default function LandingPage() {
 
               {!playing && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: .95 }}
-                    className="w-28 h-28 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition pointer-events-auto"
-                    onClick={togglePlay}
-                  >
-                    <Play size={44} className="text-white ml-1.5" fill="white" />
-                  </motion.button>
+                  
                 </div>
               )}
 
@@ -2512,9 +2501,7 @@ export default function LandingPage() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/20" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                        <Play size={22} className="text-black ml-0.5" fill="black" />
-                      </span>
+                      
                     </div>
                     <div className="absolute bottom-0 inset-x-0 p-5">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${p.color}30`, color: p.color }}>
@@ -2756,9 +2743,9 @@ export default function LandingPage() {
         <section id="mais-produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-14">
-              <p className="eyebrow text-[#0071e3] mb-3">Novas Linhas</p>
-              <h2 className="h2-apple">Mais produtos AirNext.</h2>
-              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Novas linhas para empresas, eventos, hotelaria e uma edição exclusiva para executivos.</p>
+              <p className="eyebrow text-[#0071e3] mb-3">Feito para o seu estilo</p>
+              <h2 className="h2-apple">Projetado para cada ocasião</h2>
+              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Encontre o modelo ideal para o seu estilo, com a tecnologia AirNext presente em todas as versões.</p>
             </div>
 
             <Swiper
