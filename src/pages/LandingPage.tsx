@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence, useDragControls } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
@@ -1560,29 +1560,6 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
-  // Drag gesture for the mobile drawer is scoped ONLY to the handle bar (see
-  // dragControls.start on the handle's onPointerDown below). Previously the
-  // whole drawer had `drag="y"`, which made touch taps anywhere in the panel
-  // — including the close (X) button and nav links — get interpreted as the
-  // start of a drag instead of a tap, silently swallowing the click and
-  // making the menu impossible to close on touch devices.
-  const mobileDragControls = useDragControls();
-
-  // Lock body scroll while the mobile drawer is open, and allow closing it
-  // with the Escape key (parity with clicking the backdrop / X button).
-  useEffect(() => {
-    if (!mobileOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMobileOpen(false);
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [mobileOpen]);
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [activeEveryone, setActiveEveryone] = useState(0);
@@ -1597,6 +1574,59 @@ export default function LandingPage() {
   // Search overlay state
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // --- Overlay body-scroll lock (mobile drawer + cart + search) ---
+  // `overflow:hidden` on <body> alone does NOT reliably stop background
+  // scrolling on iOS Safari — the page can still rubber-band, and because
+  // Safari recalculates the visual viewport as the address bar collapses,
+  // fixed-position elements can end up misaligned with where touches are
+  // actually registered. The end result looks exactly like "an invisible
+  // element swallowing every tap": buttons are visually in one place, but
+  // touches land on stale coordinates and nothing responds until reload.
+  // The fix that actually works on iOS is to pin the body in place with
+  // `position: fixed` (freezing layout scroll) and restore the exact
+  // scroll offset when the overlay closes.
+  const anyOverlayOpen = mobileOpen || cartOpen || searchOpen;
+  useEffect(() => {
+    if (!anyOverlayOpen) return;
+
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setMobileOpen(false);
+      setCartOpen(false);
+      setSearchOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.left = prev.left;
+      body.style.right = prev.right;
+      body.style.width = prev.width;
+      body.style.overflow = prev.overflow;
+      window.scrollTo(0, scrollY);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [anyOverlayOpen]);
 
   // Use Case Tab State
   const [activeUseCase, setActiveUseCase] = useState(0);
@@ -2004,37 +2034,30 @@ export default function LandingPage() {
       {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm" onClick={() => setMobileOpen(false)}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          >
             <motion.div
-              drag="y"
-              dragListener={false}
-              dragControls={mobileDragControls}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.2}
-              onDragEnd={(_, info) => {
-                if (info.offset.y > 50) setMobileOpen(false);
-              }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu de navegação"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className={`absolute bottom-0 inset-x-0 ${isDark ? 'bg-[#121212] text-white' : 'bg-white text-gray-900'} rounded-t-[32px] p-6 pb-12 shadow-2xl`}
+              className={`absolute bottom-0 inset-x-0 max-h-[90vh] overflow-y-auto ${isDark ? 'bg-[#121212] text-white' : 'bg-white text-gray-900'} rounded-t-[32px] p-6 pb-12 shadow-2xl`}
             >
-              {/* Only this handle row starts the drag gesture (via dragControls),
-                  so the rest of the drawer — X button, links, CTAs — receives
-                  normal click/tap events instead of having them swallowed by
-                  a drag gesture recognizer covering the whole panel. */}
-              <div
-                className="flex items-center justify-between mb-4 -mt-1 py-2 touch-none"
-                style={{ touchAction: 'none' }}
-                onPointerDown={(e) => mobileDragControls.start(e)}
-              >
+              <div className="flex items-center justify-between mb-4 -mt-1 py-2">
                 <div className="w-10 opacity-0" /> {/* Spacer for centering */}
-                <div className={`w-12 h-1.5 ${isDark ? 'bg-gray-700' : 'bg-gray-300'} rounded-full cursor-grab active:cursor-grabbing`} />
+                <div className={`w-12 h-1.5 ${isDark ? 'bg-gray-700' : 'bg-gray-300'} rounded-full`} />
                 <button
+                  type="button"
                   onClick={() => setMobileOpen(false)}
-                  onPointerDown={(e) => e.stopPropagation()}
                   aria-label="Fechar menu"
                   className={`p-2 rounded-full transition ${isDark ? 'bg-white/10 hover:bg-white/20' : 'bg-gray-100 hover:bg-gray-200'}`}
                 >

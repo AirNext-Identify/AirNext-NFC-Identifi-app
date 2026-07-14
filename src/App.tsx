@@ -64,42 +64,47 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 }
 
 // Rotas que dependem de autenticação (login, dashboard, admin, onboarding).
-// Isoladas num AuthProvider próprio para não vazar para as rotas públicas
-// de cartão (/u/:slug, /p/:slug) — ver comentário em App() mais abaixo.
+// O AuthProvider agora vive em App(), envolvendo TODAS as rotas (inclusive
+// /painel-imagens, /u/:slug, /p/:slug etc). Isso corrige um bug em que
+// /painel-imagens ficava fora do AuthProvider e o useAuth() usado por
+// SmartProtected/ImageAdmin estourava "useAuth fora do AuthProvider" assim
+// que a página era aberta — o atalho "Imagens do site" no Sidebar do admin
+// (que abre /painel-imagens em nova aba) simplesmente não funcionava.
+// As rotas públicas de cartão (/u/:slug, /p/:slug, /n/:uuid) continuam
+// públicas normalmente: ter um AuthProvider por perto não exige login,
+// só disponibiliza o contexto para quem precisar dele (como /painel-imagens).
 function AuthenticatedRoutes() {
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<Guest><LoginPage /></Guest>} />
-        <Route path="/register" element={<Guest><RegisterPage /></Guest>} />
-        <Route path="/ativar" element={<Protected><ActivationPage /></Protected>} />
-        <Route path="/ativar/:code" element={<Protected><ActivationPage /></Protected>} />
-        <Route path="/onboarding" element={<OnboardingGuard><Onboarding /></OnboardingGuard>} />
+    <Routes>
+      <Route path="/login" element={<Guest><LoginPage /></Guest>} />
+      <Route path="/register" element={<Guest><RegisterPage /></Guest>} />
+      <Route path="/ativar" element={<Protected><ActivationPage /></Protected>} />
+      <Route path="/ativar/:code" element={<Protected><ActivationPage /></Protected>} />
+      <Route path="/onboarding" element={<OnboardingGuard><Onboarding /></OnboardingGuard>} />
 
-        <Route path="/dashboard" element={<Protected><DashboardLayout /></Protected>}>
-          <Route index element={<DashboardHome />} />
-          <Route path="produtos" element={<MyProducts />} />
-          <Route path="perfil/:productId" element={<Perfil />} />
-          <Route path="estatisticas" element={<Statistics />} />
-          <Route path="suporte" element={<SupportPage />} />
-        </Route>
+      <Route path="/dashboard" element={<Protected><DashboardLayout /></Protected>}>
+        <Route index element={<DashboardHome />} />
+        <Route path="produtos" element={<MyProducts />} />
+        <Route path="perfil/:productId" element={<Perfil />} />
+        <Route path="estatisticas" element={<Statistics />} />
+        <Route path="suporte" element={<SupportPage />} />
+      </Route>
 
-        {/* Painel administrativo premium — substitui o admin simples anterior.
-            É self-contained (tem seu próprio Sidebar/Header), por isso não
-            fica dentro de <AdminLayout>. Usa /admin/* para engolir qualquer
-            sub-caminho, já que a navegação entre módulos é interna (estado
-            React), não por rota. */}
-        <Route path="/admin/*" element={<Protected admin><AdminPanel /></Protected>} />
+      {/* Painel administrativo premium — substitui o admin simples anterior.
+          É self-contained (tem seu próprio Sidebar/Header), por isso não
+          fica dentro de <AdminLayout>. Usa /admin/* para engolir qualquer
+          sub-caminho, já que a navegação entre módulos é interna (estado
+          React), não por rota. */}
+      <Route path="/admin/*" element={<Protected admin><AdminPanel /></Protected>} />
 
-        {/* Admin antigo (simples), mantido acessível para referência/backup. */}
-        <Route path="/admin-legacy" element={<Protected admin><AdminLayout /></Protected>}>
-          <Route index element={<AdminHome />} />
-          <Route path="clientes" element={<AdminClients />} />
-        </Route>
+      {/* Admin antigo (simples), mantido acessível para referência/backup. */}
+      <Route path="/admin-legacy" element={<Protected admin><AdminLayout /></Protected>}>
+        <Route index element={<AdminHome />} />
+        <Route path="clientes" element={<AdminClients />} />
+      </Route>
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </AuthProvider>
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 }
 
@@ -107,42 +112,44 @@ export default function App() {
   return (
     <ToastProvider>
       <Router>
-        <Suspense fallback={<LoadingScreen />}>
-          <Routes>
+        <AuthProvider>
+          <Suspense fallback={<LoadingScreen />}>
+            <Routes>
 
-            {/* Landing page institucional (site AirNect) */}
-            <Route path="/" element={<LandingPage />} />
+              {/* Landing page institucional (site AirNect) */}
+              <Route path="/" element={<LandingPage />} />
 
-            {/* Painel de imagens do site — agora exige login real de ADMIN
-                (Supabase Auth + is_admin() no banco), não mais uma senha
-                fixa no código-fonte. Ver fix_critico_seguranca_2026-07.sql:
-                as policies de escrita em site_images/site-media agora só
-                aceitam usuário autenticado com is_admin() = true, então a
-                senha antiga deixaria de funcionar mesmo se mantida aqui. */}
-            <Route
-              path="/painel-imagens"
-              element={
-                <SmartProtected adminOnly>
-                  <ImageAdmin />
-                </SmartProtected>
-              }
-            />
+              {/* Painel de imagens do site — agora exige login real de ADMIN
+                  (Supabase Auth + is_admin() no banco), não mais uma senha
+                  fixa no código-fonte. Ver fix_critico_seguranca_2026-07.sql:
+                  as policies de escrita em site_images/site-media agora só
+                  aceitam usuário autenticado com is_admin() = true, então a
+                  senha antiga deixaria de funcionar mesmo se mantida aqui. */}
+              <Route
+                path="/painel-imagens"
+                element={
+                  <SmartProtected adminOnly>
+                    <ImageAdmin />
+                  </SmartProtected>
+                }
+              />
 
-            {/* NFC */}
-            <Route path="/n/:uuid" element={<NfcRedirect />} />
+              {/* NFC */}
+              <Route path="/n/:uuid" element={<NfcRedirect />} />
 
-            {/* Código de ativação */}
-            <Route path="/a/:code" element={<NfcRedirect />} />
+              {/* Código de ativação */}
+              <Route path="/a/:code" element={<NfcRedirect />} />
 
-            {/* Perfil público */}
-            <Route path="/u/:slug" element={<PublicProfile />} />
-            <Route path="/p/:slug" element={<PublicProfile />} />
+              {/* Perfil público */}
+              <Route path="/u/:slug" element={<PublicProfile />} />
+              <Route path="/p/:slug" element={<PublicProfile />} />
 
-            {/* Rotas autenticadas */}
-            <Route path="/*" element={<AuthenticatedRoutes />} />
+              {/* Rotas autenticadas */}
+              <Route path="/*" element={<AuthenticatedRoutes />} />
 
-          </Routes>
-        </Suspense>
+            </Routes>
+          </Suspense>
+        </AuthProvider>
       </Router>
     </ToastProvider>
   );
