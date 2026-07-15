@@ -2448,14 +2448,14 @@ export default function LandingPage() {
 
         {/* --- Video Demo Section --- */}
         <section id="video-demo" className="py-20 md:py-28 bg-black text-white relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="text-center mb-14">
               <p className="eyebrow text-blue-400 mb-3">Demonstração</p>
               <h2 className="h2-apple mb-4">Veja a mágica acontecer.</h2>
               <p className="text-lg text-gray-400 max-w-2xl mx-auto">Assista como o AirNext conecta pessoas em menos de 1 segundo. Sem fio. Sem app. Sem fricção.</p>
             </div>
 
-            <div className="relative mx-auto rounded-[40px] overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
+            <div className="relative mx-auto rounded-[28px] md:rounded-[40px] overflow-hidden bg-black aspect-[4/5] sm:aspect-video lg:aspect-[21/9]">
               <video
                 className="w-full h-full object-cover"
                 autoPlay
@@ -2465,7 +2465,7 @@ export default function LandingPage() {
                 src={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/10 pointer-events-none" />
-              <div className="absolute bottom-8 left-8 md:bottom-10 md:left-10 pointer-events-none">
+              <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 pointer-events-none">
                 <p className="text-[11px] font-bold tracking-[0.2em] text-white/60 uppercase mb-1">AirNext em ação</p>
                 <p className="text-xl md:text-2xl font-bold text-white">Um toque. Uma conexão.</p>
               </div>
