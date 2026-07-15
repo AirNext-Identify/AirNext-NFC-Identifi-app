@@ -279,33 +279,14 @@ const PRODUCTS: Product[] = [
     specs: ['Check-in por aproximação', 'Programação e mapa do evento', 'QR Code de backup', 'Networking pós-evento', 'PVC Premium Matte'],
   },
   {
-   id: 'hotel',
-name: 'AirNext Hotel',
-tag: 'Hotelaria',
-price: 129,
-
-desc: 'Centralize todas as informações da hospedagem em uma placa NFC inteligente no quarto.',
-
-longDesc:
-  'Com um simples toque, o hóspede acessa Wi-Fi, cardápio, serviços, avaliações, atrações locais, regras da hospedagem, checkout e outras informações importantes — tudo atualizado em tempo real, sem precisar imprimir materiais.',
-
-img: '/src/public/hotel.png',
-
-color: '#00c2a8',
-icon: <BedDouble size={22} />,
-
-formats: ['placa', 'cartao', 'display'],
-
-specs: [
-  'Wi-Fi e informações do quarto',
-  'Cardápio e Room Service',
-  'Solicitação de serviços',
-  'Avaliações e feedback dos hóspedes',
-  'Atrações, mapas e recomendações locais'
-]
+    id: 'hotel', name: 'AirNext Hotel', tag: 'Hotelaria', price: 129,
+    desc: 'Centralize todas as informações da hospedagem em uma placa NFC inteligente no quarto.',
+    longDesc: 'Com um simples toque, o hóspede acessa Wi-Fi, cardápio, serviços, avaliações, atrações locais, regras da hospedagem, checkout e outras informações importantes — tudo atualizado em tempo real, sem precisar imprimir materiais.',
+    img: '/src/public/hotelp.png',
+    color: '#00c2a8', icon: <BedDouble size={22} />,
+    formats: ['placa', 'cartao', 'display'],
+    specs: ['Wi-Fi e informações do quarto', 'Cardápio e Room Service', 'Solicitação de serviços', 'Avaliações e feedback dos hóspedes', 'Atrações, mapas e recomendações locais'],
   },
-
-
 ];
 
 // IDs das 6 linhas originais — usados para manter a vitrine principal e o
@@ -3560,8 +3541,23 @@ export default function LandingPage() {
               </a>
             </div>
 
-        
-           
+            <form
+              onSubmit={(e) => { e.preventDefault(); if (email) { setSent(true); setEmail(''); setTimeout(() => setSent(false), 3000); } }}
+              className="max-w-md mx-auto flex flex-col sm:flex-row gap-3 p-2 bg-white/5 border border-white/15 rounded-full backdrop-blur"
+            >
+              <input
+                type="email"
+                required
+                placeholder="Seu melhor e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 bg-transparent px-5 py-2.5 text-sm placeholder:text-white/40 focus:outline-none text-white"
+              />
+              <button type="submit" className="bg-white text-black rounded-full px-6 py-2.5 text-sm font-bold hover:bg-blue-50 transition flex items-center justify-center gap-1.5 flex-shrink-0">
+                {sent ? <><Check size={14} /> Inscrito!</> : <>10% off <Send size={14} /></>}
+              </button>
+            </form>
+            <p className="text-xs text-white/40 mt-3">Cadastre-se e ganhe 10% na primeira compra. Sem spam.</p>
           </div>
         </section>
       </main>
