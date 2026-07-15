@@ -25,7 +25,8 @@ import {
   Clipboard,
   ChevronUp,
   Phone, Wifi, AlertTriangle, Menu, Sparkle,
-  Ticket, BedDouble, Gem, EyeOff, Link2
+  Ticket, BedDouble, Gem, EyeOff, Link2,
+  IdCard,
 } from 'lucide-react';
 type CP = React.CSSProperties & Record<string, string>;
 
@@ -154,6 +155,12 @@ const FORMATS: AirNextFormat[] = [
     icon: <Nfc size={16} />,
     shapeClass: 'aspect-square rounded-full',
   },
+  {
+  id: 'cracha',
+  label: 'Crachá NFC',
+  icon: <IdCard size={16} />,
+  shapeClass: 'aspect-[2.8/4.5] rounded-2xl',
+  },
 ];
 
 // Formatos que aceitam escolha livre de "corte" físico — quadrado, redondo ou
@@ -196,7 +203,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Compartilhe seu perfil completo — LinkedIn, portfólio, WhatsApp, Instagram e vCard — com uma simples aproximação. Ideal para quem vive de networking e quer causar impacto em reuniões e eventos.',
     img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#0071e3', icon: <Briefcase size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
+    formats: ['cartao', 'tag'], // todas as categorias disponíveis
     specs: ['Chip NFC NTAG216 · 888 bytes', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Edição ilimitada do perfil'],
   },
   
@@ -207,7 +214,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Recepções, restaurantes e lojas concentram cardápio digital, Wi-Fi, avaliações e formas de pagamento em um único toque. Design minimalista com base antiderrapante para o balcão.',
     img: 'https://images.pexels.com/photos/5239822/pexels-photo-5239822.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#34c759', icon: <Building2 size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
+    formats: ['display','placa'], // todas as categorias disponíveis
     specs: ['Base Acrílico Premium', 'Dual-Chip NFC', 'QR Code Estático + Dinâmico', 'Dashboard de analytics', 'Personalização com logo'],
   },
   {
@@ -216,7 +223,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Se o seu pet se perder, qualquer pessoa pode ler a tag com o celular e ver contatos de emergência, informações de saúde e veterinário. Sem mensalidade, sem bateria.',
     img: 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#ff9500', icon: <PawPrint size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
+    formats: [ 'tag', 'chaveiro'], // todas as categorias disponíveis
     specs: ['Alumínio Aeronáutico', 'IP68 · Submersível', 'Argola de titânio', 'Dados veterinários', 'GPS compartilhável'],
   },
   {
@@ -225,7 +232,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Segurança para crianças em parques, shoppings e eventos. Dados dos pais e contatos de emergência acessíveis por qualquer celular com um simples toque — sem apps.',
     img: 'https://images.pexels.com/photos/5275817/pexels-photo-5275817.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#af52de', icon: <Baby size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
+    formats: [ 'pulseira'], // todas as categorias disponíveis
     specs: ['Silicone Hipoalergênico', 'Chip NFC NTAG213', 'Nome e foto de identificação', 'Resistente à água', 'Contato dos responsáveis'],
   },
   {
@@ -234,7 +241,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Tecnologia acessível para idosos. Compartilhe endereço, contato de familiares, plano de saúde e dados médicos essenciais sem precisar de smartphone ou aplicativos.',
     img: 'https://images.pexels.com/photos/7394608/pexels-photo-7394608.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#ff3b30', icon: <Heart size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
+    formats: [ 'pulseira'], // todas as categorias disponíveis
     specs: ['Dados do plano de saúde', 'Medicações em uso', 'Contato do médico', 'Endereço residencial', 'Leitura sem aplicativo'],
   },
   {
@@ -243,20 +250,16 @@ const PRODUCTS: Product[] = [
     longDesc: 'Contém instruções de comunicação, sensibilidades sensoriais, contatos de emergência e dados médicos vitais para auxiliar pessoas no espectro autista em situações de crise.',
     img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#00d2ff', icon: <Puzzle size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
+    formats: ['pulseira', 'Crachá NFC    '], // todas as categorias disponíveis
     specs: ['Instruções de comunicação', 'Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
   },
-  // --- Segunda fileira: novas linhas AirNext, exibidas na seção própria logo
-  // abaixo de "Produtos" (ver ORIGINAL_LINE_IDS / seção "Mais Produtos").
-  // Continuam no mesmo array PRODUCTS de propósito: assim carrinho, busca e
-  // personalizador funcionam normalmente para elas também, sem código extra.
   {
     id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 69,
     desc: 'Tag NFC universal para bagagens, mochilas, chaves e objetos do dia a dia.',
     longDesc: 'Compacta e resistente, a AirNext Tag identifica qualquer objeto — malas, mochilas, bicicletas, notebooks e muito mais. Quem encontrar aproxima o celular e acessa seus dados de contato na hora, sem precisar instalar nenhum aplicativo.',
     img: 'https://files.catbox.moe/ucabuc.png',
     color: '#eab308', icon: <TagIcon size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
+    formats: ['cartao', 'tag', ],
     specs: ['Chip NFC NTAG213', 'QR Code de backup', 'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, chaves e pets'],
   },
   {
@@ -282,7 +285,7 @@ const PRODUCTS: Product[] = [
     id: 'hotel', name: 'AirNext Hotel', tag: 'Hotelaria', price: 129,
     desc: 'Centralize todas as informações da hospedagem em uma placa NFC inteligente no quarto.',
     longDesc: 'Com um simples toque, o hóspede acessa Wi-Fi, cardápio, serviços, avaliações, atrações locais, regras da hospedagem, checkout e outras informações importantes — tudo atualizado em tempo real, sem precisar imprimir materiais.',
-    img: 'https://n.uguu.se/TCFTjXMB.png',
+    img: 'https://h.uguu.se/CkyVyGcP.png',
     color: '#00c2a8', icon: <BedDouble size={22} />,
     formats: ['placa', 'cartao', 'display'],
     specs: ['Wi-Fi e informações do quarto', 'Cardápio e Room Service', 'Solicitação de serviços', 'Avaliações e feedback dos hóspedes', 'Atrações, mapas e recomendações locais'],
@@ -1622,6 +1625,7 @@ export default function LandingPage() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [email, setEmail] = useState('');
+  const [b2bStatus, setB2bStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [sent, setSent] = useState(false);
   const [activeEveryone, setActiveEveryone] = useState(0);
 
@@ -1713,6 +1717,35 @@ export default function LandingPage() {
       window.removeEventListener('resize', h);
     };
   }, []);
+
+  // Envia o formulário B2B via Web3Forms — sem backend próprio.
+  // Troque WEB3FORMS_ACCESS_KEY pela chave gerada em https://web3forms.com
+  // usando o e-mail 0800suport@gmail.com (é grátis e instantâneo).
+  const handleB2bSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setB2bStatus('sending');
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    data.append('access_key', 'f7bf8696-162e-442f-8250-d0c16c4bfadd');
+    data.append('subject', 'Nova proposta B2B — AirNext');
+    data.append('to', '0800suport@gmail.com');
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: data,
+      });
+      const result = await res.json();
+      if (result.success) {
+        setB2bStatus('success');
+        form.reset();
+      } else {
+        setB2bStatus('error');
+      }
+    } catch {
+      setB2bStatus('error');
+    }
+  };
 
   const links = [
     { label: 'Produtos', href: '#produtos' },
@@ -2681,6 +2714,7 @@ export default function LandingPage() {
           
           </div>
           
+          
         {/* --- Second Products Row: new AirNext lines (Corporate, Evento, Hotel, Black) --- */}
         <section id="mais-produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
@@ -3140,36 +3174,31 @@ export default function LandingPage() {
                     <Shield size={22} />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white leading-tight">Selo de Conformidade</h3>
-                    <p className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">Auditado e certificado</p>
+                     <h3 className="text-lg font-bold text-white leading-tight">
+                        Sua privacidade em primeiro lugar
+                      </h3>
+                      <p className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">
+                        Segurança e controle dos seus dados
+                      </p>
                   </div>
                 </div>
 
-                <div className="relative space-y-3.5 text-sm text-gray-300 mb-6">
-                  {[
-                    'Criptografia AES de 256 bits em todos os chips',
-                    'Conformidade com LGPD e GDPR',
-                    'Armazenamento seguro em nuvem, com backup redundante',
-                    'Exclusão definitiva e irreversível de conta em 1 clique',
-                    'Certificação ISO 27001 em andamento',
-                  ].map((t, i) => (
-                    <p key={i} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 w-4 h-4 rounded-full bg-emerald-400/15 flex items-center justify-center flex-shrink-0">
-                        <Check size={11} className="text-emerald-400" />
-                      </span>
-                      {t}
-                    </p>
-                  ))}
-                </div>
+                
 
+                
                 <div className="relative mt-auto grid grid-cols-2 gap-3 pt-6 border-t border-white/10">
                   <div className="text-center">
-                    <p className="text-xl font-extrabold text-white">99.9%</p>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Uptime AWS</p>
+                    <p className="text-xl font-extrabold text-white">100%</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+                      Você no Controle do Perfil
+                    </p>
                   </div>
+
                   <div className="text-center">
-                    <p className="text-xl font-extrabold text-white">Anti-DDoS</p>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Proteção ativa</p>
+                    <p className="text-xl font-extrabold text-white">LGPD</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+                      Privacidade dos Dados
+                    </p>
                   </div>
                 </div>
               </div>
@@ -3418,30 +3447,33 @@ export default function LandingPage() {
                     <h4 className={`font-bold text-base mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Dashboard Administrativo</h4>
                     <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Gerencie todos os perfis da sua equipe em um único painel e crie modelos corporativos.</p>
                   </div>
-                  <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'}`}>
-                    <h4 className={`font-bold text-base mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Revenda & Parcerias</h4>
-                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Torne-se um parceiro AirNext e ganhe margens incríveis revendendo nossa tecnologia.</p>
-                  </div>
+                  
                 </div>
               </div>
               <div className={`${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-200/60'} rounded-[40px] border p-8 md:p-12 shadow-sm`}>
                 <h3 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Fale com nosso time de vendas</h3>
-                <form onSubmit={(e) => { e.preventDefault(); alert('Mensagem enviada com sucesso! Entraremos em contato em até 24h.'); }} className="space-y-4">
+                <form onSubmit={handleB2bSubmit} className="space-y-4">
                   <div>
                     <label className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Seu nome</label>
-                    <input required type="text" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition`} />
+                    <input required name="name" type="text" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition`} />
                   </div>
                   <div>
                     <label className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>E-mail corporativo</label>
-                    <input required type="email" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition`} />
+                    <input required name="email" type="email" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition`} />
                   </div>
                   <div>
                     <label className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Mensagem / Tamanho do lote</label>
-                    <textarea rows={3} placeholder="Quantos cartões ou produtos você precisa?" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none`} />
+                    <textarea required name="message" rows={3} placeholder="Quantos cartões ou produtos você precisa?" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none`} />
                   </div>
-                  <button type="submit" className="w-full bg-[#0071e3] text-white py-4 rounded-full text-sm font-bold hover:bg-[#0077ed] transition">
-                    Enviar Proposta B2B
+                  <button type="submit" disabled={b2bStatus === 'sending'} className="w-full bg-[#0071e3] text-white py-4 rounded-full text-sm font-bold hover:bg-[#0077ed] transition disabled:opacity-60 disabled:cursor-not-allowed">
+                    {b2bStatus === 'sending' ? 'Enviando...' : 'Enviar Proposta B2B'}
                   </button>
+                  {b2bStatus === 'success' && (
+                    <p className="text-sm text-green-500 font-semibold text-center">Mensagem enviada! Entraremos em contato em até 24h.</p>
+                  )}
+                  {b2bStatus === 'error' && (
+                    <p className="text-sm text-red-500 font-semibold text-center">Não foi possível enviar. Tente novamente ou fale pelo WhatsApp.</p>
+                  )}
                 </form>
               </div>
             </div>
@@ -3451,15 +3483,14 @@ export default function LandingPage() {
         {/* --- Help & Support --- */}
         <section id="ajuda" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <p className={`text-4xl md:text-6xl font-extrabold tracking-tight mb-4 flex items-center justify-center gap-3 flex-wrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <span>Suporte</span>
-                <span className="font-lobster text-6xl md:text-8xl leading-none">
-                  <span className={isDark ? 'text-white' : 'text-gray-900'}>Air</span>
-                  <span className="text-[#0071e3]">Next</span>
-                </span>
+                <div className="text-center mb-16">
+              <h2 className={`font-lobster text-6xl md:text-8xl leading-none ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Suporte
+              </h2>
+
+              <p className={`mt-4 max-w-xl mx-auto text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                Estamos aqui para você. Manuais, ajuda e suporte técnico em tempo real.
               </p>
-              <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-xl mx-auto`}>Estamos aqui para você. Manuais, ajuda e suporte técnico em tempo real.</p>
             </div>
 
             <Swiper
@@ -3541,23 +3572,8 @@ export default function LandingPage() {
               </a>
             </div>
 
-            <form
-              onSubmit={(e) => { e.preventDefault(); if (email) { setSent(true); setEmail(''); setTimeout(() => setSent(false), 3000); } }}
-              className="max-w-md mx-auto flex flex-col sm:flex-row gap-3 p-2 bg-white/5 border border-white/15 rounded-full backdrop-blur"
-            >
-              <input
-                type="email"
-                required
-                placeholder="Seu melhor e-mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 bg-transparent px-5 py-2.5 text-sm placeholder:text-white/40 focus:outline-none text-white"
-              />
-              <button type="submit" className="bg-white text-black rounded-full px-6 py-2.5 text-sm font-bold hover:bg-blue-50 transition flex items-center justify-center gap-1.5 flex-shrink-0">
-                {sent ? <><Check size={14} /> Inscrito!</> : <>10% off <Send size={14} /></>}
-              </button>
-            </form>
-            <p className="text-xs text-white/40 mt-3">Cadastre-se e ganhe 10% na primeira compra. Sem spam.</p>
+           
+            <p className="text-xs text-white/40 mt-3">Comece hoje sua jornada com a AirNext e leve sua presença digital para o próximo nível.</p>
           </div>
         </section>
       </main>
