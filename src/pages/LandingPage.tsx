@@ -9,19 +9,24 @@ import {
   ChevronDown, ChevronRight, ShoppingBag, Nfc, QrCode,
   Shield, ArrowUp, Check, ArrowRight, ArrowLeft,
   Globe, MessageCircle, Camera, AtSign, Zap,
-  Smartphone, Users, Send, X, Play, Pause, Volume2, VolumeX, Maximize2,
+  Smartphone, Users, Send, X, Play,
   Leaf, Recycle, TreePine, Droplets, Heart,
   BookOpen, HelpCircle, LifeBuoy,
   Rocket, Eye, Target, Lock, Plus, Minus, Trash2, Search,
-  Baby, Accessibility, Briefcase, Sun, Moon, Sparkles, Star, UserRound,
+  Baby, Puzzle, Briefcase, Sun, Moon, Sparkles, Star, UserRound,
   Upload, Save, Palette, Image as ImageIcon, FolderOpen,
   CreditCard, KeyRound, Tag as TagIcon, Move, PawPrint, Building2,
   RotateCcw, RotateCw, ZoomIn, FlipHorizontal2, Share2, Loader2,
-  Watch, Square, Circle, RectangleHorizontal, ChevronUp,
+  Watch,
+  Square,
+  Circle,
+  RectangleHorizontal,
+  Monitor,
+  Clipboard,
+  ChevronUp,
   Phone, Wifi, AlertTriangle, Menu, Sparkle,
   Ticket, BedDouble, Gem, EyeOff, Link2
 } from 'lucide-react';
-
 type CP = React.CSSProperties & Record<string, string>;
 
 /**
@@ -101,11 +106,54 @@ interface AirNextFormat {
 }
 
 const FORMATS: AirNextFormat[] = [
-  { id: 'cartao', label: 'Cartão', icon: <CreditCard size={16} />, shapeClass: 'aspect-[1.586/1] rounded-[22px]' },
-  { id: 'tag', label: 'Tag', icon: <TagIcon size={16} />, shapeClass: 'aspect-[3/4] rounded-[28px]' },
-  { id: 'chaveiro', label: 'Chaveiro', icon: <KeyRound size={16} />, shapeClass: 'aspect-square rounded-[26px]' },
-  { id: 'pulseira', label: 'Pulseira', icon: <Watch size={16} />, shapeClass: 'aspect-[3.6/1] rounded-full' },
-  { id: 'adesivo', label: 'Adesivo NFC', icon: <Nfc size={16} />, shapeClass: 'aspect-square rounded-full' },
+  {
+    id: 'cartao',
+    label: 'Cartão',
+    icon: <CreditCard size={16} />,
+    shapeClass: 'aspect-[1.586/1] rounded-[22px]',
+  },
+
+  {
+    id: 'placa',
+    label: 'Placa NFC',
+    icon: <Square size={16} />,
+    shapeClass: 'aspect-[1.586/1] rounded-[22px]',
+  },
+
+  {
+    id: 'display',
+    label: 'Display',
+    icon: <RectangleHorizontal size={16} />,
+    shapeClass: 'aspect-[1.586/1] rounded-[22px]',
+  },
+
+  {
+    id: 'tag',
+    label: 'Tag',
+    icon: <TagIcon size={16} />,
+    shapeClass: 'aspect-[3/4] rounded-[28px]',
+  },
+
+  {
+    id: 'chaveiro',
+    label: 'Chaveiro',
+    icon: <KeyRound size={16} />,
+    shapeClass: 'aspect-square rounded-[26px]',
+  },
+
+  {
+    id: 'pulseira',
+    label: 'Pulseira',
+    icon: <Watch size={16} />,
+    shapeClass: 'aspect-[3.6/1] rounded-full',
+  },
+
+  {
+    id: 'adesivo',
+    label: 'Adesivo NFC',
+    icon: <Nfc size={16} />,
+    shapeClass: 'aspect-square rounded-full',
+  },
 ];
 
 // Formatos que aceitam escolha livre de "corte" físico — quadrado, redondo ou
@@ -143,7 +191,7 @@ interface Product {
 
 const PRODUCTS: Product[] = [
   {
-    id: 'pro', name: 'AirNext Pro', tag: 'Profissionais', price: 79,
+    id: 'pro', name: 'AirNext Pro', tag: 'Profissionais', price: 89,
     desc: 'Perfil digital para profissionais, autônomos e empreendedores.',
     longDesc: 'Compartilhe seu perfil completo — LinkedIn, portfólio, WhatsApp, Instagram e vCard — com uma simples aproximação. Ideal para quem vive de networking e quer causar impacto em reuniões e eventos.',
     img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
@@ -151,6 +199,8 @@ const PRODUCTS: Product[] = [
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
     specs: ['Chip NFC NTAG216 · 888 bytes', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Edição ilimitada do perfil'],
   },
+  
+
   {
     id: 'stand', name: 'AirNext Stand', tag: 'Estabelecimentos', price: 129,
     desc: 'Centralizador de informações para estabelecimentos.',
@@ -161,7 +211,7 @@ const PRODUCTS: Product[] = [
     specs: ['Base Acrílico Premium', 'Dual-Chip NFC', 'QR Code Estático + Dinâmico', 'Dashboard de analytics', 'Personalização com logo'],
   },
   {
-    id: 'pet', name: 'AirNext Pet', tag: 'Pets', price: 49,
+    id: 'pet', name: 'AirNext Pet', tag: 'Pets', price: 69,
     desc: 'Identificação inteligente para pets.',
     longDesc: 'Se o seu pet se perder, qualquer pessoa pode ler a tag com o celular e ver contatos de emergência, informações de saúde e veterinário. Sem mensalidade, sem bateria.',
     img: 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
@@ -170,7 +220,7 @@ const PRODUCTS: Product[] = [
     specs: ['Alumínio Aeronáutico', 'IP68 · Submersível', 'Argola de titânio', 'Dados veterinários', 'GPS compartilhável'],
   },
   {
-    id: 'kids', name: 'AirNext Kids', tag: 'Crianças', price: 39,
+    id: 'kids', name: 'AirNext Kids', tag: 'Crianças', price: 99,
     desc: 'Identificação digital para crianças.',
     longDesc: 'Segurança para crianças em parques, shoppings e eventos. Dados dos pais e contatos de emergência acessíveis por qualquer celular com um simples toque — sem apps.',
     img: 'https://images.pexels.com/photos/5275817/pexels-photo-5275817.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
@@ -179,7 +229,7 @@ const PRODUCTS: Product[] = [
     specs: ['Silicone Hipoalergênico', 'Chip NFC NTAG213', 'Nome e foto de identificação', 'Resistente à água', 'Contato dos responsáveis'],
   },
   {
-    id: 'senior', name: 'AirNext Senior', tag: 'Idosos', price: 59,
+    id: 'senior', name: 'AirNext Senior', tag: 'Idosos', price: 99,
     desc: 'Identificação para idosos.',
     longDesc: 'Tecnologia acessível para idosos. Compartilhe endereço, contato de familiares, plano de saúde e dados médicos essenciais sem precisar de smartphone ou aplicativos.',
     img: 'https://images.pexels.com/photos/7394608/pexels-photo-7394608.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
@@ -188,11 +238,11 @@ const PRODUCTS: Product[] = [
     specs: ['Dados do plano de saúde', 'Medicações em uso', 'Contato do médico', 'Endereço residencial', 'Leitura sem aplicativo'],
   },
   {
-    id: 'tea', name: 'AirNext TEA', tag: 'Espectro Autista', price: 49,
+    id: 'tea', name: 'AirNext TEA', tag: 'Espectro Autista', price: 99,
     desc: 'Identificação para pessoas com Transtorno do Espectro Autista.',
     longDesc: 'Contém instruções de comunicação, sensibilidades sensoriais, contatos de emergência e dados médicos vitais para auxiliar pessoas no espectro autista em situações de crise.',
     img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
-    color: '#00d2ff', icon: <Accessibility size={22} />,
+    color: '#00d2ff', icon: <Puzzle size={22} />,
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'], // todas as categorias disponíveis
     specs: ['Instruções de comunicação', 'Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
   },
@@ -201,50 +251,61 @@ const PRODUCTS: Product[] = [
   // Continuam no mesmo array PRODUCTS de propósito: assim carrinho, busca e
   // personalizador funcionam normalmente para elas também, sem código extra.
   {
+    id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 69,
+    desc: 'Tag NFC universal para bagagens, mochilas, chaves e objetos do dia a dia.',
+    longDesc: 'Compacta e resistente, a AirNext Tag identifica qualquer objeto — malas, mochilas, bicicletas, notebooks e muito mais. Quem encontrar aproxima o celular e acessa seus dados de contato na hora, sem precisar instalar nenhum aplicativo.',
+    img: 'https://files.catbox.moe/ucabuc.png',
+    color: '#eab308', icon: <TagIcon size={22} />,
+    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
+    specs: ['Chip NFC NTAG213', 'QR Code de backup', 'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, chaves e pets'],
+  },
+  {
     id: 'corporate', name: 'AirNext Corporate', tag: 'Empresas', price: 99,
     desc: 'Crachás e cartões NFC inteligentes para equipes e colaboradores.',
     longDesc: 'Emita identidade digital para toda a equipe: crachá com NFC, controle de acesso, perfil corporativo e dados de contato centralizados — tudo com a marca da sua empresa.',
-    img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: 'https://files.catbox.moe/m8gpmb.png',
     color: '#5e17eb', icon: <Users size={22} />,
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
     specs: ['Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC NTAG216 · 888 bytes', 'QR Code Dinâmico', 'Dashboard de gestão'],
   },
+  
   {
-    id: 'evento', name: 'AirNext Evento', tag: 'Eventos', price: 45,
+    id: 'evento', name: 'AirNext Evento', tag: 'Eventos', price: 0,
     desc: 'Crachás inteligentes para congressos, feiras e eventos.',
     longDesc: 'Participantes trocam contato, acessam a programação e fazem check-in com um toque. Ideal para congressos, feiras e eventos corporativos que quere reduzir fricção.',
-    img: 'https://images.pexels.com/photos/5239822/pexels-photo-5239822.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: 'https://files.catbox.moe/bp85o5.png',
     color: '#ff2d55', icon: <Ticket size={22} />,
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
     specs: ['Check-in por aproximação', 'Programação e mapa do evento', 'QR Code de backup', 'Networking pós-evento', 'PVC Premium Matte'],
   },
   {
-    id: 'hotel', name: 'AirNext Hotel', tag: 'Hotelaria', price: 69,
-    desc: 'Pulseiras e cartões NFC para hóspedes — acesso, quarto e consumo em um toque.',
-    longDesc: 'Hóspedes acessam o quarto, áreas comuns e consomem no bar ou restaurante com uma simples aproximação. Sem chave física, sem cartão magnético.',
-    img: 'https://images.pexels.com/photos/7394608/pexels-photo-7394608.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
-    color: '#00c2a8', icon: <BedDouble size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
-    specs: ['Acesso ao quarto e áreas comuns', 'Consumo integrado (bar/restaurante)', 'IP68 · Resistente à água', 'Dashboard de analytics', 'Personalização com logo do hotel'],
+   id: 'hotel',
+name: 'AirNext Hotel',
+tag: 'Hotelaria',
+price: 129,
+
+desc: 'Centralize todas as informações da hospedagem em uma placa NFC inteligente no quarto.',
+
+longDesc:
+  'Com um simples toque, o hóspede acessa Wi-Fi, cardápio, serviços, avaliações, atrações locais, regras da hospedagem, checkout e outras informações importantes — tudo atualizado em tempo real, sem precisar imprimir materiais.',
+
+img: '/src/public/hotel.png',
+
+color: '#00c2a8',
+icon: <BedDouble size={22} />,
+
+formats: ['placa', 'cartao', 'display'],
+
+specs: [
+  'Wi-Fi e informações do quarto',
+  'Cardápio e Room Service',
+  'Solicitação de serviços',
+  'Avaliações e feedback dos hóspedes',
+  'Atrações, mapas e recomendações locais'
+]
   },
-  {
-    id: 'vip', name: 'AirNext Black', tag: 'Executivos', price: 189,
-    desc: 'Edição premium em metal escovado para quem exige exclusividade.',
-    longDesc: 'A versão mais exclusiva do AirNext: acabamento em metal escovado, gravação a laser e experiência de unboxing premium — para executivos e clientes VIP.',
-    img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
-    color: '#1c1c1e', icon: <Gem size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
-    specs: ['Acabamento em metal escovado', 'Gravação a laser personalizada', 'Chip NFC NTAG216 · 888 bytes', 'Caixa premium de unboxing', 'Edição numerada'],
-  },
-  {
-    id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 35,
-    desc: 'Tag NFC universal para bagagens, mochilas, chaves e objetos do dia a dia.',
-    longDesc: 'Compacta e resistente, a AirNext Tag identifica qualquer objeto — malas, mochilas, bicicletas, notebooks e muito mais. Quem encontrar aproxima o celular e acessa seus dados de contato na hora, sem precisar instalar nenhum aplicativo.',
-    img: 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
-    color: '#eab308', icon: <TagIcon size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
-    specs: ['Chip NFC NTAG213', 'QR Code de backup', 'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, chaves e pets'],
-  },
+
+
 ];
 
 // IDs das 6 linhas originais — usados para manter a vitrine principal e o
@@ -335,11 +396,21 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 const CANVAS_DIMS: Record<string, { w: number; h: number; radius: number; circle?: boolean }> = {
   cartao: { w: 1800, h: 1134, radius: 92 },
   tag: { w: 960, h: 1280, radius: 112 },
+  placa: { w: 1800, h: 1134, radius: 92 },
   chaveiro: { w: 1040, h: 1040, radius: 104 },
+  display: { w: 1800, h: 1134, radius: 92 },
   pulseira: { w: 1800, h: 500, radius: 250 },
   adesivo: { w: 1040, h: 1040, radius: 520, circle: true },
 };
-
+const FORMAT_ORDER = [
+  'cartao',
+  'placa',
+  'display',
+  'tag',
+  'chaveiro',
+  'pulseira',
+  'adesivo',
+];
 // Tag e Adesivo aceitam um "corte" físico escolhido pelo cliente
 // (quadrado, redondo ou retangular) — isso muda as dimensões do canvas final.
 function getCanvasDims(formatId: string, shape?: ShapeOption): { w: number; h: number; radius: number; circle?: boolean } {
@@ -1573,13 +1644,6 @@ export default function LandingPage() {
   const [sent, setSent] = useState(false);
   const [activeEveryone, setActiveEveryone] = useState(0);
 
-  // Video Demo state
-  const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [showNFCTap, setShowNFCTap] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
   // Search overlay state
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1668,51 +1732,6 @@ export default function LandingPage() {
       window.removeEventListener('resize', h);
     };
   }, []);
-
-  // Sync video progress
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const onTimeUpdate = () => {
-      const p = (video.currentTime / video.duration) * 100;
-      setProgress(p || 0);
-
-      // Trigger a mock Apple style "NFC Tap Notification" at 3.5 seconds
-      if (video.currentTime > 3.5 && video.currentTime < 8) {
-        setShowNFCTap(true);
-      } else {
-        setShowNFCTap(false);
-      }
-    };
-
-    video.addEventListener('timeupdate', onTimeUpdate);
-    return () => video.removeEventListener('timeupdate', onTimeUpdate);
-  }, [playing]);
-
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (playing) {
-      videoRef.current.pause();
-      setPlaying(false);
-    } else {
-      videoRef.current.play().catch(err => console.log("Video play interrupted:", err));
-      setPlaying(true);
-    }
-  };
-
-  const toggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !muted;
-    setMuted(!muted);
-  };
-
-  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef.current) return;
-    const newTime = (parseFloat(e.target.value) / 100) * videoRef.current.duration;
-    videoRef.current.currentTime = newTime;
-    setProgress(parseFloat(e.target.value));
-  };
 
   const links = [
     { label: 'Produtos', href: '#produtos' },
@@ -1806,7 +1825,7 @@ export default function LandingPage() {
     {
       id: 'tea',
       label: 'Autistas',
-      icon: <Accessibility size={18} />,
+      icon: <Puzzle size={18} />,
       title: 'Segurança & Comunicação Assistida',
       text: 'A identificação inteligente AirNext pode armazenar informações médicas cruciais, contatos de emergência e instruções de comunicação para auxiliar pessoas no espectro autista em situações de crise ou desconforto. Basta aproximar um smartphone compatível com NFC para acessar os dados instantaneamente.',
       howTo: 'Após a compra, você recebe um código de ativação exclusivo. Basta ativar escolher sua categoria AirNext, configurar o perfil e preencher as informações que deseja compartilhar. Qualquer smartphone compatível com NFC pode acessar o perfil com um simples toque, sem necessidade de instalar aplicativos.',
@@ -2448,75 +2467,26 @@ export default function LandingPage() {
 
         {/* --- Video Demo Section --- */}
         <section id="video-demo" className="py-20 md:py-28 bg-black text-white relative overflow-hidden">
-          <div className="absolute inset-0 grid-pattern opacity-30" />
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="text-center mb-14">
               <p className="eyebrow text-blue-400 mb-3">Demonstração</p>
-              <h2 className="h2-apple shimmer-text mb-4">Veja a mágica acontecer.</h2>
+              <h2 className="h2-apple mb-4">Veja a mágica acontecer.</h2>
               <p className="text-lg text-gray-400 max-w-2xl mx-auto">Assista como o AirNext conecta pessoas em menos de 1 segundo. Sem fio. Sem app. Sem fricção.</p>
             </div>
 
-            <div className="relative max-w-5xl mx-auto rounded-[32px] overflow-hidden shadow-2xl shadow-blue-500/20 bg-gradient-to-b from-[#0a0f1c] to-black" style={{ aspectRatio: '16/9' }}>
-              <div className="absolute inset-0 grid-pattern opacity-30" />
-              
-              <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-400/80 to-transparent scan-line pointer-events-none" />
-              
+            <div className="relative mx-auto rounded-[40px] overflow-hidden bg-black" style={{ aspectRatio: '21/9' }}>
               <video
-                ref={videoRef}
-                onClick={togglePlay}
-                className="w-full h-full object-cover cursor-pointer"
+                className="w-full h-full object-cover"
+                autoPlay
+                muted
                 loop
                 playsInline
                 src={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
               />
-
-              <AnimatePresence>
-                {showNFCTap && (
-                  <motion.div
-                    initial={{ y: -50, opacity: 0, scale: 0.9 }}
-                    animate={{ y: 0, opacity: 1, scale: 1 }}
-                    exit={{ y: -50, opacity: 0, scale: 0.9 }}
-                    className="absolute top-20 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-xs bg-[#1c1c1e]/95 backdrop-blur-md text-white rounded-[24px] p-4 flex items-center gap-4 border border-white/10 shadow-2xl"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-[#0071e3] flex items-center justify-center text-white font-bold animate-pulse">
-                      <Nfc size={20} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="text-xs font-bold text-blue-400">NFC Detectado</p>
-                      <p className="text-[10px] text-gray-400">Abrir perfil digital de Ana Souza</p>
-                    </div>
-                    <ChevronRight size={16} className="text-gray-400" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {!playing && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-                  
-                </div>
-              )}
-
-              <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/80 to-transparent flex flex-col gap-3">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={progress}
-                  onChange={handleProgressChange}
-                  className="flex-1 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500 focus:outline-none"
-                />
-                <div className="flex items-center justify-between text-white text-xs">
-                  <div className="flex items-center gap-4">
-                    <button onClick={togglePlay} className="hover:text-blue-400 transition">
-                      {playing ? <Pause size={18} /> : <Play size={18} />}
-                    </button>
-                    <button onClick={toggleMute} className="hover:text-blue-400 transition">
-                      {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                    </button>
-                  </div>
-                  <span className="font-semibold tracking-wider text-[10px] text-gray-400">TAP SIMULATOR</span>
-                  <button onClick={() => videoRef.current?.requestFullscreen()} className="hover:text-blue-400 transition"><Maximize2 size={16} /></button>
-                </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/10 pointer-events-none" />
+              <div className="absolute bottom-8 left-8 md:bottom-10 md:left-10 pointer-events-none">
+                <p className="text-[11px] font-bold tracking-[0.2em] text-white/60 uppercase mb-1">AirNext em ação</p>
+                <p className="text-xl md:text-2xl font-bold text-white">Um toque. Uma conexão.</p>
               </div>
             </div>
 
@@ -2650,10 +2620,10 @@ export default function LandingPage() {
         {/* --- Products Section --- */}
         <section id="produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-14">
-              <p className="eyebrow text-[#0071e3] mb-3">Coleção Premium</p>
-              <h2 className="h2-apple">Mais produtos, mais inovação.</h2>
-              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Escolha o produto perfeito para sua jornada digital e corporativa.</p>
+           <div className="text-center mb-14">
+              <p className="eyebrow text-[#0071e3] mb-3">Feito para o seu estilo</p>
+              <h2 className="h2-apple">Projetado para cada ocasião</h2>
+              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Encontre o modelo ideal para o seu estilo, com a tecnologia AirNext presente em todas as versões.</p>
             </div>
 
             {/* Filtro por categoria — estilo minimalista, texto com sublinhado, rolável no mobile */}
@@ -2729,6 +2699,101 @@ export default function LandingPage() {
 
           
           </div>
+          
+        {/* --- Second Products Row: new AirNext lines (Corporate, Evento, Hotel, Black) --- */}
+        <section id="mais-produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
+          <div className="max-w-7xl mx-auto px-6">
+            
+
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={20}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              breakpoints={{
+                640: { slidesPerView: 2 },
+                768: { slidesPerView: 3 },
+                1024: { slidesPerView: 4 }
+              }}
+              className="pb-10"
+            >
+              {row2Products.map(p => (
+                <SwiperSlide key={p.id}>
+                  <motion.div
+                    whileHover={{ y: -6 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    onClick={() => setSelectedProduct(p)}
+                    className="group cursor-pointer h-[420px] flex flex-col"
+                  >
+                    <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
+                      <img src={resolveImg(`row2-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addToCart(p); }}
+                        aria-label={`Adicionar ${p.name} à sacola`}
+                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition ${
+                          isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
+                        }`}
+                      >
+                        <ShoppingBag size={15} />
+                      </button>
+
+                      <span className={`absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-1 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/90 text-white'}`}>
+                        Novo
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col flex-1">
+                      <span className={`text-[11px] font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
+                      <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
+                      <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
+
+                      <div className="mt-auto flex items-center justify-between gap-3">
+                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {p.price}</p>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); goPersonalize(p); }}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
+                            isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
+                          }`}
+                        >
+                          Personalizar <ChevronRight size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <SwipeIndicator isDark={isDark} />
+          </div>
+        </section>
+           {/* Personalized products promo block */}
+            <div className={`mt-10 rounded-[32px] p-8 md:p-12 border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#0a0a0a] to-purple-950/20 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'}`}>
+              <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+              <div className="relative grid md:grid-cols-3 gap-6 items-center">
+                <div className="md:col-span-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles size={18} className="text-[#0071e3]" />
+                    <p className={`eyebrow ${isDark ? 'text-blue-300' : 'text-[#0071e3]'}`}>100% Personalizado</p>
+                  </div>
+                  <h3 className={`text-xl md:text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                    Não achou o padrão perfeito? Monte o seu do zero.
+                  </h3>
+                  <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Escolha a linha AirNext, o formato (cartão, tag, chaveiro, pulseira ou adesivo), a cor e a sua própria foto — ajuste tudo
+                    do seu jeito e envie direto para produção pelo WhatsApp.
+                  </p>
+                </div>
+                <div className="flex md:justify-end">
+                  <button
+                    onClick={() => goPersonalize(PRODUCTS[0])}
+                    className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#0077ed] transition shadow-xl shadow-blue-500/20"
+                  >
+                    <Palette size={16} /> Ir para o Personalizador
+                  </button>
+                </div>
+              </div>
+            </div>
           <AnimatePresence>
             {selectedProduct && (
               <motion.div
@@ -2829,104 +2894,6 @@ export default function LandingPage() {
         {/* --- NFC vs Papel: por que compartilhar contato por NFC muda tudo --- */}
         <NfcVsPaperSection isDark={isDark} />
 
-        {/* --- Second Products Row: new AirNext lines (Corporate, Evento, Hotel, Black) --- */}
-        <section id="mais-produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-14">
-              <p className="eyebrow text-[#0071e3] mb-3">Feito para o seu estilo</p>
-              <h2 className="h2-apple">Projetado para cada ocasião</h2>
-              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Encontre o modelo ideal para o seu estilo, com a tecnologia AirNext presente em todas as versões.</p>
-            </div>
-
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={20}
-              slidesPerView={1}
-              pagination={{ clickable: true }}
-              breakpoints={{
-                640: { slidesPerView: 2 },
-                768: { slidesPerView: 3 },
-                1024: { slidesPerView: 4 }
-              }}
-              className="pb-10"
-            >
-              {row2Products.map(p => (
-                <SwiperSlide key={p.id}>
-                  <motion.div
-                    whileHover={{ y: -6 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    onClick={() => setSelectedProduct(p)}
-                    className="group cursor-pointer h-[420px] flex flex-col"
-                  >
-                    <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      <img src={resolveImg(`row2-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
-
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addToCart(p); }}
-                        aria-label={`Adicionar ${p.name} à sacola`}
-                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition ${
-                          isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
-                        }`}
-                      >
-                        <ShoppingBag size={15} />
-                      </button>
-
-                      <span className={`absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-1 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/90 text-white'}`}>
-                        Novo
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col flex-1">
-                      <span className={`text-[11px] font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
-                      <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
-                      <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
-
-                      <div className="mt-auto flex items-center justify-between gap-3">
-                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {p.price}</p>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); goPersonalize(p); }}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
-                            isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
-                          }`}
-                        >
-                          Personalizar <ChevronRight size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-            <SwipeIndicator isDark={isDark} />
-          </div>
-        </section>
-           {/* Personalized products promo block */}
-            <div className={`mt-10 rounded-[32px] p-8 md:p-12 border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#0a0a0a] to-purple-950/20 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'}`}>
-              <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-              <div className="relative grid md:grid-cols-3 gap-6 items-center">
-                <div className="md:col-span-2">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles size={18} className="text-[#0071e3]" />
-                    <p className={`eyebrow ${isDark ? 'text-blue-300' : 'text-[#0071e3]'}`}>100% Personalizado</p>
-                  </div>
-                  <h3 className={`text-xl md:text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Não achou o padrão perfeito? Monte o seu do zero.
-                  </h3>
-                  <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Escolha a linha AirNext, o formato (cartão, tag, chaveiro, pulseira ou adesivo), a cor e a sua própria foto — ajuste tudo
-                    do seu jeito e envie direto para produção pelo WhatsApp.
-                  </p>
-                </div>
-                <div className="flex md:justify-end">
-                  <button
-                    onClick={() => goPersonalize(PRODUCTS[0])}
-                    className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#0077ed] transition shadow-xl shadow-blue-500/20"
-                  >
-                    <Palette size={16} /> Ir para o Personalizador
-                  </button>
-                </div>
-              </div>
-            </div>
         {/* --- AirNext Personalizador: interactive multi-format customizer --- */}
         <PersonalizadorSection isDark={isDark} preset={configuratorPreset} />
 
@@ -3262,22 +3229,34 @@ export default function LandingPage() {
             </div>
 
             {/* Process Timeline */}
-            <div className="grid md:grid-cols-4 gap-6 mb-16">
-              {[
-                { step: '01', title: 'Produção Limpa', desc: 'Fabricamos com energia renovável e matéria-prima reciclada. Zero resíduos tóxicos.', icon: <Zap size={24} /> },
-                { step: '02', title: 'Uso Inteligente', desc: 'Um único chip substitui milhares de cartões. Sem papel, sem tinta, sem água desperdiçada.', icon: <Nfc size={24} /> },
-                { step: '03', title: 'Logística Verde', desc: 'Entregamos com embalagens 100% biodegradáveis e compensação total da pegada de carbono.', icon: <Globe size={24} /> },
-                { step: '04', title: 'Fim da Vida Útil', desc: 'Todo produto AirNext é reciclável. Devolva para ganharmos desconto no próximo.', icon: <Recycle size={24} /> },
-              ].map((s, i) => (
-                <div key={i} className="text-center p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] transition group">
-                  <div className="text-4xl font-bold text-white/10 mb-4">{s.step}</div>
-                  <div className="w-12 h-12 rounded-2xl bg-green-500/20 flex items-center justify-center text-green-400 mx-auto mb-4 group-hover:scale-110 transition">
-                    {s.icon}
-                  </div>
-                  <h4 className="text-lg font-bold mb-2">{s.title}</h4>
-                  <p className="text-sm text-green-100/40 leading-relaxed">{s.desc}</p>
-                </div>
-              ))}
+            <div className="mb-16">
+              <Swiper
+                modules={[Pagination]}
+                spaceBetween={20}
+                slidesPerView={1}
+                pagination={{ clickable: true }}
+                breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 4 } }}
+                className="pb-10 dark-swiper"
+              >
+                {[
+                  { step: '01', title: 'Produção Limpa', desc: 'Fabricamos com energia renovável e matéria-prima reciclada. Zero resíduos tóxicos.', icon: <Zap size={24} /> },
+                  { step: '02', title: 'Uso Inteligente', desc: 'Um único chip substitui milhares de cartões. Sem papel, sem tinta, sem água desperdiçada.', icon: <Nfc size={24} /> },
+                  { step: '03', title: 'Logística Verde', desc: 'Entregamos com embalagens 100% biodegradáveis e compensação total da pegada de carbono.', icon: <Globe size={24} /> },
+                  { step: '04', title: 'Fim da Vida Útil', desc: 'Todo produto AirNext é reciclável. Devolva para ganharmos desconto no próximo.', icon: <Recycle size={24} /> },
+                ].map((s, i) => (
+                  <SwiperSlide key={i}>
+                    <div className="text-center p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] transition group h-full">
+                      <div className="text-4xl font-bold text-white/10 mb-4">{s.step}</div>
+                      <div className="w-12 h-12 rounded-2xl bg-green-500/20 flex items-center justify-center text-green-400 mx-auto mb-4 group-hover:scale-110 transition">
+                        {s.icon}
+                      </div>
+                      <h4 className="text-lg font-bold mb-2">{s.title}</h4>
+                      <p className="text-sm text-green-100/40 leading-relaxed">{s.desc}</p>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <SwipeIndicator isDark={true} />
             </div>
 
             {/* Ecological Calculator Enhanced */}
@@ -3502,28 +3481,37 @@ export default function LandingPage() {
               <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-xl mx-auto`}>Estamos aqui para você. Manuais, ajuda e suporte técnico em tempo real.</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <Swiper
+              modules={[Pagination]}
+              spaceBetween={20}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }}
+              className="pb-10"
+            >
               {[
                 { icon: <BookOpen size={32} />, title: 'Manuais', desc: 'Guias passo a passo para configurar seu perfil, gravar o chip NFC e personalizar tudo.', link: 'Ver Manuais' },
                 { icon: <HelpCircle size={32} />, title: 'Central de Ajuda', desc: 'Base de conhecimento com as dúvidas mais frequentes sobre nossos produtos e serviços.', link: 'Acessar FAQ' },
                 { icon: <LifeBuoy size={32} />, title: 'Suporte ao Vivo', desc: 'Fale com nosso time técnico em tempo real pelo WhatsApp ou e-mail dedicado.', link: 'Falar Agora' },
               ].map((s, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  className={`p-8 rounded-[32px] ${isDark ? 'bg-[#121212] border-white/5' : 'bg-[#fbfbfd] border-gray-100'} border flex flex-col items-center text-center group cursor-pointer hover:shadow-xl transition-all`}
-                >
-                  <div className={`w-20 h-20 rounded-3xl ${isDark ? 'bg-[#050505]' : 'bg-white'} shadow-sm flex items-center justify-center mb-6 text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white transition-all duration-300`}>
-                    {s.icon}
-                  </div>
-                  <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{s.title}</h3>
-                  <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-6 leading-relaxed`}>{s.desc}</p>
-                  <span className="text-sm font-bold text-[#0071e3] flex items-center gap-1">
-                    {s.link} <ArrowRight size={14} />
-                  </span>
-                </motion.div>
+                <SwiperSlide key={i} className="!h-auto">
+                  <motion.div
+                    whileHover={{ y: -8, scale: 1.02 }}
+                    className={`p-8 rounded-[32px] ${isDark ? 'bg-[#121212] border-white/5' : 'bg-[#fbfbfd] border-gray-100'} border flex flex-col items-center text-center group cursor-pointer hover:shadow-xl transition-all h-full`}
+                  >
+                    <div className={`w-20 h-20 rounded-3xl ${isDark ? 'bg-[#050505]' : 'bg-white'} shadow-sm flex items-center justify-center mb-6 text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white transition-all duration-300`}>
+                      {s.icon}
+                    </div>
+                    <h3 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{s.title}</h3>
+                    <p className={`${isDark ? 'text-gray-400' : 'text-gray-500'} mb-6 leading-relaxed`}>{s.desc}</p>
+                    <span className="text-sm font-bold text-[#0071e3] flex items-center gap-1">
+                      {s.link} <ArrowRight size={14} />
+                    </span>
+                  </motion.div>
+                </SwiperSlide>
               ))}
-            </div>
+            </Swiper>
+            <SwipeIndicator isDark={isDark} />
 
             {/* FAQ inline */}
             <div className="mt-20 max-w-3xl mx-auto">
@@ -3683,7 +3671,7 @@ export default function LandingPage() {
           <div className={`border-t pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] ${
             isDark ? 'border-gray-800 text-gray-500' : 'border-gray-200 text-gray-400'
           }`}>
-            <p>© 2026 AirNext Tecnologia LTDA. Todos os direitos reservados. CNPJ 00.000.000/0001-00</p>
+            <p>© 2026 AirNext Tecnologia LTDA. Todos os direitos reservados.</p>
             <div className="flex gap-6">
               <a href="#" className={`hover:text-green-500 transition`}>Privacidade</a>
               <a href="#" className={`hover:text-green-500 transition`}>Termos de Uso</a>
