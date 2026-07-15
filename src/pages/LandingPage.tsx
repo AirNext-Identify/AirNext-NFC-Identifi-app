@@ -282,7 +282,7 @@ const PRODUCTS: Product[] = [
     id: 'hotel', name: 'AirNext Hotel', tag: 'Hotelaria', price: 129,
     desc: 'Centralize todas as informações da hospedagem em uma placa NFC inteligente no quarto.',
     longDesc: 'Com um simples toque, o hóspede acessa Wi-Fi, cardápio, serviços, avaliações, atrações locais, regras da hospedagem, checkout e outras informações importantes — tudo atualizado em tempo real, sem precisar imprimir materiais.',
-    img: '/src/public/hotelp.png',
+    img: '//src/public/Hotel (1).png',
     color: '#00c2a8', icon: <BedDouble size={22} />,
     formats: ['placa', 'cartao', 'display'],
     specs: ['Wi-Fi e informações do quarto', 'Cardápio e Room Service', 'Solicitação de serviços', 'Avaliações e feedback dos hóspedes', 'Atrações, mapas e recomendações locais'],
