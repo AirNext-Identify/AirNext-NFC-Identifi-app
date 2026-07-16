@@ -203,7 +203,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Compartilhe seu perfil completo — LinkedIn, portfólio, WhatsApp, Instagram e vCard — com uma simples aproximação. Ideal para quem vive de networking e quer causar impacto em reuniões e eventos.',
     img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#0071e3', icon: <Briefcase size={22} />,
-    formats: ['cartao', 'tag'], // todas as categorias disponíveis
+    formats: ['cartao'], // todas as categorias disponíveis
     specs: ['Chip NFC NTAG216 · 888 bytes', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Edição ilimitada do perfil'],
   },
   
@@ -250,7 +250,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Contém instruções de comunicação, sensibilidades sensoriais, contatos de emergência e dados médicos vitais para auxiliar pessoas no espectro autista em situações de crise.',
     img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#00d2ff', icon: <Puzzle size={22} />,
-    formats: ['pulseira', 'Crachá NFC    '], // todas as categorias disponíveis
+    formats: ['pulseira', 'cracha'], // todas as categorias disponíveis
     specs: ['Instruções de comunicação', 'Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
   },
   {
@@ -259,8 +259,8 @@ const PRODUCTS: Product[] = [
     longDesc: 'Compacta e resistente, a AirNext Tag identifica qualquer objeto — malas, mochilas, bicicletas, notebooks e muito mais. Quem encontrar aproxima o celular e acessa seus dados de contato na hora, sem precisar instalar nenhum aplicativo.',
     img: 'https://files.catbox.moe/ucabuc.png',
     color: '#eab308', icon: <TagIcon size={22} />,
-    formats: ['cartao', 'tag', ],
-    specs: ['Chip NFC NTAG213', 'QR Code de backup', 'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, chaves e pets'],
+    formats: [ 'tag' ],
+    specs: ['Chip NFC NTAG213', 'QR Code de backup', 'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, celulares e inúmeras possibilidades de uso no dia a dia.'],
   },
   {
     id: 'corporate', name: 'AirNext Corporate', tag: 'Empresas', price: 99,
@@ -268,7 +268,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Emita identidade digital para toda a equipe: crachá com NFC, controle de acesso, perfil corporativo e dados de contato centralizados — tudo com a marca da sua empresa.',
     img: 'https://files.catbox.moe/m8gpmb.png',
     color: '#5e17eb', icon: <Users size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
+    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo', 'cracha'],
     specs: ['Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC NTAG216 · 888 bytes', 'QR Code Dinâmico', 'Dashboard de gestão'],
   },
   
@@ -278,7 +278,7 @@ const PRODUCTS: Product[] = [
     longDesc: 'Participantes trocam contato, acessam a programação e fazem check-in com um toque. Ideal para congressos, feiras e eventos corporativos que quere reduzir fricção.',
     img: 'https://files.catbox.moe/bp85o5.png',
     color: '#ff2d55', icon: <Ticket size={22} />,
-    formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
+    formats: ['cracha', 'display', 'cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
     specs: ['Check-in por aproximação', 'Programação e mapa do evento', 'QR Code de backup', 'Networking pós-evento', 'PVC Premium Matte'],
   },
   {
@@ -385,6 +385,7 @@ const CANVAS_DIMS: Record<string, { w: number; h: number; radius: number; circle
   display: { w: 1800, h: 1134, radius: 92 },
   pulseira: { w: 1800, h: 500, radius: 250 },
   adesivo: { w: 1040, h: 1040, radius: 520, circle: true },
+  cracha: { w: 1120, h: 1800, radius: 90 },
 };
 const FORMAT_ORDER = [
   'cartao',
@@ -394,6 +395,7 @@ const FORMAT_ORDER = [
   'chaveiro',
   'pulseira',
   'adesivo',
+  'cracha',
 ];
 // Tag e Adesivo aceitam um "corte" físico escolhido pelo cliente
 // (quadrado, redondo ou retangular) — isso muda as dimensões do canvas final.
@@ -2500,7 +2502,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/10 pointer-events-none" />
               <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 pointer-events-none">
                 <p className="text-[11px] font-bold tracking-[0.2em] text-white/60 uppercase mb-1">AirNext em ação</p>
-                <p className="text-xl md:text-2xl font-bold text-white">Um toque. Uma conexão.</p>
+                <p className="text-xl md:text-2xl font-bold text-white">Um Toque. Multi Conexão.</p>
               </div>
             </div>
 
