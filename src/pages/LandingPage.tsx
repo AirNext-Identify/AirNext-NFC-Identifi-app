@@ -339,6 +339,52 @@ interface SavedProject {
 const CUSTOM_PROJECTS_KEY = 'airnext_custom_projects_v2';
 const AIRNEXT_WHATSAPP = '5547996287761';
 
+// --- Rastreamento (só carrega depois do consentimento de cookies) ---
+// Troque pelos IDs reais quando tiver em mãos.
+const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // pegue em analytics.google.com
+const META_PIXEL_ID = 'SEU_PIXEL_ID_AQUI'; // pegue em business.facebook.com/events_manager > Fontes de dados
+
+function loadGoogleAnalytics(measurementId: string) {
+  if (document.getElementById('ga-script') || measurementId.includes('XXXX')) return;
+  const script1 = document.createElement('script');
+  script1.id = 'ga-script';
+  script1.async = true;
+  script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+  document.head.appendChild(script1);
+
+  const script2 = document.createElement('script');
+  script2.id = 'ga-inline';
+  script2.innerHTML = `
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '${measurementId}');
+  `;
+  document.head.appendChild(script2);
+}
+
+function loadMetaPixel(pixelId: string) {
+  if ((window as any).fbq || pixelId.includes('AQUI')) return;
+  (function (f: any, b: Document, e: string, v: string) {
+    if (f.fbq) return;
+    const n: any = (f.fbq = function (...args: any[]) {
+      n.callMethod ? n.callMethod.apply(n, args) : n.queue.push(args);
+    });
+    if (!f._fbq) f._fbq = n;
+    n.push = n;
+    n.loaded = true;
+    n.version = '2.0';
+    n.queue = [];
+    const t = b.createElement(e) as HTMLScriptElement;
+    t.async = true;
+    t.src = v;
+    const s = b.getElementsByTagName(e)[0];
+    s.parentNode?.insertBefore(t, s);
+  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  (window as any).fbq('init', pixelId);
+  (window as any).fbq('track', 'PageView');
+}
+
 const emptySide = (): SideState => ({ image: null, offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0, text: '', textOffset: { x: 0, y: 0 }, showQr: false, qrOffset: { x: 0, y: 0 } });
 
 // Resize + compress an uploaded image client-side before it's ever stored,
@@ -1630,6 +1676,9 @@ export default function LandingPage() {
   const [b2bStatus, setB2bStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [sent, setSent] = useState(false);
   const [activeEveryone, setActiveEveryone] = useState(0);
+  const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
+  const [cookieSettingsOpen, setCookieSettingsOpen] = useState(false);
+  const [cookiePrefs, setCookiePrefs] = useState({ analytics: true, marketing: true });
 
   // Search overlay state
   const [searchOpen, setSearchOpen] = useState(false);
@@ -1719,6 +1768,35 @@ export default function LandingPage() {
       window.removeEventListener('resize', h);
     };
   }, []);
+
+  // --- Consentimento de Cookies (LGPD) ---
+  useEffect(() => {
+    const stored = localStorage.getItem('airnext_cookie_consent');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setCookiePrefs(parsed);
+        if (parsed.analytics) loadGoogleAnalytics(GA_MEASUREMENT_ID);
+        if (parsed.marketing) loadMetaPixel(META_PIXEL_ID);
+      } catch {
+        setCookieBannerVisible(true);
+      }
+    } else {
+      setCookieBannerVisible(true);
+    }
+  }, []);
+
+  const saveCookieConsent = (prefs: { analytics: boolean; marketing: boolean }) => {
+    localStorage.setItem('airnext_cookie_consent', JSON.stringify(prefs));
+    setCookiePrefs(prefs);
+    setCookieBannerVisible(false);
+    setCookieSettingsOpen(false);
+    if (prefs.analytics) loadGoogleAnalytics(GA_MEASUREMENT_ID);
+    if (prefs.marketing) loadMetaPixel(META_PIXEL_ID);
+  };
+
+  const acceptAllCookies = () => saveCookieConsent({ analytics: true, marketing: true });
+  const rejectNonEssentialCookies = () => saveCookieConsent({ analytics: false, marketing: false });
 
   // Envia o formulário B2B via Web3Forms — sem backend próprio.
   // Troque WEB3FORMS_ACCESS_KEY pela chave gerada em https://web3forms.com
@@ -3674,7 +3752,7 @@ export default function LandingPage() {
             <div className="flex gap-6">
               <a href="#" className={`hover:text-green-500 transition`}>Privacidade</a>
               <a href="#" className={`hover:text-green-500 transition`}>Termos de Uso</a>
-              <a href="#" className={`hover:text-green-500 transition`}>Configurações de Cookies</a>
+              <button onClick={() => setCookieSettingsOpen(true)} className={`hover:text-green-500 transition`}>Configurações de Cookies</button>
             </div>
           </div>
         </div>
@@ -3682,6 +3760,105 @@ export default function LandingPage() {
 
       <ScrollUI isDark={isDark} />
       <WhatsAppButton />
+
+      {/* Banner de consentimento de cookies (LGPD) */}
+      <AnimatePresence>
+        {cookieBannerVisible && !cookieSettingsOpen && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className={`fixed bottom-0 inset-x-0 z-[100] p-4 md:p-6 ${isDark ? 'bg-[#0a0a0a] border-t border-white/10' : 'bg-white border-t border-gray-200'}`}
+          >
+            <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-4">
+              <p className={`text-sm flex-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                Usamos cookies para melhorar sua experiência, entender como você usa o site e personalizar anúncios, em conformidade com a LGPD. Você pode aceitar tudo, recusar o que não for essencial, ou personalizar suas preferências.
+              </p>
+              <div className="flex gap-2 flex-shrink-0">
+                <button onClick={rejectNonEssentialCookies} className={`px-4 py-2.5 rounded-full text-xs font-bold border transition ${isDark ? 'border-white/20 text-white hover:bg-white/10' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}>
+                  Recusar
+                </button>
+                <button onClick={() => setCookieSettingsOpen(true)} className={`px-4 py-2.5 rounded-full text-xs font-bold border transition ${isDark ? 'border-white/20 text-white hover:bg-white/10' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}>
+                  Personalizar
+                </button>
+                <button onClick={acceptAllCookies} className="px-4 py-2.5 rounded-full text-xs font-bold bg-[#0071e3] text-white hover:bg-[#0077ed] transition">
+                  Aceitar todos
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Painel de personalização de cookies */}
+      <AnimatePresence>
+        {cookieSettingsOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-6"
+            onClick={() => setCookieSettingsOpen(false)}
+          >
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full md:max-w-lg rounded-t-[32px] md:rounded-[32px] p-6 md:p-8 ${isDark ? 'bg-[#121212] text-white' : 'bg-white text-gray-900'}`}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold">Preferências de Cookies</h3>
+                <button onClick={() => setCookieSettingsOpen(false)} className={isDark ? 'text-gray-400' : 'text-gray-500'}>
+                  <X size={22} />
+                </button>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className={`flex items-center justify-between p-4 rounded-2xl border ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-gray-50'}`}>
+                  <div>
+                    <p className="text-sm font-bold">Essenciais</p>
+                    <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Necessários para o site funcionar (carrinho, login). Sempre ativos.</p>
+                  </div>
+                  <div className="w-11 h-6 rounded-full bg-[#0071e3] flex items-center px-0.5 justify-end flex-shrink-0 opacity-50">
+                    <div className="w-5 h-5 rounded-full bg-white" />
+                  </div>
+                </div>
+
+                <div className={`flex items-center justify-between p-4 rounded-2xl border ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-gray-50'}`}>
+                  <div>
+                    <p className="text-sm font-bold">Analíticos</p>
+                    <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Nos ajudam a entender como o site é usado (Google Analytics).</p>
+                  </div>
+                  <button
+                    onClick={() => setCookiePrefs(p => ({ ...p, analytics: !p.analytics }))}
+                    className={`w-11 h-6 rounded-full flex items-center px-0.5 flex-shrink-0 transition ${cookiePrefs.analytics ? 'bg-[#0071e3] justify-end' : `justify-start ${isDark ? 'bg-white/20' : 'bg-gray-300'}`}`}
+                  >
+                    <div className="w-5 h-5 rounded-full bg-white" />
+                  </button>
+                </div>
+
+                <div className={`flex items-center justify-between p-4 rounded-2xl border ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-gray-50'}`}>
+                  <div>
+                    <p className="text-sm font-bold">Marketing</p>
+                    <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Usados para personalizar anúncios no Instagram/Facebook (Meta Pixel).</p>
+                  </div>
+                  <button
+                    onClick={() => setCookiePrefs(p => ({ ...p, marketing: !p.marketing }))}
+                    className={`w-11 h-6 rounded-full flex items-center px-0.5 flex-shrink-0 transition ${cookiePrefs.marketing ? 'bg-[#0071e3] justify-end' : `justify-start ${isDark ? 'bg-white/20' : 'bg-gray-300'}`}`}
+                  >
+                    <div className="w-5 h-5 rounded-full bg-white" />
+                  </button>
+                </div>
+              </div>
+
+              <button onClick={() => saveCookieConsent(cookiePrefs)} className="w-full bg-[#0071e3] text-white py-3.5 rounded-full text-sm font-bold hover:bg-[#0077ed] transition">
+                Salvar preferências
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
