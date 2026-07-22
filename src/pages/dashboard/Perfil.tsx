@@ -122,11 +122,16 @@ const FIELDS: Record<string, { key: string; label: string; type?: string; placeh
     { key: 'whatsapp', label: 'WhatsApp Comercial', placeholder: '5511999999999' },
     { key: 'telefone', label: 'Telefone', placeholder: '(11) 3333-3333' },
     { key: 'email', label: 'E-mail Comercial', type: 'email', placeholder: 'contato@empresa.com' },
+    { key: 'emailContato', label: 'E-mail para Receber Contatos de Clientes', type: 'email', placeholder: 'Ex: atendimento@empresa.com (se vazio, usa o E-mail Comercial acima)' },
     { key: 'site', label: 'Site', placeholder: 'https://empresa.com' },
     { key: 'endereco', label: 'Endereço', placeholder: 'Rua, número - Cidade' },
     { key: 'chavePix', label: 'Chave Pix', placeholder: 'CNPJ ou chave' },
     { key: 'catalogo', label: 'Link do Catálogo', placeholder: 'https://...' },
     { key: 'linkAgendamento', label: 'Link de Agendamento / Reserva', placeholder: 'https://calendly.com/sua-empresa' },
+    { key: 'cnpj', label: 'CNPJ (aparece no rodapé do perfil)', placeholder: '00.000.000/0000-00' },
+    { key: 'razaoSocial', label: 'Razão Social (aparece no rodapé)', placeholder: 'Empresa Comércio e Serviços Ltda' },
+    { key: 'numeroClientes', label: 'Clientes Atendidos (opcional, para destaque)', placeholder: 'Ex: 500+' },
+    { key: 'especialidade', label: 'Especialidade Principal (opcional, para destaque)', placeholder: 'Ex: Marketing Digital' },
   ],
   PET: [
     { key: 'nome', label: 'Nome do Pet', placeholder: 'Rex, Bolinha...' },
@@ -417,7 +422,7 @@ function PhonePreview({
           ) : null;
 
           const maisInfoBlock = (() => {
-            const skip = new Set(['nome', 'nomeEmpresa', 'cargo', 'bio', 'descricao', 'dataFundacao', 'catalogo', 'chavePix', 'telefone', 'email', 'site', 'endereco', 'whatsapp', 'foto', 'capa', 'googleReview', 'grauSuporte', 'tipoTEA', 'nivelComunicacao', 'gatilhos', 'estrategiasAcalmar', 'comoAjudar', 'itemConforto', 'riscoFuga', 'localHabitual', 'sensibilidades', ...SOCIAL_NETWORKS.map(s => s.id)]);
+            const skip = new Set(['nome', 'nomeEmpresa', 'cargo', 'bio', 'descricao', 'dataFundacao', 'catalogo', 'chavePix', 'telefone', 'email', 'emailContato', 'cnpj', 'razaoSocial', 'site', 'endereco', 'whatsapp', 'foto', 'capa', 'googleReview', 'grauSuporte', 'tipoTEA', 'nivelComunicacao', 'gatilhos', 'estrategiasAcalmar', 'comoAjudar', 'itemConforto', 'riscoFuga', 'localHabitual', 'sensibilidades', ...SOCIAL_NETWORKS.map(s => s.id)]);
             const extra = (FIELDS[cat] || []).filter(f => form[f.key] && !skip.has(f.key)).slice(0, 4);
             if (extra.length === 0) return null;
             return (

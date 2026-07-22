@@ -259,6 +259,10 @@ export default function PublicProfile() {
   const [showWifiPass, setShowWifiPass] = useState(false);
   const [showApoioTEA, setShowApoioTEA] = useState(true);
   const [showQR, setShowQR] = useState(false);
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+  const [contactSent, setContactSent] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [lightbox2Index, setLightbox2Index] = useState<number | null>(null);
   const [gal2Idx, setGal2Idx] = useState(0);
@@ -500,7 +504,7 @@ export default function PublicProfile() {
   const hasCover = !!d.capa;
 
   const depoimentosList = Array.isArray(d.depoimentos) ? d.depoimentos : [];
-  const defaultBlockOrder = ['midia', 'social', 'contato', 'maisInfo', 'sobreEmpresa', 'catalogo', 'avaliacaoGoogle', 'depoimentos', 'wifi', 'horarios', 'pagamento', 'apoioTEA', 'pix'];
+  const defaultBlockOrder = ['midia', 'petStats', 'businessStats', 'social', 'contato', 'maisInfo', 'sobreEmpresa', 'catalogo', 'avaliacaoGoogle', 'depoimentos', 'contatoForm', 'wifi', 'horarios', 'pagamento', 'apoioTEA', 'pix'];
   const blockOrder: string[] = Array.isArray(d.__blockOrder) && d.__blockOrder.length ? d.__blockOrder : defaultBlockOrder;
   const hiddenBlockIds: string[] = Array.isArray(d.__hiddenBlocks) ? d.__hiddenBlocks : [];
 
@@ -689,6 +693,12 @@ export default function PublicProfile() {
     </div>
   ) : null;
 
+  // Chaves promovidas para o grid de "Resumo Rápido" do perfil PET — ficam
+  // de fora da lista detalhada de "Mais Informações" para não duplicar.
+  const petStatKeys = ['idade', 'peso', 'raca', 'sexo'];
+  const petStatLabels: Record<string, string> = { idade: 'Idade', peso: 'Peso', raca: 'Raça', sexo: 'Sexo' };
+  const petStatIcons: Record<string, any> = { idade: Cake, peso: Weight, raca: PawPrint, sexo: Info };
+
   const maisInfoBlock = (() => {
     const infoFieldsByCategory: Record<string, { key: string; label: string }[]> = {
       PET: [
@@ -746,7 +756,7 @@ export default function PublicProfile() {
       BUSINESS: [],
     };
     const fields = (infoFieldsByCategory[cat] || []).filter(
-      f => d[f.key] && !hidden.includes(f.key)
+      f => d[f.key] && !hidden.includes(f.key) && !(cat === 'PET' && petStatKeys.includes(f.key))
     );
     if (fields.length === 0) return null;
     return (
@@ -758,10 +768,10 @@ export default function PublicProfile() {
             return (
               <div
                 key={f.key}
-                className="flex items-center gap-4 px-4 py-3.5"
+                className="group flex items-center gap-4 px-4 py-3.5 transition-all duration-300 hover:shadow-md"
                 style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', borderRadius: customBr }}
               >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${primaryColor}20` }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${primaryColor}20` }}>
                   <FIcon className="h-4 w-4" style={{ color: primaryColor }} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -772,6 +782,154 @@ export default function PublicProfile() {
             );
           })}
         </div>
+      </div>
+    );
+  })();
+
+  // Grid de "Resumo Rápido" — cards tipo cubo com ícone, label e valor,
+  // seguidos de um CTA direto para contatar o tutor. Só aparece no PET e
+  // só quando houver ao menos um dos campos promovidos preenchido.
+  const petStatsBlock = (() => {
+    if (cat !== 'PET') return null;
+    const stats = petStatKeys.filter(k => d[k] && !hidden.includes(k));
+    if (stats.length === 0) return null;
+    const tutorContact = d.whatsapp || d.telefone;
+    return (
+      <div className="px-5 py-5" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-3`} style={labelStyle}>Resumo Rápido</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {stats.map(k => {
+            const Icon = petStatIcons[k];
+            return (
+              <div
+                key={k}
+                className="group flex flex-col items-center text-center gap-2 py-5 px-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                style={{
+                  borderRadius: customBr,
+                  background: isLightTheme
+                    ? `linear-gradient(155deg, ${primaryColor}14, ${secondaryColor}0c)`
+                    : `linear-gradient(155deg, ${primaryColor}22, ${secondaryColor}14)`,
+                  border: `1px solid ${primaryColor}28`,
+                }}
+              >
+                <div
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-md"
+                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+                >
+                  <Icon className="h-5 w-5 text-white" />
+                </div>
+                <p className={`text-[10px] font-bold uppercase tracking-wide ${th.muted}`} style={labelStyle}>{petStatLabels[k]}</p>
+                <p className={`text-base font-black ${th.text} leading-tight`} style={mainTextStyle}>{d[k]}</p>
+              </div>
+            );
+          })}
+        </div>
+        {tutorContact && (
+          <a
+            href={`https://wa.me/${tutorContact.replace(/\D/g, '')}`}
+            onClick={() => trackClick('pet_contact_tutor')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 w-full flex items-center justify-center gap-2 py-3.5 font-bold text-sm text-white shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+            style={{ borderRadius: customBr, background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+          >
+            <MessageCircle className="h-4 w-4" /> Encontrei este pet — falar com o tutor
+          </a>
+        )}
+      </div>
+    );
+  })();
+
+  // "Destaques" do negócio — anos de mercado (calculado a partir da Data de
+  // Fundação), clientes atendidos e especialidade, se o dono preencheu.
+  const businessStatsBlock = (() => {
+    if (cat !== 'BUSINESS') return null;
+    const yearMatch = String(d.dataFundacao || '').match(/(19|20)\d{2}/);
+    const anos = yearMatch ? new Date().getFullYear() - parseInt(yearMatch[0], 10) : null;
+    const stats: { label: string; value: string; icon: any }[] = [];
+    if (anos !== null && anos >= 0 && anos < 150) {
+      stats.push({
+        label: anos === 0 ? 'No mercado' : anos === 1 ? 'Ano de mercado' : 'Anos de mercado',
+        value: anos === 0 ? 'Novo' : `${anos}+`,
+        icon: CalendarClock,
+      });
+    }
+    if (d.numeroClientes) stats.push({ label: 'Clientes atendidos', value: d.numeroClientes, icon: UserPlus });
+    if (d.especialidade) stats.push({ label: 'Especialidade', value: d.especialidade, icon: Star });
+    if (stats.length === 0) return null;
+    return (
+      <div className="px-5 py-5" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-3`} style={labelStyle}>Destaques</p>
+        <div className={`grid gap-3 ${stats.length === 1 ? 'grid-cols-1' : stats.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+          {stats.map((s, i) => (
+            <div
+              key={i}
+              className="group flex flex-col items-center text-center gap-2 py-5 px-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+              style={{
+                borderRadius: customBr,
+                background: isLightTheme
+                  ? `linear-gradient(155deg, ${primaryColor}14, ${secondaryColor}0c)`
+                  : `linear-gradient(155deg, ${primaryColor}22, ${secondaryColor}14)`,
+                border: `1px solid ${primaryColor}28`,
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-md"
+                style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+              >
+                <s.icon className="h-5 w-5 text-white" />
+              </div>
+              <p className={`text-[10px] font-bold uppercase tracking-wide ${th.muted}`} style={labelStyle}>{s.label}</p>
+              <p className={`text-base font-black ${th.text} leading-tight`} style={mainTextStyle}>{s.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  })();
+
+  // "Fale com a Empresa" — formulário de contato/feedback do cliente. Sem
+  // depender de nenhum backend novo: monta um `mailto:` com os dados
+  // preenchidos e abre o app de e-mail do próprio visitante, endereçado ao
+  // e-mail que o dono do perfil configurou em "E-mail para Receber Contatos
+  // de Clientes" (ou o E-mail Comercial, se aquele não estiver preenchido).
+  const contatoFormBlock = (() => {
+    if (cat !== 'BUSINESS') return null;
+    const receiverEmail = d.emailContato || d.email;
+    if (!receiverEmail) return null;
+    const fieldCls = `w-full px-4 py-3 text-sm ${th.text} placeholder:opacity-40 outline-none transition-all duration-200 focus:ring-2 focus:ring-offset-0`;
+    const fieldStyle = {
+      borderRadius: customBr,
+      backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+      ['--tw-ring-color' as any]: `${primaryColor}66`,
+    };
+    const handleSubmit = (e: any) => {
+      e.preventDefault();
+      trackClick('contact_form_submit');
+      const subject = encodeURIComponent(`Contato via perfil — ${name}`);
+      const body = encodeURIComponent(`Nome: ${contactName}\nE-mail para retorno: ${contactEmail}\n\nMensagem:\n${contactMessage}`);
+      window.location.href = `mailto:${receiverEmail}?subject=${subject}&body=${body}`;
+      setContactSent(true);
+    };
+    return (
+      <div className="px-5 py-6" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-1`} style={labelStyle}>Fale com a Empresa</p>
+        <p className={`text-xs ${th.muted} mb-4`}>Mande uma mensagem ou feedback direto por e-mail.</p>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input type="text" required placeholder="Seu nome" value={contactName} onChange={e => setContactName(e.target.value)} className={fieldCls} style={fieldStyle} />
+          <input type="email" required placeholder="Seu e-mail para retorno" value={contactEmail} onChange={e => setContactEmail(e.target.value)} className={fieldCls} style={fieldStyle} />
+          <textarea required placeholder="Sua mensagem ou feedback..." rows={4} value={contactMessage} onChange={e => setContactMessage(e.target.value)} className={`${fieldCls} resize-none`} style={fieldStyle} />
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-2 py-3.5 font-bold text-sm text-white shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+            style={{ borderRadius: customBr, background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+          >
+            <Mail className="h-4 w-4" /> Enviar mensagem
+          </button>
+          {contactSent && (
+            <p className="text-xs text-emerald-500 font-semibold text-center pt-1">✓ Seu app de e-mail abriu com a mensagem pronta — é só confirmar o envio.</p>
+          )}
+        </form>
       </div>
     );
   })();
@@ -1276,6 +1434,8 @@ export default function PublicProfile() {
 
   const BLOCK_MAP: Record<string, any> = {
     midia: mediaBlock,
+    petStats: petStatsBlock,
+    businessStats: businessStatsBlock,
     social: socialBlock,
     contato: contatoBlock,
     maisInfo: maisInfoBlock,
@@ -1283,6 +1443,7 @@ export default function PublicProfile() {
     catalogo: catalogoBlock,
     avaliacaoGoogle: avaliacaoGoogleBlock,
     depoimentos: depoimentosBlock,
+    contatoForm: contatoFormBlock,
     wifi: wifiBlock,
     horarios: horariosBlock,
     pagamento: pagamentoBlock,
@@ -1321,15 +1482,50 @@ export default function PublicProfile() {
         <div className="absolute inset-0 pointer-events-none" style={{ backdropFilter: `blur(${blurAmount / 8}px)` }} />
       )}
 
-      {/* SOS Banner */}
-      {sosMode && (
-        <div className="w-full sticky top-0 z-50 py-3.5 bg-red-500 text-white text-center text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg">
-          <AlertTriangle className="h-4 w-4" />
-          {cat === 'PET' ? '🐾 PET DESAPARECIDO — FAVOR CONTATAR O TUTOR'
-            : cat === 'KIDS' ? '👶 CRIANÇA PERDIDA — CONTATE OS RESPONSÁVEIS'
-            : '🆘 EMERGÊNCIA — CONTATE OS RESPONSÁVEIS'}
-        </div>
-      )}
+      {/* SOS Banner — alerta premium com gradiente, glass e CTA direto */}
+      {sosMode && (() => {
+        const sosPhone = d.telefoneResponsavel || d.telefoneEmerg1 || d.contatoEmergencia1 || d.telefoneResp2 || d.whatsapp || d.telefone;
+        const sosLabel = cat === 'PET' ? 'Pet desaparecido'
+          : cat === 'KIDS' ? 'Criança perdida'
+          : 'Emergência';
+        const sosSub = cat === 'PET' ? 'Ajude a reunir este pet com o tutor'
+          : cat === 'KIDS' ? 'Contate os responsáveis imediatamente'
+          : 'Contate os responsáveis imediatamente';
+        return (
+          <div className="sticky top-0 z-50 w-full">
+            <div
+              className="relative overflow-hidden px-4 py-3 sm:py-3.5 flex items-center justify-center gap-3 sm:gap-4 flex-wrap"
+              style={{
+                background: 'linear-gradient(90deg, #dc2626 0%, #ef4444 45%, #dc2626 100%)',
+                backdropFilter: 'blur(20px)',
+                boxShadow: '0 4px 24px rgba(220,38,38,0.35)',
+              }}
+            >
+              {/* leve textura de brilho para efeito glass */}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+              <div className="relative flex items-center gap-2.5">
+                <span className="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/25 opacity-75" />
+                  <AlertTriangle className="relative h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" />
+                </span>
+                <div className="text-left leading-tight">
+                  <p className="text-white font-black text-xs sm:text-sm uppercase tracking-wide">{sosLabel}</p>
+                  <p className="text-white/85 text-[11px] sm:text-xs font-medium">{sosSub}</p>
+                </div>
+              </div>
+              {sosPhone && (
+                <a
+                  href={`tel:${sosPhone}`}
+                  onClick={() => trackClick('sos_call')}
+                  className="relative flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-red-600 text-xs sm:text-sm font-black shadow-md hover:bg-white/90 active:scale-95 transition-all duration-200"
+                >
+                  <Phone className="h-3.5 w-3.5" /> Ligar agora
+                </a>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Floating Share btn */}
       <div className="fixed top-4 right-4 z-40 flex gap-2">
@@ -1341,22 +1537,29 @@ export default function PublicProfile() {
         </button>
       </div>
 
-      {/* Main card wrapper */}
-      <div className={`${layoutClasses.wrapper} sm:pt-0 pt-4 fade-up`}>
+      {/* Main card wrapper — perfis BUSINESS ganham uma largura maior em
+          telas médias/grandes, deixando as seções mais amplas e "SaaS-like". */}
+      <div className={`${cat === 'BUSINESS' ? layoutClasses.wrapper.replace('max-w-[420px]', 'max-w-[420px] md:max-w-2xl lg:max-w-4xl').replace('sm:max-w-3xl', 'sm:max-w-3xl lg:max-w-5xl') : layoutClasses.wrapper} sm:pt-0 pt-4 fade-up`}>
 
         {/* ── PROFILE HEADER ── */}
         <div className="overflow-hidden shadow-2xl" style={{ borderRadius: `${borderRadius + 6}px` }}>
 
-          {/* Cover Image — object-cover cortava/"ampliava" fotos que não tinham
-              exatamente a proporção do box. Agora a foto aparece inteira
-              (object-contain) sobre um fundo desfocado da própria imagem,
-              sem cortar nem distorcer nada. */}
-          <div className={`relative overflow-hidden w-full ${hasCover ? 'aspect-[16/10] max-h-[420px] bg-black' : 'h-0'}`}>
+          {/* Cover Image — o editor (Perfil.tsx) já corta a foto em 3:1 no
+              upload (aspect: 3, "Formato largo · 1200×400px"). O container
+              aqui usa EXATAMENTE essa mesma proporção (aspect-[3/1]), então a
+              imagem já cortada certinho preenche 100% do espaço, nítida, sem
+              sobrar borda desfocada e sem cortar de novo. */}
+          <div className={`relative overflow-hidden w-full bg-zinc-900 ${hasCover ? 'aspect-[3/1]' : 'h-0'}`}>
             {hasCover && (
               <>
-                <img src={d.capa} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-50" />
-                <img src={d.capa} alt="Capa" className="relative w-full h-full object-contain" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <img
+                  src={d.capa}
+                  alt="Capa"
+                  className="absolute inset-0 w-full h-full object-cover object-center"
+                  loading="eager"
+                  decoding="async"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
               </>
             )}
             {/* Status aberto/fechado — bolinha pulsante no canto superior esquerdo do banner */}
@@ -1389,25 +1592,35 @@ export default function PublicProfile() {
             }}
           >
             {/* Avatar */}
-            <div className={`relative inline-block ${hasCover ? '-mt-20 mb-4' : 'mt-2 mb-4'} ${layout === 'left' ? 'self-start' : layout === 'right' ? 'self-end' : 'self-center'}`}>
+            <div className={`relative inline-block ${hasCover ? '-mt-14 sm:-mt-16 md:-mt-[4.5rem] mb-4' : 'mt-2 mb-4'} ${layout === 'left' ? 'self-start' : layout === 'right' ? 'self-end' : 'self-center'}`}>
               <div
-                className="w-36 h-36 sm:w-40 sm:h-40 border-4 shadow-2xl overflow-hidden"
+                className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 p-[3px] transition-transform duration-300"
                 style={{
                   borderRadius: customBr,
-                  borderColor: isLightTheme ? '#fff' : 'rgba(255,255,255,0.15)',
                   background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.12), 0 12px 32px -8px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.04)',
                 }}
               >
-                {d.foto
-                  ? <img src={d.foto} alt={name} className="w-full h-full object-cover" />
-                  : <div className="w-full h-full flex items-center justify-center text-5xl font-black text-white">
-                      {name[0]?.toUpperCase() || '?'}
-                    </div>
-                }
+                <div
+                  className="w-full h-full p-[3px] overflow-hidden"
+                  style={{ borderRadius: `calc(${customBr} - 3px)`, backgroundColor: isLightTheme ? '#ffffff' : '#0a0a0c' }}
+                >
+                  <div className="w-full h-full overflow-hidden" style={{ borderRadius: `calc(${customBr} - 6px)`, background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}>
+                    {d.foto
+                      ? <img src={d.foto} alt={name} className="w-full h-full object-cover" loading="eager" />
+                      : <div className="w-full h-full flex items-center justify-center text-4xl sm:text-5xl font-black text-white">
+                          {name[0]?.toUpperCase() || '?'}
+                        </div>
+                    }
+                  </div>
+                </div>
               </div>
               {verified && (
-                <div className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center shadow-lg">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" className="w-4.5 h-4.5"><polyline points="20 6 9 17 4 12" /></svg>
+                <div
+                  className="absolute -bottom-1 -right-1 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500 flex items-center justify-center shadow-lg"
+                  style={{ boxShadow: '0 2px 8px rgba(37,99,235,0.5)', border: `2.5px solid ${isLightTheme ? '#fff' : 'rgba(255,255,255,0.92)'}` }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" className="w-4 h-4 sm:w-4.5 sm:h-4.5"><polyline points="20 6 9 17 4 12" /></svg>
                 </div>
               )}
             </div>
@@ -1519,6 +1732,21 @@ export default function PublicProfile() {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* ── RODAPÉ INSTITUCIONAL (CNPJ / Razão Social) — só BUSINESS ── */}
+          {cat === 'BUSINESS' && (d.cnpj || d.razaoSocial) && (
+            <div
+              className="px-5 py-4 text-center border-t"
+              style={{
+                backgroundColor: isLightTheme ? 'rgba(0,0,0,0.03)' : 'rgba(0,0,0,0.2)',
+                borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)',
+              }}
+            >
+              {d.razaoSocial && <p className={`text-[11px] font-semibold ${th.muted}`}>{d.razaoSocial}</p>}
+              {d.cnpj && <p className={`text-[10px] ${th.muted} mt-0.5`}>CNPJ: {d.cnpj}</p>}
+              {d.endereco && <p className={`text-[10px] ${th.muted} mt-0.5`}>{d.endereco}</p>}
             </div>
           )}
 
