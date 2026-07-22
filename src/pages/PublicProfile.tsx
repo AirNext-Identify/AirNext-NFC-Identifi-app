@@ -223,13 +223,17 @@ const getSocialUrl = (key: string, val: string): string => {
 /* ─── LOADING SCREEN ──────────────────────────────────────── */
 function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center relative overflow-hidden">
+      <div className="absolute inset-0 opacity-40 pointer-events-none">
+        <div className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-blue-600/20 blur-3xl" />
+        <div className="absolute bottom-1/3 right-1/3 w-64 h-64 rounded-full bg-violet-600/15 blur-3xl" />
+      </div>
+      <div className="relative flex flex-col items-center gap-5 scale-in">
         <div className="relative">
-          <div className="w-12 h-12 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
-          <div className="absolute inset-0 rounded-full bg-blue-500/5 blur-xl" />
+          <div className="w-14 h-14 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
+          <div className="absolute inset-0 rounded-full bg-blue-500/10 blur-xl" />
         </div>
-        <p className="text-zinc-600 text-sm font-medium">Carregando perfil...</p>
+        <p className="text-zinc-500 text-sm font-semibold tracking-wide">Carregando perfil...</p>
       </div>
     </div>
   );
@@ -329,30 +333,36 @@ export default function PublicProfile() {
   if (loading) return <LoadingScreen />;
 
   if (isPrivate) return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
-      <div className="text-center max-w-sm">
-        <div className="w-20 h-20 rounded-3xl bg-zinc-900 border border-white/5 flex items-center justify-center mx-auto mb-6">
-          <Lock className="h-9 w-9 text-zinc-600" />
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-blue-600/15 blur-3xl" />
+      </div>
+      <div className="relative text-center max-w-sm scale-in">
+        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/10 to-white/[0.02] ring-1 ring-white/10 shadow-xl flex items-center justify-center mx-auto mb-6">
+          <Lock className="h-9 w-9 text-zinc-500" />
         </div>
-        <h1 className="text-xl font-bold text-white mb-2">Perfil Privado</h1>
+        <h1 className="text-xl font-bold text-white mb-2 tracking-tight">Perfil Privado</h1>
         <p className="text-zinc-500 text-sm leading-relaxed">Este perfil está configurado como privado e não pode ser acessado publicamente.</p>
-        <Link to="/" className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 bg-white/5 rounded-full text-sm text-zinc-400 hover:text-white border border-white/8 transition-all">
-          <ArrowLeft className="h-4 w-4" /> Voltar para o início
+        <Link to="/" className="group inline-flex items-center gap-2 mt-8 px-5 py-2.5 bg-white/5 rounded-full text-sm text-zinc-400 hover:text-white border border-white/8 hover:border-white/20 transition-all">
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" /> Voltar para o início
         </Link>
       </div>
     </div>
   );
 
   if (notFound || !product) return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
-      <div className="text-center max-w-sm">
-        <div className="w-20 h-20 rounded-3xl bg-zinc-900 border border-white/5 flex items-center justify-center mx-auto mb-6">
-          <Wifi className="h-9 w-9 text-zinc-600" />
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30 pointer-events-none">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-72 h-72 rounded-full bg-blue-600/15 blur-3xl" />
+      </div>
+      <div className="relative text-center max-w-sm scale-in">
+        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-white/10 to-white/[0.02] ring-1 ring-white/10 shadow-xl flex items-center justify-center mx-auto mb-6">
+          <Wifi className="h-9 w-9 text-zinc-500" />
         </div>
-        <h1 className="text-xl font-bold text-white mb-2">Perfil não encontrado</h1>
+        <h1 className="text-xl font-bold text-white mb-2 tracking-tight">Perfil não encontrado</h1>
         <p className="text-zinc-500 text-sm">Verifique se o link está correto.</p>
-        <Link to="/" className="inline-flex items-center gap-2 mt-8 px-5 py-2.5 bg-white/5 rounded-full text-sm text-zinc-400 hover:text-white border border-white/8 transition-all">
-          <ArrowLeft className="h-4 w-4" /> Voltar
+        <Link to="/" className="group inline-flex items-center gap-2 mt-8 px-5 py-2.5 bg-white/5 rounded-full text-sm text-zinc-400 hover:text-white border border-white/8 hover:border-white/20 transition-all">
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" /> Voltar
         </Link>
       </div>
     </div>
@@ -507,13 +517,13 @@ export default function PublicProfile() {
           <div key={m.id} className={`shrink-0 snap-center ${cat === 'BUSINESS' ? 'w-[90%] sm:w-[440px]' : 'w-[78%] sm:w-72'}`}>
             <button
               onClick={() => m.type === 'image' ? setLightboxIndex(i) : window.open(m.url, '_blank')}
-              className={`relative w-full overflow-hidden shadow-xl active:scale-[0.98] transition-transform block ${cat === 'BUSINESS' ? 'aspect-[4/3] sm:aspect-[16/11]' : 'aspect-[4/3]'}`}
+              className={`group/img relative w-full overflow-hidden shadow-xl active:scale-[0.98] transition-transform block ${cat === 'BUSINESS' ? 'aspect-[4/3] sm:aspect-[16/11]' : 'aspect-[4/3]'}`}
               style={{ borderRadius: customBr }}
             >
               {m.type === 'image'
                 ? <>
-                    <img src={m.url} alt={m.caption || ''} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                    <img src={m.url} alt={m.caption || ''} className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/img:scale-110" />
+                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover/img:opacity-100">
                       <Maximize2 className="h-6 w-6 text-white drop-shadow-lg" />
                     </div>
                     {m.caption && (
@@ -624,7 +634,7 @@ export default function PublicProfile() {
       <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-4`} style={labelStyle}>Informações</p>
       {d.telefone && !hidden.includes('telefone') && (
         <a href={`tel:${d.telefone}`} onClick={() => trackClick('phone')}
-          className="flex items-center gap-4 px-4 py-3.5 transition-all active:scale-[0.98] hover:opacity-90"
+          className="pp-row-hover flex items-center gap-4 px-4 py-3.5 transition-all active:scale-[0.98] hover:opacity-90"
           style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', borderRadius: customBr }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${primaryColor}20` }}>
             <Phone className="h-4 w-4" style={{ color: primaryColor }} />
@@ -637,7 +647,7 @@ export default function PublicProfile() {
       )}
       {d.email && !hidden.includes('email') && (
         <a href={`mailto:${d.email}`} onClick={() => trackClick('email')}
-          className="flex items-center gap-4 px-4 py-3.5 transition-all active:scale-[0.98] hover:opacity-90"
+          className="pp-row-hover flex items-center gap-4 px-4 py-3.5 transition-all active:scale-[0.98] hover:opacity-90"
           style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', borderRadius: customBr }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${primaryColor}20` }}>
             <Mail className="h-4 w-4" style={{ color: primaryColor }} />
@@ -650,7 +660,7 @@ export default function PublicProfile() {
       )}
       {d.site && !hidden.includes('site') && (
         <a href={getSocialUrl('site', d.site)} target="_blank" rel="noopener noreferrer" onClick={() => trackClick('site')}
-          className="flex items-center gap-4 px-4 py-3.5 transition-all active:scale-[0.98] hover:opacity-90"
+          className="pp-row-hover flex items-center gap-4 px-4 py-3.5 transition-all active:scale-[0.98] hover:opacity-90"
           style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', borderRadius: customBr }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${primaryColor}20` }}>
             <Globe className="h-4 w-4" style={{ color: primaryColor }} />
@@ -664,7 +674,7 @@ export default function PublicProfile() {
       )}
       {d.endereco && !hidden.includes('endereco') && (
         <a href={`https://maps.google.com/?q=${encodeURIComponent(d.endereco)}`} target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-4 px-4 py-3.5 transition-all active:scale-[0.98] hover:opacity-90"
+          className="pp-row-hover flex items-center gap-4 px-4 py-3.5 transition-all active:scale-[0.98] hover:opacity-90"
           style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', borderRadius: customBr }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${primaryColor}20` }}>
             <MapPin className="h-4 w-4" style={{ color: primaryColor }} />
@@ -1325,14 +1335,14 @@ export default function PublicProfile() {
       <div className="fixed top-4 right-4 z-40 flex gap-2">
         <button
           onClick={share}
-          className="p-2.5 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-xl border border-white/10 text-white transition-all active:scale-95 shadow-lg"
+          className="p-2.5 rounded-full bg-black/30 hover:bg-black/50 backdrop-blur-xl border border-white/10 hover:border-white/25 text-white transition-all hover:scale-110 active:scale-95 shadow-lg"
         >
           <Share2 className="h-4 w-4" />
         </button>
       </div>
 
       {/* Main card wrapper */}
-      <div className={`${layoutClasses.wrapper} sm:pt-0 pt-4`}>
+      <div className={`${layoutClasses.wrapper} sm:pt-0 pt-4 fade-up`}>
 
         {/* ── PROFILE HEADER ── */}
         <div className="overflow-hidden shadow-2xl" style={{ borderRadius: `${borderRadius + 6}px` }}>

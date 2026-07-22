@@ -564,28 +564,70 @@ function PhonePreview({
 }
 
 /* ─── FORM FIELD ─────────────────────────────────────────── */
-function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+function FormField({ label, hint, icon: Icon, children }: { label: string; hint?: string; icon?: any; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5 block">{label}</label>
+    <div className="group/field">
+      <label className="flex items-center gap-1.5 text-[10.5px] font-bold text-zinc-500 uppercase tracking-wider mb-2 transition-colors group-focus-within/field:text-blue-400">
+        {Icon && <Icon className="h-3 w-3" />}
+        {label}
+      </label>
       {children}
+      {hint && <p className="text-[10.5px] text-zinc-600 mt-1.5 leading-relaxed">{hint}</p>}
     </div>
   );
 }
 
-const inputCls = "w-full bg-white/[0.03] border border-white/8 rounded-xl px-3 py-2.5 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/30 transition-all";
-const textareaCls = `${inputCls} resize-none min-h-[70px]`;
+const inputCls = "w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-3 text-white text-sm placeholder:text-zinc-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500/50 focus:bg-white/[0.06] transition-all duration-200";
+const textareaCls = `${inputCls} resize-none min-h-[90px] leading-relaxed`;
+
+/* ─── CARTÃO DE SEÇÃO PREMIUM (agrupa campos relacionados) ───
+   Wrapper visual usado para transformar blocos soltos de campos
+   em cartões elegantes, com cabeçalho de ícone + título/descrição,
+   inspirado no padrão Apple/Stripe de "grouped settings cards". */
+function SectionCard({
+  title, description, icon: Icon, tone = 'neutral', children,
+}: { title?: string; description?: string; icon?: any; tone?: 'neutral' | 'blue' | 'emerald' | 'violet' | 'amber' | 'sky' | 'pink' | 'red'; children: React.ReactNode }) {
+  const tones: Record<string, { ring: string; bg: string; icon: string }> = {
+    neutral: { ring: 'border-white/8', bg: 'bg-white/[0.025]', icon: 'bg-white/8 text-zinc-300' },
+    blue: { ring: 'border-blue-500/15', bg: 'bg-gradient-to-b from-blue-500/[0.06] to-transparent', icon: 'bg-blue-500/15 text-blue-400' },
+    emerald: { ring: 'border-emerald-500/15', bg: 'bg-gradient-to-b from-emerald-500/[0.06] to-transparent', icon: 'bg-emerald-500/15 text-emerald-400' },
+    violet: { ring: 'border-violet-500/15', bg: 'bg-gradient-to-b from-violet-500/[0.06] to-transparent', icon: 'bg-violet-500/15 text-violet-400' },
+    amber: { ring: 'border-amber-500/15', bg: 'bg-gradient-to-b from-amber-500/[0.06] to-transparent', icon: 'bg-amber-500/15 text-amber-400' },
+    sky: { ring: 'border-sky-500/15', bg: 'bg-gradient-to-b from-sky-500/[0.06] to-transparent', icon: 'bg-sky-500/15 text-sky-400' },
+    pink: { ring: 'border-pink-500/15', bg: 'bg-gradient-to-b from-pink-500/[0.06] to-transparent', icon: 'bg-pink-500/15 text-pink-400' },
+    red: { ring: 'border-red-500/20', bg: 'bg-gradient-to-b from-red-500/[0.06] to-transparent', icon: 'bg-red-500/15 text-red-400' },
+  };
+  const t = tones[tone] || tones.neutral;
+  return (
+    <div className={`rounded-2xl border ${t.ring} ${t.bg} p-4 shadow-sm shadow-black/20 space-y-4 scale-in`}>
+      {(title || Icon) && (
+        <div className="flex items-start gap-3">
+          {Icon && (
+            <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${t.icon}`}>
+              <Icon className="h-4 w-4" />
+            </div>
+          )}
+          <div className="min-w-0 pt-0.5">
+            {title && <p className="text-xs font-bold text-white">{title}</p>}
+            {description && <p className="text-[11px] text-zinc-500 mt-0.5 leading-relaxed">{description}</p>}
+          </div>
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
 
 /* ─── COLOR SWATCH FIELD (nome / bio / texto / botões / apps) ───────── */
 const SWATCHES = ['#ffffff', '#0a0a0a', '#3b82f6', '#f59e0b', '#ec4899', '#10b981', '#ef4444'];
 function ColorField({ label, hint, value, onChange, autoLabel = 'Automática' }: { label: string; hint?: string; value: string; onChange: (v: string) => void; autoLabel?: string }) {
   return (
     <div>
-      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">{label}</p>
+      <p className="text-[10.5px] font-bold text-zinc-500 uppercase tracking-wider mb-2.5">{label}</p>
       <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={() => onChange('')}
-          className={`px-3 py-2 rounded-xl text-[11px] font-bold border-2 transition-all ${!value ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-white/8 bg-white/[0.02] text-zinc-500 hover:border-white/20'}`}
+          className={`px-3.5 py-2 rounded-xl text-[11px] font-bold border-2 transition-all duration-200 ${!value ? 'border-blue-500 bg-blue-500/10 text-white shadow-sm shadow-blue-500/20' : 'border-white/8 bg-white/[0.02] text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
         >
           {autoLabel}
         </button>
@@ -593,15 +635,15 @@ function ColorField({ label, hint, value, onChange, autoLabel = 'Automática' }:
           <button
             key={c}
             onClick={() => onChange(c)}
-            className={`w-8 h-8 rounded-full border-2 transition-all ${value === c ? 'border-blue-500 scale-110' : 'border-white/10 hover:border-white/30'}`}
+            className={`w-9 h-9 rounded-full border-2 transition-all duration-200 hover:scale-110 ${value === c ? 'border-blue-500 scale-110 shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/20' : 'border-white/10 hover:border-white/30'}`}
             style={{ backgroundColor: c }}
           />
         ))}
-        <div className="flex items-center gap-2 bg-white/[0.03] border border-white/8 rounded-xl p-1.5">
-          <input type="color" value={value || '#ffffff'} onChange={e => onChange(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 outline-none" />
+        <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl p-1.5 hover:border-white/20 transition-colors">
+          <input type="color" value={value || '#ffffff'} onChange={e => onChange(e.target.value)} className="w-9 h-9 rounded-lg cursor-pointer bg-transparent border-0 outline-none" />
         </div>
       </div>
-      {hint && <p className="text-[10px] text-zinc-600 mt-2">{hint}</p>}
+      {hint && <p className="text-[10.5px] text-zinc-600 mt-2 leading-relaxed">{hint}</p>}
     </div>
   );
 }
@@ -611,9 +653,9 @@ function Toggle({ value, onChange, danger }: { value: boolean; onChange: (v: boo
   return (
     <button
       onClick={() => onChange(!value)}
-      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${value ? (danger ? 'bg-red-500' : 'bg-blue-500') : 'bg-zinc-700'}`}
+      className={`relative w-12 h-6 rounded-full shadow-inner transition-all duration-300 ${value ? (danger ? 'bg-gradient-to-r from-red-500 to-rose-500 shadow-red-500/25' : 'bg-gradient-to-r from-blue-500 to-violet-500 shadow-blue-500/25') : 'bg-zinc-700/70'}`}
     >
-      <div className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-md transition-transform duration-300 ${value ? 'translate-x-7' : 'translate-x-1'}`} />
+      <div className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-md transition-transform duration-300 ease-out ${value ? 'translate-x-7' : 'translate-x-1'}`} />
     </button>
   );
 }
@@ -623,20 +665,25 @@ function Toggle({ value, onChange, danger }: { value: boolean; onChange: (v: boo
    clicar, expande e revela todos os controles completos. Isso
    evita que a aba "Visual" fique gigante e difícil de rolar. */
 function CollapsibleSection({
-  title, subtitle, preview, defaultOpen = false, children,
-}: { title: string; subtitle?: string; preview?: React.ReactNode; defaultOpen?: boolean; children: React.ReactNode }) {
+  title, subtitle, preview, defaultOpen = false, icon: Icon, children,
+}: { title: string; subtitle?: string; preview?: React.ReactNode; defaultOpen?: boolean; icon?: any; children: React.ReactNode }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className={`rounded-2xl border transition-all ${open ? 'border-blue-500/30 bg-white/[0.03]' : 'border-white/8 bg-white/[0.02]'} overflow-hidden`}>
-      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center gap-3 p-3.5 text-left active:scale-[0.99] transition-transform">
+    <div className={`rounded-2xl border transition-all duration-300 ${open ? 'border-blue-500/40 bg-gradient-to-b from-blue-500/[0.06] to-white/[0.02] shadow-lg shadow-blue-500/5' : 'border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.03]'} overflow-hidden`}>
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center gap-3 p-4 text-left active:scale-[0.99] transition-transform">
+        {Icon && (
+          <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 ${open ? 'bg-blue-500/15 text-blue-400' : 'bg-white/6 text-zinc-500'}`}>
+            <Icon className="h-4 w-4" />
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <p className="text-xs font-bold text-white">{title}</p>
-          {subtitle && <p className="text-[10px] text-zinc-500 mt-0.5 truncate">{subtitle}</p>}
+          {subtitle && <p className="text-[10.5px] text-zinc-500 mt-0.5 truncate">{subtitle}</p>}
         </div>
         {preview && <div className="shrink-0 flex items-center gap-1">{preview}</div>}
-        <ChevronRight className={`h-4 w-4 text-zinc-500 shrink-0 transition-transform ${open ? 'rotate-90' : ''}`} />
+        <ChevronRight className={`h-4 w-4 text-zinc-500 shrink-0 transition-transform duration-300 ${open ? 'rotate-90 text-blue-400' : ''}`} />
       </button>
-      {open && <div className="p-3.5 pt-1 space-y-4 border-t border-white/5">{children}</div>}
+      {open && <div className="p-4 pt-1 space-y-4 border-t border-white/5 scale-in">{children}</div>}
     </div>
   );
 }
@@ -981,7 +1028,7 @@ export default function Perfil() {
     /* INFO */
     if (sid === 'info') return (
       <div className="space-y-3">
-        <div className="p-3.5 rounded-2xl bg-violet-500/5 border border-violet-500/15">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-violet-500/[0.07] to-violet-500/[0.02] border border-violet-500/15 shadow-sm shadow-violet-500/5">
           <p className="text-xs font-bold text-white mb-0.5">📝 Informações · {catLabel}</p>
           <p className="text-[11px] text-zinc-500">Preencha os dados que aparecerão no perfil.</p>
         </div>
@@ -995,7 +1042,7 @@ export default function Perfil() {
         ))}
 
         {fields.some(f => f.key === 'chavePix') && (
-          <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/15 space-y-3">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/[0.07] to-emerald-500/[0.02] border border-emerald-500/15 shadow-sm shadow-emerald-500/5 space-y-3">
             <div>
               <p className="text-xs font-bold text-white mb-0.5">💰 QR Code do Pix (opcional)</p>
               <p className="text-[11px] text-zinc-500">Por padrão o QR é gerado automaticamente a partir da chave. Se preferir, envie o print do QR gerado pelo seu banco.</p>
@@ -1018,7 +1065,7 @@ export default function Perfil() {
         )}
 
         {cat === 'BUSINESS' && (
-          <div className="p-4 rounded-2xl bg-sky-500/5 border border-sky-500/15 space-y-3">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-sky-500/[0.07] to-sky-500/[0.02] border border-sky-500/15 shadow-sm shadow-sky-500/5 space-y-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-sky-500/15 flex items-center justify-center shrink-0">
                 <Signal className="h-4 w-4 text-sky-400" />
@@ -1056,7 +1103,7 @@ export default function Perfil() {
         )}
 
         {cat === 'BUSINESS' && (
-          <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/15 space-y-3">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/[0.07] to-amber-500/[0.02] border border-amber-500/15 shadow-sm shadow-amber-500/5 space-y-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
                 <Clock className="h-4 w-4 text-amber-400" />
@@ -1139,7 +1186,7 @@ export default function Perfil() {
         )}
 
         {cat === 'BUSINESS' && (
-          <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/15 space-y-3">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/[0.07] to-emerald-500/[0.02] border border-emerald-500/15 shadow-sm shadow-emerald-500/5 space-y-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
                 <CreditCard className="h-4 w-4 text-emerald-400" />
@@ -1171,7 +1218,7 @@ export default function Perfil() {
     /* VISUAL */
     if (sid === 'visual') return (
       <div className="space-y-3">
-        <div className="p-3.5 rounded-2xl bg-pink-500/5 border border-pink-500/15">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-pink-500/[0.07] to-pink-500/[0.02] border border-pink-500/15 shadow-sm shadow-pink-500/5">
           <p className="text-xs font-bold text-white mb-0.5">🎨 Aparência</p>
           <p className="text-[11px] text-zinc-500">Toque em cada seção para abrir e personalizar. Fica mais compacto e fácil de navegar.</p>
         </div>
@@ -1380,7 +1427,7 @@ export default function Perfil() {
           title="Botão Salvar Contato"
           subtitle={vcardNome || vcardTelefone ? 'Personalizado' : 'Usando dados padrão do perfil'}
         >
-          <div className="p-3.5 rounded-2xl bg-blue-500/5 border border-blue-500/15">
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-500/[0.07] to-blue-500/[0.02] border border-blue-500/15 shadow-sm shadow-blue-500/5">
             <p className="text-xs font-bold text-white mb-0.5">📇 Dados do Cartão de Contato</p>
             <p className="text-[11px] text-zinc-500">
               Preencha aqui o que deve ir no arquivo .vcf gerado quando o visitante toca em "Salvar Contato".
@@ -1425,7 +1472,7 @@ export default function Perfil() {
     );
     if (sid === 'social') return (
       <div className="space-y-3">
-        <div className="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/15">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500/[0.07] to-emerald-500/[0.02] border border-emerald-500/15 shadow-sm shadow-emerald-500/5">
           <p className="text-xs font-bold text-white mb-0.5">🔗 Redes Sociais</p>
           <p className="text-[11px] text-zinc-500">Cole o link ou username de cada rede.</p>
         </div>
@@ -1485,7 +1532,7 @@ export default function Perfil() {
     /* MIDIA */
     if (sid === 'midia') return (
       <div className="space-y-4">
-        <div className="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/15">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/[0.07] to-amber-500/[0.02] border border-amber-500/15 shadow-sm shadow-amber-500/5">
           <p className="text-xs font-bold text-white mb-0.5">🖼 Galeria de Mídia</p>
           <p className="text-[11px] text-zinc-500">
             {cat === 'BUSINESS'
@@ -1542,7 +1589,7 @@ export default function Perfil() {
 
         {cat === 'BUSINESS' && (
           <div className="pt-5 mt-2 border-t border-white/5 space-y-4">
-            <div className="p-3.5 rounded-2xl bg-blue-500/5 border border-blue-500/15">
+            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-500/[0.07] to-blue-500/[0.02] border border-blue-500/15 shadow-sm shadow-blue-500/5">
               <p className="text-xs font-bold text-white mb-0.5">🏢 Galeria — Sobre a Empresa</p>
               <p className="text-[11px] text-zinc-500">Fotos extras (ambiente, equipe, bastidores) exibidas em grade dentro do bloco "Sobre a Empresa", no perfil público.</p>
             </div>
@@ -1585,7 +1632,7 @@ export default function Perfil() {
     /* DEPOIMENTOS */
     if (sid === 'depoimentos') return (
       <div className="space-y-4">
-        <div className="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/15">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/[0.07] to-amber-500/[0.02] border border-amber-500/15 shadow-sm shadow-amber-500/5">
           <p className="text-xs font-bold text-white mb-0.5">💬 O que dizem de nós</p>
           <p className="text-[11px] text-zinc-500">Adicione avaliações e depoimentos de clientes. Aparecem como cartões no perfil público.</p>
         </div>
@@ -1633,7 +1680,7 @@ export default function Perfil() {
     /* ORGANIZAR (grid arrastável, estilo Apple) */
     if (sid === 'organizar') return (
       <div className="space-y-3">
-        <div className="p-3.5 rounded-2xl bg-blue-500/5 border border-blue-500/15">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-500/[0.07] to-blue-500/[0.02] border border-blue-500/15 shadow-sm shadow-blue-500/5">
           <p className="text-xs font-bold text-white mb-0.5">🧩 Organize seu perfil</p>
           <p className="text-[11px] text-zinc-500">Arraste os blocos para reordenar e use o interruptor para mostrar ou ocultar cada seção. A foto, nome e bio ficam sempre no topo.</p>
         </div>
@@ -1716,7 +1763,7 @@ export default function Perfil() {
     /* SOS */
     if (sid === 'sos') return (
       <div className="space-y-4">
-        <div className="p-3.5 rounded-2xl bg-red-500/5 border border-red-500/20">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-red-500/[0.07] to-red-500/[0.02] border border-red-500/20 shadow-sm shadow-red-500/5">
           <p className="text-xs font-bold text-white mb-0.5">🚨 Modo SOS · {catLabel}</p>
           <p className="text-[11px] text-zinc-500">Exibe banner de emergência no topo do perfil.</p>
         </div>
@@ -1759,7 +1806,7 @@ export default function Perfil() {
     /* PUBLICAR */
     if (sid === 'publicar') return (
       <div className="space-y-4">
-        <div className="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/15">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500/[0.07] to-emerald-500/[0.02] border border-emerald-500/15 shadow-sm shadow-emerald-500/5">
           <p className="text-xs font-bold text-white mb-0.5">🚀 Publicar Perfil</p>
           <p className="text-[11px] text-zinc-500">Configure visibilidade e publique.</p>
         </div>
@@ -1888,32 +1935,33 @@ export default function Perfil() {
       {/* ── EDITOR PANEL ── */}
       <aside className={`${mobileMode === 'preview' ? 'hidden' : 'flex'} lg:flex flex-1 lg:flex-none w-full lg:w-[460px] xl:w-[500px] flex-col border-r border-white/5 overflow-hidden min-h-0`}>
         {/* Desktop header */}
-        <div className="hidden lg:flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0">
+        <div className="hidden lg:flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0 bg-gradient-to-b from-white/[0.02] to-transparent">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/dashboard')} className="p-2 rounded-full hover:bg-white/5 text-zinc-500 transition-colors">
+            <button onClick={() => navigate('/dashboard')} className="p-2 rounded-full hover:bg-white/8 text-zinc-500 hover:text-white transition-colors">
               <X className="h-4 w-4" />
             </button>
             <div>
-              <h1 className="text-sm font-bold text-white">Estúdio de Perfil</h1>
-              <p className="text-[10px] text-zinc-600">{catLabel} · Preview ao vivo</p>
+              <h1 className="text-sm font-bold text-white tracking-tight">Estúdio de Perfil</h1>
+              <p className="text-[10.5px] text-zinc-600">{catLabel} · Preview ao vivo</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {saveState === 'saved' && <span className="text-xs text-emerald-400 font-medium flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Salvo</span>}
-            {saveState === 'saving' && <span className="text-xs text-blue-400 font-medium flex items-center gap-1"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Salvando</span>}
+          <div className="flex items-center gap-3">
+            {saveState === 'saved' && <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Salvo</span>}
+            {saveState === 'saving' && <span className="text-xs text-blue-400 font-semibold flex items-center gap-1"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Salvando</span>}
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 disabled:opacity-50 text-white px-5 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow"
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 disabled:opacity-50 text-white px-5 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-lg shadow-blue-600/25"
             >
-              <Save className="h-3.5 w-3.5" /> Salvar
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+              <span className="relative flex items-center gap-1.5"><Save className="h-3.5 w-3.5" /> Salvar</span>
             </button>
           </div>
         </div>
 
         {/* Step wizard nav */}
         <div className="px-4 py-3 border-b border-white/5 shrink-0">
-          <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar">
+          <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
             {activeSteps.map((s, i) => {
               const Icon = s.icon;
               const isActive = step === i;
@@ -1922,10 +1970,10 @@ export default function Perfil() {
                 <button
                   key={s.id}
                   onClick={() => setStep(i)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all shrink-0 ${
-                    isActive ? 'bg-blue-600 text-white shadow' :
-                    isDone ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                    'text-zinc-600 hover:text-zinc-400 hover:bg-white/5'
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all duration-200 shrink-0 ${
+                    isActive ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-md shadow-blue-600/25 scale-[1.03]' :
+                    isDone ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/15' :
+                    'text-zinc-600 hover:text-zinc-300 hover:bg-white/5'
                   }`}
                 >
                   {isDone ? <CheckCircle2 className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
@@ -1937,7 +1985,7 @@ export default function Perfil() {
         </div>
 
         {/* Step content */}
-        <div className="flex-1 overflow-y-auto p-4 pb-32 hide-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 pb-32 hide-scrollbar space-y-4">
           {renderStep()}
         </div>
 
@@ -1946,7 +1994,7 @@ export default function Perfil() {
           <button
             onClick={() => setStep(s => Math.max(0, s - 1))}
             disabled={step === 0}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/8 text-xs font-bold text-zinc-500 hover:text-white hover:border-white/20 disabled:opacity-25 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-white/8 text-xs font-bold text-zinc-500 hover:text-white hover:border-white/20 hover:bg-white/5 disabled:opacity-25 transition-all"
           >
             <ChevronLeft className="h-3.5 w-3.5" /> Anterior
           </button>
@@ -1955,13 +2003,13 @@ export default function Perfil() {
               <div
                 key={i}
                 onClick={() => setStep(i)}
-                className="h-1.5 rounded-full transition-all cursor-pointer"
+                className="h-1.5 rounded-full transition-all duration-300 cursor-pointer"
                 style={{ width: step === i ? 20 : 6, backgroundColor: step === i ? '#3b82f6' : 'rgba(255,255,255,0.15)' }}
               />
             ))}
           </div>
           {isLastStep
-            ? <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-xs font-bold text-white disabled:opacity-50 transition-all active:scale-95">
+            ? <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-xs font-bold text-white disabled:opacity-50 transition-all active:scale-95 shadow-md shadow-blue-600/20">
                 {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Publicar
               </button>
             : <button onClick={() => setStep(s => Math.min(activeSteps.length - 1, s + 1))} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 text-xs font-bold text-white transition-all">
@@ -1976,17 +2024,20 @@ export default function Perfil() {
         {/* Ambient glow */}
         <div className="absolute inset-0 opacity-30 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-blue-600/20 blur-3xl" />
+          <div className="absolute top-1/3 left-1/3 w-56 h-56 rounded-full bg-violet-600/10 blur-3xl" />
         </div>
 
         <div className="relative flex flex-col items-center gap-5 z-10">
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/8">
+          <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/8 backdrop-blur">
             <Smartphone className="h-3.5 w-3.5 text-zinc-500" />
-            <span className="text-[11px] text-zinc-500 font-medium">Preview ao vivo</span>
+            <span className="text-[11px] text-zinc-500 font-semibold">Preview ao vivo</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           </div>
 
           {/* Phone frame */}
-          <div className="bg-[#0a0a0a] rounded-[3rem] border-[12px] border-[#1c1c1e] shadow-2xl shadow-black/70 overflow-hidden w-[280px] h-[580px] relative ring-1 ring-white/5">
+          <div className="bg-[#0a0a0a] rounded-[3rem] border-[12px] border-[#1c1c1e] shadow-2xl shadow-black/70 overflow-hidden w-[280px] h-[580px] relative ring-1 ring-white/10">
+            {/* Glass reflection */}
+            <div className="absolute inset-0 z-40 pointer-events-none rounded-[2.2rem] bg-gradient-to-br from-white/[0.06] via-transparent to-transparent" />
             {/* Notch */}
             <div className="absolute top-0 inset-x-0 h-9 z-50 flex justify-center pt-2.5">
               <div className="w-28 h-6 bg-black rounded-full" />
