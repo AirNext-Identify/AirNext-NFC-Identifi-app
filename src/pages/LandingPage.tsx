@@ -204,7 +204,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#0071e3', icon: <Briefcase size={22} />,
     formats: ['cartao'], // todas as categorias disponíveis
-    specs: ['Chip NFC NTAG216 · 888 bytes', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Edição ilimitada do perfil'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Chip NFC + QR Code',  'PVC Premium Matte', 'IP65 · À Prova d\'Água', ],
   },
   
 
@@ -215,7 +215,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/5239822/pexels-photo-5239822.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#34c759', icon: <Building2 size={22} />,
     formats: ['display','placa'], // todas as categorias disponíveis
-    specs: ['Base Acrílico Premium', 'Dual-Chip NFC', 'QR Code Estático + Dinâmico', 'Dashboard de analytics', 'Personalização com logo'],
+    specs: ['100% Personalizado','Edição ilimitada do perfil', 'Chip NFC + QR Code', 'Dashboard de analytics', 'Personalização com logo'],
   },
   {
     id: 'pet', name: 'AirNext Pet', tag: 'Pets', price: 69,
@@ -224,7 +224,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#ff9500', icon: <PawPrint size={22} />,
     formats: [ 'tag', 'chaveiro'], // todas as categorias disponíveis
-    specs: ['Alumínio Aeronáutico', 'IP68 · Submersível', 'Argola de titânio', 'Dados veterinários', 'GPS compartilhável'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Chip NFC + QR Code','IP68 · Submersível', 'Argola', 'Dados veterinários e +'],
   },
   {
     id: 'kids', name: 'AirNext Kids', tag: 'Crianças', price: 99,
@@ -233,7 +233,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/5275817/pexels-photo-5275817.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#af52de', icon: <Baby size={22} />,
     formats: [ 'pulseira'], // todas as categorias disponíveis
-    specs: ['Silicone Hipoalergênico', 'Chip NFC NTAG213', 'Nome e foto de identificação', 'Resistente à água', 'Contato dos responsáveis'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil', 'Chip NFC + QR Code', 'Resistente à água', 'Contato dos responsáveis'],
   },
   {
     id: 'senior', name: 'AirNext Senior', tag: 'Idosos', price: 99,
@@ -242,7 +242,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/7394608/pexels-photo-7394608.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#ff3b30', icon: <Heart size={22} />,
     formats: [ 'pulseira'], // todas as categorias disponíveis
-    specs: ['Dados do plano de saúde', 'Medicações em uso', 'Contato do médico', 'Endereço residencial', 'Leitura sem aplicativo'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Chip NFC + QR Code', 'Medicações em uso', 'Contato do médico', 'Endereço residencial', 'Leitura sem aplicativo'],
   },
   {
     id: 'tea', name: 'AirNext TEA', tag: 'Espectro Autista', price: 99,
@@ -251,7 +251,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#00d2ff', icon: <Puzzle size={22} />,
     formats: ['pulseira', 'cracha'], // todas as categorias disponíveis
-    specs: ['Instruções de comunicação', 'Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Chip NFC + QR Code','Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
   },
   {
     id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 69,
@@ -260,26 +260,26 @@ const PRODUCTS: Product[] = [
     img: 'https://files.catbox.moe/ucabuc.png',
     color: '#eab308', icon: <TagIcon size={22} />,
     formats: [ 'tag' ],
-    specs: ['Chip NFC NTAG213', 'QR Code de backup', 'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, celulares e inúmeras possibilidades de uso no dia a dia.'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Base Acrílico Premium','Acabamento em Resina','Chip NFC + QR Code',  'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, celulares e inúmeras possibilidades de uso no dia a dia.'],
   },
   {
     id: 'corporate', name: 'AirNext Corporate', tag: 'Empresas', price: 99,
     desc: 'Crachás e cartões NFC inteligentes para equipes e colaboradores.',
-    longDesc: 'Emita identidade digital para toda a equipe: crachá com NFC, controle de acesso, perfil corporativo e dados de contato centralizados — tudo com a marca da sua empresa.',
+    longDesc: 'Emita identidade digital para toda a equipe: crachá com NFC, perfil corporativo e dados de contato centralizados — tudo com a marca da sua empresa.',
     img: 'https://files.catbox.moe/m8gpmb.png',
     color: '#5e17eb', icon: <Users size={22} />,
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo', 'cracha'],
-    specs: ['Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC NTAG216 · 888 bytes', 'QR Code Dinâmico', 'Dashboard de gestão'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil', 'Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC + QR Code', 'Dashboard de gestão'],
   },
   
   {
     id: 'evento', name: 'AirNext Evento', tag: 'Eventos', price: 0,
     desc: 'Crachás inteligentes para congressos, feiras e eventos.',
-    longDesc: 'Participantes trocam contato, acessam a programação e fazem check-in com um toque. Ideal para congressos, feiras e eventos corporativos que quere reduzir fricção.',
+    longDesc: 'Participantes trocam contato, acessam a programação com um toque. Ideal para congressos, feiras e eventos corporativos que querem reduzir a fricção.',
     img: 'https://files.catbox.moe/bp85o5.png',
     color: '#ff2d55', icon: <Ticket size={22} />,
     formats: ['cracha', 'display', 'cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
-    specs: ['Check-in por aproximação', 'Programação e mapa do evento', 'QR Code de backup', 'Networking pós-evento', 'PVC Premium Matte'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil', 'Programação e mapa do evento',  'Acesso por NFC + QR Code', 'Perfil digital personalizado', 'Networking sem troca de papel', 'PVC Premium Matte'],
   },
   {
     id: 'hotel', name: 'AirNext Hotel', tag: 'Hotelaria', price: 129,
@@ -288,7 +288,7 @@ const PRODUCTS: Product[] = [
     img: 'https://files.catbox.moe/cuol4c.jpeg',
     color: '#00c2a8', icon: <BedDouble size={22} />,
     formats: ['placa', 'cartao', 'display'],
-    specs: ['Wi-Fi e informações do quarto', 'Cardápio e Room Service', 'Solicitação de serviços', 'Avaliações e feedback dos hóspedes', 'Atrações, mapas e recomendações locais'],
+    specs: ['100% Personalizado', 'Edição ilimitada do perfil', 'Wi-Fi e informações do quarto','Chip NFC + QR Code', 'Cardápio e Room Service', 'Solicitação de serviços', 'Avaliações e feedback dos hóspedes', 'Atrações, mapas e recomendações locais'],
   },
 ];
 
