@@ -204,7 +204,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#0071e3', icon: <Briefcase size={22} />,
     formats: ['cartao'], // todas as categorias disponíveis
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Chip NFC + QR Code',  'PVC Premium Matte', 'IP65 · À Prova d\'Água', ],
+    specs: ['Chip NFC', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Edição ilimitada do perfil'],
   },
   
 
@@ -215,7 +215,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/5239822/pexels-photo-5239822.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#34c759', icon: <Building2 size={22} />,
     formats: ['display','placa'], // todas as categorias disponíveis
-    specs: ['100% Personalizado','Edição ilimitada do perfil', 'Chip NFC + QR Code', 'Dashboard de analytics', 'Personalização com logo'],
+    specs: ['Base Acrílico Premium', 'Chip NFC', 'QR Code Estático + Dinâmico', 'Dashboard de analytics', 'Personalização com logo'],
   },
   {
     id: 'pet', name: 'AirNext Pet', tag: 'Pets', price: 69,
@@ -224,7 +224,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#ff9500', icon: <PawPrint size={22} />,
     formats: [ 'tag', 'chaveiro'], // todas as categorias disponíveis
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Chip NFC + QR Code','IP68 · Submersível', 'Argola', 'Dados veterinários e +'],
+    specs: ['Acabamento em Resina', 'Chip NFC', 'QR Code Estático + Dinâmico','IP68 · Submersível', 'Argola', 'Dados veterinários e +'],
   },
   {
     id: 'kids', name: 'AirNext Kids', tag: 'Crianças', price: 99,
@@ -233,7 +233,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/5275817/pexels-photo-5275817.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#af52de', icon: <Baby size={22} />,
     formats: [ 'pulseira'], // todas as categorias disponíveis
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil', 'Chip NFC + QR Code', 'Resistente à água', 'Contato dos responsáveis'],
+    specs: ['Silicone Hipoalergênico', 'Chip NFC', 'Nome e foto de identificação', 'Resistente à água', 'Contato dos responsáveis'],
   },
   {
     id: 'senior', name: 'AirNext Senior', tag: 'Idosos', price: 99,
@@ -242,7 +242,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/7394608/pexels-photo-7394608.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#ff3b30', icon: <Heart size={22} />,
     formats: [ 'pulseira'], // todas as categorias disponíveis
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Chip NFC + QR Code', 'Medicações em uso', 'Contato do médico', 'Endereço residencial', 'Leitura sem aplicativo'],
+    specs: ['Dados do plano de saúde','Chip NFC', 'QR Code Estático + Dinâmico', 'Medicações em uso', 'Contato do médico', 'Endereço residencial', 'Leitura sem aplicativo'],
   },
   {
     id: 'tea', name: 'AirNext TEA', tag: 'Espectro Autista', price: 99,
@@ -251,7 +251,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#00d2ff', icon: <Puzzle size={22} />,
     formats: ['pulseira', 'cracha'], // todas as categorias disponíveis
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Chip NFC + QR Code','Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
+    specs: ['Instruções de comunicação', 'Chip NFC', 'QR Code Estático + Dinâmico','Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
   },
   {
     id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 69,
@@ -260,7 +260,7 @@ const PRODUCTS: Product[] = [
     img: 'https://files.catbox.moe/ucabuc.png',
     color: '#eab308', icon: <TagIcon size={22} />,
     formats: [ 'tag' ],
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil','Base Acrílico Premium','Acabamento em Resina','Chip NFC + QR Code',  'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, celulares e inúmeras possibilidades de uso no dia a dia.'],
+    specs: ['Base Acrílico Premium','Acabamento em Resina','Chip NFC', 'QR Code de backup', 'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, celulares e inúmeras possibilidades de uso no dia a dia.'],
   },
   {
     id: 'corporate', name: 'AirNext Corporate', tag: 'Empresas', price: 99,
@@ -269,7 +269,7 @@ const PRODUCTS: Product[] = [
     img: 'https://files.catbox.moe/m8gpmb.png',
     color: '#5e17eb', icon: <Users size={22} />,
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo', 'cracha'],
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil', 'Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC + QR Code', 'Dashboard de gestão'],
+    specs: ['Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC + QR Code', 'Dashboard de gestão'],
   },
   
   {
@@ -279,7 +279,7 @@ const PRODUCTS: Product[] = [
     img: 'https://files.catbox.moe/bp85o5.png',
     color: '#ff2d55', icon: <Ticket size={22} />,
     formats: ['cracha', 'display', 'cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil', 'Programação e mapa do evento',  'Acesso por NFC + QR Code', 'Perfil digital personalizado', 'Networking sem troca de papel', 'PVC Premium Matte'],
+    specs: [ 'Programação e mapa do evento',  'Acesso por NFC + QR Code', 'Perfil digital personalizado', 'Networking sem troca de papel', 'PVC Premium Matte'],
   },
   {
     id: 'hotel', name: 'AirNext Hotel', tag: 'Hotelaria', price: 129,
@@ -288,7 +288,7 @@ const PRODUCTS: Product[] = [
     img: 'https://files.catbox.moe/cuol4c.jpeg',
     color: '#00c2a8', icon: <BedDouble size={22} />,
     formats: ['placa', 'cartao', 'display'],
-    specs: ['100% Personalizado', 'Edição ilimitada do perfil', 'Wi-Fi e informações do quarto','Chip NFC + QR Code', 'Cardápio e Room Service', 'Solicitação de serviços', 'Avaliações e feedback dos hóspedes', 'Atrações, mapas e recomendações locais'],
+    specs: ['Wi-Fi e informações do quarto', 'Cardápio e Room Service', 'Solicitação de serviços', 'Avaliações e feedback dos hóspedes', 'Atrações, mapas e recomendações locais'],
   },
 ];
 
@@ -1659,7 +1659,7 @@ function WhatsAppButton() {
 }
 
 export default function LandingPage() {
-  const { resolve: resolveImg } = useSiteImages();
+  const { resolve: resolveImg, loading: imagesLoading } = useSiteImages();
   const [isDark, setIsDark] = useState(true); // Default Black theme, toggleable to White
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -2068,10 +2068,10 @@ export default function LandingPage() {
       <div className="fixed top-0 left-0 h-[3px] z-[60] rounded-r-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-[width] duration-150 ease-out" style={{ width: `${scrollProgress}%` }} />
 
       {/* --- Navbar --- */}
-      <nav className={`fixed top-12 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 group/nav ${
+      <nav className={`fixed top-12 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl transition-all duration-500 group/nav ${
         scrolled
-          ? `w-[95%] max-w-6xl ${isDark ? 'bg-[#0a0a0a]/80 border-white/10' : 'bg-white/80 border-gray-200/70'} backdrop-blur-2xl rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] border`
-          : `w-[95%] max-w-7xl ${isDark ? 'bg-white/[0.04] border-white/10' : 'bg-white/50 border-gray-200/40'} backdrop-blur-md rounded-full border`
+          ? `${isDark ? 'bg-[#0a0a0a]/80 border-white/10' : 'bg-white/80 border-gray-200/70'} backdrop-blur-2xl rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] border`
+          : `${isDark ? 'bg-white/[0.04] border-white/10' : 'bg-white/50 border-gray-200/40'} backdrop-blur-md rounded-full border`
       }`}>
         {/* Subtle animated gradient ring on hover — a small "alive" touch instead of a static bar */}
         <div className="pointer-events-none absolute -inset-px rounded-full opacity-0 group-hover/nav:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-purple-500/0 blur-sm" />
@@ -2569,14 +2569,19 @@ export default function LandingPage() {
             </div>
 
             <div className="relative mx-auto rounded-[28px] md:rounded-[40px] overflow-hidden bg-black aspect-[4/5] sm:aspect-video lg:aspect-[21/9]">
-              <video
-                className="w-full h-full object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                src={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
-              />
+              {imagesLoading ? (
+                <div className="absolute inset-0 bg-white/5 animate-pulse" />
+              ) : (
+                <video
+                  key={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  src={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/10 pointer-events-none" />
               <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 pointer-events-none">
                 <p className="text-[11px] font-bold tracking-[0.2em] text-white/60 uppercase mb-1">AirNext em ação</p>
@@ -2642,7 +2647,9 @@ export default function LandingPage() {
                     onClick={() => setDemoLightbox(p)}
                     className="group relative w-full aspect-[4/5] rounded-[28px] overflow-hidden block text-left"
                   >
-                    {demoIsVideo ? (
+                    {imagesLoading ? (
+                      <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                    ) : demoIsVideo ? (
                       <video src={demoSrc} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" muted loop playsInline autoPlay />
                     ) : (
                       <img src={demoSrc} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -2746,7 +2753,11 @@ export default function LandingPage() {
                   >
                     {/* Imagem — grande, sem selos ou ruído visual, foco total no produto */}
                     <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      <img src={resolveImg(`shop-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+                      {imagesLoading ? (
+                        <div className="w-full h-full bg-white/5 animate-pulse" />
+                      ) : (
+                        <img src={resolveImg(`shop-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+                      )}
 
                       {/* Botão de sacola — sempre visível (antes só aparecia no hover) */}
                       <button
@@ -2821,7 +2832,11 @@ export default function LandingPage() {
                     className="group cursor-pointer h-[420px] flex flex-col"
                   >
                     <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      <img src={resolveImg(`row2-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+                      {imagesLoading ? (
+                        <div className="w-full h-full bg-white/5 animate-pulse" />
+                      ) : (
+                        <img src={resolveImg(`row2-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+                      )}
 
                       <button
                         onClick={(e) => { e.stopPropagation(); addToCart(p); }}
@@ -3019,7 +3034,11 @@ export default function LandingPage() {
               ].map((item, i) => (
                 <SwiperSlide key={i}>
                   <div className="relative rounded-[28px] overflow-hidden aspect-[3/4] group">
-                    <img src={resolveImg(`moments-${item.id}`, item.img)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    {imagesLoading ? (
+                      <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                    ) : (
+                      <img src={resolveImg(`moments-${item.id}`, item.img)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-6">
                       <h3 className="text-white text-lg font-bold mb-1.5">{item.title}</h3>
@@ -3459,14 +3478,18 @@ export default function LandingPage() {
                     </motion.div>
                   </div>
                   <div className="aspect-[4/3] lg:aspect-auto relative overflow-hidden order-1 lg:order-2">
-                    <motion.img
-                      initial={{ scale: 1.1 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: .8 }}
-                      src={resolveImg(`everyone-${everyoneData[activeEveryone].id}`, everyoneData[activeEveryone].img)}
-                      alt={everyoneData[activeEveryone].label}
-                      className="w-full h-full object-cover min-h-[300px]"
-                    />
+                    {imagesLoading ? (
+                      <div className="absolute inset-0 bg-white/5 animate-pulse min-h-[300px]" />
+                    ) : (
+                      <motion.img
+                        initial={{ scale: 1.1 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: .8 }}
+                        src={resolveImg(`everyone-${everyoneData[activeEveryone].id}`, everyoneData[activeEveryone].img)}
+                        alt={everyoneData[activeEveryone].label}
+                        className="w-full h-full object-cover min-h-[300px]"
+                      />
+                    )}
                   </div>
                 </motion.div>
               </AnimatePresence>

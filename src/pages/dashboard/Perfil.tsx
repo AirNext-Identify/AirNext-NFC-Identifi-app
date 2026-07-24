@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, ProfileTheme } from '../../contexts/AuthContext';
 
@@ -640,18 +640,18 @@ function PhonePreview({
 function FormField({ label, hint, icon: Icon, children }: { label: string; hint?: string; icon?: any; children: React.ReactNode }) {
   return (
     <div className="group/field">
-      <label className="flex items-center gap-1.5 text-[10.5px] font-bold text-zinc-500 uppercase tracking-wider mb-2 transition-colors group-focus-within/field:text-blue-400">
-        {Icon && <Icon className="h-3 w-3" />}
+      <label className="flex items-center gap-1.5 text-[11.5px] font-bold text-zinc-500 uppercase tracking-wider mb-2.5 transition-colors group-focus-within/field:text-blue-400">
+        {Icon && <Icon className="h-3.5 w-3.5" />}
         {label}
       </label>
       {children}
-      {hint && <p className="text-[10.5px] text-zinc-600 mt-1.5 leading-relaxed">{hint}</p>}
+      {hint && <p className="text-[11px] text-zinc-600 mt-2 leading-relaxed">{hint}</p>}
     </div>
   );
 }
 
-const inputCls = "w-full bg-white/[0.04] border border-white/10 rounded-2xl px-4 py-3 text-white text-sm placeholder:text-zinc-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500/50 focus:bg-white/[0.06] transition-all duration-200";
-const textareaCls = `${inputCls} resize-none min-h-[90px] leading-relaxed`;
+const inputCls = "w-full bg-white/[0.04] border border-white/10 rounded-2xl px-[18px] py-3.5 text-white text-[15px] placeholder:text-zinc-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-white/20 hover:bg-white/[0.05] focus:outline-none focus:ring-4 focus:ring-blue-500/15 focus:border-blue-500/50 focus:bg-white/[0.06] transition-all duration-200";
+const textareaCls = `${inputCls} resize-none min-h-[110px] leading-relaxed`;
 
 /* ─── CARTÃO DE SEÇÃO PREMIUM (agrupa campos relacionados) ───
    Wrapper visual usado para transformar blocos soltos de campos
@@ -672,17 +672,17 @@ function SectionCard({
   };
   const t = tones[tone] || tones.neutral;
   return (
-    <div className={`rounded-2xl border ${t.ring} ${t.bg} p-4 shadow-sm shadow-black/20 space-y-4 scale-in`}>
+    <div className={`rounded-2xl border ${t.ring} ${t.bg} p-5 shadow-sm shadow-black/20 space-y-4 scale-in`}>
       {(title || Icon) && (
         <div className="flex items-start gap-3">
           {Icon && (
-            <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${t.icon}`}>
-              <Icon className="h-4 w-4" />
+            <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${t.icon}`}>
+              <Icon className="h-[18px] w-[18px]" />
             </div>
           )}
           <div className="min-w-0 pt-0.5">
-            {title && <p className="text-xs font-bold text-white">{title}</p>}
-            {description && <p className="text-[11px] text-zinc-500 mt-0.5 leading-relaxed">{description}</p>}
+            {title && <p className="text-sm font-bold text-white">{title}</p>}
+            {description && <p className="text-[11.5px] text-zinc-500 mt-0.5 leading-relaxed">{description}</p>}
           </div>
         </div>
       )}
@@ -696,11 +696,11 @@ const SWATCHES = ['#ffffff', '#0a0a0a', '#3b82f6', '#f59e0b', '#ec4899', '#10b98
 function ColorField({ label, hint, value, onChange, autoLabel = 'Automática' }: { label: string; hint?: string; value: string; onChange: (v: string) => void; autoLabel?: string }) {
   return (
     <div>
-      <p className="text-[10.5px] font-bold text-zinc-500 uppercase tracking-wider mb-2.5">{label}</p>
-      <div className="flex items-center gap-2 flex-wrap">
+      <p className="text-[11.5px] font-bold text-zinc-500 uppercase tracking-wider mb-3">{label}</p>
+      <div className="flex items-center gap-2.5 flex-wrap">
         <button
           onClick={() => onChange('')}
-          className={`px-3.5 py-2 rounded-xl text-[11px] font-bold border-2 transition-all duration-200 ${!value ? 'border-blue-500 bg-blue-500/10 text-white shadow-sm shadow-blue-500/20' : 'border-white/8 bg-white/[0.02] text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold border-2 transition-all duration-200 ${!value ? 'border-blue-500 bg-blue-500/10 text-white shadow-sm shadow-blue-500/20' : 'border-white/8 bg-white/[0.02] text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
         >
           {autoLabel}
         </button>
@@ -708,15 +708,15 @@ function ColorField({ label, hint, value, onChange, autoLabel = 'Automática' }:
           <button
             key={c}
             onClick={() => onChange(c)}
-            className={`w-9 h-9 rounded-full border-2 transition-all duration-200 hover:scale-110 ${value === c ? 'border-blue-500 scale-110 shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/20' : 'border-white/10 hover:border-white/30'}`}
+            className={`w-10 h-10 rounded-full border-2 transition-all duration-200 hover:scale-110 ${value === c ? 'border-blue-500 scale-110 shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/20' : 'border-white/10 hover:border-white/30'}`}
             style={{ backgroundColor: c }}
           />
         ))}
         <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl p-1.5 hover:border-white/20 transition-colors">
-          <input type="color" value={value || '#ffffff'} onChange={e => onChange(e.target.value)} className="w-9 h-9 rounded-lg cursor-pointer bg-transparent border-0 outline-none" />
+          <input type="color" value={value || '#ffffff'} onChange={e => onChange(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0 outline-none" />
         </div>
       </div>
-      {hint && <p className="text-[10.5px] text-zinc-600 mt-2 leading-relaxed">{hint}</p>}
+      {hint && <p className="text-[11px] text-zinc-600 mt-2 leading-relaxed">{hint}</p>}
     </div>
   );
 }
@@ -932,17 +932,28 @@ export default function Perfil() {
   const removeDepoimento = (id: string) => setField('depoimentos', depoimentos.filter(t => t.id !== id));
 
   const atracoes: { id: string; titulo: string; subtitulo?: string; imagem?: string; link?: string; tag?: string }[] = Array.isArray(form.atracoes) ? form.atracoes : [];
-  const addAtracao = () => setField('atracoes', [...atracoes, { id: `atr${Date.now()}`, titulo: '', subtitulo: '', imagem: '', link: '', tag: '' }]);
+  const atracoesScrollRef = useRef<HTMLDivElement>(null);
+  const scrollCarouselToEnd = (ref: React.RefObject<HTMLDivElement>) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = ref.current;
+        if (el) el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
+      });
+    });
+  };
+  const addAtracao = () => { setField('atracoes', [...atracoes, { id: `atr${Date.now()}`, titulo: '', subtitulo: '', imagem: '', link: '', tag: '' }]); scrollCarouselToEnd(atracoesScrollRef); };
   const updateAtracao = (id: string, patch: any) => setField('atracoes', atracoes.map(a => a.id === id ? { ...a, ...patch } : a));
   const removeAtracao = (id: string) => setField('atracoes', atracoes.filter(a => a.id !== id));
 
   const promocoes: { id: string; titulo: string; descricao?: string; imagem?: string; precoDe?: string; precoPor?: string; validade?: string; link?: string; tag?: string }[] = Array.isArray(form.promocoes) ? form.promocoes : [];
-  const addPromocao = () => setField('promocoes', [...promocoes, { id: `promo${Date.now()}`, titulo: '', descricao: '', imagem: '', precoDe: '', precoPor: '', validade: '', link: '', tag: '' }]);
+  const promocoesScrollRef = useRef<HTMLDivElement>(null);
+  const addPromocao = () => { setField('promocoes', [...promocoes, { id: `promo${Date.now()}`, titulo: '', descricao: '', imagem: '', precoDe: '', precoPor: '', validade: '', link: '', tag: '' }]); scrollCarouselToEnd(promocoesScrollRef); };
   const updatePromocao = (id: string, patch: any) => setField('promocoes', promocoes.map(p => p.id === id ? { ...p, ...patch } : p));
   const removePromocao = (id: string) => setField('promocoes', promocoes.filter(p => p.id !== id));
 
   const noticias: { id: string; titulo: string; resumo?: string; imagem?: string; data?: string; link?: string }[] = Array.isArray(form.noticias) ? form.noticias : [];
-  const addNoticia = () => setField('noticias', [...noticias, { id: `news${Date.now()}`, titulo: '', resumo: '', imagem: '', data: '', link: '' }]);
+  const noticiasScrollRef = useRef<HTMLDivElement>(null);
+  const addNoticia = () => { setField('noticias', [...noticias, { id: `news${Date.now()}`, titulo: '', resumo: '', imagem: '', data: '', link: '' }]); scrollCarouselToEnd(noticiasScrollRef); };
   const updateNoticia = (id: string, patch: any) => setField('noticias', noticias.map(n => n.id === id ? { ...n, ...patch } : n));
   const removeNoticia = (id: string) => setField('noticias', noticias.filter(n => n.id !== id));
 
@@ -1752,31 +1763,36 @@ export default function Perfil() {
             </div>
           )}
 
-          <div className="space-y-3">
-            {atracoes.map(a => (
-              <div key={a.id} className="p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => openImageEditor(`__atracaoImg__${a.id}`)}
-                    className="relative shrink-0 w-20 aspect-[4/5] rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
-                  >
-                    {a.imagem ? <img src={a.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
-                  </button>
-                  <div className="flex-1 space-y-2">
-                    <input value={a.titulo} onChange={e => updateAtracao(a.id, { titulo: e.target.value })} placeholder="Título (ex: Conheça nosso novo espaço)" className={inputCls} />
-                    <input value={a.tag || ''} onChange={e => updateAtracao(a.id, { tag: e.target.value })} placeholder="Selo (opcional, ex: NOVO)" className={inputCls} />
+          {atracoes.length > 1 && (
+            <p className="text-[10.5px] text-zinc-600 -mb-1 flex items-center gap-1">Arraste para o lado para ver todos <ChevronRight className="h-3 w-3" /></p>
+          )}
+          {atracoes.length > 0 && (
+            <div ref={atracoesScrollRef} className="flex gap-3.5 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar -mx-1 px-1">
+              {atracoes.map(a => (
+                <div key={a.id} className="snap-start shrink-0 w-[300px] sm:w-[320px] p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => openImageEditor(`__atracaoImg__${a.id}`)}
+                      className="relative shrink-0 w-20 aspect-[4/5] rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
+                    >
+                      {a.imagem ? <img src={a.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
+                    </button>
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <input value={a.titulo} onChange={e => updateAtracao(a.id, { titulo: e.target.value })} placeholder="Título (ex: Conheça nosso novo espaço)" className={inputCls} />
+                      <input value={a.tag || ''} onChange={e => updateAtracao(a.id, { tag: e.target.value })} placeholder="Selo (opcional, ex: NOVO)" className={inputCls} />
+                    </div>
+                  </div>
+                  <textarea value={a.subtitulo || ''} onChange={e => updateAtracao(a.id, { subtitulo: e.target.value })} placeholder="Descrição curta (opcional)" className={textareaCls} rows={2} />
+                  <div className="flex gap-2 items-center">
+                    <input value={a.link || ''} onChange={e => updateAtracao(a.id, { link: e.target.value })} placeholder="Link ao clicar (opcional)" className={`${inputCls} flex-1`} />
+                    <button onClick={() => removeAtracao(a.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-                <textarea value={a.subtitulo || ''} onChange={e => updateAtracao(a.id, { subtitulo: e.target.value })} placeholder="Descrição curta (opcional)" className={textareaCls} rows={2} />
-                <div className="flex gap-2 items-center">
-                  <input value={a.link || ''} onChange={e => updateAtracao(a.id, { link: e.target.value })} placeholder="Link ao clicar (opcional)" className={`${inputCls} flex-1`} />
-                  <button onClick={() => removeAtracao(a.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <button
             onClick={addAtracao}
@@ -1801,36 +1817,41 @@ export default function Perfil() {
             </div>
           )}
 
-          <div className="space-y-3">
-            {promocoes.map(p => (
-              <div key={p.id} className="p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => openImageEditor(`__promocaoImg__${p.id}`)}
-                    className="relative shrink-0 w-24 aspect-video rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
-                  >
-                    {p.imagem ? <img src={p.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
-                  </button>
-                  <div className="flex-1 space-y-2">
-                    <input value={p.titulo} onChange={e => updatePromocao(p.id, { titulo: e.target.value })} placeholder="Título da oferta" className={inputCls} />
-                    <input value={p.tag || ''} onChange={e => updatePromocao(p.id, { tag: e.target.value })} placeholder="Selo (opcional, ex: -20%)" className={inputCls} />
+          {promocoes.length > 1 && (
+            <p className="text-[10.5px] text-zinc-600 -mb-1 flex items-center gap-1">Arraste para o lado para ver todas <ChevronRight className="h-3 w-3" /></p>
+          )}
+          {promocoes.length > 0 && (
+            <div ref={promocoesScrollRef} className="flex gap-3.5 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar -mx-1 px-1">
+              {promocoes.map(p => (
+                <div key={p.id} className="snap-start shrink-0 w-[300px] sm:w-[340px] p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => openImageEditor(`__promocaoImg__${p.id}`)}
+                      className="relative shrink-0 w-24 aspect-video rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
+                    >
+                      {p.imagem ? <img src={p.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
+                    </button>
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <input value={p.titulo} onChange={e => updatePromocao(p.id, { titulo: e.target.value })} placeholder="Título da oferta" className={inputCls} />
+                      <input value={p.tag || ''} onChange={e => updatePromocao(p.id, { tag: e.target.value })} placeholder="Selo (opcional, ex: -20%)" className={inputCls} />
+                    </div>
+                  </div>
+                  <textarea value={p.descricao || ''} onChange={e => updatePromocao(p.id, { descricao: e.target.value })} placeholder="Descrição da promoção (opcional)" className={textareaCls} rows={2} />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input value={p.precoDe || ''} onChange={e => updatePromocao(p.id, { precoDe: e.target.value })} placeholder="Preço De (opcional)" className={inputCls} />
+                    <input value={p.precoPor || ''} onChange={e => updatePromocao(p.id, { precoPor: e.target.value })} placeholder="Preço Por" className={inputCls} />
+                    <input value={p.validade || ''} onChange={e => updatePromocao(p.id, { validade: e.target.value })} placeholder="Válido até" className={inputCls} />
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <input value={p.link || ''} onChange={e => updatePromocao(p.id, { link: e.target.value })} placeholder="Link ao clicar (opcional)" className={`${inputCls} flex-1`} />
+                    <button onClick={() => removePromocao(p.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-                <textarea value={p.descricao || ''} onChange={e => updatePromocao(p.id, { descricao: e.target.value })} placeholder="Descrição da promoção (opcional)" className={textareaCls} rows={2} />
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <input value={p.precoDe || ''} onChange={e => updatePromocao(p.id, { precoDe: e.target.value })} placeholder="Preço De (opcional)" className={inputCls} />
-                  <input value={p.precoPor || ''} onChange={e => updatePromocao(p.id, { precoPor: e.target.value })} placeholder="Preço Por" className={inputCls} />
-                  <input value={p.validade || ''} onChange={e => updatePromocao(p.id, { validade: e.target.value })} placeholder="Válido até" className={inputCls} />
-                </div>
-                <div className="flex gap-2 items-center">
-                  <input value={p.link || ''} onChange={e => updatePromocao(p.id, { link: e.target.value })} placeholder="Link ao clicar (opcional)" className={`${inputCls} flex-1`} />
-                  <button onClick={() => removePromocao(p.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <button
             onClick={addPromocao}
@@ -1855,31 +1876,36 @@ export default function Perfil() {
             </div>
           )}
 
-          <div className="space-y-3">
-            {noticias.map(n => (
-              <div key={n.id} className="p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => openImageEditor(`__noticiaImg__${n.id}`)}
-                    className="relative shrink-0 w-20 aspect-[4/3] rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
-                  >
-                    {n.imagem ? <img src={n.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
-                  </button>
-                  <div className="flex-1 space-y-2">
-                    <input value={n.titulo} onChange={e => updateNoticia(n.id, { titulo: e.target.value })} placeholder="Título da notícia" className={inputCls} />
-                    <input value={n.data || ''} onChange={e => updateNoticia(n.id, { data: e.target.value })} placeholder="Data (ex: Jul/2026)" className={inputCls} />
+          {noticias.length > 1 && (
+            <p className="text-[10.5px] text-zinc-600 -mb-1 flex items-center gap-1">Arraste para o lado para ver todas <ChevronRight className="h-3 w-3" /></p>
+          )}
+          {noticias.length > 0 && (
+            <div ref={noticiasScrollRef} className="flex gap-3.5 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar -mx-1 px-1">
+              {noticias.map(n => (
+                <div key={n.id} className="snap-start shrink-0 w-[300px] sm:w-[320px] p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => openImageEditor(`__noticiaImg__${n.id}`)}
+                      className="relative shrink-0 w-20 aspect-[4/3] rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
+                    >
+                      {n.imagem ? <img src={n.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
+                    </button>
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <input value={n.titulo} onChange={e => updateNoticia(n.id, { titulo: e.target.value })} placeholder="Título da notícia" className={inputCls} />
+                      <input value={n.data || ''} onChange={e => updateNoticia(n.id, { data: e.target.value })} placeholder="Data (ex: Jul/2026)" className={inputCls} />
+                    </div>
+                  </div>
+                  <textarea value={n.resumo || ''} onChange={e => updateNoticia(n.id, { resumo: e.target.value })} placeholder="Resumo (opcional)" className={textareaCls} rows={2} />
+                  <div className="flex gap-2 items-center">
+                    <input value={n.link || ''} onChange={e => updateNoticia(n.id, { link: e.target.value })} placeholder="Link para ler mais (opcional)" className={`${inputCls} flex-1`} />
+                    <button onClick={() => removeNoticia(n.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-                <textarea value={n.resumo || ''} onChange={e => updateNoticia(n.id, { resumo: e.target.value })} placeholder="Resumo (opcional)" className={textareaCls} rows={2} />
-                <div className="flex gap-2 items-center">
-                  <input value={n.link || ''} onChange={e => updateNoticia(n.id, { link: e.target.value })} placeholder="Link para ler mais (opcional)" className={`${inputCls} flex-1`} />
-                  <button onClick={() => removeNoticia(n.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <button
             onClick={addNoticia}
@@ -2195,7 +2221,7 @@ export default function Perfil() {
       </header>
 
       {/* ── EDITOR PANEL ── */}
-      <aside className={`${mobileMode === 'preview' ? 'hidden' : 'flex'} lg:flex flex-1 lg:flex-none w-full lg:w-[460px] xl:w-[500px] flex-col border-r border-white/5 overflow-hidden min-h-0`}>
+      <aside className={`${mobileMode === 'preview' ? 'hidden' : 'flex'} lg:flex flex-1 lg:flex-none w-full lg:w-[480px] xl:w-[540px] 2xl:w-[600px] flex-col border-r border-white/5 overflow-hidden min-h-0`}>
         {/* Desktop header */}
         <div className="hidden lg:flex items-center justify-between px-5 py-4 border-b border-white/5 shrink-0 bg-gradient-to-b from-white/[0.02] to-transparent">
           <div className="flex items-center gap-3">
