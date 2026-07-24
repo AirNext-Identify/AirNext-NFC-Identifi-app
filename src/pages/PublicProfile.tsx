@@ -51,7 +51,11 @@ import {
   Clock,
   CreditCard,
   CalendarClock,
-  Radio
+  Radio,
+  Megaphone,
+  Newspaper,
+  Flame,
+  ArrowUpRight
 } from 'lucide-react';
 
 const DAY_LABELS_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -267,6 +271,12 @@ export default function PublicProfile() {
   const [lightbox2Index, setLightbox2Index] = useState<number | null>(null);
   const [gal2Idx, setGal2Idx] = useState(0);
   const gal2Ref = useRef<HTMLDivElement>(null);
+  const [atrIdx, setAtrIdx] = useState(0);
+  const atrRef = useRef<HTMLDivElement>(null);
+  const [promoIdx, setPromoIdx] = useState(0);
+  const promoRef = useRef<HTMLDivElement>(null);
+  const [newsIdx, setNewsIdx] = useState(0);
+  const newsRef = useRef<HTMLDivElement>(null);
   const visitRecorded = useRef(false);
 
   useEffect(() => {
@@ -319,6 +329,39 @@ export default function PublicProfile() {
     };
     gal2Ref.current.addEventListener('scroll', handler, { passive: true });
     return () => gal2Ref.current?.removeEventListener('scroll', handler);
+  }, [product]);
+
+  useEffect(() => {
+    if (!atrRef.current) return;
+    const handler = () => {
+      if (!atrRef.current) return;
+      const idx = Math.round(atrRef.current.scrollLeft / ((atrRef.current.children[0] as HTMLElement)?.clientWidth + 14 || 1));
+      setAtrIdx(Math.max(0, Math.min(idx, (product?.profileData?.atracoes?.length || 1) - 1)));
+    };
+    atrRef.current.addEventListener('scroll', handler, { passive: true });
+    return () => atrRef.current?.removeEventListener('scroll', handler);
+  }, [product]);
+
+  useEffect(() => {
+    if (!promoRef.current) return;
+    const handler = () => {
+      if (!promoRef.current) return;
+      const idx = Math.round(promoRef.current.scrollLeft / ((promoRef.current.children[0] as HTMLElement)?.clientWidth + 14 || 1));
+      setPromoIdx(Math.max(0, Math.min(idx, (product?.profileData?.promocoes?.length || 1) - 1)));
+    };
+    promoRef.current.addEventListener('scroll', handler, { passive: true });
+    return () => promoRef.current?.removeEventListener('scroll', handler);
+  }, [product]);
+
+  useEffect(() => {
+    if (!newsRef.current) return;
+    const handler = () => {
+      if (!newsRef.current) return;
+      const idx = Math.round(newsRef.current.scrollLeft / ((newsRef.current.children[0] as HTMLElement)?.clientWidth + 14 || 1));
+      setNewsIdx(Math.max(0, Math.min(idx, (product?.profileData?.noticias?.length || 1) - 1)));
+    };
+    newsRef.current.addEventListener('scroll', handler, { passive: true });
+    return () => newsRef.current?.removeEventListener('scroll', handler);
   }, [product]);
 
   useEffect(() => {
@@ -504,7 +547,7 @@ export default function PublicProfile() {
   const hasCover = !!d.capa;
 
   const depoimentosList = Array.isArray(d.depoimentos) ? d.depoimentos : [];
-  const defaultBlockOrder = ['midia', 'petStats', 'businessStats', 'social', 'contato', 'maisInfo', 'sobreEmpresa', 'catalogo', 'avaliacaoGoogle', 'depoimentos', 'contatoForm', 'wifi', 'horarios', 'pagamento', 'apoioTEA', 'pix'];
+  const defaultBlockOrder = ['midia', 'petStats', 'businessStats', 'atracoes', 'promocoes', 'social', 'contato', 'maisInfo', 'sobreEmpresa', 'catalogo', 'avaliacaoGoogle', 'noticias', 'depoimentos', 'contatoForm', 'wifi', 'horarios', 'pagamento', 'apoioTEA', 'pix'];
   const blockOrder: string[] = Array.isArray(d.__blockOrder) && d.__blockOrder.length ? d.__blockOrder : defaultBlockOrder;
   const hiddenBlockIds: string[] = Array.isArray(d.__hiddenBlocks) ? d.__hiddenBlocks : [];
 
@@ -1105,8 +1148,8 @@ export default function PublicProfile() {
 
   const depoimentosBlock = (cat === 'BUSINESS' && depoimentosList.length > 0 && !hidden.includes('depoimentos')) ? (
     <div className="py-5 relative group/dep" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
-      <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-4 px-5`} style={labelStyle}>O que dizem de nós</p>
-      <div ref={depRef} className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-5 pb-1">
+      <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-4 px-5 md:px-8 lg:px-10`} style={labelStyle}>O que dizem de nós</p>
+      <div ref={depRef} className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-5 md:px-8 lg:px-10 pb-1">
         {depoimentosList.map((t: any) => (
           <div
             key={t.id}
@@ -1375,6 +1418,230 @@ export default function PublicProfile() {
     </div>
   ) : null;
 
+  // "Destaques do Negócio" — cartões grandes, clicáveis, estilo app premium,
+  // para atrações/diferenciais que o dono quiser dar mais peso visual.
+  const atracoesList: any[] = Array.isArray(d.atracoes) ? d.atracoes.filter((a: any) => a?.titulo) : [];
+  const atracoesBlock = (cat === 'BUSINESS' && atracoesList.length > 0 && !hidden.includes('atracoes')) ? (
+    <div className="py-5 relative group/atr" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+      <div className="flex items-center gap-2 mb-4 px-5 md:px-8 lg:px-10">
+        <Flame className="h-4 w-4" style={{ color: primaryColor }} />
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>Destaques</p>
+      </div>
+      <div ref={atrRef} className="flex gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-5 md:px-8 lg:px-10 pb-1">
+        {atracoesList.map((a: any) => {
+          const Wrapper: any = a.link ? 'a' : 'div';
+          const wrapperProps: any = a.link
+            ? { href: a.link.startsWith('http') ? a.link : `https://${a.link}`, target: '_blank', rel: 'noopener noreferrer', onClick: () => trackClick('atracao_click') }
+            : {};
+          return (
+            <Wrapper
+              key={a.id}
+              {...wrapperProps}
+              className="group/card shrink-0 snap-center w-[78%] sm:w-64 md:w-72 lg:w-80 relative overflow-hidden aspect-[4/5] block shadow-xl active:scale-[0.98] transition-transform"
+              style={{ borderRadius: customBr }}
+            >
+              {a.imagem ? (
+                <img src={a.imagem} alt={a.titulo} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-110" />
+              ) : (
+                <div className="absolute inset-0" style={{ background: `linear-gradient(155deg, ${primaryColor}, ${secondaryColor})` }} />
+              )}
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.25) 55%, transparent 100%)' }} />
+              {a.tag && (
+                <span
+                  className="absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide text-white shadow-lg"
+                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+                >
+                  {a.tag}
+                </span>
+              )}
+              {a.link && (
+                <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/15 backdrop-blur flex items-center justify-center">
+                  <ArrowUpRight className="h-4 w-4 text-white" />
+                </div>
+              )}
+              <div className="absolute inset-x-0 bottom-0 p-5">
+                <p className="text-white text-lg font-black leading-tight drop-shadow-sm">{a.titulo}</p>
+                {a.subtitulo && <p className="text-white/80 text-xs font-medium mt-1.5 leading-snug line-clamp-2">{a.subtitulo}</p>}
+              </div>
+            </Wrapper>
+          );
+        })}
+      </div>
+      {atracoesList.length > 1 && (
+        <>
+          <button
+            onClick={() => { const el = atrRef.current; if (!el) return; el.scrollBy({ left: -(el.children[0] as HTMLElement)?.clientWidth - 16, behavior: 'smooth' }); }}
+            className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur items-center justify-center text-white opacity-0 group-hover/atr:opacity-100 transition-opacity z-10"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => { const el = atrRef.current; if (!el) return; el.scrollBy({ left: (el.children[0] as HTMLElement)?.clientWidth + 16, behavior: 'smooth' }); }}
+            className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur items-center justify-center text-white opacity-0 group-hover/atr:opacity-100 transition-opacity z-10"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <div className="flex justify-center gap-1.5 mt-3">
+            {atracoesList.map((_: any, i: number) => (
+              <div key={i} className="h-1.5 rounded-full transition-all duration-300" style={{ width: i === atrIdx ? 20 : 6, backgroundColor: i === atrIdx ? primaryColor : (isLightTheme ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)') }} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  ) : null;
+
+  // "Promoções" — ofertas com preço De/Por e validade, cartões grandes e
+  // clicáveis, para dar senso de urgência/conversão.
+  const promocoesList: any[] = Array.isArray(d.promocoes) ? d.promocoes.filter((p: any) => p?.titulo) : [];
+  const promocoesBlock = (cat === 'BUSINESS' && promocoesList.length > 0 && !hidden.includes('promocoes')) ? (
+    <div className="py-5 relative group/promo" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+      <div className="flex items-center gap-2 mb-4 px-5 md:px-8 lg:px-10">
+        <Megaphone className="h-4 w-4" style={{ color: primaryColor }} />
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>Promoções</p>
+      </div>
+      <div ref={promoRef} className="flex gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-5 md:px-8 lg:px-10 pb-1">
+        {promocoesList.map((p: any) => (
+          <a
+            key={p.id}
+            href={p.link ? (p.link.startsWith('http') ? p.link : `https://${p.link}`) : undefined}
+            target={p.link ? '_blank' : undefined}
+            rel={p.link ? 'noopener noreferrer' : undefined}
+            onClick={() => p.link && trackClick('promocao_click')}
+            className={`group/card shrink-0 snap-center w-[85%] sm:w-80 md:w-96 lg:w-[420px] relative overflow-hidden flex flex-col shadow-xl active:scale-[0.98] transition-transform ${p.link ? 'cursor-pointer' : 'cursor-default'}`}
+            style={{ borderRadius: customBr, background: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', border: `1px solid ${primaryColor}28` }}
+          >
+            {p.imagem && (
+              <div className="relative w-full aspect-[16/9] overflow-hidden">
+                <img src={p.imagem} alt={p.titulo} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-110" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 45%)' }} />
+                {p.tag && (
+                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide text-white shadow-lg" style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}>
+                    {p.tag}
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="p-5 flex-1 flex flex-col">
+              <p className={`text-base font-black ${th.text} leading-tight`} style={mainTextStyle}>{p.titulo}</p>
+              {p.descricao && <p className={`text-xs ${th.muted} mt-1.5 leading-snug line-clamp-2 flex-1`}>{p.descricao}</p>}
+              {(p.precoDe || p.precoPor) && (
+                <div className="flex items-baseline gap-2 mt-3">
+                  {p.precoDe && <span className={`text-xs ${th.muted} line-through`}>{p.precoDe}</span>}
+                  {p.precoPor && <span className="text-xl font-black" style={{ color: primaryColor }}>{p.precoPor}</span>}
+                </div>
+              )}
+              <div className="flex items-center justify-between mt-4 pt-3 border-t" style={{ borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)' }}>
+                {p.validade ? (
+                  <span className={`text-[11px] font-semibold ${th.muted}`}>Válido até {p.validade}</span>
+                ) : <span />}
+                {p.link && (
+                  <span className="inline-flex items-center gap-1 text-xs font-bold" style={{ color: primaryColor }}>
+                    Aproveitar <ArrowUpRight className="h-3.5 w-3.5" />
+                  </span>
+                )}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+      {promocoesList.length > 1 && (
+        <>
+          <button
+            onClick={() => { const el = promoRef.current; if (!el) return; el.scrollBy({ left: -(el.children[0] as HTMLElement)?.clientWidth - 16, behavior: 'smooth' }); }}
+            className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur items-center justify-center text-white opacity-0 group-hover/promo:opacity-100 transition-opacity z-10"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => { const el = promoRef.current; if (!el) return; el.scrollBy({ left: (el.children[0] as HTMLElement)?.clientWidth + 16, behavior: 'smooth' }); }}
+            className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur items-center justify-center text-white opacity-0 group-hover/promo:opacity-100 transition-opacity z-10"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <div className="flex justify-center gap-1.5 mt-3">
+            {promocoesList.map((_: any, i: number) => (
+              <div key={i} className="h-1.5 rounded-full transition-all duration-300" style={{ width: i === promoIdx ? 20 : 6, backgroundColor: i === promoIdx ? primaryColor : (isLightTheme ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)') }} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  ) : null;
+
+  // "Notícias da Empresa" — novidades/atualizações em formato de cartões
+  // clicáveis, com data e resumo.
+  const noticiasList: any[] = Array.isArray(d.noticias) ? d.noticias.filter((n: any) => n?.titulo) : [];
+  const noticiasBlock = (cat === 'BUSINESS' && noticiasList.length > 0 && !hidden.includes('noticias')) ? (
+    <div className="py-5 relative group/news" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+      <div className="flex items-center gap-2 mb-4 px-5 md:px-8 lg:px-10">
+        <Newspaper className="h-4 w-4" style={{ color: primaryColor }} />
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>Novidades</p>
+      </div>
+      <div ref={newsRef} className="flex gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-5 md:px-8 lg:px-10 pb-1">
+        {noticiasList.map((n: any) => {
+          const Wrapper: any = n.link ? 'a' : 'div';
+          const wrapperProps: any = n.link
+            ? { href: n.link.startsWith('http') ? n.link : `https://${n.link}`, target: '_blank', rel: 'noopener noreferrer', onClick: () => trackClick('noticia_click') }
+            : {};
+          return (
+            <Wrapper
+              key={n.id}
+              {...wrapperProps}
+              className="group/card shrink-0 snap-center w-[76%] sm:w-60 md:w-64 lg:w-72 flex flex-col overflow-hidden shadow-lg active:scale-[0.98] transition-transform block"
+              style={{ borderRadius: customBr, background: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', border: `1px solid ${primaryColor}20` }}
+            >
+              <div className="relative w-full aspect-[4/3] overflow-hidden shrink-0">
+                {n.imagem ? (
+                  <img src={n.imagem} alt={n.titulo} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-110" />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ background: `linear-gradient(155deg, ${primaryColor}22, ${secondaryColor}18)` }}>
+                    <Newspaper className="h-8 w-8 opacity-40" style={{ color: primaryColor }} />
+                  </div>
+                )}
+                {n.data && (
+                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold text-white bg-black/50 backdrop-blur">
+                    {n.data}
+                  </span>
+                )}
+              </div>
+              <div className="p-4 flex-1 flex flex-col">
+                <p className={`text-sm font-black ${th.text} leading-snug line-clamp-2`} style={mainTextStyle}>{n.titulo}</p>
+                {n.resumo && <p className={`text-xs ${th.muted} mt-1.5 leading-snug line-clamp-3 flex-1`}>{n.resumo}</p>}
+                {n.link && (
+                  <span className="inline-flex items-center gap-1 text-xs font-bold mt-3" style={{ color: primaryColor }}>
+                    Ler mais <ArrowUpRight className="h-3.5 w-3.5" />
+                  </span>
+                )}
+              </div>
+            </Wrapper>
+          );
+        })}
+      </div>
+      {noticiasList.length > 1 && (
+        <>
+          <button
+            onClick={() => { const el = newsRef.current; if (!el) return; el.scrollBy({ left: -(el.children[0] as HTMLElement)?.clientWidth - 16, behavior: 'smooth' }); }}
+            className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur items-center justify-center text-white opacity-0 group-hover/news:opacity-100 transition-opacity z-10"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => { const el = newsRef.current; if (!el) return; el.scrollBy({ left: (el.children[0] as HTMLElement)?.clientWidth + 16, behavior: 'smooth' }); }}
+            className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur items-center justify-center text-white opacity-0 group-hover/news:opacity-100 transition-opacity z-10"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <div className="flex justify-center gap-1.5 mt-3">
+            {noticiasList.map((_: any, i: number) => (
+              <div key={i} className="h-1.5 rounded-full transition-all duration-300" style={{ width: i === newsIdx ? 20 : 6, backgroundColor: i === newsIdx ? primaryColor : (isLightTheme ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)') }} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  ) : null;
+
   const TEA_ITEMS: { key: string; label: string; icon: any }[] = [
     { key: 'grauSuporte', label: 'Grau de Suporte', icon: Puzzle },
     { key: 'tipoTEA', label: 'Tipo / Perfil do TEA', icon: Brain },
@@ -1436,12 +1703,15 @@ export default function PublicProfile() {
     midia: mediaBlock,
     petStats: petStatsBlock,
     businessStats: businessStatsBlock,
+    atracoes: atracoesBlock,
+    promocoes: promocoesBlock,
     social: socialBlock,
     contato: contatoBlock,
     maisInfo: maisInfoBlock,
     sobreEmpresa: sobreEmpresaBlock,
     catalogo: catalogoBlock,
     avaliacaoGoogle: avaliacaoGoogleBlock,
+    noticias: noticiasBlock,
     depoimentos: depoimentosBlock,
     contatoForm: contatoFormBlock,
     wifi: wifiBlock,

@@ -43,7 +43,11 @@ import {
   Clock,
   CreditCard,
   CalendarClock,
-  Signal
+  Signal,
+  Megaphone,
+  Newspaper,
+  ArrowUpRight,
+  Flame
 } from 'lucide-react';
 
 import { useToast } from '../../components/Toast';
@@ -274,6 +278,7 @@ const STEPS = [
   { id: 'visual', label: 'Visual', icon: Palette },
   { id: 'social', label: 'Redes', icon: Link2 },
   { id: 'midia', label: 'Galeria', icon: ImageIcon },
+  { id: 'novidades', label: 'Destaques', icon: Sparkles },
   { id: 'depoimentos', label: 'Avaliações', icon: Quote },
   { id: 'organizar', label: 'Organizar', icon: LayoutGrid },
   { id: 'sos', label: 'SOS', icon: AlertTriangle },
@@ -288,6 +293,9 @@ const BLOCK_DEFS: BlockDef[] = [
   { id: 'contato', label: 'Informações de Contato', icon: Phone },
   { id: 'maisInfo', label: 'Mais Informações', icon: Info },
   { id: 'sobreEmpresa', label: 'Sobre a Empresa', icon: ShoppingBag, catFilter: c => c === 'BUSINESS' },
+  { id: 'atracoes', label: 'Destaques', icon: Sparkles, catFilter: c => c === 'BUSINESS' },
+  { id: 'promocoes', label: 'Promoções', icon: Megaphone, catFilter: c => c === 'BUSINESS' },
+  { id: 'noticias', label: 'Novidades', icon: Newspaper, catFilter: c => c === 'BUSINESS' },
   { id: 'catalogo', label: 'Catálogo', icon: ShoppingBag, catFilter: c => c === 'BUSINESS' },
   { id: 'avaliacaoGoogle', label: 'Avaliação Google', icon: Star, catFilter: c => c === 'BUSINESS' },
   { id: 'depoimentos', label: 'Depoimentos', icon: MessageCircle, catFilter: c => HAS_TESTIMONIALS.includes(c) },
@@ -301,7 +309,7 @@ const DEFAULT_BLOCK_ORDER = BLOCK_DEFS.map(b => b.id);
 
 /* ─── PHONE PREVIEW ─────────────────────────────────────── */
 function PhonePreview({
-  form, mediaItems, mediaItems2, depoimentos, wifiSsid, pixQrImage,
+  form, mediaItems, mediaItems2, depoimentos, atracoes, promocoes, noticias, wifiSsid, pixQrImage,
   blockOrder, hiddenBlocks, primaryColor, secondaryColor, borderRadius, buttonStyle,
   wallpaper, nameColor, bioColor, buttonColor, appsColor, fontFamily, linkStyle,
   verified, sosMode, cat,
@@ -377,6 +385,9 @@ function PhonePreview({
           const cardBgSoft = isLight ? 'rgba(0,0,0,0.035)' : 'rgba(255,255,255,0.045)';
           const galeria2 = Array.isArray(mediaItems2) ? mediaItems2.filter((m: any) => m?.url) : [];
           const deps: any[] = Array.isArray(depoimentos) ? depoimentos.filter(t => t.texto) : [];
+          const atracoesArr: any[] = Array.isArray(atracoes) ? atracoes.filter((a: any) => a?.titulo) : [];
+          const promocoesArr: any[] = Array.isArray(promocoes) ? promocoes.filter((p: any) => p?.titulo) : [];
+          const noticiasArr: any[] = Array.isArray(noticias) ? noticias.filter((n: any) => n?.titulo) : [];
 
           const midiaBlock = mediaItems?.length > 0 ? (
             <div className="w-full flex gap-1 overflow-hidden">
@@ -467,6 +478,60 @@ function PhonePreview({
             </div>
           ) : null;
 
+          const atracoesBlockPreview = (cat === 'BUSINESS' && atracoesArr.length > 0) ? (
+            <div className="space-y-1">
+              <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>Destaques</p>
+              <div className="flex gap-1.5 overflow-hidden">
+                {atracoesArr.slice(0, 2).map(a => (
+                  <div key={a.id} className="relative shrink-0 w-16 aspect-[4/5] overflow-hidden" style={{ borderRadius: `${(borderRadius || 16) / 3}px` }}>
+                    {a.imagem ? <img src={a.imagem} className="w-full h-full object-cover" /> : <div className="w-full h-full" style={{ background: `linear-gradient(155deg, ${primaryColor || '#3b82f6'}, ${secondaryColor || '#8b5cf6'})` }} />}
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.75), transparent 55%)' }} />
+                    <p className="absolute bottom-1 left-1 right-1 text-white text-[6px] font-bold leading-tight line-clamp-2">{a.titulo}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null;
+
+          const promocoesBlockPreview = (cat === 'BUSINESS' && promocoesArr.length > 0) ? (() => {
+            const p = promocoesArr[0];
+            return (
+              <div className="space-y-1">
+                <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>Promoções</p>
+                <div className="overflow-hidden" style={{ backgroundColor: cardBgSoft, borderRadius: br }}>
+                  {p.imagem && <div className="w-full aspect-video overflow-hidden"><img src={p.imagem} className="w-full h-full object-cover" /></div>}
+                  <div className="p-2">
+                    <p className="text-[7px] font-bold line-clamp-1">{p.titulo}</p>
+                    {(p.precoDe || p.precoPor) && (
+                      <div className="flex items-baseline gap-1 mt-0.5">
+                        {p.precoDe && <span className="text-[6px] line-through opacity-60">{p.precoDe}</span>}
+                        {p.precoPor && <span className="text-[8px] font-black" style={{ color: primaryColor || '#3b82f6' }}>{p.precoPor}</span>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })() : null;
+
+          const noticiasBlockPreview = (cat === 'BUSINESS' && noticiasArr.length > 0) ? (() => {
+            const n = noticiasArr[0];
+            return (
+              <div className="space-y-1">
+                <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>Novidades</p>
+                <div className="flex items-center gap-2 px-2 py-1.5" style={{ backgroundColor: cardBgSoft, borderRadius: br }}>
+                  <div className="shrink-0 w-8 h-8 rounded overflow-hidden bg-zinc-800">
+                    {n.imagem ? <img src={n.imagem} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[8px]">📰</div>}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[7px] font-bold line-clamp-1">{n.titulo}</p>
+                    {n.data && <p className="text-[6px] opacity-60">{n.data}</p>}
+                  </div>
+                </div>
+              </div>
+            );
+          })() : null;
+
           const catalogoBlock = (cat === 'BUSINESS' && form.catalogo) ? (
             <div className="w-full py-2 flex items-center justify-center gap-1.5" style={{ backgroundColor: buttonColor || primaryColor || '#3b82f6', borderRadius: br }}>
               <span className="text-[8px] font-bold text-white">Ver Catálogo</span>
@@ -537,6 +602,9 @@ function PhonePreview({
             contato: contatoBlock,
             maisInfo: maisInfoBlock,
             sobreEmpresa: sobreEmpresaBlock,
+            atracoes: atracoesBlockPreview,
+            promocoes: promocoesBlockPreview,
+            noticias: noticiasBlockPreview,
             catalogo: catalogoBlock,
             avaliacaoGoogle: avaliacaoGoogleBlock,
             depoimentos: depoimentosBlock,
@@ -839,7 +907,7 @@ export default function Perfil() {
   const fields = FIELDS[cat] || FIELDS.PERSONAL;
   const hasSOS = HAS_SOS.includes(cat);
   const hasTestimonials = HAS_TESTIMONIALS.includes(cat);
-  const activeSteps = STEPS.filter(s => (s.id !== 'sos' || hasSOS) && (s.id !== 'depoimentos' || hasTestimonials));
+  const activeSteps = STEPS.filter(s => (s.id !== 'sos' || hasSOS) && (s.id !== 'depoimentos' || hasTestimonials) && (s.id !== 'novidades' || cat === 'BUSINESS'));
 
   const setField = (k: string, v: any) => setForm(prev => ({ ...prev, [k]: v }));
 
@@ -862,6 +930,21 @@ export default function Perfil() {
   const addDepoimento = () => setField('depoimentos', [...depoimentos, { id: `d${Date.now()}`, nome: '', cargo: '', texto: '', estrelas: 5 }]);
   const updateDepoimento = (id: string, patch: any) => setField('depoimentos', depoimentos.map(t => t.id === id ? { ...t, ...patch } : t));
   const removeDepoimento = (id: string) => setField('depoimentos', depoimentos.filter(t => t.id !== id));
+
+  const atracoes: { id: string; titulo: string; subtitulo?: string; imagem?: string; link?: string; tag?: string }[] = Array.isArray(form.atracoes) ? form.atracoes : [];
+  const addAtracao = () => setField('atracoes', [...atracoes, { id: `atr${Date.now()}`, titulo: '', subtitulo: '', imagem: '', link: '', tag: '' }]);
+  const updateAtracao = (id: string, patch: any) => setField('atracoes', atracoes.map(a => a.id === id ? { ...a, ...patch } : a));
+  const removeAtracao = (id: string) => setField('atracoes', atracoes.filter(a => a.id !== id));
+
+  const promocoes: { id: string; titulo: string; descricao?: string; imagem?: string; precoDe?: string; precoPor?: string; validade?: string; link?: string; tag?: string }[] = Array.isArray(form.promocoes) ? form.promocoes : [];
+  const addPromocao = () => setField('promocoes', [...promocoes, { id: `promo${Date.now()}`, titulo: '', descricao: '', imagem: '', precoDe: '', precoPor: '', validade: '', link: '', tag: '' }]);
+  const updatePromocao = (id: string, patch: any) => setField('promocoes', promocoes.map(p => p.id === id ? { ...p, ...patch } : p));
+  const removePromocao = (id: string) => setField('promocoes', promocoes.filter(p => p.id !== id));
+
+  const noticias: { id: string; titulo: string; resumo?: string; imagem?: string; data?: string; link?: string }[] = Array.isArray(form.noticias) ? form.noticias : [];
+  const addNoticia = () => setField('noticias', [...noticias, { id: `news${Date.now()}`, titulo: '', resumo: '', imagem: '', data: '', link: '' }]);
+  const updateNoticia = (id: string, patch: any) => setField('noticias', noticias.map(n => n.id === id ? { ...n, ...patch } : n));
+  const removeNoticia = (id: string) => setField('noticias', noticias.filter(n => n.id !== id));
 
   const updateBusinessHour = (day: number, patch: Partial<{ open: string; close: string; closed: boolean }>) =>
     setBusinessHours(prev => prev.map(h => h.day === day ? { ...h, ...patch } : h));
@@ -943,6 +1026,12 @@ export default function Perfil() {
       setPixQrImage(url);
     } else if (imageEditorKey === '__wifiQr') {
       setWifiQrImage(url);
+    } else if (imageEditorKey.startsWith('__atracaoImg__')) {
+      updateAtracao(imageEditorKey.replace('__atracaoImg__', ''), { imagem: url });
+    } else if (imageEditorKey.startsWith('__promocaoImg__')) {
+      updatePromocao(imageEditorKey.replace('__promocaoImg__', ''), { imagem: url });
+    } else if (imageEditorKey.startsWith('__noticiaImg__')) {
+      updateNoticia(imageEditorKey.replace('__noticiaImg__', ''), { imagem: url });
     } else {
       setField(imageEditorKey, url);
     }
@@ -957,6 +1046,12 @@ export default function Perfil() {
     __wallpaperImage: { aspect: 9 / 16, title: 'Imagem de Fundo', helperText: 'Retrato (9:16) · recomendado 1080×1920px' },
     __pixQr: { aspect: 1, title: 'QR Code do Pix', helperText: 'Envie o print/foto do QR gerado pelo seu banco' },
     __wifiQr: { aspect: 1, title: 'QR Code do Wi-Fi', helperText: 'Envie o print/foto do QR do seu roteador, se preferir' },
+  };
+  const getImageEditorConfig = (key: string) => {
+    if (key.startsWith('__atracaoImg__')) return { aspect: 4 / 5, title: 'Foto do Destaque', helperText: 'Retrato (4:5) · recomendado 1000×1250px' };
+    if (key.startsWith('__promocaoImg__')) return { aspect: 16 / 9, title: 'Foto da Promoção', helperText: 'Formato largo (16:9) · recomendado 1200×675px' };
+    if (key.startsWith('__noticiaImg__')) return { aspect: 4 / 3, title: 'Foto da Notícia', helperText: 'Formato 4:3 · recomendado 1000×750px' };
+    return IMAGE_EDITOR_CONFIG[key] || { aspect: 1, title: 'Imagem', helperText: '' };
   };
 
   const addVideoMedia = () => {
@@ -1634,6 +1729,168 @@ export default function Perfil() {
       </div>
     );
 
+    /* NOVIDADES (Destaques / Promoções / Notícias — só BUSINESS) */
+    if (sid === 'novidades') return (
+      <div className="space-y-8">
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/[0.07] to-amber-500/[0.02] border border-amber-500/15 shadow-sm shadow-amber-500/5">
+          <p className="text-xs font-bold text-white mb-0.5">✨ Destaques do Negócio</p>
+          <p className="text-[11px] text-zinc-500">Cartões grandes e clicáveis, em carrossel, para chamar atenção para atrações, promoções e novidades. Aparecem no perfil público como blocos que você pode reordenar em "Organizar".</p>
+        </div>
+
+        {/* ATRAÇÕES / DESTAQUES */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-amber-400" />
+            <p className="text-xs font-bold text-white">Atrações / Destaques</p>
+          </div>
+          <p className="text-[11px] text-zinc-500 -mt-1">Ex.: novo espaço, serviço-carro-chefe, diferencial da empresa.</p>
+
+          {atracoes.length === 0 && (
+            <div className="text-center py-6 text-zinc-700">
+              <Sparkles className="h-7 w-7 mx-auto mb-2 opacity-30" />
+              <p className="text-xs">Nenhum destaque adicionado</p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {atracoes.map(a => (
+              <div key={a.id} className="p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => openImageEditor(`__atracaoImg__${a.id}`)}
+                    className="relative shrink-0 w-20 aspect-[4/5] rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
+                  >
+                    {a.imagem ? <img src={a.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
+                  </button>
+                  <div className="flex-1 space-y-2">
+                    <input value={a.titulo} onChange={e => updateAtracao(a.id, { titulo: e.target.value })} placeholder="Título (ex: Conheça nosso novo espaço)" className={inputCls} />
+                    <input value={a.tag || ''} onChange={e => updateAtracao(a.id, { tag: e.target.value })} placeholder="Selo (opcional, ex: NOVO)" className={inputCls} />
+                  </div>
+                </div>
+                <textarea value={a.subtitulo || ''} onChange={e => updateAtracao(a.id, { subtitulo: e.target.value })} placeholder="Descrição curta (opcional)" className={textareaCls} rows={2} />
+                <div className="flex gap-2 items-center">
+                  <input value={a.link || ''} onChange={e => updateAtracao(a.id, { link: e.target.value })} placeholder="Link ao clicar (opcional)" className={`${inputCls} flex-1`} />
+                  <button onClick={() => removeAtracao(a.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={addAtracao}
+            className="w-full py-3.5 rounded-2xl border-2 border-dashed border-white/10 hover:border-blue-500/40 bg-white/[0.02] text-sm font-bold text-zinc-500 hover:text-white transition-all flex items-center justify-center gap-2"
+          >
+            <Sparkles className="h-4 w-4" /> Adicionar Destaque
+          </button>
+        </div>
+
+        {/* PROMOÇÕES */}
+        <div className="space-y-3 pt-6 border-t border-white/5">
+          <div className="flex items-center gap-2">
+            <Megaphone className="h-4 w-4 text-amber-400" />
+            <p className="text-xs font-bold text-white">Promoções</p>
+          </div>
+          <p className="text-[11px] text-zinc-500 -mt-1">Ofertas com preço De/Por e validade, ótimo para gerar conversão.</p>
+
+          {promocoes.length === 0 && (
+            <div className="text-center py-6 text-zinc-700">
+              <Megaphone className="h-7 w-7 mx-auto mb-2 opacity-30" />
+              <p className="text-xs">Nenhuma promoção adicionada</p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {promocoes.map(p => (
+              <div key={p.id} className="p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => openImageEditor(`__promocaoImg__${p.id}`)}
+                    className="relative shrink-0 w-24 aspect-video rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
+                  >
+                    {p.imagem ? <img src={p.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
+                  </button>
+                  <div className="flex-1 space-y-2">
+                    <input value={p.titulo} onChange={e => updatePromocao(p.id, { titulo: e.target.value })} placeholder="Título da oferta" className={inputCls} />
+                    <input value={p.tag || ''} onChange={e => updatePromocao(p.id, { tag: e.target.value })} placeholder="Selo (opcional, ex: -20%)" className={inputCls} />
+                  </div>
+                </div>
+                <textarea value={p.descricao || ''} onChange={e => updatePromocao(p.id, { descricao: e.target.value })} placeholder="Descrição da promoção (opcional)" className={textareaCls} rows={2} />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input value={p.precoDe || ''} onChange={e => updatePromocao(p.id, { precoDe: e.target.value })} placeholder="Preço De (opcional)" className={inputCls} />
+                  <input value={p.precoPor || ''} onChange={e => updatePromocao(p.id, { precoPor: e.target.value })} placeholder="Preço Por" className={inputCls} />
+                  <input value={p.validade || ''} onChange={e => updatePromocao(p.id, { validade: e.target.value })} placeholder="Válido até" className={inputCls} />
+                </div>
+                <div className="flex gap-2 items-center">
+                  <input value={p.link || ''} onChange={e => updatePromocao(p.id, { link: e.target.value })} placeholder="Link ao clicar (opcional)" className={`${inputCls} flex-1`} />
+                  <button onClick={() => removePromocao(p.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={addPromocao}
+            className="w-full py-3.5 rounded-2xl border-2 border-dashed border-white/10 hover:border-blue-500/40 bg-white/[0.02] text-sm font-bold text-zinc-500 hover:text-white transition-all flex items-center justify-center gap-2"
+          >
+            <Megaphone className="h-4 w-4" /> Adicionar Promoção
+          </button>
+        </div>
+
+        {/* NOTÍCIAS */}
+        <div className="space-y-3 pt-6 border-t border-white/5">
+          <div className="flex items-center gap-2">
+            <Newspaper className="h-4 w-4 text-amber-400" />
+            <p className="text-xs font-bold text-white">Notícias / Novidades</p>
+          </div>
+          <p className="text-[11px] text-zinc-500 -mt-1">Atualizações da empresa: lançamentos, eventos, conquistas.</p>
+
+          {noticias.length === 0 && (
+            <div className="text-center py-6 text-zinc-700">
+              <Newspaper className="h-7 w-7 mx-auto mb-2 opacity-30" />
+              <p className="text-xs">Nenhuma notícia adicionada</p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {noticias.map(n => (
+              <div key={n.id} className="p-4 rounded-2xl bg-white/[0.03] border border-white/8 space-y-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => openImageEditor(`__noticiaImg__${n.id}`)}
+                    className="relative shrink-0 w-20 aspect-[4/3] rounded-xl overflow-hidden bg-white/[0.03] border-2 border-dashed border-white/10 hover:border-blue-500/40 flex items-center justify-center transition-all active:scale-95"
+                  >
+                    {n.imagem ? <img src={n.imagem} className="w-full h-full object-cover" /> : <ImageIcon className="h-5 w-5 text-zinc-600" />}
+                  </button>
+                  <div className="flex-1 space-y-2">
+                    <input value={n.titulo} onChange={e => updateNoticia(n.id, { titulo: e.target.value })} placeholder="Título da notícia" className={inputCls} />
+                    <input value={n.data || ''} onChange={e => updateNoticia(n.id, { data: e.target.value })} placeholder="Data (ex: Jul/2026)" className={inputCls} />
+                  </div>
+                </div>
+                <textarea value={n.resumo || ''} onChange={e => updateNoticia(n.id, { resumo: e.target.value })} placeholder="Resumo (opcional)" className={textareaCls} rows={2} />
+                <div className="flex gap-2 items-center">
+                  <input value={n.link || ''} onChange={e => updateNoticia(n.id, { link: e.target.value })} placeholder="Link para ler mais (opcional)" className={`${inputCls} flex-1`} />
+                  <button onClick={() => removeNoticia(n.id)} className="shrink-0 p-3 text-zinc-600 hover:text-red-400 transition-colors">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={addNoticia}
+            className="w-full py-3.5 rounded-2xl border-2 border-dashed border-white/10 hover:border-blue-500/40 bg-white/[0.02] text-sm font-bold text-zinc-500 hover:text-white transition-all flex items-center justify-center gap-2"
+          >
+            <Newspaper className="h-4 w-4" /> Adicionar Notícia
+          </button>
+        </div>
+      </div>
+    );
+
     /* DEPOIMENTOS */
     if (sid === 'depoimentos') return (
       <div className="space-y-4">
@@ -1910,12 +2167,12 @@ export default function Perfil() {
       {/* Image Editor */}
       {imageEditorOpen && (
         <ImageUploadEditor
-          initialImage={imageEditorKey === '__wallpaperImage' ? (wallpaper.startsWith('http') || wallpaper.startsWith('data:') ? wallpaper : '') : (['__galeria', '__galeria2', '__pixQr', '__wifiQr'].includes(imageEditorKey) ? '' : form[imageEditorKey] || '')}
+          initialImage={imageEditorKey === '__wallpaperImage' ? (wallpaper.startsWith('http') || wallpaper.startsWith('data:') ? wallpaper : '') : (['__galeria', '__galeria2', '__pixQr', '__wifiQr'].includes(imageEditorKey) || imageEditorKey.startsWith('__atracaoImg__') || imageEditorKey.startsWith('__promocaoImg__') || imageEditorKey.startsWith('__noticiaImg__') ? '' : form[imageEditorKey] || '')}
           onUploaded={handleImageSave}
           onCancel={() => setImageEditorOpen(false)}
-          aspect={IMAGE_EDITOR_CONFIG[imageEditorKey]?.aspect}
-          title={IMAGE_EDITOR_CONFIG[imageEditorKey]?.title}
-          helperText={IMAGE_EDITOR_CONFIG[imageEditorKey]?.helperText}
+          aspect={getImageEditorConfig(imageEditorKey).aspect}
+          title={getImageEditorConfig(imageEditorKey).title}
+          helperText={getImageEditorConfig(imageEditorKey).helperText}
         />
       )}
 
@@ -2054,6 +2311,9 @@ export default function Perfil() {
                 mediaItems={mediaItems}
                 mediaItems2={mediaItems2}
                 depoimentos={depoimentos}
+                atracoes={atracoes}
+                promocoes={promocoes}
+                noticias={noticias}
                 wifiSsid={wifiSsid}
                 pixQrImage={pixQrImage}
                 blockOrder={blockOrder}

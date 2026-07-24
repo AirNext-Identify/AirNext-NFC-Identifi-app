@@ -128,6 +128,12 @@ export interface ProfileData {
   __horariosDescricao?: string;
   __formasPagamento?: string[];
   mediaCarousel2?: { id: string; type: 'image' | 'video'; url: string; caption?: string }[];
+  /** Cartões grandes e clicáveis de destaques/atrações do negócio (ex.: um novo espaço, serviço-carro-chefe, diferencial). */
+  atracoes?: { id: string; titulo: string; subtitulo?: string; imagem?: string; link?: string; tag?: string }[];
+  /** Carrossel de promoções/ofertas com preço De/Por e validade. */
+  promocoes?: { id: string; titulo: string; descricao?: string; imagem?: string; precoDe?: string; precoPor?: string; validade?: string; link?: string; tag?: string }[];
+  /** Carrossel de notícias/novidades da empresa. */
+  noticias?: { id: string; titulo: string; resumo?: string; imagem?: string; data?: string; link?: string }[];
   [key: string]: any;
 }
 
