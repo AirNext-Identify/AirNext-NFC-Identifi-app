@@ -32,6 +32,7 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfUsePage = lazy(() => import('./pages/TermsOfUsePage'));
 const CookiesPolicyPage = lazy(() => import('./pages/CookiesPolicyPage'));
+const SupportTutorialsPage = lazy(() => import('./pages/SupportTutorialsPage'));
 
 function LoadingScreen() {
   return (
@@ -131,6 +132,7 @@ export default function App() {
               <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
               <Route path="/termos-de-uso" element={<TermsOfUsePage />} />
               <Route path="/politica-de-cookies" element={<CookiesPolicyPage />} />
+              <Route path="/suporte" element={<SupportTutorialsPage />} />
 
               {/* Painel de imagens do site — agora exige login real de ADMIN
                   (Supabase Auth + is_admin() no banco), não mais uma senha

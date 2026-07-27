@@ -285,6 +285,12 @@ function routeDefaults(pathname: string): SeoProps {
   if (pathname.startsWith('/politica-de-cookies')) {
     return { title: 'Política de Cookies', description: 'Transparência sobre cookies e tecnologias semelhantes na AirNext.' };
   }
+  if (pathname.startsWith('/suporte')) {
+    return {
+      title: 'Suporte e tutoriais',
+      description: 'Vídeos tutoriais AirNext: ativação, NFC, perfil, pet, TEA e privacidade.',
+    };
+  }
   if (pathname.startsWith('/u/') || pathname.startsWith('/p/')) {
     return {
       title: 'Perfil AirNext',

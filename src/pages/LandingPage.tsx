@@ -206,7 +206,7 @@ const PRODUCTS: Product[] = [
     img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
     color: '#0071e3', icon: <Briefcase size={22} />,
     formats: ['cartao'], // todas as categorias disponíveis
-    specs: ['Chip NFC', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Edição ilimitada do perfil'],
+    specs: ['Chip NFC', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Perfil editável · validade 2 anos'],
   },
   
 
@@ -1904,7 +1904,7 @@ export default function LandingPage() {
     { label: 'Inclusão', href: '#para-todos' },
     { label: 'Sobre', href: '#quem-somos' },
     { label: 'Empresas', href: '#b2b' },
-    { label: 'Suporte', href: '#ajuda' },
+    { label: 'Suporte', href: '/suporte' },
   ];
 
   const addToCart = (product: Product, formatId?: string) => {
@@ -2156,6 +2156,12 @@ export default function LandingPage() {
               <a
                 key={l.label}
                 href={l.href}
+                onClick={(e) => {
+                  if (l.href.startsWith('/') && !l.href.startsWith('//')) {
+                    e.preventDefault();
+                    window.location.href = l.href;
+                  }
+                }}
                 className={`relative px-3.5 py-2 text-[12.5px] font-semibold tracking-tight rounded-full transition-colors ${
                   isDark ? 'text-gray-400 hover:text-white hover:bg-white/[0.06]' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-900/[0.04]'
                 }`}
@@ -2265,7 +2271,7 @@ export default function LandingPage() {
 
               <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto px-2 no-scrollbar">
                 {links.map(l => (
-                  <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className={`text-lg font-semibold py-3 border-b ${isDark ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'} flex items-center justify-between`}>
+                  <a key={l.label} href={l.href} onClick={(e) => { setMobileOpen(false); if (l.href.startsWith('/') && !l.href.startsWith('//')) { e.preventDefault(); window.location.href = l.href; } }} className={`text-lg font-semibold py-3 border-b ${isDark ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'} flex items-center justify-between`}>
                     {l.label} <ChevronRight size={18} className={isDark ? 'text-gray-500' : 'text-gray-400'} />
                   </a>
                 ))}
@@ -3725,11 +3731,16 @@ export default function LandingPage() {
               className="pb-10"
             >
               {[
-                { icon: <BookOpen size={32} />, title: 'Manuais', desc: 'Guias passo a passo para configurar seu perfil, gravar o chip NFC e personalizar tudo.', link: 'Ver Manuais' },
-                { icon: <HelpCircle size={32} />, title: 'Central de Ajuda', desc: 'Base de conhecimento com as dúvidas mais frequentes sobre nossos produtos e serviços.', link: 'Acessar FAQ' },
-                { icon: <LifeBuoy size={32} />, title: 'Suporte ao Vivo', desc: 'Fale com nosso time técnico em tempo real pelo WhatsApp ou e-mail dedicado.', link: 'Falar Agora' },
+                { icon: <BookOpen size={32} />, title: 'Tutoriais em vídeo', desc: 'Guias passo a passo para ativar o produto, configurar o perfil NFC e personalizar tudo.', link: 'Ver tutoriais', href: '/suporte' },
+                { icon: <HelpCircle size={32} />, title: 'Central de Ajuda', desc: 'Vídeos e respostas sobre produtos, painel, pet, TEA e privacidade.', link: 'Abrir suporte', href: '/suporte' },
+                { icon: <LifeBuoy size={32} />, title: 'Suporte ao Vivo', desc: 'Fale com nosso time técnico em tempo real por e-mail dedicado.', link: 'Falar agora', href: 'mailto:airnext.oficial@gmail.com' },
               ].map((s, i) => (
                 <SwiperSlide key={i} className="!h-auto">
+                  <a
+                    href={s.href}
+                    className="block h-full"
+                    {...(s.href.startsWith('http') || s.href.startsWith('mailto') ? {} : {})}
+                  >
                   <motion.div
                     whileHover={{ y: -8, scale: 1.02 }}
                     className={`p-8 rounded-[32px] ${isDark ? 'bg-[#121212] border-white/5' : 'bg-[#fbfbfd] border-gray-100'} border flex flex-col items-center text-center group cursor-pointer hover:shadow-xl transition-all h-full`}
@@ -3743,6 +3754,7 @@ export default function LandingPage() {
                       {s.link} <ArrowRight size={14} />
                     </span>
                   </motion.div>
+                  </a>
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -3868,26 +3880,69 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            {[
-              { title: 'Produtos', items: ['Cartão Pro', 'Pet Tag', 'Pulseira', 'Hub Desk', 'Anel Inteligente', 'Adesivo NFC'] },
-              { title: 'Empresa', items: ['Quem Somos', 'Sustentabilidade', 'Segurança', 'Carreiras'] },
-              { title: 'Suporte', items: ['Manuais', 'FAQ', 'Contato', 'WhatsApp'] },
-            ].map(col => (
-              <div key={col.title}>
-                <h4 className={`font-bold text-sm mb-6 tracking-wide uppercase text-xs ${isDark ? 'text-white' : 'text-gray-800'}`}>{col.title}</h4>
-                <ul className="space-y-3 text-sm">
-                  {col.items.map(item => (
-                    <li key={item}>
-                      <a href="#" className={`hover:translate-x-1 transition-all inline-block ${
+            <div>
+              <h4 className={`font-bold text-sm mb-6 tracking-wide uppercase text-xs ${isDark ? 'text-white' : 'text-gray-800'}`}>Produtos</h4>
+              <ul className="space-y-3 text-sm">
+                {PRODUCTS.map(p => (
+                  <li key={p.id}>
+                    <a
+                      href={`#produtos`}
+                      onClick={(e) => {
+                        /* scroll + opcionalmente destacar */
+                        const el = document.getElementById('produtos');
+                        if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); }
+                      }}
+                      className={`hover:translate-x-1 transition-all inline-block ${
                         isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-500 hover:text-green-700'
-                      }`}>
-                        {item}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+                      }`}
+                    >
+                      {p.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className={`font-bold text-sm mb-6 tracking-wide uppercase text-xs ${isDark ? 'text-white' : 'text-gray-800'}`}>Empresa</h4>
+              <ul className="space-y-3 text-sm">
+                {[
+                  { label: 'Quem Somos', href: '#quem-somos' },
+                  { label: 'Sustentabilidade', href: '#sustentabilidade' },
+                  { label: 'Segurança', href: '#seguranca' },
+                ].map(item => (
+                  <li key={item.label}>
+                    <a href={item.href} className={`hover:translate-x-1 transition-all inline-block ${
+                      isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-500 hover:text-green-700'
+                    }`}>{item.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className={`font-bold text-sm mb-6 tracking-wide uppercase text-xs ${isDark ? 'text-white' : 'text-gray-800'}`}>Suporte</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link to="/suporte" className={`hover:translate-x-1 transition-all inline-block ${
+                    isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-500 hover:text-green-700'
+                  }`}>Tutoriais em vídeo</Link>
+                </li>
+                <li>
+                  <a href="#faq" className={`hover:translate-x-1 transition-all inline-block ${
+                    isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-500 hover:text-green-700'
+                  }`}>FAQ</a>
+                </li>
+                <li>
+                  <a href="mailto:airnext.oficial@gmail.com" className={`hover:translate-x-1 transition-all inline-block ${
+                    isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-500 hover:text-green-700'
+                  }`}>Contato</a>
+                </li>
+                <li>
+                  <a href="https://wa.me/5500000000000" target="_blank" rel="noopener noreferrer" className={`hover:translate-x-1 transition-all inline-block ${
+                    isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-500 hover:text-green-700'
+                  }`}>WhatsApp</a>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* Environmental highlight bar */}
