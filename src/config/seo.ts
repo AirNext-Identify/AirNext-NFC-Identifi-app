@@ -47,13 +47,7 @@ export const SITE_KEYWORDS = [
   'Google Preferred Sources',
 ].join(', ');
 
-/**
- * Imagem do card ao compartilhar (WhatsApp, LinkedIn, etc.).
- * Ideal: PNG/JPG 1200×630 em /public/og-image.png
- * Enquanto isso, usa o favicon público do site.
- */
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/favicon.png`;
-export const FALLBACK_OG_IMAGE = `${SITE_URL}/favicon.png`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 export const TWITTER_HANDLE = '@airnext';
 
 export type SeoProps = {
@@ -64,8 +58,6 @@ export type SeoProps = {
   type?: 'website' | 'profile' | 'article';
   noIndex?: boolean;
   keywords?: string;
-  /** Nome exibido no card de perfil ao compartilhar */
-  profileName?: string;
 };
 
 export function absoluteUrl(path = '/'): string {
@@ -78,14 +70,4 @@ export function fullTitle(title?: string): string {
   if (!title || title === SITE_NAME) return `${SITE_NAME} — ${SITE_TAGLINE}`;
   if (title.includes(SITE_NAME)) return title;
   return `${title} | ${SITE_NAME}`;
-}
-
-
-/** Normaliza imagem de preview (OG). data: URLs não funcionam no WhatsApp — usa fallback. */
-export function resolveOgImage(src?: string | null): string {
-  if (!src || src.startsWith('data:')) return DEFAULT_OG_IMAGE;
-  if (src.startsWith('http://') || src.startsWith('https://')) return src;
-  if (src.startsWith('//')) return `https:${src}`;
-  const path = src.startsWith('/') ? src : `/${src}`;
-  return absoluteUrl(path);
 }

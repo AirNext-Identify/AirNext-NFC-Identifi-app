@@ -89,12 +89,12 @@ export default function SupportTutorialsPage() {
       />
 
       {/* Nav */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-black/5">
+      <header className="sticky top-0 z-40 bg-[#05070f]/90 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Logo size="sm" />
+          <Logo size="sm" to="/" />
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-gray-900 transition"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-400 hover:text-white transition"
           >
             <ArrowLeft size={16} /> Voltar ao site
           </Link>

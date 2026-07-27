@@ -41,12 +41,7 @@ export const AIRNEXT_FAQ: { question: string; answer: string }[] = [
   {
     question: 'AirNext tem mensalidade?',
     answer:
-      'Não há mensalidade mensal obrigatória. Cada produto AirNext inclui o perfil digital com validade de 2 anos. Ao final desse período, você pode renovar para continuar com o mesmo chip e histórico.',
-  },
-  {
-    question: 'Qual a validade do produto AirNext?',
-    answer:
-      'Cada produto AirNext tem validade de 2 anos para o serviço de perfil digital vinculado. Depois desse prazo, é possível renovar por mais 2 anos sem precisar trocar o cartão, tag ou pulseira física.',
+      'O plano básico da AirNext não tem mensalidade. O perfil digital essencial é gratuito. Recursos avançados (analytics, domínio personalizado) são opcionais.',
   },
   {
     question: 'AirNext funciona em iPhone e Android?',
@@ -132,7 +127,7 @@ export function buildProductJsonLd() {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'BRL',
-      description: 'Perfil digital incluso com validade de 2 anos por produto',
+      description: 'Plano básico do perfil digital sem mensalidade',
     },
     featureList: [
       'Cartão NFC e QR Code',

@@ -1,41 +1,77 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/src/public/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Título e descrição: lidos pelo WhatsApp/LinkedIn/Telegram SEM executar JS -->
+    <title>AirNext — Cartões NFC e Perfis Digitais</title>
+    <meta
+      name="description"
+      content="AirNext transforma cartões, tags e pulseiras NFC em perfis digitais inteligentes. Compartilhe contatos, pet, kids, TEA e negócios com um toque."
+    />
+    <meta
+      name="keywords"
+      content="AirNext, cartão NFC, cartão digital, tag NFC, QR Code, perfil digital, networking, pet perdido, pulseira NFC"
+    />
+    <meta name="author" content="AirNext" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="theme-color" content="#05070f" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="canonical" href="https://airnext-xi.vercel.app/" />
+
+    <!-- Favicon -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lobster&family=Pacifico&family=Caveat:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet" />
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="AirNect - Conecte-se ao mundo digital com NFC. Compartilhe informações, contatos e muito mais com um simples toque." />
-    <meta name="keywords" content="NFC, AirNect, QR Code, perfil digital, compartilhar contato, vCard" />
-    <meta name="author" content="AirNect" />
-    
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="AirNext - NFC Smart Connection" />
-    <meta property="og:description" content="Conecte-se ao mundo digital com NFC" />
-    <meta property="og:url" content="https://airnext.com.br" />
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="/src/public/favicon.png" />
+    <link rel="apple-touch-icon" href="/src/public/favicon.png" />
+
+    <!-- Open Graph — preview ao compartilhar -->
     <meta property="og:site_name" content="AirNext" />
-    <meta property="og:image" content="https://airnext.com.br/og-image.png" />
-    
-    <!-- Twitter Card -->
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AirNext — Cartões NFC e Perfis Digitais" />
+    <meta
+      property="og:description"
+      content="Cartões, tags e pulseiras NFC com perfil digital. Um toque para conectar — sem app."
+    />
+    <meta property="og:url" content="https://airnext-xi.vercel.app/" />
+    <meta property="og:image" content="https://airnext-xi.vercel.app/og-image.png" />
+    <meta property="og:image:secure_url" content="https://airnext-xi.vercel.app/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AirNext — conectando o físico ao digital" />
+
+    <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="AirNext - NFC Smart Connection" />
-    <meta name="twitter:description" content="Conecte-se ao mundo digital com NFC" />
-    <meta name="twitter:image" content="https://airnext.com.br/og-image.png" />
-    
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#4f46e5" />
-    
-    <title>AirNext - NFC Identify</title>
+    <meta name="twitter:title" content="AirNext — Cartões NFC e Perfis Digitais" />
+    <meta
+      name="twitter:description"
+      content="Perfis digitais NFC com design premium. Compartilhe com um toque."
+    />
+    <meta name="twitter:image" content="https://airnext-xi.vercel.app/og-image.png" />
+
+    <!-- Idioma -->
+    <meta http-equiv="content-language" content="pt-BR" />
+    <link rel="alternate" hrefLang="pt-BR" href="https://airnext-xi.vercel.app/" />
+    <link rel="alternate" hrefLang="x-default" href="https://airnext-xi.vercel.app/" />
+
+    <!-- JSON-LD Organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "AirNext",
+        "url": "https://airnext-xi.vercel.app",
+        "logo": "https://airnext-xi.vercel.app/favicon.png",
+        "email": "airnext.oficial@gmail.com",
+        "description": "Cartões, tags e pulseiras NFC com perfis digitais inteligentes."
+      }
+    </script>
   </head>
-  <body class="antialiased">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

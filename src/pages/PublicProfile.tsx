@@ -99,7 +99,7 @@ import { useToast } from '../components/Toast';
 import { Modal } from '../components/Modal';
 import { useState, useEffect, useRef } from 'react';
 import { Seo } from '../components/Seo';
-import { SITE_NAME, resolveOgImage } from '../config/seo';
+import { absoluteUrl, SITE_NAME } from '../config/seo';
 import { getLayoutClasses, ProfileLayout } from '../lib/layout';
 import { getFontOption, loadGoogleFont } from '../lib/fonts';
 import { PUZZLE_PATTERN_BG } from '../lib/patterns';
@@ -1905,20 +1905,12 @@ export default function PublicProfile() {
   };
   const orderedBlockIds = [...new Set([...blockOrder, ...defaultBlockOrder])].filter(id => !hiddenBlockIds.includes(id));
 
-  const profileSeoTitle = name
-    ? `${name}${cargo ? ` — ${cargo}` : ''} · ${SITE_NAME}`
-    : `Perfil · ${SITE_NAME}`;
-  const profileSeoDesc = (
-    (bio && String(bio).trim()) ||
-    (d.descricao && String(d.descricao).trim()) ||
-    (cat === 'PET' && d.raca
-      ? `Pet ${name || ''}${d.raca ? ` · ${d.raca}` : ''}. Contato do tutor e dados no perfil AirNext.`
-      : cat === 'TEA'
-        ? `Perfil TEA de ${name || 'usuário'} — orientações de apoio e contatos no AirNext.`
-        : `Perfil digital ${name || ''} na ${SITE_NAME}. Contatos e informações em um toque.`)
-  ).slice(0, 180);
-  // Foto pública HTTPS (data:URL não gera preview no WhatsApp)
-  const profileSeoImage = resolveOgImage(d.foto || d.capa || undefined);
+  const profileSeoTitle = name ? `${name} · ${SITE_NAME}` : `Perfil · ${SITE_NAME}`;
+  const profileSeoDesc =
+    (bio && String(bio).slice(0, 160)) ||
+    (d.descricao && String(d.descricao).slice(0, 160)) ||
+    `Perfil digital ${cat} na ${SITE_NAME} — contatos e informações em um toque.`;
+  const profileSeoImage = d.foto || d.capa || undefined;
 
   return (
     <div
@@ -1930,7 +1922,6 @@ export default function PublicProfile() {
         description={profileSeoDesc}
         image={profileSeoImage}
         type="profile"
-        profileName={name || undefined}
         path={typeof window !== 'undefined' ? window.location.pathname : undefined}
       />
       {/* Camada de fundo fixa ao viewport — evita que a imagem de fundo
