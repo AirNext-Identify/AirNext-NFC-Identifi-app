@@ -73,7 +73,10 @@
 }
 
 @layer base {
-  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html { scroll-behavior: smooth; scroll-padding-top: 6.5rem; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
   * { box-sizing: border-box; }
   body { font-family: var(--font-sans); overflow-x: hidden; }
   ::-webkit-scrollbar { width: 0px; height: 0px; }
@@ -104,13 +107,13 @@
   .auth-card {
     position: relative;
     border-radius: 1.5rem;
-    background: rgba(255,255,255,0.055);
-    backdrop-filter: blur(36px) saturate(1.6);
+    background: rgba(10, 16, 32, 0.72);
+    backdrop-filter: blur(40px) saturate(1.5);
     border: 1px solid transparent;
-    background-image: linear-gradient(rgba(255,255,255,0.055), rgba(255,255,255,0.055)), linear-gradient(140deg, rgba(37,99,235,0.55), rgba(96,165,250,0.22) 45%, rgba(37,99,235,0.4));
+    background-image: linear-gradient(rgba(10, 16, 32, 0.85), rgba(10, 16, 32, 0.72)), linear-gradient(140deg, rgba(0,113,227,0.65), rgba(96,165,250,0.28) 50%, rgba(37,99,235,0.45));
     background-origin: border-box;
     background-clip: padding-box, border-box;
-    box-shadow: 0 24px 70px -20px rgba(30,58,138,0.35), 0 8px 32px 0 rgba(0,0,0,0.35);
+    box-shadow: 0 28px 80px -24px rgba(0,113,227,0.35), 0 8px 32px 0 rgba(0,0,0,0.45);
   }
   .auth-card::before {
     content: '';
@@ -426,4 +429,101 @@ input:-webkit-autofill:active {
 .pp-row-hover:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 22px -10px rgba(0,0,0,0.35);
+}
+
+
+/* ── Hero flow (Landing) ── */
+@keyframes heroMeshDrift {
+  0% { transform: translate3d(0,0,0) scale(1); opacity: .55; }
+  50% { transform: translate3d(2%, -3%, 0) scale(1.08); opacity: .85; }
+  100% { transform: translate3d(0,0,0) scale(1); opacity: .55; }
+}
+@keyframes heroFlowDash {
+  to { stroke-dashoffset: -240; }
+}
+@keyframes heroOrbPulse {
+  0%, 100% { transform: scale(1); opacity: .45; }
+  50% { transform: scale(1.25); opacity: .85; }
+}
+@keyframes heroParticle {
+  0% { offset-distance: 0%; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+.hero-mesh-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  animation: heroMeshDrift 14s ease-in-out infinite;
+  pointer-events: none;
+}
+.hero-flow-path {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 8 14;
+  animation: heroFlowDash 2.8s linear infinite;
+}
+.hero-flow-glow {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  filter: blur(6px);
+  opacity: .35;
+  animation: heroFlowDash 2.8s linear infinite;
+}
+.hero-orb {
+  animation: heroOrbPulse 3.2s ease-in-out infinite;
+}
+
+/* ── SOS público ── */
+@keyframes sosSheen {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes sosRing {
+  0% { transform: scale(.85); opacity: .7; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+.sos-banner-sheen {
+  background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,.22) 45%, transparent 70%);
+  background-size: 220% 100%;
+  animation: sosSheen 4.5s linear infinite;
+}
+.sos-ring::before,
+.sos-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid rgba(255,255,255,.45);
+  animation: sosRing 2s ease-out infinite;
+}
+.sos-ring::after { animation-delay: 1s; }
+
+
+/* ── Scroll reveal (CSS fallback / progressive) ── */
+.scroll-reveal {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.scroll-reveal.scroll-reveal-visible {
+  opacity: 1;
+  transform: none;
+}
+.scroll-reveal-delay-1 { transition-delay: 0.08s; }
+.scroll-reveal-delay-2 { transition-delay: 0.16s; }
+.scroll-reveal-delay-3 { transition-delay: 0.24s; }
+.scroll-reveal-delay-4 { transition-delay: 0.32s; }
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

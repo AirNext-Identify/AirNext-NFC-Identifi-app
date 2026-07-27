@@ -3,6 +3,8 @@ import { Suspense, lazy } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
 import SmartProtected from './routes/SmartProtected';
+import { ConsentGate } from './components/legal/ConsentGate';
+import { SeoManager } from './components/Seo';
 
 
 import DashboardLayout from './components/DashboardLayout';
@@ -27,6 +29,9 @@ const AdminClients = lazy(() => import('./pages/admin/Clients'));
 const AdminPanel = lazy(() => import('./pages/admin/AdminPanel'));
 
 const Onboarding = lazy(() => import('./pages/Onboarding'));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsOfUsePage = lazy(() => import('./pages/TermsOfUsePage'));
+const CookiesPolicyPage = lazy(() => import('./pages/CookiesPolicyPage'));
 
 function LoadingScreen() {
   return (
@@ -44,7 +49,9 @@ function Protected({ children, admin = false }: { children: React.ReactNode; adm
   if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/login" replace />;
   if (admin && user.role !== 'ADMIN') return <Navigate to="/dashboard" replace />;
-  return <>{children}</>;
+  // Validação de consentimento (versão atual da Política e Termos).
+  // Bloqueia dashboard, ativação e demais rotas autenticadas até o aceite.
+  return <ConsentGate>{children}</ConsentGate>;
 }
 
 function Guest({ children }: { children: React.ReactNode }) {
@@ -112,12 +119,18 @@ export default function App() {
   return (
     <ToastProvider>
       <Router>
+      <SeoManager />
         <AuthProvider>
           <Suspense fallback={<LoadingScreen />}>
             <Routes>
 
               {/* Landing page institucional (site AirNect) */}
               <Route path="/" element={<LandingPage />} />
+
+              {/* Documentos legais (públicos, design premium) */}
+              <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
+              <Route path="/termos-de-uso" element={<TermsOfUsePage />} />
+              <Route path="/politica-de-cookies" element={<CookiesPolicyPage />} />
 
               {/* Painel de imagens do site — agora exige login real de ADMIN
                   (Supabase Auth + is_admin() no banco), não mais uma senha

@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, Category, ProfileTheme } from '../contexts/AuthContext';
 import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X } from 'lucide-react';
 import Logo from '../components/Logo';
+import { ConsentModal } from '../components/legal/ConsentModal';
+import { hasCurrentRequiredConsents } from '../lib/consents';
 
 const CATS:{id:Category;label:string;desc:string;icon:React.ElementType;color:string}[]=[
   {id:'PERSONAL',label:'Pessoa',desc:'Compartilhamento pessoal',icon:UserCheck,color:'from-blue-500 to-cyan-400'},
@@ -67,11 +69,13 @@ export default function ActivationPage() {
   const [theme, setTheme] = useState<ProfileTheme>('moderno');
   const [form, setForm] = useState<Record<string,any>>({nome: user?.name || ''});
   const set = (k:string,v:any) => setForm(p=>({...p,[k]:v}));
+  const [consentModalOpen, setConsentModalOpen] = useState(false);
+  const [pendingActivate, setPendingActivate] = useState(false);
 
   const inp = "w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/50 text-sm transition-all";
   const inpStyle: React.CSSProperties = { color: '#ffffff' };
 
-const handleActivate = async () => {
+const runActivate = async () => {
   setBusy(true);
   setError('');
 
@@ -81,14 +85,38 @@ const handleActivate = async () => {
 
   if (!res || !res.product?.id) {
     setBusy(false);
-    setError('Falha ao ativar produto.');
+    setError(res?.error || 'Falha ao ativar produto.');
     return;
   }
 
   setActivated({ id: res.product.id });
   setPhase('category');
   setBusy(false);
+};
 
+const handleActivate = async () => {
+  if (!user?.id) {
+    setError('Faça login para ativar o produto.');
+    return;
+  }
+  setBusy(true);
+  setError('');
+  const ok = await hasCurrentRequiredConsents(user.id);
+  if (!ok) {
+    setBusy(false);
+    setPendingActivate(true);
+    setConsentModalOpen(true);
+    return;
+  }
+  await runActivate();
+};
+
+const handleConsentAccepted = async () => {
+  setConsentModalOpen(false);
+  if (pendingActivate) {
+    setPendingActivate(false);
+    await runActivate();
+  }
 };
 
 const handleFinish = async () => {
@@ -138,7 +166,7 @@ setPhase('done');
   const bioPh = category === 'BUSINESS' ? 'Endereço' : category === 'PET' ? 'Idade e observações' : category === 'KIDS' ? 'Observações' : category === 'SENIOR' ? 'Observações' : category === 'TEA' ? 'Informações importantes' : 'Bio / Sobre você';
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-4 pt-24 pb-8 relative overflow-hidden">
+    <div className="min-h-screen bg-[#05070f] flex items-center justify-center p-4 pt-24 pb-8 relative overflow-hidden">
       {/* Discreet Apple-style back button */}
       <button onClick={() => nav('/dashboard')} className="fixed top-5 left-5 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-full glass text-zinc-300 hover:text-white hover:scale-105 active:scale-95 transition-all text-xs font-medium">
         <ChevronLeft className="h-4 w-4" /> Voltar
@@ -150,7 +178,12 @@ setPhase('done');
 
       {/* Fundo escuro limpo com identidade AirNext (sem efeito animado) +
           leve textura de pontos discreta. */}
-      <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        <div className="absolute -top-24 -left-20 h-72 w-72 rounded-full bg-[#2563EB]/22 blur-[100px]" />
+        <div className="absolute top-1/3 -right-16 h-80 w-80 rounded-full bg-[#0071e3]/18 blur-[110px]" />
+        <div className="absolute -bottom-20 left-1/3 h-64 w-64 rounded-full bg-[#60A5FA]/10 blur-[90px]" />
+        <div className="absolute inset-0 opacity-[0.3] dot-grid" />
+      </div>
 
       <div className="relative w-full max-w-lg">
         {/* Banner / Logo */}
@@ -387,6 +420,18 @@ setPhase('done');
           )}
         </div>
       </div>
+
+      {user?.id && (
+        <ConsentModal
+          isOpen={consentModalOpen}
+          userId={user.id}
+          onAccepted={handleConsentAccepted}
+          onClose={() => {
+            setConsentModalOpen(false);
+            setPendingActivate(false);
+          }}
+        />
+      )}
     </div>
   );
 }

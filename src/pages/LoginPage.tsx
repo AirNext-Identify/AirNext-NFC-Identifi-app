@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
 import Logo from '../components/Logo';
+import { PreferredSourcesCTA } from '../components/PreferredSourcesCTA';
 import GoogleButton from '../components/auth/GoogleButton';
-import RocketMascot from '../components/RocketMascot';
 
 export default function LoginPage() {
   const [email, setEmail] = useState(''); const [pw, setPw] = useState('');
@@ -45,13 +45,14 @@ export default function LoginPage() {
   const inp = "w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3.5 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/50 focus:border-[#3B82F6]/40 transition-all text-sm";
   const inpStyle: React.CSSProperties = { color: '#ffffff' };
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Fundo escuro limpo com identidade AirNext (sem efeito animado) +
-          leve textura de pontos discreta. */}
-      <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
-
-      {/* Mascote foguete sobrevoando a tela */}
-      <RocketMascot />
+    <div className="min-h-screen bg-[#05070f] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Ambiente AirNext — azuis da marca, sem mascote */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        <div className="absolute -top-24 -left-20 h-72 w-72 rounded-full bg-[#2563EB]/25 blur-[100px]" />
+        <div className="absolute top-1/3 -right-16 h-80 w-80 rounded-full bg-[#0071e3]/20 blur-[110px]" />
+        <div className="absolute -bottom-20 left-1/3 h-64 w-64 rounded-full bg-[#60A5FA]/12 blur-[90px]" />
+        <div className="absolute inset-0 opacity-[0.35] dot-grid" />
+      </div>
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-10 fade-up">
@@ -99,8 +100,16 @@ export default function LoginPage() {
           <p className="mt-6 text-center text-sm text-zinc-300">Não tem conta? <Link to="/register" className="font-semibold text-[#60A5FA] hover:text-[#93c5fd] transition-colors">Cadastre-se grátis</Link></p>
         </div>
 
-        <p className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-zinc-500">
-          <ShieldCheck className="h-3.5 w-3.5" /> Conexão segura e criptografada
+        <p className="mt-6 flex flex-col items-center gap-2 text-[11px] text-zinc-500">
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="h-3.5 w-3.5" /> Conexão segura e criptografada
+          </span>
+          <span className="flex flex-wrap justify-center gap-x-3 gap-y-1">
+            <Link to="/politica-de-privacidade" className="hover:text-zinc-300">Privacidade</Link>
+            <Link to="/termos-de-uso" className="hover:text-zinc-300">Termos</Link>
+            <Link to="/politica-de-cookies" className="hover:text-zinc-300">Cookies</Link>
+          </span>
+          <PreferredSourcesCTA variant="link" className="mt-1" />
         </p>
       </div>
     </div>

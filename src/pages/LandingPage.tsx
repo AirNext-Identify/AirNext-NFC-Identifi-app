@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PreferredSourcesCTA } from '../components/PreferredSourcesCTA';
+import { AIRNEXT_FAQ, AIRNEXT_DEFINITION, AIRNEXT_HOW_IT_WORKS } from '../config/aiContent';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
@@ -1769,6 +1771,71 @@ export default function LandingPage() {
     };
   }, []);
 
+
+  // ── Scroll reveal suave nas seções ──────────────────────────────────────
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sections = Array.from(document.querySelectorAll('main > section'));
+    if (!sections.length) return;
+
+    if (reduce) {
+      sections.forEach((el) => el.classList.add('scroll-reveal-visible'));
+      return;
+    }
+
+    sections.forEach((el) => {
+      if (el.id === 'top') {
+        el.classList.add('scroll-reveal-visible');
+        return;
+      }
+      el.classList.add('scroll-reveal');
+    });
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('scroll-reveal-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    );
+
+    sections.forEach((el) => {
+      if (el.id !== 'top') io.observe(el);
+    });
+
+    const cards = document.querySelectorAll(
+      'main section .grid > *, main section [data-reveal]'
+    );
+    cards.forEach((el, i) => {
+      if (el.closest('#top')) return;
+      el.classList.add('scroll-reveal');
+      el.classList.add('scroll-reveal-delay-' + ((i % 4) + 1));
+    });
+    const ioCards = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('scroll-reveal-visible');
+            ioCards.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -5% 0px' }
+    );
+    cards.forEach((el) => {
+      if (!el.closest('#top')) ioCards.observe(el);
+    });
+
+    return () => {
+      io.disconnect();
+      ioCards.disconnect();
+    };
+  }, []);
+
   // --- Consentimento de Cookies (LGPD) ---
   useEffect(() => {
     const stored = localStorage.getItem('airnext_cookie_consent');
@@ -1964,8 +2031,9 @@ export default function LandingPage() {
       screen: {
         bg: 'linear-gradient(135deg, #0f172a, #1e293b)',
         avatarBg: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+        photo: 'https://i.pravatar.cc/200?img=47',
         title: 'Ana Souza',
-        subtitle: 'Connect to Profile',
+        subtitle: 'Product Designer · São Paulo',
         items: [
           { label: 'WhatsApp', val: '(11) 98765-4321', color: 'bg-green-500/20 text-green-300', icon: <Phone size={14} /> },
           { label: 'LinkedIn', val: 'linkedin.com/in/anasouza', color: 'bg-blue-500/20 text-blue-300', icon: <Globe size={14} /> },
@@ -1982,8 +2050,9 @@ export default function LandingPage() {
       screen: {
         bg: 'linear-gradient(135deg, #052e16, #14532d)',
         avatarBg: 'linear-gradient(135deg, #22c55e, #059669)',
-        title: 'Achei o Fred',
-        subtitle: 'Macho · Golden Retriever',
+        photo: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=200&h=200&fit=crop',
+        title: 'Fred',
+        subtitle: 'Macho · Golden Retriever · 3 anos',
         items: [
           { label: 'Dono', val: 'Roberto Souza', color: 'bg-white/10 text-white', icon: <UserRound size={14} /> },
           { label: 'Telefone', val: '(11) 99999-8888', color: 'bg-emerald-500/20 text-emerald-300', icon: <Phone size={14} /> },
@@ -2000,8 +2069,9 @@ export default function LandingPage() {
       screen: {
         bg: 'linear-gradient(135deg, #7c2d12, #451a03)',
         avatarBg: 'linear-gradient(135deg, #f59e0b, #b45309)',
-        title: 'Mesa 14 · Bistro Paris',
-        subtitle: 'Informações da Mesa',
+        photo: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&h=200&fit=crop',
+        title: 'Bistro Paris',
+        subtitle: 'Mesa 14 · Informações da casa',
         items: [
           { label: 'Wi-Fi da Casa', val: 'Senha: bistropass', color: 'bg-amber-500/20 text-amber-300', icon: <Wifi size={14} /> },
           { label: 'Cardápio Digital', val: 'Ver menu completo', color: 'bg-white/10 text-white', icon: <BookOpen size={14} /> },
@@ -2018,8 +2088,9 @@ export default function LandingPage() {
       screen: {
         bg: 'linear-gradient(135deg, #7f1d1d, #450a0a)',
         avatarBg: 'linear-gradient(135deg, #ef4444, #b91c1c)',
-        title: 'Ficha Médica de Emergência',
-        subtitle: 'Paciente: João Carlos',
+        photo: 'https://i.pravatar.cc/200?img=12',
+        title: 'João Carlos',
+        subtitle: 'Ficha médica de emergência',
         items: [
           { label: 'Tipo Sanguíneo', val: 'O Positivo (O+)', color: 'bg-red-500/20 text-red-300', icon: <Droplets size={14} /> },
           { label: 'Alergias', val: 'Penicilina, Glúten', color: 'bg-red-500/20 text-red-300', icon: <AlertTriangle size={14} /> },
@@ -2424,8 +2495,11 @@ export default function LandingPage() {
                   <Nfc size={12} /> NFC + QR Code · Tecnologia Premium
                 </p>
                 <h1 className={`h1-apple mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Aproxime-se<br />do futuro.</h1>
-                <p className={`text-xl md:text-2xl ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-3xl mx-auto mb-10 font-medium leading-relaxed`}>
+                <p className={`text-xl md:text-2xl ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-3xl mx-auto mb-4 font-medium leading-relaxed`}>
                   AirNext simplifica conexões. Um toque para compartilhar,<br className="hidden md:block" /> um gesto para impactar.
+                </p>
+                <p className={`ai-definition text-sm md:text-base ${isDark ? 'text-gray-500' : 'text-gray-500'} max-w-2xl mx-auto mb-10 leading-relaxed`}>
+                  Cartões, tags e pulseiras NFC com perfil digital editável — sem app, com QR Code e controle total dos seus dados.
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                   <a href="#produtos" className={`group px-8 py-3.5 rounded-full flex items-center gap-3 transition-all shadow-xl text-[15px] font-semibold ${
@@ -3025,12 +3099,47 @@ export default function LandingPage() {
               className="pb-10"
             >
               {[
-                { id: 'pro', img: PRODUCTS[0].img, title: 'Feiras & Congressos', caption: 'Cartões AirNext Pro trocados em segundos, sem fila e sem papel.' },
-                { id: 'pet', img: PRODUCTS[2].img, title: 'Passeios com o Pet', caption: 'Tranquilidade extra em cada caminhada pelo bairro com AirNext Pet.' },
-                { id: 'stand', img: PRODUCTS[1].img, title: 'Recepções & Restaurantes', caption: 'Cardápios e check-ins que impressionam com AirNext Stand.' },
-                { id: 'kids', img: PRODUCTS[3].img, title: 'Parques & Passeios em Família', caption: 'Pais localizados em segundos com AirNext Kids.' },
-                { id: 'senior', img: PRODUCTS[4].img, title: 'Cuidado com quem a gente ama', caption: 'Independência e segurança com AirNext Senior.' },
-                { id: 'tea', img: PRODUCTS[5].img, title: 'Comunicação Assistida', caption: 'Informações vitais sempre à mão com AirNext TEA.' },
+                            { 
+                id: 'pro',
+                img: PRODUCTS[0].img,
+                title: 'Conexões que acontecem na hora',
+                caption: 'Compartilhe seu perfil profissional em segundos e transforme cada encontro em uma nova oportunidade de conexão.'
+              },
+
+              { 
+                id: 'pet',
+                img: PRODUCTS[2].img,
+                title: 'Mais segurança em cada passeio',
+                caption: 'Informações importantes sempre acessíveis para ajudar seu pet a ser identificado e voltar para casa com mais facilidade.'
+              },
+
+              { 
+                id: 'stand',
+                img: PRODUCTS[1].img,
+                title: 'Tudo em um só lugar',
+                caption: 'Apresente seu negócio, cardápio e principais informações de forma rápida, prática e moderna para seus clientes.'
+              },
+
+              { 
+                id: 'kids',
+                img: PRODUCTS[3].img,
+                title: 'Mais tranquilidade para a família',
+                caption: 'Informações importantes e identificação sempre acessíveis para ajudar a manter seus filhos mais seguros em qualquer lugar.'
+              },
+
+              { 
+                id: 'senior',
+                img: PRODUCTS[4].img,
+                title: 'Mais autonomia. Mais tranquilidade.',
+                caption: 'Informações importantes sempre acessíveis para cuidar de quem você ama com mais segurança, praticidade e independência.'
+              },
+
+              { 
+                id: 'tea',
+                img: PRODUCTS[5].img,
+                title: 'Comunicação que aproxima',
+                caption: 'Informações importantes sempre acessíveis para tornar a comunicação mais simples, acolhedora e segura em diferentes situações.'
+              },
               ].map((item, i) => (
                 <SwiperSlide key={i}>
                   <div className="relative rounded-[28px] overflow-hidden aspect-[3/4] group">
@@ -3122,12 +3231,21 @@ export default function LandingPage() {
                         animate={{ scale: 1, opacity: 1 }}
                         className="relative w-20 h-20 mx-auto mb-4"
                       >
-                        {/* Imagem de perfil (avatar com iniciais) */}
+                        {/* Imagem de perfil real no mockup */}
                         <div
-                          className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg border-2 border-white/25 text-2xl font-extrabold text-white"
+                          className="w-20 h-20 rounded-full overflow-hidden shadow-lg border-2 border-white/25 flex items-center justify-center text-2xl font-extrabold text-white"
                           style={{ background: useCaseScenarios[activeUseCase].screen.avatarBg }}
                         >
-                          {getInitials(useCaseScenarios[activeUseCase].screen.title)}
+                          {useCaseScenarios[activeUseCase].screen.photo ? (
+                            <img
+                              src={useCaseScenarios[activeUseCase].screen.photo}
+                              alt={useCaseScenarios[activeUseCase].screen.title}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : (
+                            getInitials(useCaseScenarios[activeUseCase].screen.title)
+                          )}
                         </div>
                         {/* Selinho com o ícone do cenário, sobre o avatar */}
                         <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#111] border-2 border-white/20 flex items-center justify-center shadow-md">
@@ -3182,15 +3300,15 @@ export default function LandingPage() {
               className="pb-10"
             >
               {[
-                { name: 'Marina Costa', role: 'Arquiteta', text: 'Em feiras de arquitetura o cartão AirNext me salvou. As pessoas chegam em casa com meu portfólio salvo no celular. Nunca mais imprimi cartão de papel.', avatar: 'MC', rating: 5 },
-                { name: 'Rafael Andrade', role: 'Restaurante', text: 'Colocamos as tags NFC nas mesas e os pedidos pelo cardápio digital aumentaram 34% no primeiro mês. Os clientes adoram a experiência.', avatar: 'RA', rating: 5 },
-                { name: 'Carla Menezes', role: 'Veterinária', text: 'Indico para todos os tutores. A tag pet é genial — se o animal fugir, qualquer um acessa os dados. Já ajudou 3 pets perdidos a voltarem para casa.', avatar: 'CM', rating: 5 },
-                { name: 'Lucas Pereira', role: 'Eventos', text: 'Usamos pulseiras em um festival com 3 mil pessoas. O check-in foi 3x mais rápido e os convidados amaram trocar contatos na hora.', avatar: 'LP', rating: 5 },
-                { name: 'Juliana Lima', role: 'Marketing', text: 'Economizamos uma fortuna com cartões impressos. A experiência premium do AirNext impressiona os clientes na primeira reunião.', avatar: 'JL', rating: 5 },
-                { name: 'Pedro Souza', role: 'Designer', text: 'Zero fricção. Aproximo o celular do cliente e já compartilho portfólio, Instagram e LinkedIn. Networking evoluído.', avatar: 'PS', rating: 5 },
-                { name: 'Amanda Rocha', role: 'Médica Pediatra', text: 'Comprei as pulseiras kids para meus filhos e recomendo demais. Em parques me sinto muito mais segura sabendo que qualquer pessoa consegue me ligar.', avatar: 'AR', rating: 5 },
-                { name: 'Thiago Menezes', role: 'CEO Startup', text: 'Equipamos toda a equipe com AirNext Card Pro e a troca de informações em eventos de tecnologia ficou muito mais profissional.', avatar: 'TM', rating: 5 },
-                { name: 'Fernanda Azevedo', role: 'Tutora de PET', text: 'A tag pet salvou meu cachorro quando ele fugiu no Ano Novo. Quem achou ligou na hora! Produto essencial.', avatar: 'FA', rating: 5 },
+                { name: 'Marina Costa', role: 'Arquiteta', text: 'Em feiras de arquitetura o cartão AirNext me salvou. As pessoas chegam em casa com meu portfólio salvo no celular. Nunca mais imprimi cartão de papel.', avatar: 'MC', photo: 'https://i.pravatar.cc/120?img=5', rating: 5 },
+                { name: 'Rafael Andrade', role: 'Restaurante', text: 'Colocamos as tags NFC nas mesas e os pedidos pelo cardápio digital aumentaram 34% no primeiro mês. Os clientes adoram a experiência.', avatar: 'RA', photo: 'https://i.pravatar.cc/120?img=11', rating: 5 },
+                { name: 'Carla Menezes', role: 'Veterinária', text: 'Indico para todos os tutores. A tag pet é genial — se o animal fugir, qualquer um acessa os dados. Já ajudou 3 pets perdidos a voltarem para casa.', avatar: 'CM', photo: 'https://i.pravatar.cc/120?img=9', rating: 5 },
+                { name: 'Lucas Pereira', role: 'Eventos', text: 'Usamos pulseiras em um festival com 3 mil pessoas. O check-in foi 3x mais rápido e os convidados amaram trocar contatos na hora.', avatar: 'LP', photo: 'https://i.pravatar.cc/120?img=13', rating: 5 },
+                { name: 'Juliana Lima', role: 'Marketing', text: 'Economizamos uma fortuna com cartões impressos. A experiência premium do AirNext impressiona os clientes na primeira reunião.', avatar: 'JL', photo: 'https://i.pravatar.cc/120?img=20', rating: 5 },
+                { name: 'Pedro Souza', role: 'Designer', text: 'Zero fricção. Aproximo o celular do cliente e já compartilho portfólio, Instagram e LinkedIn. Networking evoluído.', avatar: 'PS', photo: 'https://i.pravatar.cc/120?img=15', rating: 5 },
+                { name: 'Amanda Rocha', role: 'Médica Pediatra', text: 'Comprei as pulseiras kids para meus filhos e recomendo demais. Em parques me sinto muito mais segura sabendo que qualquer pessoa consegue me ligar.', avatar: 'AR', photo: 'https://i.pravatar.cc/120?img=32', rating: 5 },
+                { name: 'Thiago Menezes', role: 'CEO Startup', text: 'Equipamos toda a equipe com AirNext Card Pro e a troca de informações em eventos de tecnologia ficou muito mais profissional.', avatar: 'TM', photo: 'https://i.pravatar.cc/120?img=33', rating: 5 },
+                { name: 'Fernanda Azevedo', role: 'Tutora de PET', text: 'A tag pet salvou meu cachorro quando ele fugiu no Ano Novo. Quem achou ligou na hora! Produto essencial.', avatar: 'FA', photo: 'https://i.pravatar.cc/120?img=45', rating: 5 },
               ].map((t, i) => (
                 <SwiperSlide key={i} className="!h-auto">
                   <div className={`p-8 rounded-[28px] ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'} border h-[300px] shadow-sm flex flex-col justify-between hover:shadow-lg transition-all`}>
@@ -3201,8 +3319,10 @@ export default function LandingPage() {
                       <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} leading-relaxed line-clamp-5`}>"{t.text}"</p>
                     </div>
                     <div className="flex items-center gap-3 border-t pt-4 border-white/5">
-                      <div className={`w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0`}>
-                        {t.avatar}
+                      <div className="w-11 h-11 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0 ring-2 ring-white/10">
+                        {t.photo ? (
+                          <img src={t.photo} alt={t.name} className="w-full h-full object-cover" loading="lazy" />
+                        ) : t.avatar}
                       </div>
                       <div>
                         <p className="text-sm font-bold">{t.name}</p>
@@ -3628,24 +3748,48 @@ export default function LandingPage() {
             </Swiper>
             <SwipeIndicator isDark={isDark} />
 
-            {/* FAQ inline */}
-            <div className="mt-20 max-w-3xl mx-auto">
-              <h3 className={`text-2xl font-bold mb-8 text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>Perguntas Frequentes</h3>
-              <div className="space-y-3">
-                {[
-                  { q: 'Preciso instalar algum aplicativo?', a: 'Não. Todos os celulares modernos já suportam NFC e QR Code nativamente. Basta aproximar o celular — sem baixar nada.' },
-                  { q: 'Posso editar meu perfil depois de comprar?', a: 'Sim! O chip aponta para seu perfil online. Você edita quantas vezes quiser pelo painel — o produto físico continua o mesmo.' },
-                  { q: 'Qual a durabilidade do chip?', a: 'Nossos chips têm 100.000+ ciclos de gravação e duração superior a 10 anos. Resistentes à água (IP65) e impacto.' },
-                  { q: 'Tem mensalidade?', a: 'Zero mensalidade. O plano básico é gratuito para sempre. Upgrade opcional para analytics e domínio personalizado.' },
-                  { q: 'Funciona em celulares sem NFC?', a: 'Sim! Todo produto vem com QR Code backup. Funciona em qualquer dispositivo com câmera — inclusive tablets e notebooks.' },
-                  { q: 'Fazem personalização para empresas?', a: 'Sim! Cartões com logo, cores corporativas, gravação em lote e dashboard administrativo. Fale conosco: 0800suport@gmail.com' },
-                ].map((item, i) => (
-                  <details key={i} className={`group rounded-2xl ${isDark ? 'bg-[#121212] border-white/5 text-white' : 'bg-[#f5f5f7] border-gray-100 text-gray-900'} border px-6 py-5 cursor-pointer transition-all`}>
-                    <summary className="flex items-center justify-between list-none font-semibold">
-                      {item.q}
-                      <span className="text-gray-400 text-xl transition-transform group-open:rotate-45">+</span>
+            {/* FAQ + definição — otimizado para AI Overviews (resposta clara + schema FAQPage) */}
+            <div className="mt-20 max-w-3xl mx-auto" id="faq">
+              <div className={`mb-10 p-6 rounded-3xl border ${isDark ? 'bg-[#121212] border-white/10' : 'bg-[#f5f5f7] border-gray-100'}`}>
+                <p className="eyebrow text-[#0071e3] mb-2">O que é AirNext</p>
+                <p className={`ai-definition text-lg md:text-xl font-semibold leading-relaxed ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {AIRNEXT_DEFINITION}
+                </p>
+                <ol className={`mt-5 space-y-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {AIRNEXT_HOW_IT_WORKS.map((step, i) => (
+                    <li key={i} className="ai-howto-step flex gap-2">
+                      <span className="font-bold text-[#0071e3] shrink-0">{i + 1}.</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <h3 className={`text-2xl font-bold mb-2 text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>Perguntas frequentes</h3>
+              <p className={`text-center text-sm mb-8 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                Respostas diretas sobre cartão NFC, perfil digital, mensalidade e compatibilidade.
+              </p>
+              <div className="space-y-3" itemScope itemType="https://schema.org/FAQPage">
+                {AIRNEXT_FAQ.map((item, i) => (
+                  <details
+                    key={i}
+                    className={`group rounded-2xl ${isDark ? 'bg-[#121212] border-white/5 text-white' : 'bg-[#f5f5f7] border-gray-100 text-gray-900'} border px-6 py-5 cursor-pointer transition-all`}
+                    itemScope
+                    itemProp="mainEntity"
+                    itemType="https://schema.org/Question"
+                  >
+                    <summary className="flex items-center justify-between list-none font-semibold gap-3">
+                      <span itemProp="name">{item.question}</span>
+                      <span className="text-gray-400 text-xl transition-transform group-open:rotate-45 shrink-0">+</span>
                     </summary>
-                    <p className={`text-sm ${isDark ? 'text-gray-400 border-white/10' : 'text-gray-600 border-gray-100'} leading-relaxed mt-3 pt-3 border-t`}>{item.a}</p>
+                    <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                      <p
+                        itemProp="text"
+                        className={`ai-faq-answer text-sm ${isDark ? 'text-gray-400 border-white/10' : 'text-gray-600 border-gray-100'} leading-relaxed mt-3 pt-3 border-t`}
+                      >
+                        {item.answer}
+                      </p>
+                    </div>
                   </details>
                 ))}
               </div>
@@ -3771,10 +3915,14 @@ export default function LandingPage() {
           <div className={`border-t pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] ${
             isDark ? 'border-gray-800 text-gray-500' : 'border-gray-200 text-gray-400'
           }`}>
+            <div className="mb-6 flex justify-center sm:justify-start">
+              <PreferredSourcesCTA variant="banner" dark={isDark} className="w-full max-w-xl" />
+            </div>
             <p>© 2026 AirNext Tecnologia LTDA. Todos os direitos reservados.</p>
-            <div className="flex gap-6">
-              <a href="#" className={`hover:text-green-500 transition`}>Privacidade</a>
-              <a href="#" className={`hover:text-green-500 transition`}>Termos de Uso</a>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a href="/politica-de-privacidade" className={`hover:text-green-500 transition`}>Privacidade</a>
+              <a href="/termos-de-uso" className={`hover:text-green-500 transition`}>Termos de Uso</a>
+              <a href="/politica-de-cookies" className={`hover:text-green-500 transition`}>Cookies</a>
               <button onClick={() => setCookieSettingsOpen(true)} className={`hover:text-green-500 transition`}>Configurações de Cookies</button>
             </div>
           </div>

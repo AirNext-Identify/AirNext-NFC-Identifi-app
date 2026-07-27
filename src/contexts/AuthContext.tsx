@@ -9,6 +9,13 @@ import {
 } from 'react';
 
 import { supabase } from '../lib/supabase';
+import {
+  EMPTY_CONSENT_STATUS,
+  flushPendingConsents,
+  getConsentStatus,
+  hasCurrentRequiredConsents,
+  type ConsentStatus,
+} from '../lib/consents';
 import { mapProduct } from '../lib/mapProduct';
 import { getPublicProfile, recordVisit } from '../lib/publicApi';
 import { generateActivationCode } from '../lib/adminUtils';
@@ -104,6 +111,10 @@ interface Ctx {
   // Admin actions
   adminCreateBatch: (type: ProductType, qty: number, loteName: string) => string[];
   adminBlockProduct: (productId: string) => Promise<void>;
+
+  /** Status dos consentimentos legais (versão atual). */
+  consentStatus: ConsentStatus;
+  refreshConsents: () => Promise<ConsentStatus>;
 }
 
 const AuthContext = createContext<Ctx | undefined>(undefined);
@@ -212,10 +223,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [adminDataLoaded, setAdminDataLoaded] = useState(false);
   const [blockedReason, setBlockedReason] = useState<string | null>(null);
+  const [consentStatus, setConsentStatus] = useState<ConsentStatus>(EMPTY_CONSENT_STATUS);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const clearBlockedReason = useCallback(() => setBlockedReason(null), []);
+
+  const refreshConsents = useCallback(async (): Promise<ConsentStatus> => {
+    if (!user?.id) {
+      const empty = { ...EMPTY_CONSENT_STATUS, loading: false };
+      setConsentStatus(empty);
+      return empty;
+    }
+    setConsentStatus((prev) => ({ ...prev, loading: true }));
+    const status = await getConsentStatus(user.id);
+    setConsentStatus(status);
+    return status;
+  }, [user?.id]);
 
   // ─── Bloqueio/suspensão de conta ────────────────────────────────────────
   // customer_profiles.status é o status COMERCIAL controlado pelo painel
@@ -298,6 +322,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearTabSessionNotified();
     setUser(null); setAllProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
     setAdminUsers([]); setAdminProducts([]); setFeedbacks([]); setAdminDataLoaded(false);
+    setConsentStatus({ ...EMPTY_CONSENT_STATUS, loading: false });
   }, []);
 
   // ─── CARGA CONSOLIDADA ─────────────────────────────────────────────────
@@ -564,6 +589,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const activateProduct = useCallback(async (code: string) => {
     if (!user) return { ok: false, error: 'Usuário não autenticado' };
+    // Defesa em profundidade: não ativa produto sem consentimento da versão atual.
+    const consentsOk = await hasCurrentRequiredConsents(user.id);
+    if (!consentsOk) {
+      return {
+        ok: false,
+        error: 'Aceite a Política de Privacidade e os Termos de Uso antes de ativar o produto.',
+      };
+    }
     const cleanCode = code.trim().replace(/\s+/g, '').toUpperCase();
     const { data, error } = await supabase.from('products').select('*').eq('code', cleanCode);
     const product = data?.[0];
@@ -809,6 +842,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!session?.user) {
         setUser(null); setAllProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
         setAdminUsers([]); setAdminProducts([]); setFeedbacks([]); setAdminDataLoaded(false);
+        setConsentStatus({ ...EMPTY_CONSENT_STATUS, loading: false });
         setLoading(false);
         return;
       }
@@ -844,6 +878,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await loadUserData(u.id);
       // loadAdminData NÃO roda mais aqui — é carregado sob demanda quando o
       // admin efetivamente entra em /admin (ver AdminLayout.tsx).
+
+      // Consentimentos: grava aceites pendentes do OAuth (Google) e avalia
+      // se a versão atual dos documentos obrigatórios está aceita.
+      try {
+        const flushed = await flushPendingConsents(u.id);
+        const status = flushed || (await getConsentStatus(u.id));
+        if (!cancelled) setConsentStatus(status);
+      } catch {
+        if (!cancelled) setConsentStatus({ ...EMPTY_CONSENT_STATUS, loading: false });
+      }
 
       // Só registra "novo login" quando o evento é SIGNED_IN E esta aba
       // ainda não notificou este usuário. O marcador é setado assim que a
@@ -941,6 +985,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user, products: allProducts, allProducts, visits, notifications, unreadCount,
     loading, hasProfile, adminUsers, adminProducts, feedbacks, adminDataLoaded,
     blockedReason, clearBlockedReason,
+    consentStatus, refreshConsents,
     login, register, loginWithGoogle, logout, activateProduct, setupProfile,
     updateProfile, updateTheme, updateVisibility, getPublicProfile, loadProducts, loadAdminData,
     markNotificationsRead, deleteNotification, clearAllNotifications, requestAccountDeletion, recordVisit,
@@ -948,6 +993,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }), [
     user, allProducts, visits, notifications, unreadCount, loading, hasProfile,
     adminUsers, adminProducts, feedbacks, adminDataLoaded, blockedReason, clearBlockedReason,
+    consentStatus, refreshConsents,
     login, register, loginWithGoogle, logout, activateProduct, setupProfile, updateProfile,
     updateTheme, updateVisibility, loadProducts, loadAdminData,
     markNotificationsRead, deleteNotification, clearAllNotifications, requestAccountDeletion,

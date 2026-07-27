@@ -98,6 +98,8 @@ import { BrandIcon } from '../components/Icons';
 import { useToast } from '../components/Toast';
 import { Modal } from '../components/Modal';
 import { useState, useEffect, useRef } from 'react';
+import { Seo } from '../components/Seo';
+import { absoluteUrl, SITE_NAME } from '../config/seo';
 import { getLayoutClasses, ProfileLayout } from '../lib/layout';
 import { getFontOption, loadGoogleFont } from '../lib/fonts';
 import { PUZZLE_PATTERN_BG } from '../lib/patterns';
@@ -377,6 +379,51 @@ export default function PublicProfile() {
     loadGoogleFont(product?.profileData?.__fontFamily);
   }, [product]);
 
+  // Scroll reveal — SEMPRE chamado (Rules of Hooks). Só observa o DOM
+  // quando o perfil público já está montado.
+  useEffect(() => {
+    if (loading || isPrivate || notFound || !product) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let io: IntersectionObserver | null = null;
+    let cancelled = false;
+
+    const run = () => {
+      if (cancelled) return;
+      const nodes = Array.from(document.querySelectorAll('[data-pp-reveal]'));
+      if (!nodes.length) return;
+      if (reduce) {
+        nodes.forEach((n) => n.classList.add('scroll-reveal-visible'));
+        return;
+      }
+      requestAnimationFrame(() => {
+        if (nodes[0]) nodes[0].classList.add('scroll-reveal-visible');
+      });
+      io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('scroll-reveal-visible');
+              io?.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -6% 0px' }
+      );
+      nodes.forEach((n, i) => {
+        n.classList.add('scroll-reveal-delay-' + ((i % 4) + 1));
+        io?.observe(n);
+      });
+    };
+
+    // Aguarda o paint dos blocos após o loading
+    const t = window.setTimeout(run, 50);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+      io?.disconnect();
+    };
+  }, [loading, isPrivate, notFound, product, product?.category, product?.profileData?.__sosMode]);
+
   if (loading) return <LoadingScreen />;
 
   if (isPrivate) return (
@@ -561,10 +608,10 @@ export default function PublicProfile() {
         className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-4 py-5"
       >
         {carouselItems.map((m: any, i: number) => (
-          <div key={m.id} className={`shrink-0 snap-center ${cat === 'BUSINESS' ? 'w-[90%] sm:w-[440px]' : 'w-[78%] sm:w-72'}`}>
+          <div key={m.id} className={`shrink-0 snap-center ${cat === 'BUSINESS' ? 'w-[90%] sm:w-[440px]' : (cat === 'KIDS' || cat === 'TEA') ? 'w-[88%] sm:w-[340px]' : 'w-[78%] sm:w-72'}`}>
             <button
               onClick={() => m.type === 'image' ? setLightboxIndex(i) : window.open(m.url, '_blank')}
-              className={`group/img relative w-full overflow-hidden shadow-xl active:scale-[0.98] transition-transform block ${cat === 'BUSINESS' ? 'aspect-[4/3] sm:aspect-[16/11]' : 'aspect-[4/3]'}`}
+              className={`group/img relative w-full overflow-hidden shadow-xl active:scale-[0.98] transition-transform block ${cat === 'BUSINESS' ? 'aspect-[4/3] sm:aspect-[16/11]' : (cat === 'KIDS' || cat === 'TEA') ? 'aspect-[5/4] sm:aspect-[4/3]' : 'aspect-[4/3]'}`}
               style={{ borderRadius: customBr }}
             >
               {m.type === 'image'
@@ -738,9 +785,13 @@ export default function PublicProfile() {
 
   // Chaves promovidas para o grid de "Resumo Rápido" do perfil PET — ficam
   // de fora da lista detalhada de "Mais Informações" para não duplicar.
-  const petStatKeys = ['idade', 'peso', 'raca', 'sexo'];
-  const petStatLabels: Record<string, string> = { idade: 'Idade', peso: 'Peso', raca: 'Raça', sexo: 'Sexo' };
-  const petStatIcons: Record<string, any> = { idade: Cake, peso: Weight, raca: PawPrint, sexo: Info };
+  const petStatKeys = ['idade', 'peso', 'raca', 'sexo', 'cor', 'microchip'];
+  const petStatLabels: Record<string, string> = {
+    idade: 'Idade', peso: 'Peso', raca: 'Raça', sexo: 'Sexo', cor: 'Pelagem', microchip: 'Microchip',
+  };
+  const petStatIcons: Record<string, any> = {
+    idade: Cake, peso: Weight, raca: PawPrint, sexo: Info, cor: Palette, microchip: Fingerprint,
+  };
 
   const maisInfoBlock = (() => {
     const infoFieldsByCategory: Record<string, { key: string; label: string }[]> = {
@@ -802,29 +853,72 @@ export default function PublicProfile() {
       f => d[f.key] && !hidden.includes(f.key) && !(cat === 'PET' && petStatKeys.includes(f.key))
     );
     if (fields.length === 0) return null;
+
+    const isBento = cat === 'KIDS' || cat === 'TEA' || cat === 'SENIOR';
+    // Campos longos ocupam largura total no grid
+    const wideKeys = new Set(['observacoes', 'alergias', 'medicamentos', 'medicacoes', 'comorbidades', 'terapias', 'preferenciaComunicacao']);
+
     return (
-      <div className="px-5 py-5" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
-        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-3`} style={labelStyle}>Mais Informações</p>
-        <div className="space-y-2">
-          {fields.map(f => {
-            const FIcon = getFieldIcon(f.key);
-            return (
-              <div
-                key={f.key}
-                className="group flex items-center gap-4 px-4 py-3.5 transition-all duration-300 hover:shadow-md"
-                style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', borderRadius: customBr }}
-              >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${primaryColor}20` }}>
-                  <FIcon className="h-4 w-4" style={{ color: primaryColor }} />
+      <div className="px-5 py-6" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-4`} style={labelStyle}>
+          {cat === 'KIDS' ? 'Sobre a criança' : cat === 'TEA' ? 'Informações essenciais' : cat === 'SENIOR' ? 'Cuidados e saúde' : 'Mais Informações'}
+        </p>
+        {isBento ? (
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+            {fields.map((f, idx) => {
+              const FIcon = getFieldIcon(f.key);
+              const wide = wideKeys.has(f.key) || (fields.length % 2 === 1 && idx === fields.length - 1);
+              return (
+                <div
+                  key={f.key}
+                  className={`group relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${wide ? 'col-span-2' : ''}`}
+                  style={{
+                    backgroundColor: isLightTheme ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.06)',
+                    borderRadius: typeof customBr === 'number' ? customBr + 4 : customBr,
+                    border: isLightTheme ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
+                    padding: wide ? '1.1rem 1.15rem' : '1rem 0.9rem',
+                  }}
+                >
+                  <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full opacity-30 blur-2xl pointer-events-none"
+                    style={{ background: primaryColor }} />
+                  <div className={`flex ${wide ? 'items-start gap-3.5' : 'flex-col gap-3'}`}>
+                    <div
+                      className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105"
+                      style={{ backgroundColor: `${primaryColor}22` }}
+                    >
+                      <FIcon className="h-4.5 w-4.5" style={{ color: primaryColor }} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-[10px] font-bold uppercase tracking-wider ${th.muted} mb-1`} style={labelStyle}>{f.label}</p>
+                      <p className={`text-sm font-semibold ${th.text} leading-snug`} style={mainTextStyle}>{d[f.key]}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-[10px] font-bold uppercase tracking-wider ${th.muted}`} style={labelStyle}>{f.label}</p>
-                  <p className={`text-sm font-semibold ${th.text}`} style={mainTextStyle}>{d[f.key]}</p>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {fields.map(f => {
+              const FIcon = getFieldIcon(f.key);
+              return (
+                <div
+                  key={f.key}
+                  className="group flex items-center gap-4 px-4 py-3.5 transition-all duration-300 hover:shadow-md"
+                  style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', borderRadius: customBr }}
+                >
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${primaryColor}20` }}>
+                    <FIcon className="h-4 w-4" style={{ color: primaryColor }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-[10px] font-bold uppercase tracking-wider ${th.muted}`} style={labelStyle}>{f.label}</p>
+                    <p className={`text-sm font-semibold ${th.text}`} style={mainTextStyle}>{d[f.key]}</p>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   })();
@@ -835,45 +929,92 @@ export default function PublicProfile() {
   const petStatsBlock = (() => {
     if (cat !== 'PET') return null;
     const stats = petStatKeys.filter(k => d[k] && !hidden.includes(k));
-    if (stats.length === 0) return null;
-    const tutorContact = d.whatsapp || d.telefone;
+    const tutorWa = (d.whatsappTutor || d.whatsapp || d.telefone || '').replace(/\D/g, '');
+    const healthBits = [
+      d.alergias && { label: 'Alergias', value: d.alergias, icon: AlertTriangle },
+      d.medicamentos && { label: 'Medicamentos', value: d.medicamentos, icon: Pill },
+      d.vacinas && { label: 'Vacinas', value: d.vacinas, icon: Syringe },
+      d.veterinario && { label: 'Veterinário', value: d.veterinario, icon: Stethoscope },
+    ].filter(Boolean) as { label: string; value: string; icon: any }[];
+    if (stats.length === 0 && !tutorWa && healthBits.length === 0) return null;
     return (
-      <div className="px-5 py-5" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
-        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-3`} style={labelStyle}>Resumo Rápido</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {stats.map(k => {
-            const Icon = petStatIcons[k];
-            return (
-              <div
-                key={k}
-                className="group flex flex-col items-center text-center gap-2 py-5 px-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                style={{
-                  borderRadius: customBr,
-                  background: isLightTheme
-                    ? `linear-gradient(155deg, ${primaryColor}14, ${secondaryColor}0c)`
-                    : `linear-gradient(155deg, ${primaryColor}22, ${secondaryColor}14)`,
-                  border: `1px solid ${primaryColor}28`,
-                }}
-              >
-                <div
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-md"
-                  style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
-                >
-                  <Icon className="h-5 w-5 text-white" />
-                </div>
-                <p className={`text-[10px] font-bold uppercase tracking-wide ${th.muted}`} style={labelStyle}>{petStatLabels[k]}</p>
-                <p className={`text-base font-black ${th.text} leading-tight`} style={mainTextStyle}>{d[k]}</p>
-              </div>
-            );
-          })}
+      <div className="px-5 py-6 space-y-4" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>Resumo do pet</p>
+            <p className={`text-sm font-semibold ${th.text} mt-0.5`}>Identificação rápida</p>
+          </div>
+          {d.tutor && (
+            <span className={`text-[11px] font-medium ${th.muted} truncate max-w-[40%]`}>Tutor: {d.tutor}</span>
+          )}
         </div>
-        {tutorContact && (
+
+        {stats.length > 0 && (
+          <div className={`grid gap-2.5 ${stats.length <= 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'}`}>
+            {stats.map(k => {
+              const Icon = petStatIcons[k];
+              return (
+                <div
+                  key={k}
+                  className="group relative overflow-hidden flex flex-col gap-2.5 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+                  style={{
+                    borderRadius: typeof customBr === 'number' ? customBr + 4 : customBr,
+                    background: isLightTheme
+                      ? `linear-gradient(160deg, ${primaryColor}12, rgba(255,255,255,0.8))`
+                      : `linear-gradient(160deg, ${primaryColor}20, rgba(0,0,0,0.25))`,
+                    border: isLightTheme ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+                      style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
+                    >
+                      <Icon className="h-4 w-4 text-white" />
+                    </div>
+                    <p className={`text-[10px] font-bold uppercase tracking-wide ${th.muted}`} style={labelStyle}>{petStatLabels[k]}</p>
+                  </div>
+                  <p className={`text-[15px] font-black ${th.text} leading-snug`} style={mainTextStyle}>{d[k]}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {healthBits.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {healthBits.map((h) => {
+              const Icon = h.icon;
+              return (
+                <div
+                  key={h.label}
+                  className="flex items-start gap-3 p-3.5"
+                  style={{
+                    borderRadius: typeof customBr === 'number' ? customBr + 2 : 16,
+                    backgroundColor: isLightTheme ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.05)',
+                    border: isLightTheme ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.07)',
+                  }}
+                >
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${primaryColor}20` }}>
+                    <Icon className="h-4 w-4" style={{ color: primaryColor }} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className={`text-[10px] font-bold uppercase tracking-wide ${th.muted}`}>{h.label}</p>
+                    <p className={`text-sm font-semibold ${th.text} mt-0.5 leading-snug`}>{h.value}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {tutorWa && (
           <a
-            href={`https://wa.me/${tutorContact.replace(/\D/g, '')}`}
+            href={`https://wa.me/${tutorWa}`}
             onClick={() => trackClick('pet_contact_tutor')}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 w-full flex items-center justify-center gap-2 py-3.5 font-bold text-sm text-white shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+            className="w-full flex items-center justify-center gap-2 py-3.5 font-bold text-sm text-white shadow-lg transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
             style={{ borderRadius: customBr, background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
           >
             <MessageCircle className="h-4 w-4" /> Encontrei este pet — falar com o tutor
@@ -1167,10 +1308,12 @@ export default function PublicProfile() {
             <p className={`text-sm ${th.text} leading-relaxed italic flex-1 line-clamp-6`} style={mainTextStyle}>&ldquo;{t.texto}&rdquo;</p>
             <div className="flex items-center gap-2.5 mt-4 pt-3 border-t" style={{ borderColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)' }}>
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0"
                 style={{ background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})` }}
               >
-                {t.nome?.[0]?.toUpperCase() || '?'}
+                {t.foto
+                  ? <img src={t.foto} alt={t.nome || ''} className="w-full h-full object-cover" loading="lazy" />
+                  : (t.nome?.[0]?.toUpperCase() || '?')}
               </div>
               <p className={`text-xs font-bold ${th.muted} truncate`}>
                 {t.nome}{t.cargo ? <span className="font-normal"> · {t.cargo}</span> : null}
@@ -1657,43 +1800,83 @@ export default function PublicProfile() {
   const teaItemsFilled = TEA_ITEMS.filter(it => d[it.key]);
 
   const apoioTEABlock = (cat === 'TEA' && !hidden.includes('apoioTEA') && teaItemsFilled.length > 0) ? (
-    <div className="px-5 py-5" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
-      <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-3`} style={labelStyle}>Cartão de Apoio · TEA</p>
-      <button
-        onClick={() => setShowApoioTEA(v => !v)}
-        className="w-full flex items-center gap-4 px-4 py-4 transition-all active:scale-[0.98] hover:opacity-90"
-        style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.07)', borderRadius: customBr }}
+    <div className="px-5 py-6" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div>
+          <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>Cartão de Apoio · TEA</p>
+          <p className={`text-sm font-semibold ${th.text} mt-1`}>Orientações para quem está por perto</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowApoioTEA(v => !v)}
+          className="shrink-0 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95"
+          style={{
+            backgroundColor: `${primaryColor}20`,
+            color: primaryColor,
+          }}
+        >
+          {showApoioTEA ? 'Recolher' : 'Expandir'}
+        </button>
+      </div>
+
+      {/* Destaque principal — sempre visível */}
+      <div
+        className="relative overflow-hidden mb-3 p-5"
+        style={{
+          borderRadius: typeof customBr === 'number' ? customBr + 6 : 22,
+          background: isLightTheme
+            ? `linear-gradient(145deg, ${primaryColor}18, rgba(255,255,255,0.85))`
+            : `linear-gradient(145deg, ${primaryColor}28, rgba(0,0,0,0.35))`,
+          border: isLightTheme ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
+        }}
       >
-        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${primaryColor}20` }}>
-          <Puzzle className="h-5 w-5" style={{ color: primaryColor }} />
+        <div className="absolute -right-6 -bottom-8 h-28 w-28 rounded-full opacity-25 blur-3xl pointer-events-none" style={{ background: primaryColor }} />
+        <div className="relative flex items-start gap-3.5">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${primaryColor}30` }}>
+            <Puzzle className="h-6 w-6" style={{ color: primaryColor }} />
+          </div>
+          <div className="min-w-0">
+            <p className={`text-[11px] font-bold uppercase tracking-wide ${th.muted}`}>Grau de suporte</p>
+            <p className={`text-lg font-black ${th.text} mt-0.5 leading-tight`}>
+              {d.grauSuporte || d.comoAjudar || 'Toque em expandir para ver como ajudar'}
+            </p>
+            {d.comoAjudar && d.grauSuporte && (
+              <p className={`text-sm ${th.muted} mt-2 leading-relaxed`}>{d.comoAjudar}</p>
+            )}
+          </div>
         </div>
-        <div className="flex-1 text-left min-w-0">
-          <p className={`text-sm font-bold ${th.text}`}>{d.grauSuporte ? `Grau de Suporte: ${d.grauSuporte}` : 'Como me ajudar'}</p>
-          <p className={`text-[11px] ${th.muted}`}>{showApoioTEA ? 'Fechar' : 'Toque para ver orientações importantes'}</p>
-        </div>
-        <ChevronRight className={`h-4 w-4 ${th.muted} transition-transform shrink-0 ${showApoioTEA ? 'rotate-90' : ''}`} />
-      </button>
+      </div>
 
       {showApoioTEA && (
-        <div className="mt-3 space-y-2.5">
-          {teaItemsFilled.map(it => {
-            const Icon = it.icon;
-            return (
-              <div
-                key={it.key}
-                className="flex items-start gap-3 p-3.5 rounded-2xl"
-                style={{ backgroundColor: isLightTheme ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', borderRadius: customBr }}
-              >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ backgroundColor: `${primaryColor}18` }}>
-                  <Icon className="h-4 w-4" style={{ color: primaryColor }} />
-                </div>
-                <div className="min-w-0">
-                  <p className={`text-[11px] font-bold uppercase tracking-wide ${th.muted}`} style={labelStyle}>{it.label}</p>
-                  <p className={`text-sm ${th.text} leading-relaxed mt-0.5`}>{d[it.key]}</p>
-                </div>
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {teaItemsFilled
+            .filter(it => it.key !== 'grauSuporte' && !(it.key === 'comoAjudar' && d.grauSuporte))
+            .map(it => {
+              const Icon = it.icon;
+              const isPriority = ['gatilhos', 'estrategiasAcalmar', 'riscoFuga', 'sensibilidades'].includes(it.key);
+              return (
+                <button
+                  type="button"
+                  key={it.key}
+                  className={`text-left group relative overflow-hidden p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98] ${isPriority ? 'sm:col-span-2' : ''}`}
+                  style={{
+                    backgroundColor: isLightTheme ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.06)',
+                    borderRadius: typeof customBr === 'number' ? customBr + 4 : 18,
+                    border: isLightTheme ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: `${primaryColor}20` }}>
+                      <Icon className="h-4.5 w-4.5" style={{ color: primaryColor }} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className={`text-[10px] font-bold uppercase tracking-wider ${th.muted}`} style={labelStyle}>{it.label}</p>
+                      <p className={`text-sm font-semibold ${th.text} leading-relaxed mt-1`}>{d[it.key]}</p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
         </div>
       )}
     </div>
@@ -1722,11 +1905,25 @@ export default function PublicProfile() {
   };
   const orderedBlockIds = [...new Set([...blockOrder, ...defaultBlockOrder])].filter(id => !hiddenBlockIds.includes(id));
 
+  const profileSeoTitle = name ? `${name} · ${SITE_NAME}` : `Perfil · ${SITE_NAME}`;
+  const profileSeoDesc =
+    (bio && String(bio).slice(0, 160)) ||
+    (d.descricao && String(d.descricao).slice(0, 160)) ||
+    `Perfil digital ${cat} na ${SITE_NAME} — contatos e informações em um toque.`;
+  const profileSeoImage = d.foto || d.capa || undefined;
+
   return (
     <div
       className={`min-h-screen ${bgClass} flex flex-col items-center sm:py-10 relative overflow-x-hidden`}
       style={{ fontFamily: fontOption.family }}
     >
+      <Seo
+        title={profileSeoTitle}
+        description={profileSeoDesc}
+        image={profileSeoImage}
+        type="profile"
+        path={typeof window !== 'undefined' ? window.location.pathname : undefined}
+      />
       {/* Camada de fundo fixa ao viewport — evita que a imagem de fundo
           seja redimensionada/"esticada" com base na altura total (rolável)
           do perfil, o que fazia a imagem aparecer sempre ampliada/desalinhada. */}
@@ -1752,46 +1949,61 @@ export default function PublicProfile() {
         <div className="absolute inset-0 pointer-events-none" style={{ backdropFilter: `blur(${blurAmount / 8}px)` }} />
       )}
 
-      {/* SOS Banner — alerta premium com gradiente, glass e CTA direto */}
+      {/* SOS Banner — alerta prioritário com pulso, sheen e CTAs */}
       {sosMode && (() => {
-        const sosPhone = d.telefoneResponsavel || d.telefoneEmerg1 || d.contatoEmergencia1 || d.telefoneResp2 || d.whatsapp || d.telefone;
+        const sosPhone = d.telefoneResponsavel || d.telefoneEmerg1 || d.contatoEmergencia1 || d.telefoneResp1 || d.telefoneResp2 || d.whatsapp || d.telefone;
+        const sosWa = (d.whatsappTutor || d.whatsapp || '').replace(/\D/g, '');
         const sosLabel = cat === 'PET' ? 'Pet desaparecido'
-          : cat === 'KIDS' ? 'Criança perdida'
+          : cat === 'KIDS' ? 'Criança precisa de ajuda'
+          : cat === 'TEA' ? 'Assistência necessária'
+          : cat === 'SENIOR' ? 'Emergência — idoso'
           : 'Emergência';
         const sosSub = cat === 'PET' ? 'Ajude a reunir este pet com o tutor'
           : cat === 'KIDS' ? 'Contate os responsáveis imediatamente'
+          : cat === 'TEA' ? 'Leia as orientações e contate o responsável'
           : 'Contate os responsáveis imediatamente';
         return (
           <div className="sticky top-0 z-50 w-full">
             <div
-              className="relative overflow-hidden px-4 py-3 sm:py-3.5 flex items-center justify-center gap-3 sm:gap-4 flex-wrap"
+              className="relative overflow-hidden px-4 py-3.5 sm:py-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5"
               style={{
-                background: 'linear-gradient(90deg, #dc2626 0%, #ef4444 45%, #dc2626 100%)',
-                backdropFilter: 'blur(20px)',
-                boxShadow: '0 4px 24px rgba(220,38,38,0.35)',
+                background: 'linear-gradient(105deg, #7f1d1d 0%, #dc2626 35%, #ef4444 55%, #b91c1c 100%)',
+                boxShadow: '0 8px 32px rgba(185,28,28,0.45)',
               }}
             >
-              {/* leve textura de brilho para efeito glass */}
-              <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-              <div className="relative flex items-center gap-2.5">
-                <span className="relative flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/25 opacity-75" />
-                  <AlertTriangle className="relative h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" />
+              <div className="absolute inset-0 sos-banner-sheen pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.18),transparent_55%)] pointer-events-none" />
+              <div className="relative flex items-center gap-3 min-w-0">
+                <span className="sos-ring relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/35 shadow-inner">
+                  <AlertTriangle className="relative h-5 w-5 text-white" />
                 </span>
-                <div className="text-left leading-tight">
-                  <p className="text-white font-black text-xs sm:text-sm uppercase tracking-wide">{sosLabel}</p>
-                  <p className="text-white/85 text-[11px] sm:text-xs font-medium">{sosSub}</p>
+                <div className="text-left leading-tight min-w-0">
+                  <p className="text-white font-black text-sm sm:text-[15px] uppercase tracking-[0.06em]">{sosLabel}</p>
+                  <p className="text-white/90 text-xs sm:text-[13px] font-medium mt-0.5">{sosSub}</p>
                 </div>
               </div>
-              {sosPhone && (
-                <a
-                  href={`tel:${sosPhone}`}
-                  onClick={() => trackClick('sos_call')}
-                  className="relative flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-red-600 text-xs sm:text-sm font-black shadow-md hover:bg-white/90 active:scale-95 transition-all duration-200"
-                >
-                  <Phone className="h-3.5 w-3.5" /> Ligar agora
-                </a>
-              )}
+              <div className="relative flex flex-wrap items-center justify-center gap-2">
+                {sosPhone && (
+                  <a
+                    href={`tel:${sosPhone}`}
+                    onClick={() => trackClick('sos_call')}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white text-red-700 text-xs sm:text-sm font-black shadow-lg shadow-black/20 hover:bg-red-50 active:scale-95 transition-all"
+                  >
+                    <Phone className="h-3.5 w-3.5" /> Ligar agora
+                  </a>
+                )}
+                {sosWa && (
+                  <a
+                    href={`https://wa.me/${sosWa}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackClick('sos_whatsapp')}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-black/25 text-white text-xs sm:text-sm font-bold border border-white/25 backdrop-blur-md hover:bg-black/35 active:scale-95 transition-all"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -1809,7 +2021,13 @@ export default function PublicProfile() {
 
       {/* Main card wrapper — perfis BUSINESS ganham uma largura maior em
           telas médias/grandes, deixando as seções mais amplas e "SaaS-like". */}
-      <div className={`${cat === 'BUSINESS' ? layoutClasses.wrapper.replace('max-w-[420px]', 'max-w-[420px] md:max-w-2xl lg:max-w-4xl').replace('sm:max-w-3xl', 'sm:max-w-3xl lg:max-w-5xl') : layoutClasses.wrapper} sm:pt-0 pt-4 fade-up`}>
+      <div className={`${
+        cat === 'BUSINESS'
+          ? layoutClasses.wrapper.replace('max-w-[420px]', 'max-w-[420px] md:max-w-2xl lg:max-w-4xl').replace('sm:max-w-3xl', 'sm:max-w-3xl lg:max-w-5xl')
+          : (cat === 'KIDS' || cat === 'TEA' || cat === 'PET')
+            ? layoutClasses.wrapper.replace('max-w-[420px]', 'max-w-[420px] sm:max-w-lg')
+            : layoutClasses.wrapper
+      } sm:pt-0 pt-4 fade-up`}>
 
         {/* ── PROFILE HEADER ── */}
         <div className="overflow-hidden shadow-2xl" style={{ borderRadius: `${borderRadius + 6}px` }}>
@@ -1895,15 +2113,15 @@ export default function PublicProfile() {
               )}
             </div>
 
-            <h1 className={`text-2xl font-black ${th.text} leading-tight tracking-tight`} style={nameStyle}>{name}</h1>
+            <h1 className={`text-[1.65rem] sm:text-3xl font-black ${th.text} leading-[1.15] tracking-tight`} style={nameStyle}>{name}</h1>
             {cargo && (
-              <p className="text-sm font-semibold mt-1 tracking-wide" style={{ color: primaryColor }}>{cargo}</p>
+              <p className="text-sm sm:text-[15px] font-semibold mt-1.5 tracking-wide" style={{ color: primaryColor }}>{cargo}</p>
             )}
             {d.nomeEmpresa && cat !== 'BUSINESS' && (
-              <p className={`text-sm ${th.muted} mt-0.5`} style={bioStyle}>{d.nomeEmpresa}</p>
+              <p className={`text-sm ${th.muted} mt-1`} style={bioStyle}>{d.nomeEmpresa}</p>
             )}
             {bio && (
-              <p className={`text-sm ${th.muted} mt-4 leading-relaxed max-w-xs ${layout === 'left' || layout === 'right' ? '' : 'mx-auto'}`} style={bioStyle}>{bio}</p>
+              <p className={`text-sm sm:text-[15px] ${th.muted} mt-4 leading-relaxed max-w-sm ${layout === 'left' || layout === 'right' ? '' : 'mx-auto'}`} style={bioStyle}>{bio}</p>
             )}
 
             {/* CTA Row */}
@@ -1929,81 +2147,113 @@ export default function PublicProfile() {
 
           {/* ── BLOCOS REORDENÁVEIS (definidos pelo usuário no Estúdio de Perfil) ── */}
           {orderedBlockIds.map(id => (
-            <div key={id}>{BLOCK_MAP[id]}</div>
+            <div key={id} data-pp-reveal className="scroll-reveal">
+              {BLOCK_MAP[id]}
+            </div>
           ))}
 
 
-          {/* ── SOS EMERGENCY ── */}
-          {sosMode && (
-            <div className="px-5 py-5 bg-red-500/10 border-t border-red-500/20">
-              <p className="text-red-400 font-black text-sm mb-4 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" /> Contatos de Emergência
-              </p>
-              <div className="space-y-2">
-                {cat === 'PET' && d.whatsappTutor && (
-                  <a href={`https://wa.me/${d.whatsappTutor.replace(/\D/g, '')}`} target="_blank"
-                    className="flex items-center gap-3.5 p-4 bg-red-500/15 rounded-2xl active:scale-98 border border-red-500/20">
-                    <BrandIcon name="whatsapp" className="h-5 w-5 text-green-400 shrink-0" />
-                    <div>
-                      <p className="text-white font-bold text-sm">{d.tutor || 'Tutor'}</p>
-                      <p className="text-white/60 text-xs">{d.whatsappTutor}</p>
+          {/* ── SOS EMERGENCY — painel prioritário ── */}
+          {sosMode && (() => {
+            const contacts: { label: string; sub?: string; tel?: string; wa?: string; kind: 'call' | 'wa' }[] = [];
+            if (cat === 'PET' && d.whatsappTutor) {
+              contacts.push({ label: d.tutor || 'Tutor', sub: d.whatsappTutor, wa: d.whatsappTutor.replace(/\D/g, ''), kind: 'wa' });
+            }
+            if (cat === 'PET' && d.telefone && !d.whatsappTutor) {
+              contacts.push({ label: d.tutor || 'Tutor', sub: d.telefone, tel: d.telefone, kind: 'call' });
+            }
+            const pushTel = (label: string, tel?: string) => {
+              if (tel) contacts.push({ label, sub: tel, tel, kind: 'call' });
+            };
+            if (cat === 'KIDS' || cat === 'SENIOR' || cat === 'TEA') {
+              pushTel(d.responsavel1 || 'Responsável 1', d.telefoneResp1);
+              pushTel(d.responsavel2 || 'Responsável 2', d.telefoneResp2);
+              pushTel(d.responsavel || 'Responsável', d.telefoneResponsavel);
+              pushTel('Emergência 1', d.telefoneEmerg1 || d.contatoEmergencia1);
+              pushTel('Emergência 2', d.telefoneEmerg2 || d.contatoEmergencia2);
+            }
+            const tips: { title: string; body: string; tone: 'amber' | 'blue' | 'rose' }[] = [];
+            if (cat === 'PET' && d.recompensa) tips.push({ title: 'Recompensa', body: d.recompensa, tone: 'amber' });
+            if (d.comoAjudar) tips.push({ title: 'Como ajudar', body: d.comoAjudar, tone: 'blue' });
+            if (cat === 'TEA' && d.localHabitual) tips.push({ title: 'Local habitual / rotas', body: d.localHabitual, tone: 'blue' });
+            if (cat === 'TEA' && d.estrategiasAcalmar) tips.push({ title: 'Como acalmar', body: d.estrategiasAcalmar, tone: 'rose' });
+            if (cat === 'SENIOR' && d.medicacoes) tips.push({ title: 'Medicações', body: d.medicacoes, tone: 'rose' });
+            if ((cat === 'KIDS' || cat === 'SENIOR') && d.alergias) tips.push({ title: 'Alergias', body: d.alergias, tone: 'rose' });
+            if ((cat === 'KIDS' || cat === 'SENIOR') && d.tipoSanguineo) tips.push({ title: 'Tipo sanguíneo', body: d.tipoSanguineo, tone: 'rose' });
+
+            return (
+              <div className="relative border-t border-red-500/25 overflow-hidden"
+                style={{ background: 'linear-gradient(180deg, rgba(127,29,29,0.35) 0%, rgba(0,0,0,0.25) 100%)' }}>
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-400/60 to-transparent" />
+                <div className="px-5 py-6 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-red-500/25 ring-1 ring-red-400/40">
+                      <span className="absolute inset-0 rounded-2xl animate-ping bg-red-500/20" />
+                      <AlertTriangle className="relative h-5 w-5 text-red-300" />
                     </div>
-                  </a>
-                )}
-                {(cat === 'KIDS' || cat === 'SENIOR' || cat === 'TEA') && d.telefoneResp1 && (
-                  <a href={`tel:${d.telefoneResp1}`}
-                    className="flex items-center gap-3.5 p-4 bg-red-500/15 rounded-2xl border border-red-500/20">
-                    <Phone className="h-5 w-5 text-red-300 shrink-0" />
-                    <div>
-                      <p className="text-white font-bold text-sm">{d.responsavel1 || 'Responsável 1'}</p>
-                      <p className="text-white/60 text-xs">{d.telefoneResp1}</p>
-                    </div>
-                  </a>
-                )}
-                {(cat === 'KIDS' || cat === 'SENIOR') && d.telefoneResp2 && (
-                  <a href={`tel:${d.telefoneResp2}`}
-                    className="flex items-center gap-3.5 p-4 bg-red-500/15 rounded-2xl border border-red-500/20">
-                    <Phone className="h-5 w-5 text-red-300 shrink-0" />
-                    <div>
-                      <p className="text-white font-bold text-sm">{d.responsavel2 || 'Responsável 2'}</p>
-                      <p className="text-white/60 text-xs">{d.telefoneResp2}</p>
-                    </div>
-                  </a>
-                )}
-                {cat === 'TEA' && d.telefoneResponsavel && (
-                  <a href={`tel:${d.telefoneResponsavel}`}
-                    className="flex items-center gap-3.5 p-4 bg-red-500/15 rounded-2xl border border-red-500/20">
-                    <Phone className="h-5 w-5 text-red-300 shrink-0" />
-                    <div>
-                      <p className="text-white font-bold text-sm">{d.responsavel || 'Responsável'}</p>
-                      <p className="text-white/60 text-xs">{d.telefoneResponsavel}</p>
-                    </div>
-                  </a>
-                )}
-                {cat === 'PET' && d.recompensa && (
-                  <div className="p-4 rounded-2xl border-2 border-amber-400/40 flex items-center gap-3.5" style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.18), rgba(245,158,11,0.1))' }}>
-                    <span className="text-2xl shrink-0">🎁</span>
-                    <div>
-                      <p className="text-amber-300 font-black text-xs uppercase tracking-wide mb-0.5">Recompensa a quem encontrar</p>
-                      <p className="text-white font-semibold text-sm leading-relaxed">{d.recompensa}</p>
+                    <div className="min-w-0">
+                      <p className="text-red-200 font-black text-sm tracking-wide uppercase">Central de emergência</p>
+                      <p className="text-white/65 text-xs mt-1 leading-relaxed">
+                        Priorize o contato com os responsáveis. Informações abaixo ajudam a agir com segurança.
+                      </p>
                     </div>
                   </div>
-                )}
-                {cat === 'TEA' && d.localHabitual && (
-                  <div className="p-4 bg-blue-500/10 rounded-2xl border border-blue-500/20">
-                    <p className="text-blue-300 font-bold text-xs mb-1">Local habitual / rotas comuns:</p>
-                    <p className="text-white/70 text-sm leading-relaxed">{d.localHabitual}</p>
-                  </div>
-                )}
-                {d.comoAjudar && (
-                  <div className="p-4 bg-blue-500/10 rounded-2xl border border-blue-500/20">
-                    <p className="text-blue-300 font-bold text-xs mb-1">Como ajudar:</p>
-                    <p className="text-white/70 text-sm leading-relaxed">{d.comoAjudar}</p>
-                  </div>
-                )}
+
+                  {contacts.length > 0 && (
+                    <div className="grid gap-2.5">
+                      {contacts.map((c, i) => (
+                        <a
+                          key={`${c.label}-${i}`}
+                          href={c.kind === 'wa' ? `https://wa.me/${c.wa}` : `tel:${c.tel}`}
+                          target={c.kind === 'wa' ? '_blank' : undefined}
+                          rel={c.kind === 'wa' ? 'noopener noreferrer' : undefined}
+                          onClick={() => trackClick(c.kind === 'wa' ? 'sos_whatsapp' : 'sos_call')}
+                          className="group flex items-center gap-3.5 p-4 rounded-2xl border border-red-400/25 bg-red-500/10 hover:bg-red-500/18 active:scale-[0.98] transition-all"
+                        >
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white">
+                            {c.kind === 'wa'
+                              ? <BrandIcon name="whatsapp" className="h-5 w-5 text-green-400" />
+                              : <Phone className="h-5 w-5 text-red-200" />}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-white font-bold text-sm truncate">{c.label}</p>
+                            {c.sub && <p className="text-white/55 text-xs mt-0.5 truncate">{c.sub}</p>}
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-wider text-red-200/90 bg-red-500/20 px-2.5 py-1 rounded-full">
+                            {c.kind === 'wa' ? 'WhatsApp' : 'Ligar'}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {tips.length > 0 && (
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      {tips.map((t) => (
+                        <div
+                          key={t.title}
+                          className="p-4 rounded-2xl border"
+                          style={{
+                            borderColor: t.tone === 'amber' ? 'rgba(251,191,36,0.35)' : t.tone === 'rose' ? 'rgba(251,113,133,0.3)' : 'rgba(96,165,250,0.28)',
+                            background: t.tone === 'amber'
+                              ? 'linear-gradient(135deg, rgba(251,191,36,0.16), rgba(245,158,11,0.08))'
+                              : t.tone === 'rose'
+                                ? 'rgba(244,63,94,0.1)'
+                                : 'rgba(59,130,246,0.1)',
+                          }}
+                        >
+                          <p className={`font-black text-[11px] uppercase tracking-wide mb-1 ${
+                            t.tone === 'amber' ? 'text-amber-300' : t.tone === 'rose' ? 'text-rose-300' : 'text-blue-300'
+                          }`}>{t.title}</p>
+                          <p className="text-white/80 text-sm leading-relaxed">{t.body}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ── RODAPÉ INSTITUCIONAL (CNPJ / Razão Social) — só BUSINESS ── */}
           {cat === 'BUSINESS' && (d.cnpj || d.razaoSocial) && (

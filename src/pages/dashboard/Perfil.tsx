@@ -48,7 +48,7 @@ import {
   Newspaper,
   ArrowUpRight,
   Flame
-} from 'lucide-react';
+, PawPrint } from 'lucide-react';
 
 import { useToast } from '../../components/Toast';
 import { BrandIcon } from '../../components/Icons';
@@ -289,6 +289,7 @@ const STEPS = [
 type BlockDef = { id: string; label: string; icon: any; catFilter?: (cat: string) => boolean };
 const BLOCK_DEFS: BlockDef[] = [
   { id: 'midia', label: 'Galeria de Mídia', icon: ImageIcon },
+  { id: 'petStats', label: 'Resumo do Pet', icon: PawPrint, catFilter: c => c === 'PET' },
   { id: 'social', label: 'Redes & Contato', icon: Link2 },
   { id: 'contato', label: 'Informações de Contato', icon: Phone },
   { id: 'maisInfo', label: 'Mais Informações', icon: Info },
@@ -371,7 +372,11 @@ function PhonePreview({
         </div>
 
         <p className="text-sm font-black leading-tight" style={nameStyle}>{name}</p>
-        {cargo && <p className="text-[8px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: primaryColor || '#3b82f6' }}>{cargo}</p>}
+        {(cargo || (cat === 'PET' && form.raca) || (cat === 'TEA' && form.grauSuporte)) && (
+          <p className="text-[8px] font-semibold uppercase tracking-wider mt-0.5" style={{ color: primaryColor || '#3b82f6' }}>
+            {cargo || (cat === 'PET' ? [form.raca, form.idade].filter(Boolean).join(' · ') : form.grauSuporte)}
+          </p>
+        )}
         {bio && <p className={`text-[8px] mt-1 line-clamp-2 px-2 ${t.sub}`} style={bioStyle}>{bio}</p>}
       </div>
 
@@ -415,11 +420,46 @@ function PhonePreview({
             </div>
           ) : null;
 
-          const contatoBlock = (form.telefone || form.email || form.site || form.endereco) ? (
+          const petStatsBlock = cat === 'PET' ? (() => {
+            const stats = [
+              { key: 'idade', label: 'Idade' },
+              { key: 'peso', label: 'Peso' },
+              { key: 'raca', label: 'Raça' },
+              { key: 'sexo', label: 'Sexo' },
+              { key: 'cor', label: 'Pelagem' },
+            ].filter(s => form[s.key]);
+            if (stats.length === 0 && !form.tutor) return null;
+            return (
+              <div className="space-y-1.5">
+                <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>Resumo do pet</p>
+                {stats.length > 0 && (
+                  <div className="grid grid-cols-2 gap-1">
+                    {stats.map(s => (
+                      <div key={s.key} className="px-2 py-1.5 text-center" style={{ backgroundColor: cardBgSoft, borderRadius: br, border: `1px solid ${primaryColor || '#3b82f6'}28` }}>
+                        <p className="text-[6px] font-bold uppercase opacity-60">{s.label}</p>
+                        <p className="text-[8px] font-black mt-0.5">{form[s.key]}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {form.tutor && (
+                  <div className="px-2 py-1.5" style={{ backgroundColor: cardBgSoft, borderRadius: br }}>
+                    <p className="text-[6px] font-bold uppercase opacity-60">Tutor</p>
+                    <p className="text-[8px] font-bold">{form.tutor}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })() : null;
+
+          const contatoBlock = (form.telefone || form.email || form.site || form.endereco || form.whatsappTutor || form.telefoneResponsavel || form.telefoneResp1) ? (
             <div className="space-y-1">
-              <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>Informações</p>
+              <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>Contato</p>
               {[
                 { key: 'telefone', label: 'Telefone' },
+                { key: 'whatsappTutor', label: 'WhatsApp Tutor' },
+                { key: 'telefoneResponsavel', label: 'Tel. Responsável' },
+                { key: 'telefoneResp1', label: 'Tel. Responsável' },
                 { key: 'email', label: 'E-mail' },
                 { key: 'site', label: 'Website' },
                 { key: 'endereco', label: 'Localização' },
@@ -433,18 +473,32 @@ function PhonePreview({
           ) : null;
 
           const maisInfoBlock = (() => {
-            const skip = new Set(['nome', 'nomeEmpresa', 'cargo', 'bio', 'descricao', 'dataFundacao', 'catalogo', 'chavePix', 'telefone', 'email', 'emailContato', 'cnpj', 'razaoSocial', 'site', 'endereco', 'whatsapp', 'foto', 'capa', 'googleReview', 'grauSuporte', 'tipoTEA', 'nivelComunicacao', 'gatilhos', 'estrategiasAcalmar', 'comoAjudar', 'itemConforto', 'riscoFuga', 'localHabitual', 'sensibilidades', ...SOCIAL_NETWORKS.map(s => s.id)]);
-            const extra = (FIELDS[cat] || []).filter(f => form[f.key] && !skip.has(f.key)).slice(0, 4);
+            // Campos já cobertos por header/contato/blocos dedicados — não duplicar
+            const skip = new Set([
+              'nome', 'nomeEmpresa', 'cargo', 'bio', 'descricao', 'dataFundacao', 'catalogo', 'chavePix',
+              'telefone', 'email', 'emailContato', 'cnpj', 'razaoSocial', 'site', 'endereco', 'whatsapp',
+              'whatsappTutor', 'foto', 'capa', 'googleReview',
+              // TEA: já no cartão de apoio
+              'grauSuporte', 'comoAjudar',
+              // PET: já no resumo rápido
+              ...(cat === 'PET' ? ['idade', 'peso', 'raca', 'sexo', 'cor'] : []),
+              ...SOCIAL_NETWORKS.map(s => s.id),
+            ]);
+            const extra = (FIELDS[cat] || []).filter(f => form[f.key] && !skip.has(f.key));
             if (extra.length === 0) return null;
             return (
               <div className="space-y-1">
-                <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>Mais Informações</p>
-                {extra.map(f => (
-                  <div key={f.key} className="flex items-center gap-1.5 px-2 py-1.5" style={{ backgroundColor: cardBgSoft, borderRadius: br }}>
-                    <span className="text-[7px] font-bold uppercase tracking-wide" style={{ color: primaryColor || '#3b82f6' }}>{f.label}:</span>
-                    <span className="text-[7px] truncate flex-1">{String(form[f.key]).slice(0, 40)}</span>
-                  </div>
-                ))}
+                <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>
+                  {cat === 'PET' ? 'Saúde & detalhes' : cat === 'TEA' ? 'Informações essenciais' : cat === 'KIDS' ? 'Sobre a criança' : 'Mais Informações'}
+                </p>
+                <div className={extra.length > 2 ? 'grid grid-cols-2 gap-1' : 'space-y-1'}>
+                  {extra.map(f => (
+                    <div key={f.key} className="flex flex-col gap-0.5 px-2 py-1.5" style={{ backgroundColor: cardBgSoft, borderRadius: br }}>
+                      <span className="text-[6px] font-bold uppercase tracking-wide" style={{ color: primaryColor || '#3b82f6' }}>{f.label}</span>
+                      <span className="text-[7px] font-semibold line-clamp-2 leading-snug">{String(form[f.key])}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             );
           })();
@@ -557,7 +611,12 @@ function PhonePreview({
                   </div>
                 )}
                 <p className="text-[7px] italic line-clamp-3">&ldquo;{deps[0].texto}&rdquo;</p>
-                <p className="text-[6px] font-bold mt-1 opacity-70">{deps[0].nome}{deps[0].cargo ? ` · ${deps[0].cargo}` : ''}</p>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <div className="w-5 h-5 rounded-full overflow-hidden flex items-center justify-center text-[6px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${primaryColor || '#3b82f6'}, ${secondaryColor || '#8b5cf6'})` }}>
+                    {deps[0].foto ? <img src={deps[0].foto} className="w-full h-full object-cover" alt="" /> : (deps[0].nome?.[0]?.toUpperCase() || '?')}
+                  </div>
+                  <p className="text-[6px] font-bold opacity-70 truncate">{deps[0].nome}{deps[0].cargo ? ` · ${deps[0].cargo}` : ''}</p>
+                </div>
               </div>
             </div>
           ) : null;
@@ -576,28 +635,34 @@ function PhonePreview({
             </div>
           ) : null;
 
-          const apoioTEABlock = (cat === 'TEA' && (form.grauSuporte || form.comoAjudar || form.gatilhos || form.estrategiasAcalmar)) ? (
+          const apoioTEABlock = (cat === 'TEA' && (form.grauSuporte || form.comoAjudar || form.gatilhos || form.estrategiasAcalmar || form.sensibilidades || form.nivelComunicacao)) ? (
             <div
-              className="relative overflow-hidden px-3 py-3"
+              className="relative overflow-hidden px-3 py-3 space-y-1.5"
               style={{ borderRadius: br, background: isLight ? `linear-gradient(155deg, ${primaryColor || '#3b82f6'}10, ${secondaryColor || '#8b5cf6'}10)` : `linear-gradient(155deg, ${primaryColor || '#3b82f6'}20, ${secondaryColor || '#8b5cf6'}16)`, border: `1px solid ${primaryColor || '#3b82f6'}30` }}
             >
-              <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>🧩 Cartão de Apoio</p>
-              {form.grauSuporte && <p className="text-[7px] font-semibold mt-1" style={{ color: primaryColor || '#3b82f6' }}>Grau de Suporte: {form.grauSuporte}</p>}
-              {form.comoAjudar && <p className="text-[7px] mt-1 leading-relaxed line-clamp-2">{form.comoAjudar}</p>}
+              <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>🧩 Cartão de Apoio · TEA</p>
+              {form.grauSuporte && <p className="text-[8px] font-black" style={{ color: primaryColor || '#3b82f6' }}>{form.grauSuporte}</p>}
+              {form.nivelComunicacao && <p className="text-[7px] opacity-80">Comunicação: {form.nivelComunicacao}</p>}
+              {form.comoAjudar && <p className="text-[7px] leading-relaxed line-clamp-2">{form.comoAjudar}</p>}
+              {form.gatilhos && <p className="text-[6px] opacity-70 line-clamp-1">Gatilhos: {form.gatilhos}</p>}
+              {form.estrategiasAcalmar && <p className="text-[6px] opacity-70 line-clamp-1">Acalmar: {form.estrategiasAcalmar}</p>}
             </div>
           ) : null;
 
-          const whatsappBlock = (form.whatsapp || form.telefone) ? (
+          const whatsappBlock = (form.whatsapp || form.whatsappTutor || form.telefone || form.telefoneResponsavel || form.telefoneResp1) ? (
             <div
               className={`w-full py-2 flex items-center justify-center gap-1.5 shadow ${buttonStyle || 'rounded-2xl'}`}
               style={{ backgroundColor: buttonColor || primaryColor || '#3b82f6', borderRadius: br }}
             >
-              <span className="text-[8px] font-bold text-white">Botão de Contato</span>
+              <span className="text-[8px] font-bold text-white">
+                {cat === 'PET' ? 'Falar com o tutor' : cat === 'TEA' || cat === 'KIDS' ? 'Contatar responsável' : 'Botão de Contato'}
+              </span>
             </div>
           ) : null;
 
           const BLOCK_MAP: Record<string, any> = {
             midia: midiaBlock,
+            petStats: petStatsBlock,
             social: socialBlock,
             contato: contatoBlock,
             maisInfo: maisInfoBlock,
@@ -926,8 +991,8 @@ export default function Perfil() {
   const toggleBlockHidden = (id: string) => setHiddenBlocks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const toggleFieldHidden = (key: string) => setHiddenFields(prev => prev.includes(key) ? prev.filter(x => x !== key) : [...prev, key]);
 
-  const depoimentos: { id: string; nome: string; cargo?: string; texto: string; estrelas?: number }[] = Array.isArray(form.depoimentos) ? form.depoimentos : [];
-  const addDepoimento = () => setField('depoimentos', [...depoimentos, { id: `d${Date.now()}`, nome: '', cargo: '', texto: '', estrelas: 5 }]);
+  const depoimentos: { id: string; nome: string; cargo?: string; texto: string; estrelas?: number; foto?: string }[] = Array.isArray(form.depoimentos) ? form.depoimentos : [];
+  const addDepoimento = () => setField('depoimentos', [...depoimentos, { id: `d${Date.now()}`, nome: '', cargo: '', texto: '', estrelas: 5, foto: '' }]);
   const updateDepoimento = (id: string, patch: any) => setField('depoimentos', depoimentos.map(t => t.id === id ? { ...t, ...patch } : t));
   const removeDepoimento = (id: string) => setField('depoimentos', depoimentos.filter(t => t.id !== id));
 
@@ -1136,21 +1201,60 @@ export default function Perfil() {
       </div>
     );
 
-    /* INFO */
-    if (sid === 'info') return (
+    /* INFO — agrupamento inteligente por categoria */
+    if (sid === 'info') {
+      const FIELD_GROUPS: Record<string, { title: string; hint: string; keys: string[]; accent: string }[]> = {
+        PET: [
+          { title: 'Identidade do pet', hint: 'Nome, raça e características básicas.', keys: ['nome', 'raca', 'idade', 'peso', 'sexo', 'cor', 'microchip'], accent: 'from-emerald-500/[0.1] to-emerald-500/[0.02] border-emerald-500/20' },
+          { title: 'Tutor e contato', hint: 'Quem cuida e como falar com você.', keys: ['tutor', 'whatsappTutor', 'enderecoTutor', 'contatoAlternativo'], accent: 'from-blue-500/[0.1] to-blue-500/[0.02] border-blue-500/20' },
+          { title: 'Saúde', hint: 'Vacinas, alergias e veterinário.', keys: ['veterinario', 'clinica', 'vacinas', 'alergias', 'medicamentos'], accent: 'from-rose-500/[0.1] to-rose-500/[0.02] border-rose-500/20' },
+          { title: 'Se perder', hint: 'Ajuda quem encontrar o pet a agir rápido.', keys: ['recompensa', 'valorRecompensa', 'ultimoLocalVisto', 'caracteristicasMarcantes', 'observacoes'], accent: 'from-amber-500/[0.1] to-amber-500/[0.02] border-amber-500/20' },
+        ],
+        TEA: [
+          { title: 'Identificação', hint: 'Dados principais e comunicação.', keys: ['nome', 'grauSuporte', 'tipoTEA', 'cid', 'nivelComunicacao'], accent: 'from-violet-500/[0.1] to-violet-500/[0.02] border-violet-500/20' },
+          { title: 'Responsáveis', hint: 'Contatos prioritários em qualquer situação.', keys: ['responsavel', 'telefoneResponsavel', 'contatoEmergencia', 'telefoneEmergencia'], accent: 'from-blue-500/[0.1] to-blue-500/[0.02] border-blue-500/20' },
+          { title: 'Como ajudar', hint: 'Orientações práticas para quem está por perto.', keys: ['preferenciaComunicacao', 'comoAjudar', 'sensibilidades', 'gatilhos', 'estrategiasAcalmar', 'itemConforto', 'riscoFuga', 'localHabitual'], accent: 'from-fuchsia-500/[0.1] to-fuchsia-500/[0.02] border-fuchsia-500/20' },
+          { title: 'Saúde e terapias', hint: 'Acompanhamento clínico e medicamentos.', keys: ['comorbidades', 'medicamentos', 'terapias', 'medicoResponsavel', 'observacoes'], accent: 'from-rose-500/[0.1] to-rose-500/[0.02] border-rose-500/20' },
+        ],
+        KIDS: [
+          { title: 'Criança', hint: 'Identificação e escola.', keys: ['nome', 'escola'], accent: 'from-pink-500/[0.1] to-pink-500/[0.02] border-pink-500/20' },
+          { title: 'Responsáveis', hint: 'Quem acionar em emergência.', keys: ['responsavel1', 'telefoneResp1', 'responsavel2', 'telefoneResp2'], accent: 'from-blue-500/[0.1] to-blue-500/[0.02] border-blue-500/20' },
+          { title: 'Saúde', hint: 'Alergias, sangue e plano.', keys: ['alergias', 'tipoSanguineo', 'medicoResponsavel', 'planoSaude', 'observacoes'], accent: 'from-rose-500/[0.1] to-rose-500/[0.02] border-rose-500/20' },
+        ],
+      };
+      const groups = FIELD_GROUPS[cat];
+      const renderField = (f: (typeof fields)[number]) => (
+        <FormField key={f.key} label={f.label}>
+          {f.type === 'textarea'
+            ? <textarea value={form[f.key] || ''} onChange={e => setField(f.key, e.target.value)} placeholder={f.placeholder} className={textareaCls} rows={3} />
+            : <input type={f.type || 'text'} value={form[f.key] || ''} onChange={e => setField(f.key, e.target.value)} placeholder={f.placeholder} className={inputCls} />
+          }
+        </FormField>
+      );
+      return (
       <div className="space-y-3">
-        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-violet-500/[0.07] to-violet-500/[0.02] border border-violet-500/15 shadow-sm shadow-violet-500/5">
-          <p className="text-xs font-bold text-white mb-0.5">📝 Informações · {catLabel}</p>
-          <p className="text-[11px] text-zinc-500">Preencha os dados que aparecerão no perfil.</p>
+        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#2563EB]/[0.12] to-[#0071e3]/[0.04] border border-[#3B82F6]/25 shadow-sm shadow-blue-500/10">
+          <p className="text-xs font-bold text-white mb-0.5">Informações · {catLabel}</p>
+          <p className="text-[11px] text-zinc-400">
+            {cat === 'PET' ? 'Organize os dados do pet em blocos claros — identidade, tutor, saúde e busca.'
+              : cat === 'TEA' ? 'Preencha por prioridade: quem é, quem contatar e como ajudar.'
+              : cat === 'KIDS' ? 'Dados da criança, responsáveis e saúde em seções separadas.'
+              : 'Preencha os dados que aparecerão no perfil.'}
+          </p>
         </div>
-        {fields.map(f => (
-          <FormField key={f.key} label={f.label}>
-            {f.type === 'textarea'
-              ? <textarea value={form[f.key] || ''} onChange={e => setField(f.key, e.target.value)} placeholder={f.placeholder} className={textareaCls} rows={3} />
-              : <input type={f.type || 'text'} value={form[f.key] || ''} onChange={e => setField(f.key, e.target.value)} placeholder={f.placeholder} className={inputCls} />
-            }
-          </FormField>
-        ))}
+        {groups ? groups.map(g => {
+          const groupFields = fields.filter(f => g.keys.includes(f.key));
+          if (groupFields.length === 0) return null;
+          return (
+            <div key={g.title} className={`p-3.5 rounded-2xl bg-gradient-to-br border space-y-3 ${g.accent}`}>
+              <div>
+                <p className="text-xs font-bold text-white">{g.title}</p>
+                <p className="text-[11px] text-zinc-500 mt-0.5">{g.hint}</p>
+              </div>
+              {groupFields.map(renderField)}
+            </div>
+          );
+        }) : fields.map(renderField)}
 
         {fields.some(f => f.key === 'chavePix') && (
           <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/[0.07] to-emerald-500/[0.02] border border-emerald-500/15 shadow-sm shadow-emerald-500/5 space-y-3">
@@ -1325,6 +1429,7 @@ export default function Perfil() {
         )}
       </div>
     );
+    }
 
     /* VISUAL */
     if (sid === 'visual') return (
@@ -1947,11 +2052,35 @@ export default function Perfil() {
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <input value={t.nome} onChange={e => updateDepoimento(t.id, { nome: e.target.value })} placeholder="Nome do cliente" className={inputCls} />
-                <input value={t.cargo || ''} onChange={e => updateDepoimento(t.id, { cargo: e.target.value })} placeholder="Empresa / Cargo (opcional)" className={inputCls} />
+              <div className="flex items-center gap-3">
+                <label className="relative w-12 h-12 rounded-full overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center shrink-0 cursor-pointer hover:border-blue-500/40 transition-colors">
+                  {t.foto ? (
+                    <img src={t.foto} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-zinc-500">{(t.nome?.[0] || '+').toUpperCase()}</span>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => updateDepoimento(t.id, { foto: reader.result as string });
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1 min-w-0">
+                  <input value={t.nome} onChange={e => updateDepoimento(t.id, { nome: e.target.value })} placeholder="Nome do cliente" className={inputCls} />
+                  <input value={t.cargo || ''} onChange={e => updateDepoimento(t.id, { cargo: e.target.value })} placeholder="Empresa / Cargo (opcional)" className={inputCls} />
+                </div>
               </div>
               <textarea value={t.texto} onChange={e => updateDepoimento(t.id, { texto: e.target.value })} placeholder="O que o cliente disse..." className={textareaCls} rows={2} />
+              {t.foto && (
+                <button type="button" onClick={() => updateDepoimento(t.id, { foto: '' })} className="text-[11px] text-zinc-500 hover:text-red-400">Remover foto</button>
+              )}
             </div>
           ))}
         </div>
