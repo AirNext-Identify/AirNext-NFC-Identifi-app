@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, User, Loader2, ArrowRight, ShieldCheck, Eye, EyeOff, Check } from 'lucide-react';
 import Logo from '../components/Logo';
-import { PreferredSourcesCTA } from '../components/PreferredSourcesCTA';
 import GoogleButton from '../components/auth/GoogleButton';
 import {
   ConsentCheckboxes,

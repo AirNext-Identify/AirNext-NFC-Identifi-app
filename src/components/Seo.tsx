@@ -8,6 +8,7 @@ import {
   TWITTER_HANDLE,
   absoluteUrl,
   fullTitle,
+  resolveOgImage,
   type SeoProps,
 } from '../config/seo';
 import {
@@ -64,6 +65,7 @@ export function Seo({
   type = 'website',
   noIndex = false,
   keywords = SITE_KEYWORDS,
+  profileName,
 }: SeoProps) {
   const location = useLocation();
   const pagePath = path ?? location.pathname;
@@ -81,23 +83,46 @@ export function Seo({
     upsertMeta('name', 'theme-color', '#05070f');
     upsertMeta('name', 'color-scheme', 'dark light');
 
-    // Open Graph — preview ao compartilhar (WhatsApp, LinkedIn, Facebook…)
+    // Open Graph — card elegante ao compartilhar (WhatsApp, LinkedIn, Facebook, Telegram…)
+    const ogImage = resolveOgImage(image || DEFAULT_OG_IMAGE);
     upsertMeta('property', 'og:site_name', SITE_NAME);
     upsertMeta('property', 'og:locale', 'pt_BR');
     upsertMeta('property', 'og:type', type === 'profile' ? 'profile' : 'website');
+    if (type === 'profile' && profileName) {
+      upsertMeta('property', 'profile:username', profileName);
+      upsertJsonLd('airnext-ld-profile', {
+        '@context': 'https://schema.org',
+        '@type': 'ProfilePage',
+        name: pageTitle,
+        url,
+        description,
+        mainEntity: {
+          '@type': 'Person',
+          name: profileName,
+          image: resolveOgImage(image),
+          description,
+        },
+      });
+    }
     upsertMeta('property', 'og:title', pageTitle);
     upsertMeta('property', 'og:description', description);
     upsertMeta('property', 'og:url', url);
-    upsertMeta('property', 'og:image', image);
+    upsertMeta('property', 'og:image', ogImage);
+    upsertMeta('property', 'og:image:secure_url', ogImage);
+    upsertMeta('property', 'og:image:type', ogImage.includes('.png') ? 'image/png' : 'image/jpeg');
     upsertMeta('property', 'og:image:width', '1200');
     upsertMeta('property', 'og:image:height', '630');
     upsertMeta('property', 'og:image:alt', pageTitle);
+    // Fallback extra (alguns clientes leem itemprop)
+    upsertMeta('name', 'image', ogImage);
+    upsertLink('image_src', ogImage);
 
-    // Twitter / X Card
+    // Twitter / X Card — preview grande
     upsertMeta('name', 'twitter:card', 'summary_large_image');
     upsertMeta('name', 'twitter:title', pageTitle);
     upsertMeta('name', 'twitter:description', description);
-    upsertMeta('name', 'twitter:image', image);
+    upsertMeta('name', 'twitter:image', ogImage);
+    upsertMeta('name', 'twitter:image:alt', pageTitle);
     if (TWITTER_HANDLE) upsertMeta('name', 'twitter:site', TWITTER_HANDLE);
 
     upsertLink('canonical', url);
