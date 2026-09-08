@@ -1,0 +1,2814 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Patinhas Raras | Adoção Responsável</title>
+
+<meta name="description" content="Patinhas Raras: página dedicada à adoção responsável de animais resgatados. Conheça, adote, seja lar temporário ou ajude a transformar vidas.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root {
+    --caramelo: #D27D2D;
+    --chocolate: #4A2E1B;
+    --creme: #F5E6CC;
+    --preto: #1E1E1E;
+    --rosa: #E91E63;
+    --verde: #2ECC71;
+    --azul: #3498DB;
+    --branco: #FFFDF8;
+    --cinza: #6F6B65;
+    --linha: rgba(74, 46, 27, .15);
+    --sombra: 0 18px 45px rgba(74, 46, 27, .14);
+    --raio: 22px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--branco);
+    color: var(--preto);
+    font-family: "DM Sans", sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: "Fraunces", serif;
+    line-height: 1.15;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.container {
+    width: min(1180px, 92%);
+    margin: auto;
+}
+
+/* PRELOADER */
+.preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    background: var(--chocolate);
+    transition: opacity .6s ease, visibility .6s ease;
+}
+
+.preloader.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader-content {
+    color: white;
+    text-align: center;
+}
+
+.loader-paw {
+    width: 75px;
+    height: 75px;
+    display: grid;
+    place-items: center;
+    margin: auto auto 16px;
+    color: var(--creme);
+    border: 1px solid var(--caramelo);
+    border-radius: 50%;
+    font-size: 1.9rem;
+    animation: pulse 1.5s infinite;
+}
+
+.loader-content strong {
+    color: var(--creme);
+    letter-spacing: 3px;
+    font-size: .78rem;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(210,125,45,.35);
+    }
+
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 0 17px rgba(210,125,45,0);
+    }
+}
+
+/* PROGRESSO */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 3000;
+    width: 0;
+    height: 4px;
+    background: var(--rosa);
+}
+
+/* TOPO */
+.topbar {
+    padding: 9px 15px;
+    color: white;
+    background: var(--chocolate);
+    text-align: center;
+    font-size: .78rem;
+}
+
+.topbar strong {
+    color: var(--creme);
+}
+
+/* HEADER */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1500;
+    background: rgba(255,253,248,.94);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: .3s ease;
+}
+
+header.scrolled {
+    border-color: var(--linha);
+    box-shadow: 0 8px 25px rgba(74,46,27,.08);
+}
+
+.navbar {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    color: white;
+    background: var(--caramelo);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    box-shadow: 4px 5px 0 var(--chocolate);
+}
+
+.brand-title {
+    color: var(--chocolate);
+    font-family: "Fraunces", serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.brand-title span {
+    color: var(--rosa);
+}
+
+.brand small {
+    display: block;
+    color: var(--cinza);
+    font-size: .56rem;
+    font-weight: 800;
+    letter-spacing: 1.7px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.nav-links a {
+    color: var(--chocolate);
+    font-size: .86rem;
+    font-weight: 700;
+}
+
+.nav-links a:hover {
+    color: var(--rosa);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.menu-toggle {
+    display: none;
+    color: var(--chocolate);
+    background: transparent;
+    border: 0;
+    font-size: 1.5rem;
+}
+
+/* BOTÕES */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 19px;
+    border: 0;
+    border-radius: 12px;
+    font-weight: 800;
+    transition: .25s ease;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+}
+
+.btn-primary {
+    color: white;
+    background: var(--rosa);
+}
+
+.btn-primary:hover {
+    background: #c51655;
+    box-shadow: 0 12px 24px rgba(233,30,99,.22);
+}
+
+.btn-caramelo {
+    color: white;
+    background: var(--caramelo);
+}
+
+.btn-caramelo:hover {
+    background: #b86722;
+    box-shadow: 0 12px 24px rgba(210,125,45,.24);
+}
+
+.btn-green {
+    color: white;
+    background: var(--verde);
+}
+
+.btn-green:hover {
+    background: #25b863;
+}
+
+.btn-blue {
+    color: white;
+    background: var(--azul);
+}
+
+.btn-outline {
+    color: var(--chocolate);
+    background: transparent;
+    border: 1px solid var(--chocolate);
+}
+
+.btn-outline:hover {
+    color: white;
+    background: var(--chocolate);
+}
+
+/* HERO */
+.hero {
+    position: relative;
+    overflow: hidden;
+    padding: 75px 0 70px;
+    background:
+        radial-gradient(circle at 90% 10%, rgba(233,30,99,.14), transparent 26%),
+        linear-gradient(120deg, var(--creme), var(--branco) 70%);
+}
+
+.hero::before {
+    position: absolute;
+    content: "🐾";
+    top: 60px;
+    right: 6%;
+    color: rgba(210,125,45,.15);
+    font-size: 8rem;
+    transform: rotate(18deg);
+}
+
+.hero-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr .9fr;
+    align-items: center;
+    gap: 58px;
+}
+
+.hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    margin-bottom: 18px;
+    color: var(--rosa);
+    background: white;
+    border: 1px solid rgba(233,30,99,.23);
+    border-radius: 30px;
+    font-size: .77rem;
+    font-weight: 800;
+}
+
+.hero h1 {
+    max-width: 650px;
+    color: var(--chocolate);
+    font-size: clamp(2.6rem, 5.5vw, 5rem);
+    letter-spacing: -2px;
+}
+
+.hero h1 em {
+    color: var(--caramelo);
+    font-style: normal;
+}
+
+.hero-description {
+    max-width: 585px;
+    margin: 22px 0;
+    color: var(--cinza);
+    font-size: 1rem;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 25px 0;
+}
+
+.hero-proof {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    width: fit-content;
+    padding: 13px 16px;
+    background: rgba(255,255,255,.8);
+    border: 1px solid var(--linha);
+    border-radius: 15px;
+}
+
+.hero-proof strong {
+    color: var(--chocolate);
+    font-family: "Fraunces", serif;
+    font-size: 1.65rem;
+}
+
+.hero-proof .stars {
+    color: #e09b24;
+    letter-spacing: 2px;
+}
+
+.hero-proof small {
+    display: block;
+    color: var(--cinza);
+    font-size: .75rem;
+}
+
+.hero-visual {
+    position: relative;
+}
+
+.hero-photo {
+    position: relative;
+    height: 525px;
+    overflow: hidden;
+    border-radius: 35px 10px 35px 10px;
+    box-shadow: 0 25px 60px rgba(74,46,27,.2);
+    transform: rotate(2deg);
+    transition: transform .3s ease;
+}
+
+.hero-photo:hover {
+    transform: rotate(0) scale(1.015);
+}
+
+.hero-photo::after {
+    position: absolute;
+    content: "";
+    inset: 0;
+    background: linear-gradient(180deg, transparent 42%, rgba(30,30,30,.67));
+}
+
+.hero-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-caption {
+    position: absolute;
+    z-index: 2;
+    right: 23px;
+    bottom: 24px;
+    left: 23px;
+    color: white;
+    font-size: .8rem;
+}
+
+.hero-caption strong {
+    display: block;
+    color: var(--creme);
+    font-family: "Fraunces", serif;
+    font-size: 1.5rem;
+}
+
+.floating-card {
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px;
+    color: var(--chocolate);
+    background: white;
+    border-radius: 15px;
+    box-shadow: var(--sombra);
+    font-size: .76rem;
+    animation: float 4s ease-in-out infinite;
+}
+
+.floating-card i {
+    color: var(--rosa);
+    font-size: 1.4rem;
+}
+
+.float-one {
+    top: 30px;
+    right: -25px;
+}
+
+.float-two {
+    bottom: 38px;
+    left: -30px;
+    animation-delay: 1s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-9px);
+    }
+}
+
+/* ESTATÍSTICAS */
+.stats {
+    color: white;
+    background: var(--chocolate);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.stat {
+    padding: 24px 12px;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,.16);
+}
+
+.stat:last-child {
+    border-right: 0;
+}
+
+.stat strong {
+    display: block;
+    color: var(--creme);
+    font-family: "Fraunces", serif;
+    font-size: 1.8rem;
+}
+
+.stat small {
+    color: #eadcc9;
+    font-size: .76rem;
+}
+
+/* FAIXA */
+.ticker {
+    overflow: hidden;
+    color: var(--chocolate);
+    background: var(--caramelo);
+    white-space: nowrap;
+}
+
+.ticker-content {
+    display: inline-flex;
+    gap: 30px;
+    min-width: 100%;
+    padding: 12px 0;
+    animation: ticker 25s linear infinite;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+@keyframes ticker {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-45%);
+    }
+}
+
+/* SEÇÕES */
+.section {
+    padding: 88px 0;
+}
+
+.section-heading {
+    max-width: 720px;
+    margin: 0 auto 35px;
+    text-align: center;
+}
+
+.section-heading .eyebrow {
+    color: var(--rosa);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.section-heading h2 {
+    margin: 10px 0 13px;
+    color: var(--chocolate);
+    font-size: clamp(2rem, 4vw, 3.1rem);
+}
+
+.section-heading p {
+    color: var(--cinza);
+    font-size: .95rem;
+}
+
+/* ADOÇÃO */
+.adoption-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 13px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: white;
+    border: 1px solid var(--linha);
+    border-radius: 17px;
+}
+
+.search-box {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 9px;
+    min-width: 240px;
+    padding: 11px 14px;
+    background: var(--creme);
+    border-radius: 11px;
+}
+
+.search-box i {
+    color: var(--caramelo);
+}
+
+.search-box input {
+    width: 100%;
+    color: var(--preto);
+    background: transparent;
+    border: 0;
+    outline: 0;
+}
+
+.filters {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+}
+
+.filter-btn {
+    padding: 8px 14px;
+    color: var(--chocolate);
+    background: white;
+    border: 1px solid var(--linha);
+    border-radius: 30px;
+    white-space: nowrap;
+    font-size: .76rem;
+    font-weight: 800;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    color: white;
+    background: var(--rosa);
+    border-color: var(--rosa);
+}
+
+.edit-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 13px 15px;
+    margin-bottom: 24px;
+    color: #74521f;
+    background: #fff8e8;
+    border: 1px solid #efd391;
+    border-radius: 13px;
+    font-size: .78rem;
+}
+
+.edit-alert i {
+    margin-top: 3px;
+    color: var(--caramelo);
+}
+
+.animal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.animal-card {
+    overflow: hidden;
+    background: white;
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+    transition: transform .2s ease, box-shadow .2s ease;
+    transform-style: preserve-3d;
+}
+
+.animal-card:hover {
+    box-shadow: var(--sombra);
+}
+
+.animal-image {
+    position: relative;
+    height: 230px;
+    overflow: hidden;
+}
+
+.animal-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .6s ease;
+}
+
+.animal-card:hover .animal-image img {
+    transform: scale(1.08);
+}
+
+.animal-badge {
+    position: absolute;
+    top: 13px;
+    left: 13px;
+    padding: 5px 9px;
+    color: white;
+    background: var(--verde);
+    border-radius: 20px;
+    font-size: .64rem;
+    font-weight: 800;
+}
+
+.animal-type {
+    position: absolute;
+    right: 13px;
+    bottom: 13px;
+    padding: 5px 9px;
+    color: var(--chocolate);
+    background: var(--creme);
+    border-radius: 20px;
+    font-size: .67rem;
+    font-weight: 800;
+}
+
+.animal-body {
+    padding: 17px;
+}
+
+.animal-body h3 {
+    color: var(--chocolate);
+    font-size: 1.4rem;
+}
+
+.animal-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.animal-info span {
+    padding: 4px 8px;
+    color: var(--cinza);
+    background: #f7f4ed;
+    border-radius: 7px;
+    font-size: .68rem;
+    font-weight: 700;
+}
+
+.animal-body p {
+    min-height: 45px;
+    color: var(--cinza);
+    font-size: .8rem;
+}
+
+.animal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 7px;
+    padding-top: 13px;
+    margin-top: 14px;
+    border-top: 1px dashed var(--linha);
+}
+
+.animal-footer small {
+    color: var(--cinza);
+    font-size: .68rem;
+}
+
+.animal-footer button {
+    padding: 9px 12px;
+    color: white;
+    background: var(--rosa);
+    border: 0;
+    border-radius: 9px;
+    font-size: .73rem;
+    font-weight: 800;
+}
+
+/* CAMPANHA */
+.campaign {
+    position: relative;
+    overflow: hidden;
+    color: white;
+    background:
+        radial-gradient(circle at 10% 15%, rgba(233,30,99,.42), transparent 27%),
+        linear-gradient(115deg, var(--chocolate), #713e22);
+}
+
+.campaign::before {
+    position: absolute;
+    content: "🐾";
+    right: 7%;
+    bottom: -30px;
+    color: rgba(245,230,204,.11);
+    font-size: 14rem;
+    transform: rotate(-15deg);
+}
+
+.campaign-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr .85fr;
+    align-items: center;
+    gap: 45px;
+}
+
+.campaign .eyebrow {
+    color: var(--creme);
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.campaign h2 {
+    margin: 10px 0 17px;
+    color: white;
+    font-size: clamp(2.1rem, 4vw, 3.5rem);
+}
+
+.campaign h2 em {
+    color: var(--creme);
+    font-style: normal;
+}
+
+.campaign p {
+    max-width: 560px;
+    color: #f4dfc4;
+}
+
+.campaign-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.campaign-list div {
+    padding: 15px;
+    background: rgba(255,255,255,.09);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 13px;
+}
+
+.campaign-list i {
+    color: var(--creme);
+}
+
+.campaign-list strong {
+    display: block;
+    margin-top: 6px;
+    font-size: .86rem;
+}
+
+.campaign-visual {
+    display: grid;
+    place-items: center;
+    min-height: 300px;
+    border: 1px solid rgba(245,230,204,.28);
+    border-radius: 50%;
+    transform: rotate(-5deg);
+}
+
+.campaign-visual-inner {
+    display: grid;
+    place-items: center;
+    width: 78%;
+    height: 78%;
+    color: var(--chocolate);
+    background: var(--creme);
+    border-radius: 50%;
+    text-align: center;
+    transform: rotate(5deg);
+}
+
+.campaign-visual-inner i {
+    color: var(--rosa);
+    font-size: 4rem;
+}
+
+.campaign-visual-inner strong {
+    display: block;
+    margin-top: 8px;
+    font-family: "Fraunces", serif;
+    font-size: 1.6rem;
+}
+
+/* AJUDE */
+.help-section {
+    background: var(--creme);
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.help-card {
+    position: relative;
+    padding: 23px;
+    background: rgba(255,255,255,.7);
+    border: 1px solid rgba(74,46,27,.12);
+    border-radius: var(--raio);
+    transition: .25s ease;
+}
+
+.help-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--sombra);
+}
+
+.help-icon {
+    width: 50px;
+    height: 50px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 17px;
+    color: white;
+    background: var(--caramelo);
+    border-radius: 14px;
+    font-size: 1.3rem;
+}
+
+.help-card:nth-child(2) .help-icon {
+    background: var(--verde);
+}
+
+.help-card:nth-child(3) .help-icon {
+    background: var(--azul);
+}
+
+.help-card:nth-child(4) .help-icon {
+    background: var(--rosa);
+}
+
+.help-card h3 {
+    color: var(--chocolate);
+    font-size: 1.3rem;
+}
+
+.help-card p {
+    min-height: 72px;
+    margin: 8px 0 15px;
+    color: var(--cinza);
+    font-size: .82rem;
+}
+
+/* PRINCÍPIOS */
+.principles {
+    display: grid;
+    grid-template-columns: .85fr 1.15fr;
+    align-items: center;
+    gap: 55px;
+}
+
+.principles-image {
+    position: relative;
+}
+
+.principles-image img {
+    width: 100%;
+    height: 470px;
+    object-fit: cover;
+    border-radius: 15px 65px 15px 65px;
+    box-shadow: 18px 19px 0 rgba(210,125,45,.34);
+}
+
+.principles-content .eyebrow {
+    color: var(--rosa);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.principles-content h2 {
+    margin: 10px 0 15px;
+    color: var(--chocolate);
+    font-size: clamp(2rem, 4vw, 3.1rem);
+}
+
+.principles-content > p {
+    color: var(--cinza);
+}
+
+.principle-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 13px;
+    margin-top: 24px;
+}
+
+.principle {
+    padding: 15px;
+    background: white;
+    border: 1px solid var(--linha);
+    border-radius: 13px;
+}
+
+.principle i {
+    color: var(--rosa);
+}
+
+.principle strong {
+    display: block;
+    margin: 7px 0 3px;
+    color: var(--chocolate);
+    font-size: .86rem;
+}
+
+.principle span {
+    color: var(--cinza);
+    font-size: .75rem;
+}
+
+/* REDES */
+.social-section {
+    color: white;
+    background: var(--preto);
+}
+
+.social-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.social-card {
+    padding: 30px;
+    background: #292929;
+    border: 1px solid #414141;
+    border-radius: var(--raio);
+}
+
+.social-card h3 {
+    color: var(--creme);
+    font-size: 1.8rem;
+}
+
+.social-card p {
+    margin: 10px 0 18px;
+    color: #ccc;
+    font-size: .86rem;
+}
+
+.social-card strong {
+    color: var(--creme);
+}
+
+.social-handle {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #ff9fbd;
+    font-weight: 800;
+}
+
+/* FAQ */
+.faq-section {
+    background: var(--branco);
+}
+
+.faq-list {
+    max-width: 820px;
+    margin: auto;
+}
+
+.faq-item {
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: white;
+    border: 1px solid var(--linha);
+    border-radius: 14px;
+}
+
+.faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 17px 19px;
+    color: var(--chocolate);
+    background: transparent;
+    border: 0;
+    text-align: left;
+    font-weight: 800;
+}
+
+.faq-question i {
+    color: var(--rosa);
+    transition: .25s ease;
+}
+
+.faq-answer {
+    display: none;
+    padding: 0 19px 17px;
+    color: var(--cinza);
+    font-size: .87rem;
+}
+
+.faq-item.open .faq-answer {
+    display: block;
+}
+
+.faq-item.open .faq-question i {
+    transform: rotate(180deg);
+}
+
+/* CONTATO */
+.contact-section {
+    background: var(--creme);
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: .9fr 1.1fr;
+    gap: 20px;
+}
+
+.contact-card {
+    padding: 30px;
+    color: white;
+    background: var(--chocolate);
+    border-radius: var(--raio);
+}
+
+.contact-card h2 {
+    color: var(--creme);
+    font-size: 2.1rem;
+}
+
+.contact-card p {
+    margin: 12px 0 22px;
+    color: #eadcc9;
+    font-size: .88rem;
+}
+
+.contact-list {
+    list-style: none;
+}
+
+.contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin: 14px 0;
+    color: #eadcc9;
+    font-size: .85rem;
+}
+
+.contact-list i {
+    width: 20px;
+    color: var(--caramelo);
+    text-align: center;
+}
+
+.contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 22px;
+}
+
+.contact-card .btn-outline {
+    color: white;
+    border-color: white;
+}
+
+.contact-card .btn-outline:hover {
+    color: var(--chocolate);
+    background: white;
+}
+
+.map {
+    min-height: 370px;
+    overflow: hidden;
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+}
+
+.map iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 370px;
+    border: 0;
+}
+
+/* FOOTER */
+footer {
+    padding: 35px 15px 100px;
+    color: #d8c8b5;
+    background: #29170d;
+    text-align: center;
+    font-size: .77rem;
+}
+
+footer strong {
+    color: var(--creme);
+    font-family: "Fraunces", serif;
+    font-size: 1.55rem;
+}
+
+footer p {
+    margin-top: 8px;
+}
+
+/* WHATSAPP / INSTAGRAM */
+.floating-instagram {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 1400;
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    color: white;
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    border-radius: 50%;
+    box-shadow: 0 10px 30px rgba(0,0,0,.22);
+    font-size: 1.65rem;
+    animation: instagramPulse 3s infinite;
+}
+
+@keyframes instagramPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(233,30,99,.26), 0 10px 30px rgba(0,0,0,.22);
+    }
+
+    60% {
+        box-shadow: 0 0 0 14px rgba(233,30,99,0), 0 10px 30px rgba(0,0,0,.22);
+    }
+}
+
+.mobile-cta {
+    display: none;
+}
+
+/* MODAL */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background: rgba(30,30,30,.78);
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal {
+    position: relative;
+    width: min(520px, 100%);
+    max-height: 93vh;
+    overflow-y: auto;
+    padding: 28px;
+    background: var(--branco);
+    border-radius: 22px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.3);
+}
+
+.modal-close {
+    position: absolute;
+    top: 13px;
+    right: 17px;
+    color: var(--cinza);
+    background: transparent;
+    border: 0;
+    font-size: 1.5rem;
+}
+
+.modal h2 {
+    color: var(--chocolate);
+    font-size: 2rem;
+}
+
+.modal-intro {
+    margin-top: 7px;
+    color: var(--cinza);
+    font-size: .84rem;
+}
+
+.form-label {
+    display: block;
+    margin: 13px 0 5px;
+    color: var(--chocolate);
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.modal input,
+.modal select,
+.modal textarea {
+    width: 100%;
+    padding: 11px 12px;
+    color: var(--preto);
+    background: white;
+    border: 1px solid var(--linha);
+    border-radius: 10px;
+    outline: 0;
+}
+
+.modal input:focus,
+.modal select:focus,
+.modal textarea:focus {
+    border-color: var(--rosa);
+}
+
+.consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 13px;
+    color: var(--cinza);
+    font-size: .73rem;
+}
+
+.consent input {
+    width: auto;
+    margin-top: 4px;
+}
+
+.message-preview {
+    display: none;
+    padding: 12px;
+    margin-top: 15px;
+    color: var(--chocolate);
+    background: #fff5df;
+    border: 1px solid #efd391;
+    border-radius: 10px;
+    font-size: .75rem;
+    white-space: pre-wrap;
+}
+
+/* TOAST */
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 92px;
+    z-index: 4000;
+    padding: 12px 18px;
+    color: white;
+    background: var(--chocolate);
+    border-radius: 10px;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: .25s ease;
+    font-size: .82rem;
+    white-space: nowrap;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+/* REVEAL */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .8s ease, transform .8s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* RESPONSIVO */
+@media (max-width: 1080px) {
+    .animal-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .help-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .nav-links {
+        gap: 13px;
+    }
+}
+
+@media (max-width: 850px) {
+    .hero-grid,
+    .campaign-grid,
+    .principles,
+    .contact-grid,
+    .social-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        padding: 60px 0;
+    }
+
+    .hero-visual {
+        width: 100%;
+        max-width: 650px;
+        margin: auto;
+    }
+
+    .campaign-visual {
+        width: min(330px, 100%);
+        margin: auto;
+    }
+
+    .principles-image {
+        max-width: 620px;
+        margin: auto;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 79px;
+        right: 4%;
+        left: 4%;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 10px;
+        background: var(--branco);
+        border: 1px solid var(--linha);
+        border-radius: 15px;
+        box-shadow: var(--sombra);
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        padding: 12px;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-actions > .btn {
+        display: none;
+    }
+
+    .floating-instagram {
+        display: none;
+    }
+
+    .mobile-cta {
+        position: fixed;
+        right: 10px;
+        bottom: 10px;
+        left: 10px;
+        z-index: 1300;
+        display: flex;
+        gap: 8px;
+        padding: 8px;
+        background: white;
+        border: 1px solid var(--linha);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    }
+
+    .mobile-cta .btn {
+        flex: 1;
+        padding: 11px 7px;
+        font-size: .73rem;
+    }
+
+    footer {
+        padding-bottom: 92px;
+    }
+}
+
+@media (max-width: 580px) {
+    .topbar {
+        font-size: .68rem;
+    }
+
+    .brand-title {
+        font-size: 1.15rem;
+    }
+
+    .brand-icon {
+        width: 37px;
+        height: 37px;
+        font-size: 1rem;
+    }
+
+    .hero h1 {
+        font-size: 2.65rem;
+        letter-spacing: -1px;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+
+    .hero-photo {
+        height: 355px;
+        border-radius: 25px 8px 25px 8px;
+    }
+
+    .float-one {
+        right: 5px;
+    }
+
+    .float-two {
+        left: 5px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat {
+        border-bottom: 1px solid rgba(255,255,255,.14);
+    }
+
+    .animal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .help-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .campaign-list,
+    .principle-list {
+        grid-template-columns: 1fr;
+    }
+
+    .principles-image img {
+        height: 360px;
+    }
+
+    .contact-card {
+        padding: 24px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        transition-duration: .001ms !important;
+    }
+
+    .reveal {
+        opacity: 1;
+        transform: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="preloader" id="preloader">
+    <div class="loader-content">
+        <div class="loader-paw">
+            <i class="fa-solid fa-paw"></i>
+        </div>
+        <strong>PATINHAS RARAS</strong>
+    </div>
+</div>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<div class="topbar">
+    <strong>Patinhas Raras</strong>
+    · Adoção responsável de animais resgatados
+    · Siga <strong>@patinhas_raras</strong>
+</div>
+
+<header id="siteHeader">
+    <div class="container navbar">
+
+        <a href="#inicio" class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-paw"></i>
+            </div>
+
+            <div class="brand-title">
+                PATINHAS<span> RARAS</span>
+                <small>ADOÇÃO • CUIDADO • ESPERANÇA</small>
+            </div>
+        </a>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="#inicio">Início</a>
+            <a href="#adocao">Adoção</a>
+            <a href="#ajude">Como ajudar</a>
+            <a href="#campanha">Raças Raras</a>
+            <a href="#duvidas">Dúvidas</a>
+        </nav>
+
+        <div class="nav-actions">
+            <a class="btn btn-primary" href="https://www.instagram.com/patinhas_raras/" target="_blank" rel="noopener">
+                <i class="fa-brands fa-instagram"></i>
+                Seguir perfil
+            </a>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+    </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+    <div class="container hero-grid">
+
+        <div class="reveal">
+            <span class="hero-kicker">
+                <i class="fa-solid fa-heart"></i>
+                Uma protetora independente ajudando animais
+            </span>
+
+            <h1>
+                Cada patinha carrega uma história
+                <em>rara.</em>
+            </h1>
+
+            <p class="hero-description">
+                A Patinhas Raras é uma página dedicada à adoção de animais resgatados,
+                à conscientização e à construção de finais felizes para cães e gatos
+                que esperam por uma família.
+            </p>
+
+            <div class="hero-actions">
+                <a class="btn btn-primary" href="#adocao">
+                    <i class="fa-solid fa-paw"></i>
+                    Conhecer animais
+                </a>
+
+                <a class="btn btn-caramelo" href="#ajude">
+                    <i class="fa-solid fa-hand-holding-heart"></i>
+                    Quero ajudar
+                </a>
+
+                <a class="btn btn-outline" href="https://linktr.ee/patinhas_raras" target="_blank" rel="noopener">
+                    <i class="fa-solid fa-link"></i>
+                    Link da causa
+                </a>
+            </div>
+
+            <div class="hero-proof">
+                <strong>13 mil</strong>
+
+                <div>
+                    <div style="color:var(--rosa);letter-spacing:2px">♥ ♥ ♥</div>
+                    <small>pessoas acompanhando a causa</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual reveal">
+            <!-- Substitua por uma foto real de um animal resgatado -->
+            <div class="hero-photo" id="heroPhoto">
+                <img
+                    src="https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=1000&q=85"
+                    alt="Cão resgatado aguardando uma família">
+
+                <div class="hero-caption">
+                    <strong>Não é apenas adoção.</strong>
+                    É o começo de uma nova história.
+                </div>
+            </div>
+
+            <div class="floating-card float-one">
+                <i class="fa-solid fa-house"></i>
+                <span>
+                    <strong>Família responsável</strong><br>
+                    muda tudo
+                </span>
+            </div>
+
+            <div class="floating-card float-two">
+                <i class="fa-solid fa-heart"></i>
+                <span>
+                    <strong>Vira-lata único</strong><br>
+                    peça rara de verdade
+                </span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ESTATÍSTICAS -->
+<section class="stats">
+    <div class="container stats-grid">
+        <div class="stat">
+            <strong>13 mil</strong>
+            <small>seguidores</small>
+        </div>
+
+        <div class="stat">
+            <strong>850</strong>
+            <small>perfis seguindo</small>
+        </div>
+
+        <div class="stat">
+            <strong>1 causa</strong>
+            <small>adoção responsável</small>
+        </div>
+
+        <div class="stat">
+            <strong>∞ amor</strong>
+            <small>por cada patinha</small>
+        </div>
+    </div>
+</section>
+
+<div class="ticker">
+    <div class="ticker-content">
+        <span>ADOTE COM RESPONSABILIDADE</span>
+        <span>✦</span>
+        <span>COMPARTILHE VIDAS</span>
+        <span>✦</span>
+        <span>CADA ANIMAL É ÚNICO</span>
+        <span>✦</span>
+        <span>SEJA PARTE DA MUDANÇA</span>
+        <span>✦</span>
+        <span>ADOTE COM RESPONSABILIDADE</span>
+        <span>✦</span>
+        <span>COMPARTILHE VIDAS</span>
+    </div>
+</div>
+
+<!-- ADOÇÃO -->
+<section class="section" id="adocao">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">ENCONTRE UMA NOVA AMIZADE</span>
+            <h2>Conheça algumas patinhas raras</h2>
+            <p>
+                Use os filtros para encontrar o perfil que combina com sua família.
+                A disponibilidade deve ser confirmada pelo Instagram.
+            </p>
+        </div>
+
+        <div class="adoption-toolbar reveal">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input
+                    type="search"
+                    id="animalSearch"
+                    placeholder="Buscar por nome, porte, temperamento...">
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="todos">Todos</button>
+                <button class="filter-btn" data-filter="caes">Cães</button>
+                <button class="filter-btn" data-filter="gatos">Gatos</button>
+                <button class="filter-btn" data-filter="filhotes">Filhotes</button>
+                <button class="filter-btn" data-filter="adultos">Adultos</button>
+                <button class="filter-btn" data-filter="especiais">Especiais</button>
+            </div>
+        </div>
+
+        <div class="edit-alert">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>
+                Os perfis abaixo são modelos demonstrativos para a página.
+                Antes de publicar, substitua nomes, fotos, idade, cidade,
+                saúde e disponibilidade pelos animais reais.
+            </span>
+        </div>
+
+        <div class="animal-grid" id="animalGrid"></div>
+
+    </div>
+</section>
+
+<!-- CAMPANHA -->
+<section class="section campaign" id="campanha">
+    <div class="container campaign-grid">
+
+        <div class="reveal">
+            <span class="eyebrow">CAMPANHA PATINHAS RARAS</span>
+
+            <h2>
+                Não existe vira-lata comum.
+                Existe uma <em>peça rara</em>.
+            </h2>
+
+            <p>
+                Cada animal sem raça definida possui uma combinação única de cores,
+                manias, personalidade e histórias. A campanha celebra essa
+                singularidade e mostra que o amor não precisa de pedigree.
+            </p>
+
+            <div class="campaign-list">
+                <div>
+                    <i class="fa-solid fa-palette"></i>
+                    <strong>Cores únicas</strong>
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-heart"></i>
+                    <strong>Personalidades únicas</strong>
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-star"></i>
+                    <strong>Histórias únicas</strong>
+                </div>
+
+                <div>
+                    <i class="fa-solid fa-house"></i>
+                    <strong>Famílias únicas</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="campaign-visual reveal">
+            <div class="campaign-visual-inner">
+                <div>
+                    <i class="fa-solid fa-paw"></i>
+                    <strong>Peça rara</strong>
+                    <small>esperando por você</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- COMO AJUDAR -->
+<section class="section help-section" id="ajude">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">VOCÊ PODE FAZER A DIFERENÇA</span>
+            <h2>Existem muitas formas de ajudar</h2>
+            <p>
+                Nem todo mundo consegue adotar, mas todo mundo pode contribuir
+                para transformar uma vida.
+            </p>
+        </div>
+
+        <div class="help-grid">
+
+            <article class="help-card reveal">
+                <div class="help-icon">
+                    <i class="fa-solid fa-house-heart"></i>
+                </div>
+
+                <h3>Adote</h3>
+
+                <p>
+                    Ofereça uma casa, rotina, segurança e amor para um animal resgatado.
+                </p>
+
+                <button class="btn btn-primary" onclick="openAdoption()">
+                    Quero adotar
+                </button>
+            </article>
+
+            <article class="help-card reveal">
+                <div class="help-icon">
+                    <i class="fa-solid fa-house"></i>
+                </div>
+
+                <h3>Seja lar temporário</h3>
+
+                <p>
+                    Ajude um animal durante a recuperação até ele encontrar sua família definitiva.
+                </p>
+
+                <a class="btn btn-green" href="https://ig.me/m/patinhas_raras" target="_blank" rel="noopener">
+                    Quero saber mais
+                </a>
+            </article>
+
+            <article class="help-card reveal">
+                <div class="help-icon">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+
+                <h3>Apoie a causa</h3>
+
+                <p>
+                    Acesse o Linktree para encontrar as formas oficiais de contribuição.
+                </p>
+
+                <a class="btn btn-blue" href="https://linktr.ee/patinhas_raras" target="_blank" rel="noopener">
+                    Ver formas de apoio
+                </a>
+            </article>
+
+            <article class="help-card reveal">
+                <div class="help-icon">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </div>
+
+                <h3>Compartilhe</h3>
+
+                <p>
+                    Um compartilhamento pode fazer o perfil certo chegar à família certa.
+                </p>
+
+                <button class="btn btn-caramelo" onclick="sharePage()">
+                    Compartilhar
+                </button>
+            </article>
+
+        </div>
+    </div>
+</section>
+
+<!-- PRINCÍPIOS -->
+<section class="section">
+    <div class="container principles">
+
+        <div class="principles-image reveal">
+            <!-- Substitua por foto real do projeto -->
+            <img
+                src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=85"
+                alt="Animais juntos aguardando adoção">
+        </div>
+
+        <div class="principles-content reveal">
+            <span class="eyebrow">ADOÇÃO CONSCIENTE</span>
+
+            <h2>
+                Adotar é assumir uma história inteira.
+            </h2>
+
+            <p>
+                Antes de escolher um animal, é importante pensar na rotina,
+                no espaço disponível, nos custos, no tempo e no compromisso
+                de cuidar por toda a vida.
+            </p>
+
+            <div class="principle-list">
+                <div class="principle">
+                    <i class="fa-solid fa-clock"></i>
+                    <strong>Tempo e rotina</strong>
+                    <span>Todo animal precisa de atenção, adaptação e companhia.</span>
+                </div>
+
+                <div class="principle">
+                    <i class="fa-solid fa-wallet"></i>
+                    <strong>Planejamento</strong>
+                    <span>Alimentação, vacinas, consultas e cuidados fazem parte da adoção.</span>
+                </div>
+
+                <div class="principle">
+                    <i class="fa-solid fa-shield-dog"></i>
+                    <strong>Ambiente seguro</strong>
+                    <span>Prepare a casa para receber o novo integrante.</span>
+                </div>
+
+                <div class="principle">
+                    <i class="fa-solid fa-people-group"></i>
+                    <strong>Família de acordo</strong>
+                    <span>A decisão deve ser conversada com todos da casa.</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="margin-top:24px" onclick="openAdoption()">
+                Fazer pré-cadastro de adoção
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<!-- REDES -->
+<section class="section social-section">
+    <div class="container social-grid">
+
+        <div class="social-card reveal">
+            <span class="social-handle">
+                <i class="fa-brands fa-instagram"></i>
+                @patinhas_raras
+            </span>
+
+            <h3 style="margin-top:12px">Acompanhe os resgates</h3>
+
+            <p>
+                Veja histórias, atualizações, animais disponíveis e chamadas
+                urgentes diretamente no Instagram.
+            </p>
+
+            <a class="btn btn-primary" href="https://www.instagram.com/patinhas_raras/" target="_blank" rel="noopener">
+                Abrir Instagram
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        </div>
+
+        <div class="social-card reveal">
+            <span class="social-handle">
+                <i class="fa-solid fa-link"></i>
+                linktr.ee/patinhas_raras
+            </span>
+
+            <h3 style="margin-top:12px">Encontre todos os links</h3>
+
+            <p>
+                Acesse os canais oficiais, formas de apoio, campanhas e informações
+                atualizadas da Patinhas Raras.
+            </p>
+
+            <a class="btn btn-caramelo" href="https://linktr.ee/patinhas_raras" target="_blank" rel="noopener">
+                Acessar Linktree
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-section" id="duvidas">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">DÚVIDAS FREQUENTES</span>
+            <h2>Antes de adotar</h2>
+            <p>
+                Ainda ficou com alguma dúvida? Entre em contato pelo Instagram.
+            </p>
+        </div>
+
+        <div class="faq-list">
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Como faço para adotar?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Comece preenchendo o pré-cadastro nesta página. A mensagem será
+                    preparada para você enviar pelo Instagram. A protetora poderá
+                    conversar sobre o animal, rotina, ambiente e próximos passos.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Posso escolher o animal pelo site?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Os cards ajudam você a encontrar perfis, mas a disponibilidade
+                    e a compatibilidade devem ser confirmadas diretamente pelo
+                    Instagram oficial.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    O que é adoção responsável?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    É assumir o compromisso de cuidar do animal durante toda a vida,
+                    oferecendo segurança, alimentação, atenção, cuidados veterinários
+                    e respeito.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Não posso adotar. Como posso ajudar?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Você pode ser lar temporário, contribuir pelos canais oficiais,
+                    divulgar os animais ou indicar a página para alguém que deseja adotar.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Existe um PIX para doação?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Nenhuma chave PIX foi inserida nesta página para evitar informações
+                    incorretas. Acesse o Linktree oficial ou confirme diretamente
+                    pelo perfil @patinhas_raras.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CONTATO -->
+<section class="section contact-section">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">FAÇA PARTE</span>
+            <h2>Uma patinha pode mudar sua vida</h2>
+            <p>
+                E você pode mudar a vida dela.
+            </p>
+        </div>
+
+        <div class="contact-grid">
+
+            <div class="contact-card reveal">
+                <h2>Patinhas Raras</h2>
+
+                <p>
+                    Página dedicada à adoção de animais resgatados,
+                    administrada por uma protetora independente.
+                </p>
+
+                <ul class="contact-list">
+                    <li>
+                        <i class="fa-brands fa-instagram"></i>
+                        <span>@patinhas_raras</span>
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-users"></i>
+                        <span>13 mil seguidores</span>
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-link"></i>
+                        <span>linktr.ee/patinhas_raras</span>
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-heart"></i>
+                        <span>Adoção, lar temporário e apoio à causa</span>
+                    </li>
+                </ul>
+
+                <div class="contact-actions">
+                    <a class="btn btn-primary" href="https://www.instagram.com/patinhas_raras/" target="_blank" rel="noopener">
+                        <i class="fa-brands fa-instagram"></i>
+                        Instagram
+                    </a>
+
+                    <a class="btn btn-outline" href="https://linktr.ee/patinhas_raras" target="_blank" rel="noopener">
+                        <i class="fa-solid fa-link"></i>
+                        Linktree
+                    </a>
+                </div>
+            </div>
+
+            <div class="map" style="display:grid;place-items:center;background:var(--branco)">
+                <div style="padding:30px;text-align:center">
+                    <i class="fa-solid fa-location-dot" style="color:var(--rosa);font-size:3rem"></i>
+
+                    <h3 style="margin:15px 0 8px;color:var(--chocolate)">
+                        Atendimento pelas redes sociais
+                    </h3>
+
+                    <p style="max-width:420px;color:var(--cinza);font-size:.88rem">
+                        Como não foi informado um endereço físico da protetora,
+                        o contato oficial deve ser feito pelo Instagram ou Linktree.
+                    </p>
+
+                    <a
+                        class="btn btn-primary"
+                        style="margin-top:18px"
+                        href="https://ig.me/m/patinhas_raras"
+                        target="_blank"
+                        rel="noopener">
+                        Enviar mensagem
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <strong>PATINHAS RARAS</strong>
+
+    <p>
+        Adoção responsável · Resgate · Conscientização · Amor animal
+    </p>
+
+    <p>
+        Este projeto é apresentado como uma iniciativa de proteção animal independente.
+        Confirme informações, campanhas e formas de contribuição pelos canais oficiais.
+    </p>
+
+    <p>
+        © <span id="year"></span> Patinhas Raras. Todos os direitos reservados.
+    </p>
+</footer>
+
+<!-- BOTÃO INSTAGRAM -->
+<a
+    class="floating-instagram"
+    href="https://ig.me/m/patinhas_raras"
+    target="_blank"
+    rel="noopener"
+    aria-label="Enviar mensagem pelo Instagram">
+    <i class="fa-brands fa-instagram"></i>
+</a>
+
+<!-- CTA MOBILE -->
+<div class="mobile-cta">
+    <button class="btn btn-primary" onclick="openAdoption()">
+        <i class="fa-solid fa-paw"></i>
+        Quero adotar
+    </button>
+
+    <a
+        class="btn btn-caramelo"
+        href="https://www.instagram.com/patinhas_raras/"
+        target="_blank"
+        rel="noopener">
+        <i class="fa-brands fa-instagram"></i>
+        Instagram
+    </a>
+</div>
+
+<!-- MODAL DE ADOÇÃO -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true">
+
+        <button class="modal-close" onclick="closeAdoption()" aria-label="Fechar">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <span style="color:var(--rosa);font-size:.72rem;font-weight:800;letter-spacing:2px">
+            ADOÇÃO RESPONSÁVEL
+        </span>
+
+        <h2 style="margin-top:8px">
+            Conte um pouco sobre você
+        </h2>
+
+        <p class="modal-intro">
+            Este pré-cadastro ajuda a iniciar uma conversa mais organizada.
+            A adoção depende de avaliação e compatibilidade.
+        </p>
+
+        <label class="form-label" for="animalSelect">
+            Patinha de interesse
+        </label>
+
+        <select id="animalSelect"></select>
+
+        <label class="form-label" for="nameInput">
+            Seu nome
+        </label>
+
+        <input
+            type="text"
+            id="nameInput"
+            placeholder="Nome completo">
+
+        <label class="form-label" for="cityInput">
+            Cidade e estado
+        </label>
+
+        <input
+            type="text"
+            id="cityInput"
+            placeholder="Ex.: Camboriú - SC">
+
+        <label class="form-label" for="homeInput">
+            Tipo de moradia
+        </label>
+
+        <select id="homeInput">
+            <option value="">Selecione</option>
+            <option>Casa com pátio seguro</option>
+            <option>Casa sem pátio</option>
+            <option>Apartamento com telas e segurança</option>
+            <option>Apartamento sem telas</option>
+            <option>Outro</option>
+        </select>
+
+        <label class="form-label" for="petsInput">
+            Já possui outros animais?
+        </label>
+
+        <select id="petsInput">
+            <option value="">Selecione</option>
+            <option>Não possuo</option>
+            <option>Sim, cães</option>
+            <option>Sim, gatos</option>
+            <option>Sim, cães e gatos</option>
+        </select>
+
+        <label class="form-label" for="routineInput">
+            Como será a rotina do animal?
+        </label>
+
+        <textarea
+            id="routineInput"
+            rows="3"
+            placeholder="Conte sobre tempo disponível, companhia e cuidados."></textarea>
+
+        <label class="consent">
+            <input type="checkbox" id="consentInput">
+
+            <span>
+                Autorizo o contato da Patinhas Raras para conversar sobre esta solicitação.
+            </span>
+        </label>
+
+        <button
+            class="btn btn-primary"
+            style="width:100%;margin-top:17px"
+            onclick="sendAdoptionRequest()">
+            <i class="fa-brands fa-instagram"></i>
+            Preparar mensagem para Instagram
+        </button>
+
+        <div class="message-preview" id="messagePreview"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CONFIG = {
+    instagram: "patinhas_raras",
+    instagramProfile: "https://www.instagram.com/patinhas_raras/",
+    instagramMessage: "https://ig.me/m/patinhas_raras",
+    linktree: "https://linktr.ee/patinhas_raras"
+};
+
+/*
+    Os perfis abaixo são exemplos visuais.
+    Substitua nome, foto, idade, cidade e descrição
+    pelos animais reais antes de publicar.
+*/
+const animals = [
+    {
+        id: 1,
+        name: "Caramelo",
+        category: "caes",
+        ageCategory: "adultos",
+        special: false,
+        type: "Cão",
+        age: "Adulto",
+        size: "Médio",
+        description: "Carinhoso, companheiro e esperando uma família responsável.",
+        image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        id: 2,
+        name: "Nina",
+        category: "gatos",
+        ageCategory: "adultos",
+        special: false,
+        type: "Gata",
+        age: "Adulta",
+        size: "Pequena",
+        description: "Doce, tranquila e com muita personalidade para oferecer.",
+        image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        id: 3,
+        name: "Bento",
+        category: "caes",
+        ageCategory: "filhotes",
+        special: false,
+        type: "Cão",
+        age: "Filhote",
+        size: "Pequeno",
+        description: "Cheio de energia, curiosidade e vontade de aprender.",
+        image: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        id: 4,
+        name: "Jujuba",
+        category: "gatos",
+        ageCategory: "filhotes",
+        special: false,
+        type: "Gata",
+        age: "Filhote",
+        size: "Pequena",
+        description: "Brincalhona e carinhosa. Precisa de ambiente seguro.",
+        image: "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        id: 5,
+        name: "Tobias",
+        category: "caes",
+        ageCategory: "adultos",
+        special: true,
+        type: "Cão",
+        age: "Adulto",
+        size: "Grande",
+        description: "Busca uma família paciente, presente e comprometida.",
+        image: "https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        id: 6,
+        name: "Luna",
+        category: "gatos",
+        ageCategory: "adultos",
+        special: true,
+        type: "Gata",
+        age: "Adulta",
+        size: "Média",
+        description: "Uma patinha especial que merece cuidado e segurança.",
+        image: "https://images.unsplash.com/photo-1561948955-570b270e7c36?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        id: 7,
+        name: "Pipoca",
+        category: "caes",
+        ageCategory: "filhotes",
+        special: false,
+        type: "Cão",
+        age: "Filhote",
+        size: "Pequeno",
+        description: "Alegre, curioso e pronto para descobrir o mundo.",
+        image: "https://images.unsplash.com/photo-1444212477490-ca407925329e?auto=format&fit=crop&w=700&q=80"
+    },
+    {
+        id: 8,
+        name: "Mel",
+        category: "caes",
+        ageCategory: "adultos",
+        special: false,
+        type: "Cão",
+        age: "Adulta",
+        size: "Médio",
+        description: "Companheira e amorosa. Procura uma família tranquila.",
+        image: "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=700&q=80"
+    }
+];
+
+let activeFilter = "todos";
+let searchTerm = "";
+
+/* PRELOADER */
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("preloader").classList.add("hidden");
+    }, 650);
+});
+
+/* HEADER E BARRA DE PROGRESSO */
+window.addEventListener("scroll", () => {
+    document.getElementById("siteHeader")
+        .classList.toggle("scrolled", window.scrollY > 20);
+
+    const totalHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+    const progress =
+        totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
+
+    document.getElementById("scrollProgress").style.width = `${progress}%`;
+});
+
+/* MENU MOBILE */
+document.getElementById("menuToggle").addEventListener("click", () => {
+    document.getElementById("navLinks").classList.toggle("open");
+});
+
+document.querySelectorAll(".nav-links a").forEach(link => {
+    link.addEventListener("click", () => {
+        document.getElementById("navLinks").classList.remove("open");
+    });
+});
+
+/* RENDERIZAÇÃO DOS ANIMAIS */
+function renderAnimals() {
+    const grid = document.getElementById("animalGrid");
+
+    const filteredAnimals = animals.filter(animal => {
+        let matchesFilter = true;
+
+        if (activeFilter === "caes") {
+            matchesFilter = animal.category === "caes";
+        }
+
+        if (activeFilter === "gatos") {
+            matchesFilter = animal.category === "gatos";
+        }
+
+        if (activeFilter === "filhotes") {
+            matchesFilter = animal.ageCategory === "filhotes";
+        }
+
+        if (activeFilter === "adultos") {
+            matchesFilter = animal.ageCategory === "adultos";
+        }
+
+        if (activeFilter === "especiais") {
+            matchesFilter = animal.special === true;
+        }
+
+        const searchableText = `
+            ${animal.name}
+            ${animal.type}
+            ${animal.age}
+            ${animal.size}
+            ${animal.description}
+        `.toLowerCase();
+
+        const matchesSearch = searchableText.includes(searchTerm);
+
+        return matchesFilter && matchesSearch;
+    });
+
+    if (!filteredAnimals.length) {
+        grid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:35px;color:var(--cinza)">
+                Nenhuma patinha encontrada.
+                <br>
+                <button class="btn btn-primary" style="margin-top:15px" onclick="openAdoption()">
+                    Falar sobre adoção
+                </button>
+            </div>
+        `;
+
+        return;
+    }
+
+    grid.innerHTML = filteredAnimals.map(animal => `
+        <article class="animal-card tilt-card reveal visible">
+            <div class="animal-image">
+                <img
+                    src="${animal.image}"
+                    alt="${animal.name}, perfil demonstrativo"
+                    loading="lazy">
+
+                <span class="animal-badge">MODELO</span>
+                <span class="animal-type">${animal.type}</span>
+            </div>
+
+            <div class="animal-body">
+                <h3>${animal.name}</h3>
+
+                <div class="animal-info">
+                    <span>${animal.age}</span>
+                    <span>${animal.size}</span>
+                    ${animal.special ? "<span>Cuidados especiais</span>" : ""}
+                </div>
+
+                <p>${animal.description}</p>
+
+                <div class="animal-footer">
+                    <small>
+                        <i class="fa-solid fa-heart"></i>
+                        Confirmar disponibilidade
+                    </small>
+
+                    <button onclick="openAdoption(${animal.id})">
+                        Quero conhecer
+                    </button>
+                </div>
+            </div>
+        </article>
+    `).join("");
+
+    activateTiltCards();
+}
+
+document.querySelectorAll(".filter-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn")
+            .forEach(item => item.classList.remove("active"));
+
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        renderAnimals();
+    });
+});
+
+document.getElementById("animalSearch").addEventListener("input", event => {
+    searchTerm = event.target.value.toLowerCase().trim();
+    renderAnimals();
+});
+
+/* SELECT DO FORMULÁRIO */
+function fillAnimalSelect(selectedId = null) {
+    const select = document.getElementById("animalSelect");
+
+    select.innerHTML = `
+        <option value="Adoção geral — ainda não escolhi uma patinha">
+            Adoção geral — ainda não escolhi uma patinha
+        </option>
+    `;
+
+    animals.forEach(animal => {
+        select.innerHTML += `
+            <option
+                value="${animal.name}"
+                ${animal.id === selectedId ? "selected" : ""}>
+                ${animal.name} — ${animal.type} — ${animal.age}
+            </option>
+        `;
+    });
+}
+
+/* MODAL */
+function openAdoption(animalId = null) {
+    fillAnimalSelect(animalId);
+
+    document.getElementById("modalOverlay").classList.add("open");
+    document.body.classList.add("modal-open");
+}
+
+function closeAdoption() {
+    document.getElementById("modalOverlay").classList.remove("open");
+    document.body.classList.remove("modal-open");
+    document.getElementById("messagePreview").style.display = "none";
+}
+
+document.getElementById("modalOverlay").addEventListener("click", event => {
+    if (event.target.id === "modalOverlay") {
+        closeAdoption();
+    }
+});
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        closeAdoption();
+    }
+});
+
+/* ENVIO DO CADASTRO */
+async function sendAdoptionRequest() {
+    const animal = document.getElementById("animalSelect").value;
+    const name = document.getElementById("nameInput").value.trim();
+    const city = document.getElementById("cityInput").value.trim();
+    const home = document.getElementById("homeInput").value;
+    const pets = document.getElementById("petsInput").value;
+    const routine = document.getElementById("routineInput").value.trim();
+    const consent = document.getElementById("consentInput").checked;
+
+    if (!name || !city || !home || !pets) {
+        showToast("Preencha os campos principais.");
+        return;
+    }
+
+    if (!consent) {
+        showToast("Autorize o contato para continuar.");
+        return;
+    }
+
+    const message =
+`🐾 *PRÉ-CADASTRO DE ADOÇÃO — PATINHAS RARAS*
+
+Olá! Gostaria de conversar sobre adoção responsável.
+
+👤 Nome: ${name}
+📍 Cidade/Estado: ${city}
+🐶 Patinha de interesse: ${animal}
+🏠 Moradia: ${home}
+🐾 Outros animais: ${pets}
+
+📝 Rotina e informações:
+${routine || "Não informado"}
+
+Estou ciente de que a adoção depende de conversa, avaliação e compatibilidade.
+Gostaria de saber os próximos passos.`;
+
+    const preview = document.getElementById("messagePreview");
+    preview.textContent =
+        "Mensagem copiada. Cole no Direct do Instagram:\n\n" + message;
+    preview.style.display = "block";
+
+    try {
+        await navigator.clipboard.writeText(message);
+        showToast("Mensagem copiada! Abrindo o Instagram...");
+    } catch {
+        showToast("Copie a mensagem exibida e envie pelo Instagram.");
+    }
+
+    window.open(CONFIG.instagramMessage, "_blank", "noopener");
+}
+
+/* COMPARTILHAR */
+async function sharePage() {
+    const shareData = {
+        title: "Patinhas Raras",
+        text: "Conheça a Patinhas Raras e ajude um animal a encontrar uma família.",
+        url: window.location.href
+    };
+
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+        } catch {
+            return;
+        }
+    } else {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            showToast("Link copiado para compartilhar!");
+        } catch {
+            showToast("Copie o endereço desta página.");
+        }
+    }
+}
+
+/* FAQ */
+document.querySelectorAll(".faq-question").forEach(question => {
+    question.addEventListener("click", () => {
+        question.parentElement.classList.toggle("open");
+    });
+});
+
+/* ANIMAÇÃO DE ENTRADA */
+const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            revealObserver.unobserve(entry.target);
+        }
+    });
+}, {
+    threshold: .12
+});
+
+document.querySelectorAll(".reveal").forEach(element => {
+    revealObserver.observe(element);
+});
+
+/* CARDS COM EFEITO 3D */
+function activateTiltCards() {
+    if (window.innerWidth < 900) return;
+
+    document.querySelectorAll(".tilt-card").forEach(card => {
+        if (card.dataset.tiltActive) return;
+
+        card.dataset.tiltActive = "true";
+
+        card.addEventListener("mousemove", event => {
+            const rect = card.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            const rotateX = ((y / rect.height) - .5) * -4;
+            const rotateY = ((x / rect.width) - .5) * 4;
+
+            card.style.transform =
+                `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+        });
+
+        card.addEventListener("mouseleave", () => {
+            card.style.transform = "";
+        });
+    });
+}
+
+/* PARALLAX SUAVE */
+document.addEventListener("mousemove", event => {
+    const heroPhoto = document.getElementById("heroPhoto");
+
+    if (window.innerWidth < 900 || !heroPhoto) return;
+
+    const x = (window.innerWidth / 2 - event.clientX) / 110;
+    const y = (window.innerHeight / 2 - event.clientY) / 110;
+
+    heroPhoto.style.transform = `rotate(2deg) translate(${x}px, ${y}px)`;
+});
+
+/* TOAST */
+function showToast(message) {
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2800);
+}
+
+/* ANO */
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/* INICIALIZAÇÃO */
+renderAnimals();
+fillAnimalSelect();
+activateTiltCards();
+</script>
+
+</body>
+</html>
