@@ -1,496 +1,2872 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Clínica Lurie | Estética Avançada em Blumenau - SC</title>
 <meta name="description" content="Clínica Lurie em Blumenau. Nota 5.0 no Google. Limpeza de pele, retirada de sinais, sobrancelhas, cílios, peeling e massagens. Agende pelo WhatsApp.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
---cream:#FDF9F3; --cream2:#F5EDE1; --ink:#1C1611; --ink2:#2A221A;
---gold:#C19A5B; --gold2:#E9D5A3; --goldd:#8C6A2F;
---rose:#E8B4A0; --rosel:#FEEDE4; --muted:#8A7E70; --white:#fff;
---r:24px; --sh:0 20px 60px rgba(28,22,17,.12); --shg:0 15px 40px rgba(193,154,91,.35);
---fd:'Cormorant Garamond',serif; --fb:'Manrope',sans-serif;
+/* ========== RESET E CONFIGURAÇÕES DE BASE ========== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-html{scroll-behavior:smooth;scroll-padding-top:100px}
-body{font-family:var(--fb);background:var(--cream);color:var(--ink);overflow-x:hidden;line-height:1.6}
-img{max-width:100%;display:block}
-a{text-decoration:none;color:inherit}
-::selection{background:var(--gold);color:#fff}
-::-webkit-scrollbar{width:10px}::-webkit-scrollbar-track{background:var(--cream2)}::-webkit-scrollbar-thumb{background:linear-gradient(var(--gold),var(--goldd));border-radius:10px}
-/* PRELOADER */
-#preloader{position:fixed;inset:0;background:#14110D;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .7s,visibility .7s}
-#preloader.hide{opacity:0;visibility:hidden}
-.loader-logo{font-family:var(--fd);font-size:4rem;color:var(--gold2);letter-spacing:12px;font-weight:500}
-.loader-bar{width:200px;height:2px;background:rgba(255,255,255,.15);border-radius:10px;overflow:hidden}
-.loader-bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#fff);animation:load 1.8s forwards}
-@keyframes load{to{width:100%}}
-/* PROGRESS + CURSOR */
-#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),#FFE9B8,var(--gold));z-index:9998}
-#glow{position:fixed;width:500px;height:500px;background:radial-gradient(circle,rgba(193,154,91,.14),transparent 70%);pointer-events:none;z-index:1;transform:translate(-50%,-50%);display:none}
-@media(min-width:1024px){#glow{display:block}}
-/* NAV */
-nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);width:min(1200px,92%);background:rgba(255,253,249,.85);backdrop-filter:blur(20px);border:1px solid rgba(193,154,91,.25);border-radius:100px;padding:12px 12px 12px 28px;display:flex;align-items:center;justify-content:space-between;z-index:1000;transition:.4s;box-shadow:0 10px 40px rgba(0,0,0,.08)}
-nav.scrolled{background:rgba(20,17,13,.92);border-color:rgba(193,154,91,.3)}
-nav.scrolled .logo-text,nav.scrolled .links a{color:#fff}
-.logo{display:flex;align-items:center;gap:12px}
-.logo-mark{width:42px;height:42px;background:linear-gradient(135deg,var(--gold),var(--goldd));color:#fff;border-radius:50%;display:grid;place-items:center;font-family:var(--fd);font-size:1.6rem;font-style:italic}
-.logo-text{font-family:var(--fd);font-size:1.6rem;letter-spacing:4px;font-weight:600}
-.logo-text small{display:block;font-family:var(--fb);font-size:.55rem;letter-spacing:5px;color:var(--gold);font-weight:700}
-.links{display:flex;gap:28px}
-.links a{font-size:.85rem;font-weight:600;letter-spacing:.5px;position:relative;opacity:.85;transition:.3s}
-.links a::after{content:'';position:absolute;left:0;bottom:-5px;width:0;height:2px;background:var(--gold);transition:.3s}
-.links a:hover::after{width:100%}
-.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:100px;font-weight:700;font-size:.9rem;border:none;cursor:pointer;transition:.35s;position:relative;overflow:hidden}
-.btn-gold{background:linear-gradient(135deg,#D8B878,var(--gold),var(--goldd));color:#fff;box-shadow:var(--shg)}
-.btn-gold::before{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);transition:.6s}
-.btn-gold:hover::before{left:130%}
-.btn-gold:hover{transform:translateY(-3px) scale(1.02)}
-.btn-dark{background:var(--ink);color:#fff}
-.btn-dark:hover{background:#000;transform:translateY(-3px)}
-.btn-outline{border:1.5px solid rgba(193,154,91,.5);color:var(--ink);background:transparent}
-.btn-outline:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
-#menuBtn{display:none;background:var(--ink);color:#fff;border:none;width:44px;height:44px;border-radius:50%;font-size:1.1rem;cursor:pointer}
-/* HERO */
-.hero{min-height:100vh;padding:150px 5% 60px;display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;max-width:1300px;margin:auto;position:relative}
-.blob{position:absolute;border-radius:50%;filter:blur(90px);z-index:-1;animation:float 8s ease-in-out infinite}
-.b1{width:450px;height:450px;background:rgba(193,154,91,.25);top:10%;left:-10%}
-.b2{width:400px;height:400px;background:rgba(232,180,160,.3);bottom:0;right:10%;animation-delay:2s}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-30px)}}
-.pill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(193,154,91,.3);padding:8px 18px;border-radius:100px;font-size:.78rem;font-weight:700;letter-spacing:1px;color:var(--goldd);box-shadow:0 5px 20px rgba(0,0,0,.06)}
-.pill .dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:pulse 1.5s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}100%{box-shadow:0 0 0 10px transparent}}
-.hero h1{font-family:var(--fd);font-size:clamp(3rem,6vw,5.2rem);line-height:1.02;font-weight:500;margin:22px 0}
-.hero h1 em{font-style:italic;background:linear-gradient(120deg,var(--gold),#E8B4A0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:600}
-.hero p.sub{color:#5A4F43;font-size:1.1rem;max-width:520px}
-.hero-cta{display:flex;gap:14px;margin:30px 0;flex-wrap:wrap}
-.trust{display:flex;align-items:center;gap:14px;margin-bottom:30px}
-.avatars{display:flex}.avatars img{width:44px;height:44px;border-radius:50%;border:3px solid #fff;object-fit:cover;margin-left:-12px}.avatars img:first-child{margin:0}
-.stars{color:#F5A623;font-size:.9rem;letter-spacing:2px}
-.trust small{color:var(--muted);font-weight:600}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;background:#fff;border:1px solid rgba(193,154,91,.2);padding:20px;border-radius:20px;box-shadow:var(--sh)}
-.stats b{font-family:var(--fd);font-size:2rem;color:var(--ink);display:block;line-height:1}
-.stats span{font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px}
-/* hero visual */
-.hero-vis{position:relative}
-.main-img{border-radius:32px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.2);border:6px solid #fff;position:relative}
-.main-img img{height:560px;width:100%;object-fit:cover;transition:1s}
-.main-img:hover img{transform:scale(1.06)}
-.main-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(20,17,13,.45),transparent 50%)}
-.float-card{position:absolute;background:rgba(255,255,255,.95);backdrop-filter:blur(15px);border-radius:20px;padding:16px 20px;box-shadow:var(--sh);display:flex;gap:12px;align-items:center;animation:float 5s ease-in-out infinite;border:1px solid rgba(193,154,91,.2)}
-.fc1{top:30px;left:-40px}.fc2{bottom:40px;right:-20px;animation-delay:2s}
-.fc-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:1.3rem;color:#fff}
-.spin-badge{position:absolute;bottom:-30px;left:-30px;width:130px;height:130px;background:var(--ink);border-radius:50%;display:grid;place-items:center;color:var(--gold2);border:4px solid var(--gold)}
-.spin-badge svg{position:absolute;inset:8px;animation:spin 12s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-/* MARQUEE */
-.marquee{background:linear-gradient(90deg,#14110D,#2A221A,#14110D);color:var(--gold2);padding:18px 0;overflow:hidden;white-space:nowrap;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold)}
-.marquee-inner{display:inline-flex;gap:40px;animation:mq 22s linear infinite;font-family:var(--fd);font-size:1.3rem;letter-spacing:3px;font-style:italic}
-@keyframes mq{to{transform:translateX(-50%)}}
-/* SECTIONS */
-section{padding:90px 5%}
-.wrap{max-width:1200px;margin:auto}
-.label{display:inline-block;font-size:.75rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--goldd);background:rgba(193,154,91,.12);padding:8px 20px;border-radius:100px;margin-bottom:16px;border:1px solid rgba(193,154,91,.25)}
-h2.title{font-family:var(--fd);font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.1;font-weight:500}
-h2.title em{font-style:italic;color:var(--gold)}
-.center{text-align:center}.center p{max-width:600px;margin:14px auto 0;color:#5A4F43}
-/* reveal */
-.reveal{opacity:0;transform:translateY(50px);transition:all .9s cubic-bezier(.16,1,.3,1)}
-.reveal.vis{opacity:1;transform:none}
-/* SOBRE */
-.sobre-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:50px}
-.sobre-imgs{position:relative}
-.sobre-imgs .big{border-radius:28px;height:500px;width:100%;object-fit:cover;box-shadow:var(--sh)}
-.sobre-imgs .small{position:absolute;bottom:-30px;right:-20px;width:45%;height:220px;object-fit:cover;border-radius:20px;border:6px solid var(--cream);box-shadow:var(--sh)}
-.exp-badge{position:absolute;top:-20px;left:-20px;background:linear-gradient(135deg,var(--gold),var(--goldd));color:#fff;padding:20px 26px;border-radius:20px;text-align:center;box-shadow:var(--shg)}
-.exp-badge b{font-family:var(--fd);font-size:2.4rem;display:block;line-height:1}
-.check{list-style:none;margin:24px 0;display:grid;gap:14px}
-.check li{display:flex;gap:12px;align-items:center;background:#fff;padding:14px 18px;border-radius:14px;border:1px solid rgba(193,154,91,.15);font-weight:600;font-size:.95rem}
-.check i{width:32px;height:32px;background:linear-gradient(135deg,var(--gold),var(--goldd));color:#fff;border-radius:50%;display:grid;place-items:center;flex-shrink:0;font-size:.8rem}
-/* SERVICOS dark */
-#servicos{background:radial-gradient(1000px 500px at 50% 0%,rgba(193,154,91,.15),transparent),#14110D;color:#fff;border-radius:40px;margin:0 12px}
-#servicos .label{background:rgba(193,154,91,.15);color:var(--gold2)}
-#servicos .center p{color:#B8AB99}
-.filters{display:flex;gap:10px;justify-content:center;margin:30px 0;flex-wrap:wrap}
-.filters button{background:transparent;border:1px solid rgba(233,213,163,.3);color:var(--gold2);padding:10px 22px;border-radius:100px;font-weight:700;font-size:.8rem;cursor:pointer;transition:.3s}
-.filters button.act,.filters button:hover{background:var(--gold);color:#14110D;border-color:var(--gold)}
-.grid-serv{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.card-serv{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));border:1px solid rgba(233,213,163,.18);border-radius:24px;padding:28px 24px;transition:.45s;position:relative;overflow:hidden}
-.card-serv::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--rose));opacity:0;transition:.4s}
-.card-serv:hover{transform:translateY(-10px);border-color:var(--gold);box-shadow:0 25px 60px rgba(193,154,91,.2);background:rgba(255,255,255,.09)}
-.card-serv:hover::before{opacity:1}
-.card-serv .ic{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--gold),#8C6A2F);display:grid;place-items:center;font-size:1.4rem;margin-bottom:18px;color:#fff}
-.card-serv h3{font-family:var(--fd);font-size:1.4rem;margin-bottom:8px}
-.card-serv p{font-size:.85rem;color:#B8AB99;margin-bottom:14px;min-height:60px}
-.card-serv .meta{display:flex;justify-content:space-between;font-size:.78rem;color:var(--gold2);font-weight:700;margin-bottom:16px}
-.card-serv button{width:100%;background:transparent;border:1px solid rgba(233,213,163,.4);color:#fff;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;transition:.3s}
-.card-serv button:hover{background:var(--gold);color:#14110D;border-color:var(--gold)}
-/* DIFERENCIAIS */
-.diff-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:50px}
-.diff{background:#fff;border-radius:24px;padding:32px 26px;border:1px solid rgba(193,154,91,.15);position:relative;overflow:hidden;transition:.4s}
-.diff:hover{transform:translateY(-8px);box-shadow:var(--sh)}
-.diff .num{font-family:var(--fd);font-size:3.5rem;color:transparent;-webkit-text-stroke:1px var(--gold);opacity:.6;line-height:1}
-.diff h3{margin:12px 0 8px;font-size:1.05rem}
-.diff p{font-size:.88rem;color:var(--muted)}
-.diff::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--rose));transform:scaleX(0);transition:.4s;transform-origin:left}
-.diff:hover::after{transform:scaleX(1)}
-/* PASSOS */
-.passos{background:linear-gradient(180deg,var(--cream2),var(--cream));border-radius:40px;margin:0 12px}
-.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:50px;position:relative}
-.steps::before{content:'';position:absolute;top:35px;left:10%;right:10%;height:2px;background: repeating-linear-gradient(90deg,var(--gold) 0 10px,transparent 10px 20px);opacity:.4}
-.step{text-align:center;position:relative}
-.step .ball{width:70px;height:70px;background:#fff;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-size:1.5rem;color:var(--goldd);margin:0 auto 16px;box-shadow:var(--sh);position:relative;z-index:2}
-.step b{background:var(--ink);color:#fff;font-size:.7rem;padding:4px 12px;border-radius:100px;letter-spacing:1px}
-/* GALERIA */
-.gal{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
-.gal div{border-radius:20px;overflow:hidden;position:relative;cursor:pointer;height:260px}
-.gal div:nth-child(2){grid-row:span 2;height:534px}
-.gal img{width:100%;height:100%;object-fit:cover;transition:.7s}
-.gal div:hover img{transform:scale(1.1)}
-.gal div::after{content:'\f06e';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;inset:0;background:rgba(20,17,13,.45);color:#fff;display:grid;place-items:center;font-size:1.8rem;opacity:0;transition:.4s}
-.gal div:hover::after{opacity:1}
-/* AVALIACOES */
-#avaliacoes{background:#fff;border-top:1px solid rgba(193,154,91,.15);border-bottom:1px solid rgba(193,154,91,.15)}
-.av-grid{display:grid;grid-template-columns:320px 1fr;gap:50px;margin-top:40px;align-items:start}
-.av-score{background:linear-gradient(160deg,#14110D,#2A221A);color:#fff;border-radius:28px;padding:40px 30px;text-align:center;position:sticky;top:110px}
-.av-score h3{font-family:var(--fd);font-size:4.5rem;line-height:1;color:var(--gold2)}
-.av-score .stars{font-size:1.1rem;margin:10px 0}
-.bar{display:flex;align-items:center;gap:8px;font-size:.75rem;margin:6px 0;color:#B8AB99}
-.bar .track{flex:1;height:6px;background:rgba(255,255,255,.15);border-radius:10px;overflow:hidden}
-.bar .fill{height:100%;background:var(--gold);border-radius:10px}
-.car-window{overflow:hidden;border-radius:24px}
-.car-track{display:flex;gap:20px;transition:.6s cubic-bezier(.16,1,.3,1)}
-.t-card{min-width:calc(50% - 10px);background:var(--cream);border:1px solid rgba(193,154,91,.2);border-radius:24px;padding:28px}
-.t-card .q{font-family:var(--fd);font-size:3rem;color:var(--gold);line-height:1}
-.t-card p{font-size:.92rem;margin:8px 0 18px;font-style:italic;color:#444}
-.t-user{display:flex;gap:12px;align-items:center}
-.t-user img{width:48px;height:48px;border-radius:50%;object-fit:cover}
-.t-user b{font-size:.9rem}.t-user small{color:var(--muted)}
-.car-nav{display:flex;gap:10px;margin-top:20px;align-items:center}
-.car-nav button{width:48px;height:48px;border-radius:50%;border:1px solid var(--gold);background:#fff;color:var(--goldd);cursor:pointer;transition:.3s;font-size:1rem}
-.car-nav button:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
-#dots{display:flex;gap:8px;margin-left:10px}#dots span{width:8px;height:8px;border-radius:100px;background:#DDD;transition:.3s}#dots span.on{width:28px;background:var(--gold)}
-/* AGENDAR */
-#agendar{background:radial-gradient(800px 400px at 20% 20%,rgba(193,154,91,.2),transparent),linear-gradient(160deg,#14110D,#241C14);color:#fff;margin:0 12px;border-radius:40px}
-.ag-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:50px;margin-top:40px}
-.ag-info h3{font-family:var(--fd);font-size:2.2rem;margin:10px 0}
-.ag-perk{display:flex;gap:14px;background:rgba(255,255,255,.06);border:1px solid rgba(233,213,163,.2);padding:16px;border-radius:16px;margin:12px 0}
-.ag-perk i{width:44px;height:44px;background:var(--gold);border-radius:12px;display:grid;place-items:center;flex-shrink:0}
-.form-card{background:#FFFEFB;color:var(--ink);border-radius:28px;padding:36px;box-shadow:0 30px 80px rgba(0,0,0,.4)}
-.form-card h3{font-family:var(--fd);font-size:1.8rem}
-.f-step{display:flex;gap:8px;margin:18px 0}.f-step span{flex:1;height:4px;background:#EEE;border-radius:10px}.f-step span.on{background:linear-gradient(90deg,var(--gold),var(--rose))}
-.flabel{font-size:.78rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--goldd);margin:18px 0 10px;display:block}
-.serv-pills{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.serv-pills button{border:1.5px solid #E8E0D2;background:#fff;padding:12px;border-radius:14px;font-weight:700;font-size:.82rem;cursor:pointer;transition:.25s;text-align:left}
-.serv-pills button.sel{background:var(--ink);color:#fff;border-color:var(--ink);transform:scale(1.02)}
-.serv-pills button small{display:block;font-weight:400;opacity:.7}
-.time-pills{display:flex;gap:8px;flex-wrap:wrap}
-.time-pills button{border:1.5px solid #E8E0D2;background:#fff;padding:10px 18px;border-radius:100px;font-weight:700;cursor:pointer;transition:.25s}
-.time-pills button.sel{background:var(--gold);color:#fff;border-color:var(--gold)}
-.in-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-input,select{width:100%;padding:14px 16px;border:1.5px solid #E8E0D2;border-radius:14px;font-family:inherit;font-size:.9rem;outline:none;transition:.3s;background:#fff}
-input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(193,154,91,.15)}
-.summary{background:linear-gradient(135deg,#FFF8EA,#FDEED5);border:1px dashed var(--gold);border-radius:16px;padding:16px;margin:18px 0;font-size:.88rem}
-#sendWpp{width:100%;justify-content:center;font-size:1rem;padding:18px}
-/* CONTATO */
-.cont-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:24px;margin-top:40px}
-.c-card{background:#fff;border:1px solid rgba(193,154,91,.2);border-radius:20px;padding:22px;display:flex;gap:16px;align-items:center;margin-bottom:14px;transition:.3s}
-.c-card:hover{transform:translateX(6px);box-shadow:var(--sh)}
-.c-card i{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--gold),var(--goldd));color:#fff;display:grid;place-items:center;font-size:1.2rem;flex-shrink:0}
-.map{border-radius:24px;overflow:hidden;border:6px solid #fff;box-shadow:var(--sh);min-height:380px}
-.map iframe{width:100%;height:380px;border:0}
-/* FAQ */
-.faq{max-width:760px;margin:30px auto 0}
-.faq-item{background:#fff;border:1px solid rgba(193,154,91,.2);border-radius:18px;margin-bottom:12px;overflow:hidden}
-.faq-q{padding:20px 24px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:700}
-.faq-q i{width:32px;height:32px;background:var(--cream2);border-radius:50%;display:grid;place-items:center;transition:.35s;color:var(--goldd)}
-.faq-item.open .faq-q i{transform:rotate(45deg);background:var(--gold);color:#fff}
-.faq-a{max-height:0;overflow:hidden;transition:.4s;padding:0 24px;color:#5A4F43;font-size:.92rem}
-.faq-item.open .faq-a{max-height:200px;padding-bottom:20px}
-/* CTA FINAL */
-.cta-final{background:linear-gradient(135deg,#D8B878,var(--gold),#8C6A2F);border-radius:32px;padding:70px 40px;text-align:center;color:#fff;position:relative;overflow:hidden;margin:0 12px 20px}
-.cta-final::before{content:'L';position:absolute;font-family:var(--fd);font-size:22rem;opacity:.1;right:-20px;top:-60px;font-style:italic}
-.cta-final h2{font-family:var(--fd);font-size:clamp(2.2rem,4.5vw,3.6rem)}
-.btn-white{background:#fff;color:var(--ink);margin-top:24px;font-size:1rem;padding:18px 40px}
-.btn-white:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 20px 40px rgba(0,0,0,.25)}
-/* FOOTER */
-footer{background:#0F0D0B;color:#B8AB99;padding:60px 5% 24px;border-radius:40px 40px 0 0}
-.f-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:30px;max-width:1200px;margin:auto}
-.f-grid h4{color:#fff;margin-bottom:14px;font-size:.85rem;letter-spacing:2px;text-transform:uppercase}
-.f-grid a{display:block;margin:8px 0;font-size:.9rem;transition:.3s}.f-grid a:hover{color:var(--gold2);padding-left:6px}
-.f-bottom{max-width:1200px;margin:30px auto 0;border-top:1px solid rgba(255,255,255,.1);padding-top:20px;display:flex;justify-content:space-between;font-size:.8rem;flex-wrap:wrap;gap:10px}
-/* FLOATS */
-.wpp-float{position:fixed;bottom:24px;right:24px;width:62px;height:62px;background:#25D366;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:1.7rem;z-index:900;box-shadow:0 15px 35px rgba(37,211,102,.5);transition:.3s}
-.wpp-float::before{content:'';position:absolute;inset:-5px;border:2px solid #25D366;border-radius:50%;animation:pulse 1.8s infinite}
-.wpp-float:hover{transform:scale(1.1)}
-#toTop{position:fixed;bottom:100px;right:30px;width:48px;height:48px;background:var(--ink);color:var(--gold2);border:1px solid var(--gold);border-radius:50%;cursor:pointer;opacity:0;visibility:hidden;transition:.4s;z-index:900}
-#toTop.show{opacity:1;visibility:visible}
-/* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(15,13,11,.7);backdrop-filter:blur(8px);z-index:2000;display:grid;place-items:center;padding:20px;opacity:0;visibility:hidden;transition:.4s}
-.modal-bg.open{opacity:1;visibility:visible}
-.modal{background:#fff;border-radius:28px;max-width:560px;width:100%;overflow:hidden;transform:scale(.9) translateY(30px);transition:.45s cubic-bezier(.16,1,.3,1);max-height:90vh;overflow-y:auto}
-.modal-bg.open .modal{transform:none}
-.modal img{height:220px;width:100%;object-fit:cover}
-.modal-body{padding:32px}
-.modal-body ul{margin:14px 0;list-style:none;display:grid;gap:8px}
-.modal-body ul li{font-size:.9rem;display:flex;gap:10px;align-items:center}
-.modal-body ul i{color:var(--gold)}
-#closeModal{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;border:none;background:#fff;cursor:pointer;font-size:1.1rem;box-shadow:var(--sh)}
-/* LIGHTBOX */
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:grid;place-items:center;opacity:0;visibility:hidden;transition:.4s;padding:20px}
-#lightbox.open{opacity:1;visibility:visible}
-#lightbox img{max-width:90%;max-height:85vh;border-radius:20px;box-shadow:0 0 80px rgba(193,154,91,.3)}
-/* TOAST */
-#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ink);color:#fff;padding:16px 28px;border-radius:100px;font-weight:600;font-size:.9rem;z-index:4000;transition:.5s cubic-bezier(.16,1,.3,1);border:1px solid var(--gold)}
-#toast.show{transform:translateX(-50%) translateY(0)}
-@media(max-width:1024px){
-.hero{grid-template-columns:1fr;padding-top:130px}.main-img img{height:420px}.fc1{left:10px}.fc2{right:10px}
-.grid-serv,.diff-grid,.steps{grid-template-columns:repeat(2,1fr)}.steps::before{display:none}
-.av-grid,.ag-grid,.cont-grid,.sobre-grid{grid-template-columns:1fr}.gal{grid-template-columns:repeat(2,1fr)}.gal div:nth-child(2){grid-row:auto;height:260px}
-.links{display:none}#menuBtn{display:block}.f-grid{grid-template-columns:1fr 1fr}
+
+:root {
+  --cream: #FAF7F2;
+  --cream-soft: #F4ECE1;
+  --cream-card: #FFFFFF;
+  --ink: #18130E;
+  --ink-light: #2D251E;
+  --gold: #C19A5B;
+  --gold-light: #E5CD9D;
+  --gold-dark: #8C6A2F;
+  --gold-glow: rgba(193, 154, 91, 0.35);
+  --rose: #E2A994;
+  --muted: #7A6F64;
+  --border: rgba(193, 154, 91, 0.22);
+  --shadow-sm: 0 8px 24px rgba(24, 19, 14, 0.05);
+  --shadow-md: 0 16px 40px rgba(24, 19, 14, 0.08);
+  --shadow-lg: 0 24px 60px rgba(24, 19, 14, 0.12);
+  --fd: 'Cormorant Garamond', Georgia, serif;
+  --fb: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius-sm: 14px;
+  --radius-md: 22px;
+  --radius-lg: 32px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
-@media(max-width:640px){
-.grid-serv,.diff-grid,.steps,.in-row{grid-template-columns:1fr}.serv-pills{grid-template-columns:1fr}
-.t-card{min-width:100%}.stats{grid-template-columns:1fr 1fr}.hero h1{font-size:2.8rem}
-nav{padding:10px 10px 10px 20px}.form-card{padding:24px}.f-grid{grid-template-columns:1fr}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  -webkit-text-size-adjust: 100%;
 }
-.mobile-menu{position:fixed;inset:0;background:rgba(15,13,11,.97);z-index:1500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;opacity:0;visibility:hidden;transition:.4s}
-.mobile-menu.open{opacity:1;visibility:visible}
-.mobile-menu a{color:#fff;font-family:var(--fd);font-size:2rem;font-style:italic}
-.mobile-menu a:hover{color:var(--gold2)}
+
+body {
+  font-family: var(--fb);
+  background-color: var(--cream);
+  color: var(--ink);
+  line-height: 1.6;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+ul {
+  list-style: none;
+}
+
+/* ========== CONTAINERS FLUIDOS ========== */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section {
+  padding: clamp(48px, 8vw, 96px) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(193, 154, 91, 0.12);
+  border: 1px solid rgba(193, 154, 91, 0.3);
+  padding: 6px 18px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin-bottom: 14px;
+  white-space: nowrap;
+}
+
+.section-head {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto clamp(32px, 6vw, 50px);
+}
+
+.section-title {
+  font-family: var(--fd);
+  font-size: clamp(1.9rem, 4.2vw, 3.2rem);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--ink);
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.section-title em {
+  font-style: italic;
+  font-weight: 600;
+  background: linear-gradient(120deg, var(--gold), #D49D6A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section-desc {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: clamp(0.92rem, 1.5vw, 1.05rem);
+}
+
+/* ========== BOTÕES RESPONSIVOS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 12px 28px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: all 0.3s ease;
+  text-align: center;
+  width: auto;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #D4AF6A, var(--gold), var(--gold-dark));
+  color: #FFFFFF;
+  box-shadow: 0 8px 24px var(--gold-glow);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(193, 154, 91, 0.45);
+}
+
+.btn-dark {
+  background: var(--ink);
+  color: #FFFFFF;
+}
+
+.btn-dark:hover {
+  background: #000;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  color: var(--ink);
+  border: 1.5px solid rgba(193, 154, 91, 0.45);
+}
+
+.btn-outline:hover {
+  background: var(--ink);
+  color: #FFFFFF;
+  border-color: var(--ink);
+}
+
+/* ========== HEADER ========== */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 12px 16px;
+  pointer-events: none;
+}
+
+.navbar {
+  max-width: 1160px;
+  margin: 0 auto;
+  pointer-events: auto;
+  background: rgba(250, 247, 242, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(193, 154, 91, 0.3);
+  border-radius: 100px;
+  padding: 6px 8px 6px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s;
+}
+
+.header.scrolled .navbar {
+  background: rgba(20, 16, 12, 0.94);
+  border-color: rgba(193, 154, 91, 0.35);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.header.scrolled .brand-title,
+.header.scrolled .nav-links a,
+.header.scrolled .nav-toggle {
+  color: #FFFFFF;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  font-family: var(--fd);
+  font-size: 1.3rem;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.brand-title {
+  font-family: var(--fd);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1;
+  color: var(--ink);
+  transition: color 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title small {
+  font-family: var(--fb);
+  font-size: 0.52rem;
+  letter-spacing: 2.5px;
+  color: var(--gold);
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.8vw, 24px);
+}
+
+.nav-links a {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ink);
+  transition: color 0.25s;
+  position: relative;
+  padding: 4px 0;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--gold);
+  transition: width 0.3s;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-btn {
+  padding: 8px 18px;
+  min-height: 40px;
+  font-size: 0.82rem;
+}
+
+.nav-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  color: var(--ink);
+  align-items: center;
+  justify-content: center;
+}
+
+/* Drawer Mobile */
+.mobile-drawer {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 11, 8, 0.98);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 30px 24px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-20px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+.mobile-drawer.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.drawer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawer-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #FFF;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 32px 0;
+}
+
+.drawer-nav a {
+  font-family: var(--fd);
+  font-size: 2.2rem;
+  color: #FFF;
+  font-style: italic;
+  display: inline-block;
+  transition: color 0.25s, transform 0.25s;
+}
+
+.drawer-nav a:hover {
+  color: var(--gold-light);
+  transform: translateX(10px);
+}
+
+.drawer-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ========== HERO ========== */
+.hero {
+  min-height: 100vh;
+  padding: 120px 0 50px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg-accent {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-accent-1 {
+  width: 40vw;
+  height: 40vw;
+  max-width: 500px;
+  max-height: 500px;
+  background: rgba(193, 154, 91, 0.22);
+  top: -10%;
+  left: -10%;
+}
+
+.hero-accent-2 {
+  width: 35vw;
+  height: 35vw;
+  max-width: 400px;
+  max-height: 400px;
+  background: rgba(226, 169, 148, 0.26);
+  bottom: -5%;
+  right: -5%;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFF;
+  border: 1px solid rgba(193, 154, 91, 0.28);
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--gold-dark);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+.status-pill .dot {
+  width: 8px;
+  height: 8px;
+  background: #16a34a;
+  border-radius: 50%;
+  animation: pulseDot 1.8s infinite;
+}
+
+@keyframes pulseDot {
+  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+.hero-title {
+  font-family: var(--fd);
+  font-size: clamp(2.3rem, 5.2vw, 4.4rem);
+  line-height: 1.1;
+  font-weight: 500;
+  margin: 16px 0;
+  color: var(--ink);
+  word-break: break-word;
+}
+
+.hero-title em {
+  font-style: italic;
+  font-weight: 600;
+  background: linear-gradient(130deg, var(--gold), #D49D6A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: clamp(0.96rem, 1.8vw, 1.15rem);
+  color: #554A40;
+  max-width: 540px;
+  margin-bottom: 24px;
+}
+
+.hero-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.hero-rating {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(193, 154, 91, 0.2);
+  max-width: 480px;
+  margin-bottom: 20px;
+}
+
+.rating-avatars {
+  display: flex;
+}
+
+.rating-avatars img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #FFF;
+  margin-left: -8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.rating-avatars img:first-child {
+  margin-left: 0;
+}
+
+.rating-info b {
+  font-size: 0.9rem;
+  display: block;
+  line-height: 1.2;
+}
+
+.rating-info .stars {
+  color: #EAB308;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.rating-info small {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 500px;
+}
+
+.stat-box {
+  background: #FFF;
+  border: 1px solid rgba(193, 154, 91, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-box b {
+  font-family: var(--fd);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  line-height: 1;
+  display: block;
+}
+
+.stat-box span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Imagem Hero */
+.hero-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.hero-image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 5px solid #FFF;
+  background: #000;
+}
+
+.hero-image-wrapper img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.floating-card {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(193, 154, 91, 0.25);
+  border-radius: 18px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-md);
+  z-index: 3;
+  animation: floatMotion 6s ease-in-out infinite;
+  max-width: 240px;
+  pointer-events: none;
+}
+
+.fc-1 {
+  top: 10%;
+  left: -20px;
+}
+
+.fc-2 {
+  bottom: 10%;
+  right: -20px;
+  animation-delay: 2.5s;
+}
+
+@keyframes floatMotion {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.fc-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  color: #FFF;
+  flex-shrink: 0;
+}
+
+/* ========== FAIXA MARQUEE ========== */
+.marquee-bar {
+  background: linear-gradient(90deg, #18130E, #281F17, #18130E);
+  color: var(--gold-light);
+  padding: 14px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 1px solid var(--gold);
+  border-bottom: 1px solid var(--gold);
+  position: relative;
+  z-index: 2;
+}
+
+.marquee-track {
+  display: inline-flex;
+  gap: 30px;
+  animation: marqueeRoll 32s linear infinite;
+  font-family: var(--fd);
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  letter-spacing: 2px;
+  font-style: italic;
+  width: max-content;
+}
+
+@keyframes marqueeRoll {
+  to { transform: translateX(-50%); }
+}
+
+/* ========== SOBRE ---------- */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: center;
+}
+
+.about-gallery {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.about-img-main {
+  width: 85%;
+  border-radius: var(--radius-md);
+  aspect-ratio: 4 / 4.8;
+  object-fit: cover;
+  box-shadow: var(--shadow-lg);
+  border: 4px solid #FFF;
+}
+
+.about-img-sub {
+  position: absolute;
+  bottom: -20px;
+  right: 0;
+  width: 48%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 4px solid var(--cream);
+  box-shadow: var(--shadow-md);
+}
+
+.about-seal {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #FFF;
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  box-shadow: 0 8px 24px var(--gold-glow);
+}
+
+.about-seal b {
+  font-family: var(--fd);
+  font-size: 2rem;
+  line-height: 1;
+  display: block;
+}
+
+.about-seal span {
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.about-features {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0 30px;
+}
+
+.about-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #FFF;
+  border: 1px solid rgba(193, 154, 91, 0.18);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.about-features i {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #FFF;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+/* ========== SERVIÇOS ========== */
+.services-section {
+  background: radial-gradient(900px 500px at 50% 0%, rgba(193, 154, 91, 0.16), transparent), #130F0B;
+  color: #FFF;
+  border-radius: var(--radius-lg);
+  margin: 0 16px;
+  padding: 64px 24px;
+}
+
+.services-section .section-title,
+.services-section .section-desc {
+  color: #FFF;
+}
+
+.services-section .section-desc {
+  color: #BBB0A3;
+}
+
+.filter-tabs-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.filter-tabs-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.filter-btn {
+  background: transparent;
+  border: 1.5px solid rgba(229, 205, 157, 0.25);
+  color: var(--gold-light);
+  padding: 8px 20px;
+  min-height: 40px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  background: var(--gold);
+  color: #130F0B;
+  border-color: var(--gold);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.service-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(229, 205, 157, 0.15);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--gold);
+  box-shadow: 0 16px 36px rgba(193, 154, 91, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.service-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  color: #FFF;
+  margin-bottom: 16px;
+}
+
+.service-name {
+  font-family: var(--fd);
+  font-size: 1.35rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #FFF;
+}
+
+.service-desc {
+  font-size: 0.86rem;
+  color: #B5ABA0;
+  margin-bottom: 18px;
+  flex-grow: 1;
+}
+
+.service-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  padding-top: 12px;
+  margin-bottom: 14px;
+  font-size: 0.8rem;
+}
+
+.service-time {
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+.service-price {
+  color: #FFF;
+  font-weight: 800;
+}
+
+.service-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(229, 205, 157, 0.3);
+  color: #FFF;
+  padding: 10px;
+  min-height: 42px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  transition: all 0.25s;
+}
+
+.service-btn:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #130F0B;
+}
+
+/* ========== DIFERENCIAIS ========== */
+.diff-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.diff-card {
+  background: #FFF;
+  border: 1px solid rgba(193, 154, 91, 0.18);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.diff-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.diff-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--rose));
+}
+
+.diff-num {
+  font-family: var(--fd);
+  font-size: 2.8rem;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--gold);
+  opacity: 0.6;
+}
+
+.diff-title {
+  font-size: 1.1rem;
+  margin: 12px 0 6px;
+  font-weight: 700;
+}
+
+.diff-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+/* ========== AVALIAÇÕES ========== */
+.reviews-section {
+  background: #FFF;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.reviews-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.google-box {
+  background: linear-gradient(160deg, #18130E, #292018);
+  color: #FFF;
+  border-radius: var(--radius-md);
+  padding: 30px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+
+.google-box h4 {
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+.google-score {
+  font-family: var(--fd);
+  font-size: clamp(3.2rem, 5vw, 4.2rem);
+  line-height: 1;
+  color: var(--gold-light);
+  margin: 6px 0;
+}
+
+.google-stars {
+  color: #EAB308;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+
+.google-count {
+  font-size: 0.82rem;
+  color: #BBB0A3;
+  margin-top: 4px;
+}
+
+.google-bars {
+  margin-top: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: #BBB0A3;
+}
+
+.bar-fill-track {
+  flex-grow: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bar-fill-value {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 10px;
+}
+
+/* Carrossel Scroll Snap */
+.carousel-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.carousel-viewport {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  gap: 16px;
+  padding-bottom: 12px;
+  scrollbar-width: none; /* Firefox */
+}
+
+.carousel-viewport::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.review-card {
+  flex: 0 0 calc(50% - 8px);
+  min-width: 270px;
+  scroll-snap-align: start;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.review-text {
+  font-size: 0.9rem;
+  color: #443B33;
+  font-style: italic;
+  margin: 12px 0 16px;
+  line-height: 1.5;
+}
+
+.reviewer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reviewer img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--gold);
+  flex-shrink: 0;
+}
+
+.reviewer b {
+  font-size: 0.88rem;
+  display: block;
+}
+
+.reviewer small {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.carousel-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.ctrl-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  background: #FFF;
+  color: var(--gold-dark);
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+
+.ctrl-btn:hover {
+  background: var(--ink);
+  color: #FFF;
+  border-color: var(--ink);
+}
+
+.carousel-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #D8CEBE;
+  transition: all 0.3s;
+}
+
+.dot-indicator.active {
+  width: 22px;
+  border-radius: 100px;
+  background: var(--gold);
+}
+
+/* ========== GALERIA ========== */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.gallery-item {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+}
+
+.gallery-item:nth-child(1) {
+  grid-column: span 2;
+  grid-row: span 2;
+  aspect-ratio: auto;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.08);
+}
+
+.gallery-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(24, 19, 14, 0.45);
+  display: grid;
+  place-items: center;
+  color: #FFF;
+  font-size: 1.4rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.gallery-item:hover .gallery-overlay {
+  opacity: 1;
+}
+
+/* ========== AGENDAMENTO ========== */
+.booking-section {
+  background: radial-gradient(800px 500px at 15% 15%, rgba(193, 154, 91, 0.2), transparent), linear-gradient(160deg, #17120D, #251E16);
+  color: #FFF;
+  border-radius: var(--radius-lg);
+  margin: 0 16px;
+  padding: 60px 24px;
+}
+
+.booking-section .badge-tag {
+  background: rgba(193, 154, 91, 0.16);
+  color: var(--gold-light);
+  border-color: rgba(193, 154, 91, 0.3);
+}
+
+.booking-section .section-title,
+.booking-section .section-desc {
+  color: #FFF;
+}
+
+.booking-section .section-desc {
+  color: #BBB0A3;
+}
+
+.booking-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.booking-perks {
+  display: grid;
+  gap: 14px;
+}
+
+.perk-card {
+  display: flex;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(229, 205, 157, 0.18);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+}
+
+.perk-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--gold);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #17120D;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.perk-info b {
+  font-size: 0.95rem;
+  display: block;
+}
+
+.perk-info p {
+  font-size: 0.84rem;
+  color: #BBB0A3;
+}
+
+.booking-form-box {
+  background: #FFF;
+  color: var(--ink);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.3);
+}
+
+.form-step-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+  margin: 16px 0 8px;
+}
+
+.form-step-label:first-child {
+  margin-top: 0;
+}
+
+.service-select-chips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.chip-btn {
+  background: #FFF;
+  border: 1.5px solid #E6DCD0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: left;
+}
+
+.chip-btn small {
+  display: block;
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.chip-btn.selected {
+  background: var(--ink);
+  color: #FFF;
+  border-color: var(--ink);
+}
+
+.chip-btn.selected small {
+  color: var(--gold-light);
+}
+
+.time-slots-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.time-chip {
+  background: #FFF;
+  border: 1.5px solid #E6DCD0;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.time-chip.selected {
+  background: var(--gold);
+  color: #FFF;
+  border-color: var(--gold);
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.input-control {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1.5px solid #E6DCD0;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  outline: none;
+  background: #FFF;
+  color: var(--ink);
+  transition: all 0.2s;
+}
+
+.input-control:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(193, 154, 91, 0.15);
+}
+
+.booking-summary-box {
+  background: #FFF9ED;
+  border: 1.5px dashed var(--gold);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.84rem;
+  margin: 16px 0;
+  color: #423528;
+}
+
+/* ========== LOCALIZAÇÃO ========== */
+.location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 32px;
+  align-items: stretch;
+}
+
+.contact-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+}
+
+.contact-card {
+  background: #FFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.contact-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #FFF;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.contact-meta b {
+  font-size: 0.9rem;
+}
+
+.contact-meta p {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.contact-meta a {
+  display: inline-block;
+  color: var(--gold-dark);
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.map-container {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 4px solid #FFF;
+  box-shadow: var(--shadow-md);
+  height: 320px;
+  background: #E8E2D8;
+  width: 100%;
+}
+
+.map-container iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* ========== FAQ ========== */
+.faq-wrap {
+  max-width: 740px;
+  margin: 0 auto;
+  display: grid;
+  gap: 10px;
+}
+
+.faq-box {
+  background: #FFF;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.faq-trigger {
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.faq-icon-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cream-soft);
+  color: var(--gold-dark);
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.faq-box.active .faq-icon-circle {
+  transform: rotate(45deg);
+  background: var(--gold);
+  color: #FFF;
+}
+
+.faq-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding: 0 20px;
+  color: #554A40;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.faq-box.active .faq-content {
+  max-height: 200px;
+  padding-bottom: 16px;
+}
+
+/* ========== CTA FINAL ========== */
+.final-cta {
+  background: linear-gradient(135deg, #D4AF6A, var(--gold), var(--gold-dark));
+  border-radius: var(--radius-lg);
+  padding: 48px 20px;
+  text-align: center;
+  color: #FFF;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(140, 106, 47, 0.25);
+}
+
+.final-cta::before {
+  content: 'LURIE';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--fd);
+  font-size: clamp(5rem, 15vw, 13rem);
+  opacity: 0.06;
+  font-weight: 700;
+  letter-spacing: 10px;
+  pointer-events: none;
+}
+
+.final-cta h2 {
+  font-family: var(--fd);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.final-cta p {
+  font-size: clamp(0.92rem, 1.8vw, 1.1rem);
+  max-width: 520px;
+  margin: 10px auto 20px;
+  opacity: 0.95;
+}
+
+.btn-white {
+  background: #FFF;
+  color: var(--ink);
+  font-size: 0.92rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.btn-white:hover {
+  background: #FAF7F2;
+}
+
+/* ========== FOOTER ========== */
+.footer {
+  background: #110E0B;
+  color: #A3978B;
+  padding-top: 50px;
+  padding-bottom: calc(24px + var(--safe-bottom));
+  border-top: 1px solid rgba(193, 154, 91, 0.18);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 0.9fr 0.9fr;
+  gap: 36px;
+}
+
+.footer-about p {
+  font-size: 0.86rem;
+  margin: 12px 0 18px;
+  line-height: 1.5;
+}
+
+.footer-socials {
+  display: flex;
+  gap: 8px;
+}
+
+.social-link {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #FFF;
+  display: grid;
+  place-items: center;
+  transition: all 0.25s;
+}
+
+.social-link:hover {
+  background: var(--gold);
+  color: #110E0B;
+  border-color: var(--gold);
+}
+
+.footer-col h5 {
+  font-size: 0.78rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #FFF;
+  margin-bottom: 12px;
+}
+
+.footer-links {
+  display: grid;
+  gap: 8px;
+}
+
+.footer-links a {
+  font-size: 0.84rem;
+  color: #A3978B;
+  transition: all 0.25s;
+  display: inline-block;
+}
+
+.footer-links a:hover {
+  color: var(--gold-light);
+  transform: translateX(3px);
+}
+
+.footer-bottom {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ========== BOTÕES FLUTUANTES ========== */
+.floating-actions {
+  position: fixed;
+  bottom: calc(16px + var(--safe-bottom));
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 990;
+}
+
+.whatsapp-pulse-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #25D366;
+  color: #FFF;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+  position: relative;
+}
+
+.whatsapp-pulse-btn::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid #25D366;
+  border-radius: 50%;
+  animation: pulseWpp 2s infinite;
+}
+
+@keyframes pulseWpp {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.back-to-top {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #FFF;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+  margin-left: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ========== MODAL RESPONSIVO ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 12, 9, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-box {
+  background: #FFF;
+  border-radius: var(--radius-md);
+  max-width: 480px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.94) translateY(15px);
+  transition: transform 0.3s ease;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-overlay.open .modal-box {
+  transform: scale(1) translateY(0);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  z-index: 5;
+}
+
+.modal-banner-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.modal-content {
+  padding: 20px clamp(16px, 4vw, 24px);
+}
+
+.modal-feature-list {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.modal-feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+}
+
+.modal-feature-list i {
+  color: var(--gold);
+}
+
+.modal-footer-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--cream);
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin: 12px 0 16px;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+/* Toast */
+#toastBox {
+  position: fixed;
+  bottom: calc(16px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #18130E;
+  color: #FFF;
+  border: 1px solid var(--gold);
+  border-radius: 100px;
+  padding: 12px 24px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 4000;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+#toastBox.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================
+   BREAKPOINTS DE RESPONSIVIDADE RIGOROSA
+   ========================================================== */
+
+/* TELAS MÉDIAS (TABLETS E LAPTOPS COMPACTOS) */
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 36px;
+  }
+  
+  .hero-content {
+    align-items: center;
+  }
+  
+  .hero-subtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .hero-cta {
+    justify-content: center;
+  }
+  
+  .hero-rating {
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .hero-stats {
+    margin: 12px auto 0;
+  }
+  
+  .floating-card {
+    display: none !important; /* Desativados em tablets e mobile para evitar bugs */
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .about-gallery {
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .reviews-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  
+  .google-box {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .booking-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .location-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .gallery-item:nth-child(1) {
+    grid-column: span 2;
+    grid-row: span 1;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* SMARTPHONES HORIZONTAL E VERTICAL */
+@media (max-width: 768px) {
+  .nav-links, 
+  .nav-btn {
+    display: none !important;
+  }
+  
+  .nav-toggle {
+    display: flex;
+  }
+  
+  .review-card {
+    flex: 0 0 100%; /* Mostra 1 card de depoimento por vez com Scroll Snap */
+  }
+  
+  .about-img-main {
+    width: 100%;
+  }
+  
+  .about-img-sub {
+    display: none; /* Simplifica o layout sobreposto no celular */
+  }
+}
+
+/* SMARTPHONES VERTICAIS PADRÃO */
+@media (max-width: 576px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .diff-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .gallery-item:nth-child(1) {
+    grid-column: span 2;
+    aspect-ratio: 4 / 3;
+  }
+
+  .service-select-chips {
+    grid-template-columns: 1fr; /* 1 serviço por linha no celular */
+  }
+
+  .form-row-2 {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  
+  .modal-box {
+    border-radius: 20px 20px 0 0;
+    max-height: 85vh;
+  }
+  
+  .btn {
+    width: 100%; /* Botões preenchem toda a largura no celular */
+  }
+  
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+/* DISPOSITIVOS COMPACTOS (EX: IPHONE SE / GALAXY FOLD) */
+@media (max-width: 360px) {
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .brand-title {
+    font-size: 1.1rem;
+  }
+  
+  .brand-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 1.1rem;
+  }
+  
+  .section-title {
+    font-size: 1.7rem;
+  }
+}
 </style>
 </head>
 <body>
 
-<div id="preloader"><div class="loader-logo">LURIE</div><div class="loader-bar"><span></span></div><p style="color:#8A7E70;letter-spacing:4px;font-size:.7rem">ESTÉTICA AVANÇADA</p></div>
-<div id="progress"></div><div id="glow"></div>
+<!-- Barra de carregamento suave -->
+<div id="progressBar"></div>
 
-<nav id="nav">
-<div class="logo"><div class="logo-mark">L</div><div class="logo-text">LURIE<small>CLÍNICA • BLUMENAU</small></div></div>
-<div class="links"><a href="#inicio">Início</a><a href="#sobre">Sobre</a><a href="#servicos">Serviços</a><a href="#avaliacoes">Avaliações</a><a href="#contato">Contato</a></div>
-<div style="display:flex;gap:10px;align-items:center"><a href="#agendar" class="btn btn-gold" style="padding:12px 24px"><i class="fa-regular fa-calendar-check"></i> Agendar</a><button id="menuBtn"><i class="fa-solid fa-bars"></i></button></div>
-</nav>
-<div class="mobile-menu" id="mMenu"><a href="#inicio">Início</a><a href="#sobre">Sobre</a><a href="#servicos">Serviços</a><a href="#avaliacoes">Avaliações</a><a href="#agendar">Agendar</a><a href="#contato">Contato</a></div>
-
-<!-- HERO -->
-<section id="inicio" class="hero">
-<div class="blob b1"></div><div class="blob b2"></div>
-<div>
-<div class="pill reveal"><span class="dot"></span> ABERTO AGORA • FECHA ÀS 20H</div>
-<h1 class="reveal">Realce sua <em>beleza natural</em> com quem entende.</h1>
-<p class="sub reveal">Na <b>Clínica Lurie</b> em Blumenau você é recebida com carinho, escuta e os melhores cuidados faciais. Nota <b>5.0 no Google</b> com atendimento elogiado por todas.</p>
-<div class="hero-cta reveal"><a href="#agendar" class="btn btn-gold magnetic"><i class="fa-brands fa-whatsapp"></i> Agendar pelo WhatsApp</a><a href="#servicos" class="btn btn-outline magnetic">Ver tratamentos</a></div>
-<div class="trust reveal"><div class="avatars"><img src="https://i.pravatar.cc/100?img=47"><img src="https://i.pravatar.cc/100?img=32"><img src="https://i.pravatar.cc/100?img=45"><img src="https://i.pravatar.cc/100?img=26"></div><div><div class="stars">★★★★★</div><small><b>5.0</b> • 14 avaliações no Google</small></div></div>
-<div class="stats reveal"><div><b><span class="count" data-n="800">0</span>+</b><span>Procedimentos</span></div><div><b><span class="count" data-n="98">0</span>%</b><span>Clientes felizes</span></div><div><b>5.0★</b><span>Nota máxima</span></div></div>
+<!-- Loader de Marca Refinado -->
+<div id="loader" style="position:fixed;inset:0;background:#120E0A;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity 0.6s,visibility 0.6s;">
+  <div style="font-family:var(--fd);font-size:clamp(2.4rem,6vw,3.6rem);color:var(--gold-light);letter-spacing:6px;font-weight:500;">LURIE</div>
+  <div style="width:140px;height:2px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;">
+    <div style="display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#FFF);animation:loadAnim 1.4s forwards ease-in-out;"></div>
+  </div>
+  <p style="color:#8C7E72;letter-spacing:3px;font-size:0.68rem;text-transform:uppercase;">Estética Avançada • Blumenau</p>
 </div>
-<div class="hero-vis reveal">
-<div class="main-img"><img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=900&auto=format&fit=crop" alt="Tratamento facial"></div>
-<div class="float-card fc1"><div class="fc-icon" style="background:linear-gradient(135deg,#F5A623,#E8734A)"><i class="fa-solid fa-star"></i></div><div><b style="font-size:.9rem">5.0 Excelente</b><br><small style="color:#888">14 avaliações Google</small></div></div>
-<div class="float-card fc2"><div class="fc-icon" style="background:linear-gradient(135deg,#25D366,#128C7E)"><i class="fa-brands fa-whatsapp"></i></div><div><b style="font-size:.9rem">Vagas essa semana</b><br><small style="color:#22c55e;font-weight:700">● 3 horários livres</small></div></div>
-<div class="spin-badge"><svg viewBox="0 0 100 100"><defs><path id="c" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0"/></defs><text style="font-size:10px;letter-spacing:2px;fill:#E9D5A3"><textPath href="#c">CLINICA LURIE • BLUMENAU • </textPath></text></svg><span style="font-family:var(--fd);font-style:italic;font-size:2rem">L</span></div>
+<style>@keyframes loadAnim { to { width: 100%; } }</style>
+
+<!-- Header e Navegação -->
+<header class="header" id="header">
+  <nav class="navbar">
+    <a href="#inicio" class="brand" aria-label="Clínica Lurie - Início">
+      <div class="brand-icon">L</div>
+      <div class="brand-title">
+        LURIE
+        <small>CLÍNICA • BLUMENAU</small>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#inicio">Início</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#servicos">Tratamentos</a>
+      <a href="#avaliacoes">Avaliações</a>
+      <a href="#localizacao">Onde Estamos</a>
+      <a href="#faq">Dúvidas</a>
+    </div>
+    <div class="nav-actions">
+      <a href="#agendar" class="btn btn-gold nav-btn">
+        <i class="fa-regular fa-calendar-check"></i> Agendar
+      </a>
+      <button class="nav-toggle" id="menuToggle" aria-label="Abrir Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- Drawer de Menu Mobile -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="drawer-head">
+    <div class="brand">
+      <div class="brand-icon">L</div>
+      <div class="brand-title" style="color:#FFF">LURIE <small>ESTÉTICA AVANÇADA</small></div>
+    </div>
+    <button class="drawer-close" id="drawerClose" aria-label="Fechar Menu"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="drawer-nav">
+    <a href="#inicio" class="drawer-link">Início</a>
+    <a href="#sobre" class="drawer-link">A Clínica</a>
+    <a href="#servicos" class="drawer-link">Tratamentos</a>
+    <a href="#avaliacoes" class="drawer-link">Depoimentos 5.0</a>
+    <a href="#agendar" class="drawer-link">Agendar Horário</a>
+    <a href="#localizacao" class="drawer-link">Localização</a>
+    <a href="#faq" class="drawer-link">Perguntas Frequentes</a>
+  </div>
+  <div class="drawer-footer">
+    <a href="https://wa.me/5547999101108?text=Ol%C3%A1!%20Gostaria%20de%20agendar%20um%20hor%C3%A1rio%20na%20Cl%C3%ADnica%20Lurie" target="_blank" class="btn btn-gold">
+      <i class="fa-brands fa-whatsapp"></i> Falar no WhatsApp
+    </a>
+    <p style="color:#8C7E72;font-size:0.75rem;text-align:center;">R. São Paulo, 440 - Victor Konder, Blumenau - SC</p>
+  </div>
 </div>
-</section>
 
-<div class="marquee"><div class="marquee-inner"><span>LIMPEZA DE PELE ✦ SOBRANCELHAS ✦ CÍLIOS ✦ PEELING ✦ RETIRADA DE SINAIS ✦ MASSAGEM ✦ DRENAGEM ✦ </span><span>LIMPEZA DE PELE ✦ SOBRANCELHAS ✦ CÍLIOS ✦ PEELING ✦ RETIRADA DE SINAIS ✦ MASSAGEM ✦ DRENAGEM ✦ </span></div></div>
+<main>
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero-bg-accent hero-accent-1"></div>
+    <div class="hero-bg-accent hero-accent-2"></div>
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <div class="status-pill">
+            <span class="dot"></span> ABERTO HOJE ATÉ AS 20:00
+          </div>
+          <h1 class="hero-title">Realce sua beleza com um <em>cuidado que acolhe</em> e transforma.</h1>
+          <p class="hero-subtitle">Na <b>Clínica Lurie</b> em Blumenau, cada detalhe é pensado para o seu bem-estar. Protocolos faciais e corporais explicados com clareza, produtos premium e a segurança da nota máxima no Google.</p>
+          <div class="hero-cta">
+            <a href="#agendar" class="btn btn-gold"><i class="fa-brands fa-whatsapp"></i> Agendar pelo WhatsApp</a>
+            <a href="#servicos" class="btn btn-outline">Ver Tratamentos</a>
+          </div>
+          <div class="hero-rating">
+            <div class="rating-avatars">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=120&auto=format&fit=crop" alt="Cliente Viviane">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop" alt="Cliente Edson">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop" alt="Cliente Liliana">
+              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=120&auto=format&fit=crop" alt="Cliente Mariana">
+            </div>
+            <div class="rating-info">
+              <div class="stars">★★★★★</div>
+              <b>Nota 5.0 no Google</b>
+              <small>14 avaliações • 100% de satisfação</small>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-box"><b class="counter" data-target="950">0</b><span>Atendimentos</span></div>
+            <div class="stat-box"><b>5.0★</b><span>Avaliação</span></div>
+            <div class="stat-box"><b class="counter" data-target="100">0</b><span>% Dedicação</span></div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-image-wrapper">
+            <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=800&auto=format&fit=crop" alt="Procedimento Estético na Clínica Lurie">
+          </div>
+          <div class="floating-card fc-1">
+            <div class="fc-icon" style="background:linear-gradient(135deg,#F59E0B,#D97706)"><i class="fa-solid fa-star"></i></div>
+            <div><b style="font-size:0.85rem;">5.0 de Excelência</b><small style="display:block;color:var(--muted);font-size:0.7rem;">Referência em Blumenau</small></div>
+          </div>
+          <div class="floating-card fc-2">
+            <div class="fc-icon" style="background:linear-gradient(135deg,#10B981,#059669)"><i class="fa-regular fa-clock"></i></div>
+            <div><b style="font-size:0.85rem;">Horários Flexíveis</b><small style="display:block;color:#059669;font-weight:700;font-size:0.7rem;">Segunda a Sexta até 20h</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- SOBRE -->
-<section id="sobre"><div class="wrap">
-<div class="center reveal"><span class="label">Bem-vinda à Lurie</span><h2 class="title">Um espaço <em>gostoso,</em> calmo e feito pra você</h2><p>Ambiente aconchegante, fácil acesso e profissionais de primeira. Aqui cada detalhe importa.</p></div>
-<div class="sobre-grid">
-<div class="sobre-imgs reveal"><img class="big" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop"><img class="small" src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=500&auto=format&fit=crop"><div class="exp-badge"><b>5★</b><span style="font-size:.75rem;letter-spacing:2px">NOTA MÁXIMA</span></div></div>
-<div class="reveal"><span class="label">Nossa história</span><h2 class="title" style="font-size:2.4rem">Cuidado de verdade, <em>resultado que aparece</em></h2><p style="color:#5A4F43;margin-top:14px">Somos a Clínica Lurie, no coração do Victor Konder em Blumenau. A Joice e nossa equipe explicam cada procedimento com clareza, sem pressa e sem enrolação. Você sai daqui entendendo tudo e se sentindo ainda mais linda.</p>
-<ul class="check"><li><i class="fa-solid fa-check"></i> Ambiente limpo, organizado e cheiroso</li><li><i class="fa-solid fa-check"></i> Atendimento calmo, explicamos tudo antes</li><li><i class="fa-solid fa-check"></i> Produtos profissionais de alta qualidade</li><li><i class="fa-solid fa-check"></i> Fácil acesso + estacionamento perto</li></ul>
-<div style="display:flex;gap:12px;flex-wrap:wrap"><a href="#agendar" class="btn btn-dark">Quero conhecer <i class="fa-solid fa-arrow-right"></i></a><a href="https://wa.me/5547999101108?text=Ol%C3%A1!%20Quero%20conhecer%20a%20Cl%C3%ADnica%20Lurie!" target="_blank" class="btn btn-outline"><i class="fa-brands fa-whatsapp"></i> (47) 99910-1108</a></div>
-</div></div></div>
-</section>
+  <!-- FAIXA MARQUEE -->
+  <div class="marquee-bar">
+    <div class="marquee-track">
+      <span>LIMPEZA DE PELE PROFUNDA ✦ RETIRADA DE SINAIS ✦ DESIGN DE SOBRANCELHAS ✦ EXTENSÃO DE CÍLIOS ✦ PEELING RENOVADOR ✦ DRENAGEM LINFÁTICA ✦</span>
+      <span>LIMPEZA DE PELE PROFUNDA ✦ RETIRADA DE SINAIS ✦ DESIGN DE SOBRANCELHAS ✦ EXTENSÃO DE CÍLIOS ✦ PEELING RENOVADOR ✦ DRENAGEM LINFÁTICA ✦</span>
+    </div>
+  </div>
 
-<!-- SERVICOS -->
-<section id="servicos"><div class="wrap">
-<div class="center reveal"><span class="label">✦ Nossos tratamentos</span><h2 class="title" style="color:#fff">Escolha seu <em>momento de cuidado</em></h2><p>Toque em um tratamento para ver detalhes. Preço justo e resultado visível.</p></div>
-<div class="filters reveal"><button class="act" data-f="all">Todos</button><button data-f="facial">Facial</button><button data-f="olhar">Olhar</button><button data-f="corpo">Corporal</button></div>
-<div class="grid-serv" id="servGrid"></div>
-</div></section>
+  <!-- SOBRE -->
+  <section class="section" id="sobre">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-gallery">
+          <img class="about-img-main" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop" alt="Ambiente aconchegante da Clínica Lurie">
+          <img class="about-img-sub" src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=500&auto=format&fit=crop" alt="Sala de procedimentos">
+          <div class="about-seal"><b>5.0</b><span>ESTRELAS GOOGLE</span></div>
+        </div>
+        <div>
+          <span class="badge-tag">Conheça Nosso Espaço</span>
+          <h2 class="section-title">Ambiente acolhedor, profissionais <em>dedicadas</em> e fáceis de conversar.</h2>
+          <p class="section-desc" style="text-align:left; margin-bottom:20px;">Localizada no Victor Konder em Blumenau, a Clínica Lurie nasceu com o propósito de descomplicar a estética. Acreditamos que você merece entender cada passo do seu tratamento, sem termos difíceis e com total honestidade.</p>
+          <p style="color:var(--muted);font-size:0.94rem;">Seja na retirada de sinais com a profissional Joice, na limpeza de pele profunda ou no design do seu olhar, garantimos um momento de pausa agradável na sua rotina corrida.</p>
+          <ul class="about-features">
+            <li><i class="fa-solid fa-check"></i> Procedimentos bem explicados antes de iniciar</li>
+            <li><i class="fa-solid fa-check"></i> Higiene rigorosa, conforto e aromaterapia suave</li>
+            <li><i class="fa-solid fa-check"></i> Localização de fácil acesso na R. São Paulo</li>
+            <li><i class="fa-solid fa-check"></i> Acompanhamento atencioso no pós-procedimento</li>
+          </ul>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="#agendar" class="btn btn-dark">Agendar Minha Visita <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="https://wa.me/5547999101108" target="_blank" class="btn btn-outline"><i class="fa-brands fa-whatsapp"></i> Tirar Dúvidas</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- DIFERENCIAIS -->
-<section><div class="wrap">
-<div class="center reveal"><span class="label">Por que a Lurie?</span><h2 class="title">O que faz a gente <em>ser 5 estrelas</em></h2></div>
-<div class="diff-grid">
-<div class="diff reveal"><div class="num">01</div><h3>🤍 Escuta de verdade</h3><p>Nada de atendimento corrido. A gente entende sua queixa e monta o plano ideal pra sua pele.</p></div>
-<div class="diff reveal"><div class="num">02</div><h3>✨ Explicação clara</h3><p>Você sabe exatamente o que vai ser feito, quanto custa e quantas sessões precisa. Sem surpresa.</p></div>
-<div class="diff reveal"><div class="num">03</div><h3>🏡 Conforto total</h3><p>Ambiente aconchegante, limpo e tranquilo. Dá vontade de ficar mais tempo.</p></div>
-<div class="diff reveal"><div class="num">04</div><h3>💎 Pós-cuidado</h3><p>Acompanhamos você no WhatsApp depois do procedimento. Você nunca fica sozinha.</p></div>
-</div></div>
-</section>
+  <!-- SERVIÇOS -->
+  <section class="section services-section" id="servicos">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge-tag">Tabela de Cuidados</span>
+        <h2 class="section-title">Tratamentos pensados para o seu <em>glow natural</em></h2>
+        <p class="section-desc">Toque em qualquer procedimento para saber o tempo de duração, detalhes e valores aproximados.</p>
+      </div>
+      <div class="filter-tabs-wrapper">
+        <div class="filter-tabs" id="filterTabs">
+          <button class="filter-btn active" data-filter="all">Todos</button>
+          <button class="filter-btn" data-filter="facial">Estética Facial</button>
+          <button class="filter-btn" data-filter="olhar">Olhar & Sobrancelhas</button>
+          <button class="filter-btn" data-filter="corporal">Corporal & Relax</button>
+        </div>
+      </div>
+      <div class="services-grid" id="servicesGrid"></div>
+    </div>
+  </section>
 
-<!-- PASSOS -->
-<section class="passos"><div class="wrap">
-<div class="center reveal"><span class="label">É muito simples</span><h2 class="title">Agende em <em>4 passos</em></h2></div>
-<div class="steps">
-<div class="step reveal"><div class="ball"><i class="fa-solid fa-hand-pointer"></i></div><b>PASSO 1</b><h3 style="margin:10px 0 6px">Escolha o serviço</h3><p style="font-size:.85rem;color:#666">Selecione abaixo o que você quer fazer.</p></div>
-<div class="step reveal"><div class="ball"><i class="fa-regular fa-calendar"></i></div><b>PASSO 2</b><h3 style="margin:10px 0 6px">Escolha dia e hora</h3><p style="font-size:.85rem;color:#666">Veja os horários livres da semana.</p></div>
-<div class="step reveal"><div class="ball"><i class="fa-brands fa-whatsapp"></i></div><b>PASSO 3</b><h3 style="margin:10px 0 6px">Confirme no zap</h3><p style="font-size:.85rem;color:#666">Aperte um botão e pronto, vai direto.</p></div>
-<div class="step reveal"><div class="ball"><i class="fa-solid fa-sparkles"></i></div><b>PASSO 4</b><h3 style="margin:10px 0 6px">Venha se cuidar</h3><p style="font-size:.85rem;color:#666">Chegue, relaxe e saia radiante.</p></div>
-</div></div>
-</section>
+  <!-- DIFERENCIAIS -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge-tag">Por Que a Lurie?</span>
+        <h2 class="section-title">O padrão que conquistou <em>100% de clientes satisfeitas</em></h2>
+      </div>
+      <div class="diff-grid">
+        <div class="diff-card"><div class="diff-num">01</div><h3 class="diff-title">Escuta Paciente</h3><p class="diff-desc">Aqui ninguém corre com o seu atendimento. Ouvimos suas queixas e montamos uma indicação 100% personalizada.</p></div>
+        <div class="diff-card"><div class="diff-num">02</div><h3 class="diff-title">Clareza Absoluta</h3><p class="diff-desc">Você sabe o que estamos aplicando, quanto tempo vai durar e como cuidar em casa. Zero surpresas desagradáveis.</p></div>
+        <div class="diff-card"><div class="diff-num">03</div><h3 class="diff-title">Conforto Real</h3><p class="diff-desc">Ambiente limpo, organizado, com iluminação relaxante e maca confortável. Você sai renovada por completo.</p></div>
+        <div class="diff-card"><div class="diff-num">04</div><h3 class="diff-title">Pós-Procedimento</h3><p class="diff-desc">Ficamos disponíveis pelo WhatsApp para acompanhar sua recuperação e esclarecer qualquer dúvida.</p></div>
+      </div>
+    </div>
+  </section>
 
-<!-- GALERIA -->
-<section><div class="wrap">
-<div class="center reveal"><span class="label">Nosso cantinho</span><h2 class="title">Um pouquinho do <em>nosso cuidado</em></h2><p>Clique nas fotos para ampliar</p></div>
-<div class="gal reveal">
-<div><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop"></div>
-<div><img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=600&auto=format&fit=crop"></div>
-<div><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=600&auto=format&fit=crop"></div>
-<div><img src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=600&auto=format&fit=crop"></div>
-<div><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?q=80&w=600&auto=format&fit=crop"></div>
-<div><img src="https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?q=80&w=600&auto=format&fit=crop"></div>
-<div><img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop"></div>
-</div></div>
-</section>
+  <!-- AVALIAÇÕES -->
+  <section class="section reviews-section" id="avaliacoes">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge-tag">Opinião Real</span>
+        <h2 class="section-title">O que dizem sobre <em>nossa clínica</em></h2>
+        <p class="section-desc">Avaliações verificadas diretamente na nossa ficha do Google Maps.</p>
+      </div>
+      <div class="reviews-layout">
+        <div class="google-box">
+          <h4>Google Avaliações</h4>
+          <div class="google-score">5.0</div>
+          <div class="google-stars">★★★★★</div>
+          <div class="google-count">Baseado em 14 avaliações reais</div>
+          <div class="google-bars">
+            <div class="bar-row"><span>5★</span><div class="bar-fill-track"><div class="bar-fill-value" style="width:100%"></div></div><span>14</span></div>
+            <div class="bar-row"><span>4★</span><div class="bar-fill-track"><div class="bar-fill-value" style="width:0%"></div></div><span>0</span></div>
+            <div class="bar-row"><span>3★</span><div class="bar-fill-track"><div class="bar-fill-value" style="width:0%"></div></div><span>0</span></div>
+          </div>
+          <a href="https://maps.google.com" target="_blank" class="btn btn-gold" style="width:100%;margin-top:24px;font-size:0.86rem">Ver Todas no Google</a>
+        </div>
+        <div class="carousel-container">
+          <div class="carousel-viewport" id="carouselViewport">
+            <!-- Review 1 -->
+            <div class="review-card">
+              <div>
+                <div class="google-stars">★★★★★</div>
+                <p class="review-text">“Simplesmente amei esse espaço! Atendimento incrível de cada menina com seus devidos serviços. Fiquei super a vontade e fui muito bem recebida. Cada procedimento bem explicado. Nota 10 😍”</p>
+              </div>
+              <div class="reviewer">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=120&auto=format&fit=crop" alt="Viviane Flores">
+                <div><b>Viviane Flores</b><small>Cliente Google • 5 meses atrás</small></div>
+              </div>
+            </div>
+            <!-- Review 2 -->
+            <div class="review-card">
+              <div>
+                <div class="google-stars">★★★★★</div>
+                <p class="review-text">“Profissionais super atenciosas e extremamente profissionais! Lugar lindo e bem organizado! Fui muito bem atendida, eu recomendo sempre!”</p>
+              </div>
+              <div class="reviewer">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop" alt="Edson Joice">
+                <div><b>Edson Joice</b><small>Cliente Google • 5 meses atrás</small></div>
+              </div>
+            </div>
+            <!-- Review 3 -->
+            <div class="review-card">
+              <div>
+                <div class="google-stars">★★★★★</div>
+                <p class="review-text">“Minha experiência na Clínica Lurie não poderia ter sido melhor. Realizei a retirada de sinais com a profissional Joice, que foi excelente e explicou todo procedimento com clareza. O ambiente é muito limpo e organizado.”</p>
+              </div>
+              <div class="reviewer">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop" alt="Liliana Campos">
+                <div><b>Liliana Campos</b><small>Cliente Google • 5 meses atrás</small></div>
+              </div>
+            </div>
+            <!-- Review 4 -->
+            <div class="review-card">
+              <div>
+                <div class="google-stars">★★★★★</div>
+                <p class="review-text">“Ambiente aconchegante, fácil acesso, Joice é excelente profissional! Já agendei meu retorno e recomendo para todas as amigas de Blumenau.”</p>
+              </div>
+              <div class="reviewer">
+                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=120&auto=format&fit=crop" alt="Mariana Silva">
+                <div><b>Mariana S.</b><small>Cliente Google • 3 meses atrás</small></div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-controls">
+            <div class="carousel-dots" id="carouselDots"></div>
+            <div class="carousel-buttons">
+              <button class="ctrl-btn" id="prevReview" aria-label="Avaliação Anterior"><i class="fa-solid fa-arrow-left"></i></button>
+              <button class="ctrl-btn" id="nextReview" aria-label="Próxima Avaliação"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<!-- AVALIACOES -->
-<section id="avaliacoes"><div class="wrap">
-<div class="center reveal"><span class="label">Quem já veio ama</span><h2 class="title">Avaliações <em>reais do Google</em></h2></div>
-<div class="av-grid">
-<div class="av-score reveal"><p style="letter-spacing:3px;font-size:.7rem;color:var(--gold2)">NOTA NO GOOGLE</p><h3>5.0</h3><div class="stars">★★★★★</div><p style="font-size:.85rem">14 avaliações • Todas 5 estrelas</p><div style="margin-top:18px;text-align:left"><div class="bar"><span>5</span><div class="track"><div class="fill" style="width:100%"></div></div><span>14</span></div><div class="bar"><span>4</span><div class="track"><div class="fill" style="width:0%"></div></div><span>0</span></div><div class="bar"><span>3</span><div class="track"><div class="fill" style="width:0%"></div></div><span>0</span></div></div><a href="https://wa.me/5547999101108?text=Quero%20agendar%20minha%20avalia%C3%A7%C3%A3o!" target="_blank" class="btn btn-gold" style="margin-top:20px;width:100%;justify-content:center">Quero esse cuidado</a></div>
-<div class="reveal"><div class="car-window"><div class="car-track" id="track">
-<div class="t-card"><div class="stars">★★★★★</div><div class="q">“</div><p>Simplesmente amei esse espaço! Atendimento incrível de cada menina. Fiquei super à vontade e fui muito bem recebida. Nota 10 😍</p><div class="t-user"><img src="https://i.pravatar.cc/100?img=47"><div><b>Viviane Flores</b><br><small>há 5 meses • Google</small></div></div></div>
-<div class="t-card"><div class="stars">★★★★★</div><div class="q">“</div><p>Profissionais super atenciosas e extremamente profissionais! Lugar lindo e bem organizado. Recomendo sempre!</p><div class="t-user"><img src="https://i.pravatar.cc/100?img=32"><div><b>Edson Joice</b><br><small>há 5 meses • Google</small></div></div></div>
-<div class="t-card"><div class="stars">★★★★★</div><div class="q">“</div><p>Retirada de sinais com a Joice, que foi excelente e explicou tudo com clareza. Ambiente muito limpo e organizado.</p><div class="t-user"><img src="https://i.pravatar.cc/100?img=45"><div><b>Liliana Campos</b><br><small>há 5 meses • Google</small></div></div></div>
-<div class="t-card"><div class="stars">★★★★★</div><div class="q">“</div><p>Ambiente aconchegante, fácil acesso, Joice é excelente profissional! Saí de lá me sentindo renovada.</p><div class="t-user"><img src="https://i.pravatar.cc/100?img=26"><div><b>Mariana S.</b><br><small>Cliente Lurie • Google</small></div></div></div>
-<div class="t-card"><div class="stars">★★★★★</div><div class="q">“</div><p>Ambiente gostoso e profissionais de primeira. Melhor limpeza de pele que já fiz em Blumenau!</p><div class="t-user"><img src="https://i.pravatar.cc/100?img=44"><div><b>Patricia L.</b><br><small>Cliente Lurie • Google</small></div></div></div>
-</div></div>
-<div class="car-nav"><button id="prev"><i class="fa-solid fa-arrow-left"></i></button><button id="next"><i class="fa-solid fa-arrow-right"></i></button><div id="dots"></div></div>
-</div></div></div>
-</section>
+  <!-- GALERIA -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge-tag">Galeria</span>
+        <h2 class="section-title">Espaço criado para o seu <em>relaxamento</em></h2>
+        <p class="section-desc">Dê uma olhada no nosso espaço físico e nos detalhes do atendimento.</p>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item" onclick="openPhotoModal('https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=1200')"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=700&auto=format&fit=crop" alt="Espaço Lurie"><div class="gallery-overlay"><i class="fa-solid fa-expand"></i></div></div>
+        <div class="gallery-item" onclick="openPhotoModal('https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=1200')"><img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=600&auto=format&fit=crop" alt="Procedimento de Pele"><div class="gallery-overlay"><i class="fa-solid fa-expand"></i></div></div>
+        <div class="gallery-item" onclick="openPhotoModal('https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1200')"><img src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=600&auto=format&fit=crop" alt="Design do Olhar"><div class="gallery-overlay"><i class="fa-solid fa-expand"></i></div></div>
+        <div class="gallery-item" onclick="openPhotoModal('https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?q=80&w=1200')"><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?q=80&w=600&auto=format&fit=crop" alt="Cuidados e Produtos"><div class="gallery-overlay"><i class="fa-solid fa-expand"></i></div></div>
+        <div class="gallery-item" onclick="openPhotoModal('https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=1200')"><img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop" alt="Ambiente Zen"><div class="gallery-overlay"><i class="fa-solid fa-expand"></i></div></div>
+      </div>
+    </div>
+  </section>
 
-<!-- AGENDAR -->
-<section id="agendar"><div class="wrap">
-<div class="center reveal"><span class="label" style="background:rgba(193,154,91,.15);color:var(--gold2)">✦ Agendamento online</span><h2 class="title" style="color:#fff">Monte seu horário <em>em 30 segundos</em></h2><p style="color:#B8AB99">Preencha e confirme direto no WhatsApp. Simples assim.</p></div>
-<div class="ag-grid">
-<div class="ag-info reveal"><h3>Por que agendar agora?</h3>
-<div class="ag-perk"><i class="fa-solid fa-bolt"></i><div><b>Resposta rapidinha</b><br><small style="color:#B8AB99">Respondemos em minutos no horário comercial.</small></div></div>
-<div class="ag-perk"><i class="fa-solid fa-gift"></i><div><b>Avaliação cortesia</b><br><small style="color:#B8AB99">Na primeira visita entendemos sua pele sem custo.</small></div></div>
-<div class="ag-perk"><i class="fa-solid fa-location-dot"></i><div><b>Fácil de chegar</b><br><small style="color:#B8AB99">R. São Paulo, 440 - Victor Konder, Blumenau</small></div></div>
-<div style="background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.3);border-radius:16px;padding:18px;margin-top:16px"><b><span class="dot" style="display:inline-block;width:8px;height:8px;background:#22c55e;border-radius:50%"></span> Aberto agora</b><br><small style="color:#B8AB99">Seg a Sex: 9h às 20h • Sáb: 8h às 12h</small></div>
+  <!-- AGENDAMENTO -->
+  <section class="section booking-section" id="agendar">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge-tag">Agendamento Fácil</span>
+        <h2 class="section-title">Reserve seu momento <em>em poucos cliques</em></h2>
+        <p class="section-desc">Escolha o serviço, a data ideal e confirme diretamente no nosso WhatsApp comercial.</p>
+      </div>
+      <div class="booking-grid">
+        <div class="booking-perks">
+          <div class="perk-card"><div class="perk-icon"><i class="fa-solid fa-bolt"></i></div><div class="perk-info"><b>Confirmação Rápida</b><p>Respondemos no mesmo dia durante o expediente para reservar seu horário sem espera.</p></div></div>
+          <div class="perk-card"><div class="perk-icon"><i class="fa-solid fa-user-doctor"></i></div><div class="perk-info"><b>Profissional Joice & Equipe</b><p>Atendimento feito por esteticistas capacitadas com foco em delicadeza e precisão.</p></div></div>
+          <div class="perk-card"><div class="perk-icon"><i class="fa-solid fa-shield-halved"></i></div><div class="perk-info"><b>Zero Risco</b><p>Você não paga nada agora pelo site. O pagamento é realizado apenas após seu atendimento.</p></div></div>
+          <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(229,205,157,0.25);border-radius:var(--radius-sm);padding:18px;">
+            <b style="color:var(--gold-light);display:flex;align-items:center;gap:8px;"><i class="fa-regular fa-clock"></i> Horário de Funcionamento</b>
+            <p style="font-size:0.86rem;color:#DDD;margin-top:6px;">Segunda a Sexta: <b>09:00 às 20:00</b><br>Sábado: <b>08:00 às 13:00</b> (horários concorridos)</p>
+          </div>
+        </div>
+        <div class="booking-form-box">
+          <h3 style="font-family:var(--fd);font-size:1.8rem;margin-bottom:4px;">Seu Agendamento</h3>
+          <p style="font-size:0.86rem;color:var(--muted);margin-bottom:16px;">Preencha para gerar a mensagem pronta no WhatsApp:</p>
+          <label class="form-step-label">1. Escolha o Procedimento</label>
+          <div class="service-select-chips" id="bookingChips"></div>
+          <label class="form-step-label">2. Preferência de Profissional</label>
+          <select id="bookingProf" class="input-control">
+            <option value="Joice (Especialista Facial)">Joice (Especialista Facial & Retirada de Sinais)</option>
+            <option value="Primeira profissional disponível">Primeira profissional disponível</option>
+          </select>
+          <div class="form-row-2">
+            <div><label class="form-step-label">3. Data Desejada</label><input type="date" id="bookingDate" class="input-control"></div>
+            <div><label class="form-step-label">Seu Nome</label><input type="text" id="bookingName" class="input-control" placeholder="Ex: Ana Souza"></div>
+          </div>
+          <label class="form-step-label">4. Turno / Horário Sugerido</label>
+          <div class="time-slots-chips" id="timeSlots">
+            <button type="button" class="time-chip" data-time="09:30">09:30</button>
+            <button type="button" class="time-chip" data-time="11:00">11:00</button>
+            <button type="button" class="time-chip" data-time="14:00">14:00</button>
+            <button type="button" class="time-chip" data-time="16:00">16:00</button>
+            <button type="button" class="time-chip" data-time="18:00">18:00</button>
+            <button type="button" class="time-chip" data-time="19:00">19:00</button>
+          </div>
+          <div class="booking-summary-box" id="bookingSummary">👉 Toque em um procedimento acima para ver o resumo aqui...</div>
+          <button type="button" id="btnSubmitBooking" class="btn btn-gold" style="width:100%"><i class="fa-brands fa-whatsapp"></i> Confirmar Horário no WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCALIZAÇÃO -->
+  <section class="section" id="localizacao">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge-tag">Onde Estamos</span>
+        <h2 class="section-title">Fácil acesso no <em>Victor Konder</em></h2>
+        <p class="section-desc">Perto de tudo em Blumenau, com vagas próximas e facilidade para estacionar.</p>
+      </div>
+      <div class="location-grid">
+        <div class="contact-cards-stack">
+          <div class="contact-card"><div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div><div class="contact-meta"><b>Endereço Completo</b><p>R. São Paulo, 440 - Victor Konder<br>Blumenau - SC, 89012-000</p><a href="https://maps.google.com/?q=R.+São+Paulo,+440+-+Victor+Konder,+Blumenau+-+SC" target="_blank">Abrir no Google Maps →</a></div></div>
+          <div class="contact-card"><div class="contact-icon"><i class="fa-brands fa-whatsapp"></i></div><div class="contact-meta"><b>WhatsApp Comercial</b><p>(47) 99910-1108</p><a href="https://wa.me/5547999101108" target="_blank">Conversar pelo WhatsApp →</a></div></div>
+          <div class="contact-card"><div class="contact-icon"><i class="fa-regular fa-clock"></i></div><div class="contact-meta"><b>Expediente da Clínica</b><p>Segunda a Sexta: 09:00 às 20:00<br>Sábados: 08:00 às 13:00</p></div></div>
+        </div>
+        <div class="map-container"><iframe title="Mapa da Clínica Lurie" src="https://www.google.com/maps?q=R.+S%C3%A3o+Paulo,+440+-+Victor+Konder,+Blumenau+-+SC&output=embed" loading="lazy"></iframe></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq" style="background:#FFF;border-top:1px solid var(--border);">
+    <div class="container">
+      <div class="section-head">
+        <span class="badge-tag">Dúvidas Frequentes</span>
+        <h2 class="section-title">Respostas para você se <em>sentir segura</em></h2>
+      </div>
+      <div class="faq-wrap">
+        <div class="faq-box active">
+          <button class="faq-trigger" type="button"><span>A retirada de sinais com a profissional Joice dói?</span><div class="faq-icon-circle"><i class="fa-solid fa-plus"></i></div></button>
+          <div class="faq-content">O procedimento é muito delicado e seguro. Utilizamos anestésico tópico quando necessário e a Joice explica detalhadamente cada etapa antes de tocar na sua pele. A maioria das clientes relata apenas um leve formigamento tolerável.</div>
+        </div>
+        <div class="faq-box">
+          <button class="faq-trigger" type="button"><span>Como devo preparar a pele antes de uma limpeza de pele?</span><div class="faq-icon-circle"><i class="fa-solid fa-plus"></i></div></button>
+          <div class="faq-content">Não é necessário nenhum preparo especial! Apenas evite esfoliar o rosto nos 3 dias anteriores ou usar ácidos fortes na véspera. Venha confortável que cuidamos de tudo por aqui.</div>
+        </div>
+        <div class="faq-box">
+          <button class="faq-trigger" type="button"><span>Preciso pagar antecipadamente para agendar?</span><div class="faq-icon-circle"><i class="fa-solid fa-plus"></i></div></button>
+          <div class="faq-content">Não. O agendamento feito pelo nosso site e WhatsApp é 100% de confiança mútua. Você paga presencialmente na clínica ao final da sua sessão via Pix, Cartão de Crédito ou Débito.</div>
+        </div>
+        <div class="faq-box">
+          <button class="faq-trigger" type="button"><span>Qual a política de cancelamento ou remarcação?</span><div class="faq-icon-circle"><i class="fa-solid fa-plus"></i></div></button>
+          <div class="faq-content">Entendemos que imprevistos acontecem! Pedimos apenas a gentileza de nos avisar com pelo menos 3 horas de antecedência pelo WhatsApp para que possamos liberar a vaga para outra cliente da lista de espera.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="section">
+    <div class="container">
+      <div class="final-cta">
+        <h2>Pronta para se olhar no espelho e se amar ainda mais?</h2>
+        <p>Garanta seu horário com a gente em Blumenau e desfrute de um atendimento calmo, humano e premiado.</p>
+        <a href="#agendar" class="btn btn-white"><i class="fa-regular fa-calendar-check"></i> Agendar Meu Horário Agora</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <div class="brand">
+          <div class="brand-icon">L</div>
+          <div class="brand-title" style="color:#FFF">LURIE <small>CLÍNICA • BLUMENAU</small></div>
+        </div>
+        <p>Estética avançada, tratamentos faciais e corporais com o aconchego que você merece. Nota 5.0 no Google com carinho de verdade.</p>
+        <div class="footer-socials">
+          <a href="https://wa.me/5547999101108" target="_blank" class="social-link" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="#" class="social-link" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://maps.google.com/?q=R.+São+Paulo,+440+-+Victor+Konder,+Blumenau+-+SC" target="_blank" class="social-link" aria-label="Localização"><i class="fa-solid fa-location-dot"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Navegação</h5>
+        <ul class="footer-links">
+          <li><a href="#inicio">Início</a></li>
+          <li><a href="#sobre">A Clínica</a></li>
+          <li><a href="#servicos">Tratamentos</a></li>
+          <li><a href="#avaliacoes">Avaliações 5★</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Destaques</h5>
+        <ul class="footer-links">
+          <li><a href="#servicos">Limpeza de Pele</a></li>
+          <li><a href="#servicos">Retirada de Sinais</a></li>
+          <li><a href="#servicos">Design de Sobrancelhas</a></li>
+          <li><a href="#servicos">Extensão de Cílios</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Atendimento</h5>
+        <p style="font-size:0.86rem;margin-bottom:8px;">R. São Paulo, 440<br>Victor Konder - Blumenau SC</p>
+        <p style="font-size:0.86rem;color:var(--gold-light);font-weight:700;">(47) 99910-1108</p>
+        <p style="font-size:0.82rem;margin-top:8px;">Aberto até às 20h</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Clínica Lurie. Todos os direitos reservados.</span>
+      <span>Blumenau - Santa Catarina</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Ações Flutuantes -->
+<div class="floating-actions">
+  <button class="back-to-top" id="backToTop" aria-label="Voltar ao topo"><i class="fa-solid fa-arrow-up"></i></button>
+  <a href="https://wa.me/5547999101108?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Cl%C3%ADnica%20Lurie%20e%20gostaria%20de%20informa%C3%A7%C3%B5es" target="_blank" class="whatsapp-pulse-btn" aria-label="WhatsApp da Clínica Lurie"><i class="fa-brands fa-whatsapp"></i></a>
 </div>
-<div class="form-card reveal"><h3>📅 Seu agendamento</h3><div class="f-step"><span class="on"></span><span class="on"></span><span id="s3"></span></div>
-<span class="flabel">1. O que você quer fazer?</span><div class="serv-pills" id="servPills"></div>
-<span class="flabel">2. Com quem?</span><select id="prof"><option>Joice - Especialista Facial</option><option>Equipe Lurie - Primeira disponível</option></select>
-<div class="in-row"><div><span class="flabel">3. Dia</span><input type="date" id="data"></div><div><span class="flabel">Seu nome</span><input type="text" id="nome" placeholder="Ex: Maria Silva"></div></div>
-<span class="flabel">4. Horário</span><div class="time-pills" id="times"></div>
-<span class="flabel">5. Seu WhatsApp</span><input type="tel" id="fone" placeholder="(47) 99999-9999">
-<div class="summary" id="summary">👆 Escolha um serviço para ver seu resumo aqui...</div>
-<button id="sendWpp" class="btn btn-gold"><i class="fa-brands fa-whatsapp" style="font-size:1.2rem"></i> Confirmar no WhatsApp</button>
-<p style="text-align:center;font-size:.75rem;color:#999;margin-top:10px">Sem pagamento agora • Cancele com 3h de antecedência</p>
-</div></div></div>
-</section>
 
-<!-- CONTATO -->
-<section id="contato"><div class="wrap">
-<div class="center reveal"><span class="label">Onde estamos</span><h2 class="title"> pertinho <em>de você</em></h2></div>
-<div class="cont-grid">
-<div class="reveal">
-<div class="c-card"><i class="fa-solid fa-location-dot"></i><div><b>R. São Paulo, 440</b><br><small style="color:#777">Victor Konder, Blumenau - SC<br>89012-000</small><br><a href="https://www.google.com/maps/search/?api=1&query=R.+S%C3%A3o+Paulo,+440+Blumenau" target="_blank" style="color:var(--goldd);font-weight:700;font-size:.85rem">→ Traçar rota</a></div></div>
-<div class="c-card"><i class="fa-brands fa-whatsapp"></i><div><b>(47) 99910-1108</b><br><small style="color:#777">Chame no zap, respondemos rápido</small><br><a href="https://wa.me/5547999101108" target="_blank" style="color:#128C7E;font-weight:700;font-size:.85rem">→ Conversar agora</a></div></div>
-<div class="c-card"><i class="fa-regular fa-clock"></i><div><b>Seg a Sex • 9h às 20h</b><br><small style="color:#777">Sábado • 8h às 12h • Dom fechado</small></div></div>
+<!-- Modal de Procedimento -->
+<div class="modal-overlay" id="serviceModal">
+  <div class="modal-box">
+    <button class="modal-close-btn" id="closeModal" aria-label="Fechar Modal">✕</button>
+    <img id="modalImg" class="modal-banner-img" src="" alt="Detalhe do Procedimento">
+    <div class="modal-content">
+      <span class="badge-tag" id="modalTag">FACIAL</span>
+      <h3 id="modalTitle" style="font-family:var(--fd);font-size:1.8rem;margin:6px 0;">Título</h3>
+      <p id="modalDesc" style="color:var(--muted);font-size:0.92rem;"></p>
+      <ul class="modal-feature-list" id="modalList"></ul>
+      <div class="modal-footer-meta">
+        <span id="modalDuration"><i class="fa-regular fa-clock"></i> 60 min</span>
+        <span id="modalPrice" style="color:var(--gold-dark)">A partir de R$ 149</span>
+      </div>
+      <button type="button" class="btn btn-gold" id="btnModalBook" style="width:100%">Quero Agendar Esse Procedimento</button>
+    </div>
+  </div>
 </div>
-<div class="map reveal"><iframe src="https://www.google.com/maps?q=R.+S%C3%A3o+Paulo,+440+-+Victor+Konder,+Blumenau+-+SC&output=embed" loading="lazy"></iframe></div>
-</div></div>
-</section>
 
-<!-- FAQ -->
-<section style="padding-top:20px"><div class="wrap">
-<div class="center reveal"><span class="label">Dúvidas comuns</span><h2 class="title">Perguntas <em>frequentes</em></h2></div>
-<div class="faq reveal">
-<div class="faq-item open"><div class="faq-q">Dói? Vou sentir muito desconforto? <i class="fa-solid fa-plus"></i></div><div class="faq-a">A maioria dos procedimentos é bem tranquila. Usamos técnicas suaves e explicamos tudo antes. Se sentir algo, paramos e ajustamos na hora.</div></div>
-<div class="faq-item"><div class="faq-q">Quanto custa? <i class="fa-solid fa-plus"></i></div><div class="faq-a">Depende do tratamento. Limpeza de pele a partir de R$149, sobrancelhas a partir de R$60, cílios a partir de R$180. Chame no zap que passamos a tabela completa.</div></div>
-<div class="faq-item"><div class="faq-q">Preciso agendar ou posso chegar? <i class="fa-solid fa-plus"></i></div><div class="faq-a">Recomendamos agendar para garantir seu horário sem espera. Mas se passar por perto, chame no zap que tentamos encaixar você.</div></div>
-<div class="faq-item"><div class="faq-q">Como funciona a retirada de sinais? <i class="fa-solid fa-plus"></i></div><div class="faq-a">A Joice avalia seu sinal, explica o método (seguro e rápido) e faz na hora com todo cuidado. A recuperação é simples e acompanhamos você depois.</div></div>
-<div class="faq-item"><div class="faq-q">Quais formas de pagamento? <i class="fa-solid fa-plus"></i></div><div class="faq-a">Pix, débito, crédito em até 3x e dinheiro. Facilitamos pra você se cuidar sem aperto.</div></div>
-</div></div>
-</section>
+<!-- Modal de Ampliação de Foto -->
+<div class="modal-overlay" id="photoModal">
+  <div style="position:relative;max-width:900px;width:100%;text-align:center;">
+    <button class="modal-close-btn" id="closePhotoModal" style="background:#FFF;color:#000;">✕</button>
+    <img id="photoModalImg" src="" alt="Foto Ampliada da Clínica Lurie" style="border-radius:16px;max-height:85vh;margin:0 auto;box-shadow:var(--shadow-lg);width:auto;max-width:95%;">
+  </div>
+</div>
 
-<div class="cta-final reveal"><h2>Pronta pra se sentir ainda<br><i>mais linda?</i></h2><p>Vagas limitadas essa semana em Blumenau. Garanta a sua.</p><a href="https://wa.me/5547999101108?text=Ol%C3%A1!%20Quero%20agendar%20na%20Cl%C3%ADnica%20Lurie%20%E2%9C%A8" target="_blank" class="btn btn-white"><i class="fa-brands fa-whatsapp"></i> Agendar minha vaga agora</a></div>
-</section>
+<!-- Toast Box -->
+<div id="toastBox"><i class="fa-solid fa-circle-check" style="color:#22C55E;"></i><span id="toastMsg">Mensagem enviada</span></div>
 
-<footer><div class="f-grid">
-<div><div class="logo" style="margin-bottom:14px"><div class="logo-mark">L</div><div class="logo-text" style="color:#fff">LURIE<small>CLÍNICA • BLUMENAU</small></div></div><p style="font-size:.88rem">Estética avançada com carinho de verdade. Nota 5.0 no Google. Seu momento de cuidado no Victor Konder.</p><div style="display:flex;gap:10px;margin-top:16px"><a href="#" style="width:40px;height:40px;background:rgba(255,255,255,.08);border-radius:50%;display:grid;place-items:center;margin:0"><i class="fa-brands fa-instagram"></i></a><a href="https://wa.me/5547999101108" style="width:40px;height:40px;background:rgba(255,255,255,.08);border-radius:50%;display:grid;place-items:center;margin:0"><i class="fa-brands fa-whatsapp"></i></a><a href="#" style="width:40px;height:40px;background:rgba(255,255,255,.08);border-radius:50%;display:grid;place-items:center;margin:0"><i class="fa-brands fa-facebook"></i></a></div></div>
-<div><h4>Menu</h4><a href="#inicio">Início</a><a href="#sobre">Sobre nós</a><a href="#servicos">Tratamentos</a><a href="#avaliacoes">Avaliações</a></div>
-<div><h4>Tratamentos</h4><a href="#servicos">Limpeza de pele</a><a href="#servicos">Retirada de sinais</a><a href="#servicos">Sobrancelhas</a><a href="#servicos">Cílios</a></div>
-<div><h4>Contato</h4><a href="#">R. São Paulo, 440 - Blumenau</a><a href="https://wa.me/5547999101108">(47) 99910-1108</a><a href="#">Seg-Sex 9h às 20h</a></div>
-</div><div class="f-bottom"><span>© 2026 Clínica Lurie • Todos os direitos reservados</span><span>Feito com 🤍 em Blumenau - SC</span></div></footer>
-
-<a href="https://wa.me/5547999101108?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20quero%20agendar%20%E2%9C%A8" target="_blank" class="wpp-float"><i class="fa-brands fa-whatsapp"></i></a>
-<button id="toTop"><i class="fa-solid fa-arrow-up"></i></button>
-
-<div class="modal-bg" id="modalBg"><div class="modal" style="position:relative"><button id="closeModal">✕</button><img id="mImg" src=""><div class="modal-body"><span class="label" id="mCat"></span><h3 id="mTitle" style="font-family:var(--fd);font-size:2rem"></h3><p id="mDesc" style="color:#666;font-size:.92rem;margin:8px 0"></p><ul id="mList"></ul><div style="display:flex;justify-content:space-between;background:var(--cream2);padding:14px 18px;border-radius:14px;font-weight:800;margin:10px 0"><span id="mDur"></span><span id="mPrice" style="color:var(--goldd)"></span></div><a href="#agendar" class="btn btn-gold" style="width:100%;justify-content:center" onclick="document.getElementById('modalBg').classList.remove('open')">Quero agendar esse <i class="fa-solid fa-arrow-right"></i></a></div></div></div>
-<div id="lightbox"><img id="lbImg" src=""></div>
-<div id="toast"></div>
-
+<!-- ==========================================================
+     SCRIPTS DE FUNCIONALIDADES E NAVEGAÇÃO
+     ========================================================== */ -->
 <script>
-// DADOS
-const SERVS=[
-{cat:'facial',icon:'fa-solid fa-wand-magic-sparkles',t:'Limpeza de Pele Premium',d:'Remove cravos, controla oleosidade e devolve o glow. Inclui extração, máscara e hidratação.',dur:'60 min',price:'a partir de R$149',img:'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=700&auto=format&fit=crop',list:['Pele lisinha na hora','Fecha os poros','Ideal pra todo mês']},
-{cat:'facial',icon:'fa-solid fa-circle-dot',t:'Retirada de Sinais',d:'Avaliação com a Joice + retirada segura e rápida de sinais e pintas com técnica delicada.',dur:'30 min',price:'a partir de R$99',img:'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=700&auto=format&fit=crop',list:['Procedimento explicado','Recuperação simples','Acompanhamento pós']},
-{cat:'olhar',icon:'fa-solid fa-eye',t:'Design Sobrancelhas',d:'Mapeamento + design perfeito pro seu rosto. Opção com brow lamination pra efeito cheio.',dur:'40 min',price:'a partir de R$60',img:'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?q=80&w=700&auto=format&fit=crop',list:['Design personalizado','Olhar mais aberto','Dura semanas']},
-{cat:'olhar',icon:'fa-solid fa-feather',t:'Extensão de Cílios',d:'Fio a fio, volume brasileiro ou híbrido. Olhar marcante sem precisar de rímel.',dur:'90 min',price:'a partir de R$180',img:'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?q=80&w=700&auto=format&fit=crop',list:['Efeito natural ou glam','Manutenção simples','Material premium']},
-{cat:'facial',icon:'fa-solid fa-droplet',t:'Peeling Renovador',d:'Renova a pele, clareia manchinhas e suaviza marcas de acne. Pele nova em poucas sessões.',dur:'50 min',price:'a partir de R$199',img:'https://images.unsplash.com/photo-1596704017254-9b121068fb31?q=80&w=700&auto=format&fit=crop',list:['Clareia e uniformiza','Estimula colágeno','Viço imediato']},
-{cat:'corpo',icon:'fa-solid fa-spa',t:'Massagem + Drenagem',d:'Massagem relaxante ou drenagem linfática pra desinchar, aliviar dores e relaxar total.',dur:'60 min',price:'a partir de R$130',img:'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?q=80&w=700&auto=format&fit=crop',list:['Alívio imediato','Reduz inchaço','Momento só seu']},
-{cat:'facial',icon:'fa-solid fa-syringe',t:'Microagulhamento',d:'Estimula colágeno, melhora poros, cicatrizes e firmeza. Resultado progressivo incrível.',dur:'60 min',price:'a partir de R$249',img:'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=700&auto=format&fit=crop',list:['Rejuvenesce','Melhora textura','Protocolo seguro']},
-{cat:'corpo',icon:'fa-solid fa-heart',t:'Hidratação Glow Corporal',d:'Esfoliação + hidratação profunda pra pele macia, cheirosa e iluminada.',dur:'45 min',price:'a partir de R$110',img:'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=700&auto=format&fit=crop',list:['Pele de seda','Autoestima lá em cima','Perfeito pré-evento']}
+/* DATA BASE DE TRATAMENTOS */
+const SERVICES_DATA = [
+  { id:'limpeza', cat:'facial', name:'Limpeza de Pele Profunda', desc:'Higienização minuciosa, extração de cravos sem marcas, vapor de ozônio, máscara calmante e hidratação profunda.', time:'75 min', price:'R$ 149', img:'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?q=80&w=800&auto=format&fit=crop', icon:'fa-solid fa-wand-magic-sparkles', benefits:['Pele renovada com viço imediato','Desobstrução e redução dos poros','Protocolo indolor e máscara personalizada','Finalização com proteção solar e sérum'] },
+  { id:'sinais', cat:'facial', name:'Retirada de Sinais', desc:'Avaliação detalhada com a profissional Joice para remoção segura, rápida e delicada de pequenos sinais e imperfeições.', time:'35 min', price:'R$ 99', img:'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=800&auto=format&fit=crop', icon:'fa-solid fa-circle-dot', benefits:['Procedimento altamente elogiado no Google','Explicação clara antes da aplicação','Recuperação rápida e cuidados pós orientados','Resultados limpos e precisos'] },
+  { id:'sobrancelha', cat:'olhar', name:'Design de Sobrancelhas', desc:'Mapeamento facial respeitando sua harmonia natural, visagismo e aplicação opcional de henna ou tintura importada.', time:'40 min', price:'R$ 60', img:'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=800&auto=format&fit=crop', icon:'fa-solid fa-eye', benefits:['Alinhamento dos fios e valorização do olhar','Medição personalizada para o formato do seu rosto','Opção com Brow Lamination','Acabamento impecável'] },
+  { id:'cilios', cat:'olhar', name:'Extensão de Cílios', desc:'Fio a fio clássico, volume brasileiro ou híbrido com fios levíssimos para realçar o olhar sem danificar os fios naturais.', time:'90 min', price:'R$ 180', img:'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?q=80&w=800&auto=format&fit=crop', icon:'fa-solid fa-feather', benefits:['Olhar acordado todos os dias sem rímel','Isolamento correto dos fios naturais','Material hipoalergênico premium','Durabilidade e extensão limpa'] },
+  { id:'peeling', cat:'facial', name:'Peeling Químico Renovador', desc:'Esfoliação química controlada para uniformização de tom, atenuação de manchas de sol/acne e estímulo de colágeno.', time:'50 min', price:'R$ 189', img:'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=800&auto=format&fit=crop', icon:'fa-solid fa-droplet', benefits:['Uniformiza manchas superficiais','Melhora a textura e fecha poros dilatados','Protocolos adaptados para peles sensíveis','Orientação completa de cuidados diários'] },
+  { id:'drenagem', cat:'corporal', name:'Massagem Relaxante & Drenagem', desc:'Manobras suaves e ritmadas para redução do inchaço corporal, alívio de tensões nas costas e relaxamento mental profundo.', time:'60 min', price:'R$ 130', img:'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?q=80&w=800&auto=format&fit=crop', icon:'fa-solid fa-spa', benefits:['Estimula a eliminação de líquidos retidos','Alívio imediato do cansaço e nós de tensão','Ambiente climatizado com óleos essenciais','Sensação de leveza no corpo inteiro'] }
 ];
-// render servicos
-const grid=document.getElementById('servGrid');
-function renderServ(f='all'){grid.innerHTML='';SERVS.filter(s=>f==='all'||s.cat===f).forEach((s,i)=>{const d=document.createElement('div');d.className='card-serv reveal vis';d.style.animation=`fadeUp .6s ${i*.08}s both`;d.innerHTML=`<div class="ic"><i class="${s.icon}"></i></div><h3>${s.t}</h3><p>${s.d}</p><div class="meta"><span>⏱ ${s.dur}</span><span>${s.price}</span></div><button onclick="openModal(${SERVS.indexOf(s)})">Ver detalhes +</button>`;grid.appendChild(d);});}
-let st=document.createElement('style');st.innerHTML='@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}';document.head.appendChild(st);
-renderServ();
-document.querySelectorAll('.filters button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('act'));b.classList.add('act');renderServ(b.dataset.f);});
-// modal
-function openModal(i){const s=SERVS[i];document.getElementById('mImg').src=s.img;document.getElementById('mCat').textContent=s.cat.toUpperCase();document.getElementById('mTitle').textContent=s.t;document.getElementById('mDesc').textContent=s.d;document.getElementById('mDur').textContent='⏱ '+s.dur;document.getElementById('mPrice').textContent=s.price;document.getElementById('mList').innerHTML=s.list.map(l=>`<li><i class="fa-solid fa-circle-check"></i> ${l}</li>`).join('');document.getElementById('modalBg').classList.add('open');}
-document.getElementById('closeModal').onclick=()=>document.getElementById('modalBg').classList.remove('open');
-document.getElementById('modalBg').onclick=e=>{if(e.target.id==='modalBg')e.target.classList.remove('open')};
-// agendamento pills
-const pills=document.getElementById('servPills');let selServ=null,selTime=null;
-SERVS.slice(0,6).forEach((s,i)=>{const b=document.createElement('button');b.innerHTML=`${s.t}<small>${s.price} • ${s.dur}</small>`;b.onclick=()=>{document.querySelectorAll('#servPills button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');selServ=s;upd();};pills.appendChild(b);});
-const times=['09:00','10:30','13:00','14:30','16:00','17:30','19:00'];const tWrap=document.getElementById('times');
-times.forEach(t=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{document.querySelectorAll('#times button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');selTime=t;upd();};tWrap.appendChild(b);});
-const dataIn=document.getElementById('data');dataIn.min=new Date().toISOString().split('T')[0];dataIn.onchange=upd;document.getElementById('nome').oninput=upd;document.getElementById('fone').oninput=upd;
-function upd(){const n=document.getElementById('nome').value||'—';const d=dataIn.value?new Date(dataIn.value+'T12:00').toLocaleDateString('pt-BR'):'—';document.getElementById('summary').innerHTML=selServ?`✨ <b>${selServ.t}</b><br>📅 ${d} às ${selTime||'—'}<br>👩 ${n}<br>💰 ${selServ.price}`:'👆 Escolha um serviço para ver seu resumo aqui...';if(selServ&&selTime&&dataIn.value)document.getElementById('s3').classList.add('on');}
-document.getElementById('sendWpp').onclick=()=>{const n=document.getElementById('nome').value.trim();const f=document.getElementById('fone').value.trim();const p=document.getElementById('prof').value;const d=dataIn.value?new Date(dataIn.value+'T12:00').toLocaleDateString('pt-BR'):'';if(!selServ||!selTime||!dataIn.value||!n){toast('⚠️ Preencha serviço, dia, hora e nome');return;}const msg=`Olá! Quero agendar na Clínica Lurie ✨%0A%0A💆 Serviço: ${selServ.t} (${selServ.price})%0A👩 Profissional: ${p}%0A📅 Dia: ${d}%0A⏰ Hora: ${selTime}%0A👤 Nome: ${n}%0A📱 Tel: ${f}%0A%0APode confirmar pra mim?`;window.open(`https://wa.me/5547999101108?text=${msg}`,'_blank');toast('✅ Abrindo seu WhatsApp...');};
-function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);}
-// carrossel
-let idx=0;const track=document.getElementById('track');const dots=document.getElementById('dots');const total=5;
-function perView(){return window.innerWidth<640?1:2}
-function maxIdx(){return total-perView()}
-for(let i=0;i<=maxIdx();i++){const s=document.createElement('span');if(i===0)s.classList.add('on');dots.appendChild(s);}
-function go(i){idx=i>maxIdx()?0:i<0?maxIdx():i;const w=track.children[0].offsetWidth+20;track.style.transform=`translateX(${-idx*w}px)`;dots.querySelectorAll('span').forEach((d,j)=>d.classList.toggle('on',j===idx));}
-document.getElementById('next').onclick=()=>go(idx+1);document.getElementById('prev').onclick=()=>go(idx-1);setInterval(()=>go(idx+1),5000);
-// faq
-document.querySelectorAll('.faq-item').forEach(it=>{it.querySelector('.faq-q').onclick=()=>{document.querySelectorAll('.faq-item').forEach(x=>x!==it&&x.classList.remove('open'));it.classList.toggle('open');}});
-// reveal
-const ob=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');ob.unobserve(e.target);}}),{threshold:.12});
-document.querySelectorAll('.reveal').forEach(el=>ob.observe(el));
-// contadores
-const cob=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const el=e.target;const n=+el.dataset.n;let c=0;const iv=setInterval(()=>{c+=Math.ceil(n/40);if(c>=n){c=n;clearInterval(iv);}el.textContent=c;},40);cob.unobserve(el);}}),{threshold:.5});
-document.querySelectorAll('.count').forEach(el=>cob.observe(el));
-// nav scroll + progress + top
-const nav=document.getElementById('nav'),prog=document.getElementById('progress'),toTop=document.getElementById('toTop');
-window.onscroll=()=>{const y=scrollY;nav.classList.toggle('scrolled',y>60);const h=document.body.scrollHeight-innerHeight;prog.style.width=(y/h*100)+'%';toTop.classList.toggle('show',y>600);};
-toTop.onclick=()=>scrollTo({top:0,behavior:'smooth'});
-// menu mobile
-const mM=document.getElementById('mMenu');document.getElementById('menuBtn').onclick=()=>mM.classList.toggle('open');mM.querySelectorAll('a').forEach(a=>a.onclick=()=>mM.classList.remove('open'));
-// galeria lightbox
-document.querySelectorAll('.gal div').forEach(d=>d.onclick=()=>{document.getElementById('lbImg').src=d.querySelector('img').src.replace('w=600','w=1200');document.getElementById('lightbox').classList.add('open');});
-document.getElementById('lightbox').onclick=e=>e.currentTarget.classList.remove('open');
-// glow segue mouse
-const glow=document.getElementById('glow');addEventListener('mousemove',e=>{glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';});
-// preloader
-setTimeout(()=>document.getElementById('preloader').classList.add('hide'),1900);
+
+/* OCULTA CARREGADOR (LOADER) */
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loader');
+  setTimeout(() => { 
+    loader.style.opacity = '0'; 
+    loader.style.visibility = 'hidden'; 
+  }, 500);
+});
+
+/* PROGRESS BAR & TOPO */
+const header = document.getElementById('header');
+const progressBar = document.getElementById('progressBar');
+const backToTopBtn = document.getElementById('backToTop');
+
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const scrollPercent = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+  progressBar.style.width = scrollPercent + '%';
+  
+  if (scrollY > 50) header.classList.add('scrolled');
+  else header.classList.remove('scrolled');
+  
+  if (scrollY > 400) backToTopBtn.classList.add('show');
+  else backToTopBtn.classList.remove('show');
+}, { passive: true });
+
+backToTopBtn.addEventListener('click', () => { 
+  window.scrollTo({ top: 0, behavior: 'smooth' }); 
+});
+
+/* MENU MOBILE */
+const menuToggle = document.getElementById('menuToggle');
+const drawerClose = document.getElementById('drawerClose');
+const mobileDrawer = document.getElementById('mobileDrawer');
+const drawerLinks = document.querySelectorAll('.drawer-link');
+
+function openDrawer() { 
+  mobileDrawer.classList.add('open'); 
+  document.body.style.overflow = 'hidden'; 
+}
+function closeDrawer() { 
+  mobileDrawer.classList.remove('open'); 
+  document.body.style.overflow = ''; 
+}
+menuToggle.addEventListener('click', openDrawer);
+drawerClose.addEventListener('click', closeDrawer);
+drawerLinks.forEach(link => link.addEventListener('click', closeDrawer));
+
+/* RENDER DE TRATAMENTOS */
+const servicesGrid = document.getElementById('servicesGrid');
+const filterBtns = document.querySelectorAll('.filter-btn');
+
+function renderServices(filter = 'all') {
+  servicesGrid.innerHTML = '';
+  const filtered = filter === 'all' ? SERVICES_DATA : SERVICES_DATA.filter(s => s.cat === filter);
+  filtered.forEach(service => {
+    const card = document.createElement('div');
+    card.className = 'service-card';
+    card.innerHTML = `
+      <div class="service-icon"><i class="${service.icon}"></i></div>
+      <h3 class="service-name">${service.name}</h3>
+      <p class="service-desc">${service.desc}</p>
+      <div class="service-meta">
+        <span class="service-time"><i class="fa-regular fa-clock"></i> ${service.time}</span>
+        <span class="service-price">a partir de ${service.price}</span>
+      </div>
+      <button type="button" class="service-btn" onclick="openServiceModal('${service.id}')">Ver Detalhes do Procedimento</button>
+    `;
+    servicesGrid.appendChild(card);
+  });
+}
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderServices(btn.dataset.filter);
+  });
+});
+renderServices('all');
+
+/* MODAL DE INFORMAÇÕES DO ATENDIMENTO */
+const serviceModal = document.getElementById('serviceModal');
+const closeModalBtn = document.getElementById('closeModal');
+const btnModalBook = document.getElementById('btnModalBook');
+let currentSelectedService = null;
+
+function openServiceModal(serviceId) {
+  const service = SERVICES_DATA.find(s => s.id === serviceId);
+  if (!service) return;
+  currentSelectedService = service;
+  document.getElementById('modalImg').src = service.img;
+  document.getElementById('modalTag').textContent = service.cat.toUpperCase();
+  document.getElementById('modalTitle').textContent = service.name;
+  document.getElementById('modalDesc').textContent = service.desc;
+  document.getElementById('modalDuration').innerHTML = `<i class="fa-regular fa-clock"></i> Duração média: ${service.time}`;
+  document.getElementById('modalPrice').textContent = `a partir de ${service.price}`;
+  document.getElementById('modalList').innerHTML = service.benefits.map(b => `<li><i class="fa-solid fa-circle-check"></i> ${b}</li>`).join('');
+  serviceModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeServiceModal() { 
+  serviceModal.classList.remove('open'); 
+  document.body.style.overflow = ''; 
+}
+closeModalBtn.addEventListener('click', closeServiceModal);
+serviceModal.addEventListener('click', (e) => { 
+  if (e.target === serviceModal) closeServiceModal(); 
+});
+btnModalBook.addEventListener('click', () => {
+  closeServiceModal();
+  if (currentSelectedService) {
+    selectBookingService(currentSelectedService.name, currentSelectedService.price);
+  }
+  document.getElementById('agendar').scrollIntoView({ behavior: 'smooth' });
+});
+
+/* MODAL DE FOTOS (LIGHTBOX) */
+const photoModal = document.getElementById('photoModal');
+const photoModalImg = document.getElementById('photoModalImg');
+const closePhotoModalBtn = document.getElementById('closePhotoModal');
+
+function openPhotoModal(imgSrc) {
+  photoModalImg.src = imgSrc;
+  photoModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+closePhotoModalBtn.addEventListener('click', () => { 
+  photoModal.classList.remove('open'); 
+  document.body.style.overflow = ''; 
+});
+photoModal.addEventListener('click', (e) => { 
+  if (e.target === photoModal) { 
+    photoModal.classList.remove('open'); 
+    document.body.style.overflow = ''; 
+  } 
+});
+
+/* CARROSSEL NATIVO INTELIGENTE COM SCROLL SNAP */
+const carouselViewport = document.getElementById('carouselViewport');
+const carouselDots = document.getElementById('carouselDots');
+const prevReviewBtn = document.getElementById('prevReview');
+const nextReviewBtn = document.getElementById('nextReview');
+const reviewCardsCount = carouselViewport.querySelectorAll('.review-card').length;
+
+// Gera os indicadores de pontinhos dinâmicos
+function makeDots() {
+  carouselDots.innerHTML = '';
+  const totalSlides = window.innerWidth <= 820 ? reviewCardsCount : reviewCardsCount - 1;
+  for (let i = 0; i < totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = `dot-indicator ${i === 0 ? 'active' : ''}`;
+    dot.addEventListener('click', () => {
+      const cardWidth = carouselViewport.querySelector('.review-card').offsetWidth + 16;
+      carouselViewport.scrollLeft = cardWidth * i;
+    });
+    carouselDots.appendChild(dot);
+  }
+}
+
+// Atualiza o pontinho conforme a rolagem nativa ocorre
+carouselViewport.addEventListener('scroll', () => {
+  const cardWidth = carouselViewport.querySelector('.review-card').offsetWidth + 16;
+  const currentSlideIndex = Math.round(carouselViewport.scrollLeft / cardWidth);
+  const dots = carouselDots.querySelectorAll('.dot-indicator');
+  dots.forEach((dot, index) => {
+    dot.classList.toggle('active', index === currentSlideIndex);
+  });
+}, { passive: true });
+
+// Botões de navegação lateral simples
+nextReviewBtn.addEventListener('click', () => {
+  const cardWidth = carouselViewport.querySelector('.review-card').offsetWidth + 16;
+  carouselViewport.scrollBy({ left: cardWidth, behavior: 'smooth' });
+});
+
+prevReviewBtn.addEventListener('click', () => {
+  const cardWidth = carouselViewport.querySelector('.review-card').offsetWidth + 16;
+  carouselViewport.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+});
+
+window.addEventListener('resize', makeDots);
+makeDots();
+
+/* FORMULÁRIO DE AGENDAMENTO */
+const bookingChips = document.getElementById('bookingChips');
+const bookingSummary = document.getElementById('bookingSummary');
+const timeSlots = document.querySelectorAll('.time-chip');
+const bookingDate = document.getElementById('bookingDate');
+const bookingName = document.getElementById('bookingName');
+const bookingProf = document.getElementById('bookingProf');
+const btnSubmitBooking = document.getElementById('btnSubmitBooking');
+let selectedBookingService = null;
+let selectedBookingTime = '09:30';
+
+// Configura data mínima para hoje
+const todayStr = new Date().toISOString().split('T')[0];
+bookingDate.min = todayStr;
+bookingDate.value = todayStr;
+
+SERVICES_DATA.forEach((s, idx) => {
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = `chip-btn ${idx === 0 ? 'selected' : ''}`;
+  chip.innerHTML = `${s.name}<small>a partir de ${s.price}</small>`;
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip-btn').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    selectedBookingService = s;
+    updateSummary();
+  });
+  bookingChips.appendChild(chip);
+});
+selectedBookingService = SERVICES_DATA[0];
+
+timeSlots[0].classList.add('selected');
+timeSlots.forEach(ts => {
+  ts.addEventListener('click', () => {
+    timeSlots.forEach(t => t.classList.remove('selected'));
+    ts.classList.add('selected');
+    selectedBookingTime = ts.dataset.time;
+    updateSummary();
+  });
+});
+
+function selectBookingService(serviceName, servicePrice) {
+  const allChips = document.querySelectorAll('.chip-btn');
+  allChips.forEach(chip => {
+    if (chip.textContent.includes(serviceName)) {
+      chip.classList.add('selected');
+      const found = SERVICES_DATA.find(s => s.name === serviceName);
+      if (found) selectedBookingService = found;
+    } else {
+      chip.classList.remove('selected');
+    }
+  });
+  updateSummary();
+}
+
+function updateSummary() {
+  const clientName = bookingName.value.trim() || 'Seu Nome';
+  const rawDate = bookingDate.value;
+  let formattedDate = 'Hoje';
+  if (rawDate) {
+    const parts = rawDate.split('-');
+    formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  if (selectedBookingService) {
+    bookingSummary.innerHTML = `✨ <b>${selectedBookingService.name}</b> (a partir de ${selectedBookingService.price})<br>📅 <b>${formattedDate}</b> às <b>${selectedBookingTime}</b><br>👩 Profissional: <b>${bookingProf.value}</b><br>👤 Paciente: <b>${clientName}</b>`;
+  }
+}
+bookingName.addEventListener('input', updateSummary);
+bookingDate.addEventListener('change', updateSummary);
+bookingProf.addEventListener('change', updateSummary);
+updateSummary();
+
+btnSubmitBooking.addEventListener('click', () => {
+  const name = bookingName.value.trim();
+  if (!name) { 
+    showToast('⚠️ Por favor, digite seu nome'); 
+    bookingName.focus(); 
+    return; 
+  }
+  if (!selectedBookingService) { 
+    showToast('⚠️ Selecione um procedimento'); 
+    return; 
+  }
+  const rawDate = bookingDate.value;
+  let formattedDate = rawDate;
+  if (rawDate) {
+    const parts = rawDate.split('-');
+    formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  const textMessage = `Olá, equipe da Clínica Lurie! ✨%0A%0AGostaria de solicitar um agendamento:%0A💆 *Procedimento:* ${encodeURIComponent(selectedBookingService.name)}%0A👩 *Profissional:* ${encodeURIComponent(bookingProf.value)}%0A📅 *Data desejada:* ${encodeURIComponent(formattedDate)}%0A⏰ *Horário sugerido:* ${encodeURIComponent(selectedBookingTime)}%0A👤 *Meu nome:* ${encodeURIComponent(name)}%0A%0APoderiam confirmar a disponibilidade dessa vaga por favor? Obrigada!`;
+  const whatsappURL = `https://wa.me/5547999101108?text=${textMessage}`;
+  window.open(whatsappURL, '_blank');
+  showToast('✅ Abrindo seu WhatsApp com a mensagem...');
+});
+
+/* ACORDEÃO DO FAQ */
+const faqBoxes = document.querySelectorAll('.faq-box');
+faqBoxes.forEach(box => {
+  const trigger = box.querySelector('.faq-trigger');
+  trigger.addEventListener('click', () => {
+    const isActive = box.classList.contains('active');
+    faqBoxes.forEach(b => b.classList.remove('active'));
+    if (!isActive) box.classList.add('active');
+  });
+});
+
+/* CONTADORES DA SEÇÃO DE ENTRADA */
+const counters = document.querySelectorAll('.counter');
+let countersStarted = false;
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !countersStarted) {
+      countersStarted = true;
+      counters.forEach(counter => {
+        const target = +counter.dataset.target;
+        const duration = 1400;
+        const step = target / (duration / 25);
+        let current = 0;
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) {
+            counter.textContent = target + '+';
+            clearInterval(timer);
+          } else {
+            counter.textContent = Math.floor(current);
+          }
+        }, 25);
+      });
+    }
+  });
+}, { threshold: 0.5 });
+const statsEl = document.querySelector('.hero-stats');
+if (statsEl) observer.observe(statsEl);
+
+/* TOAST MENSAGENS RAPIDAS */
+function showToast(msg) {
+  const toastBox = document.getElementById('toastBox');
+  const toastMsg = document.getElementById('toastMsg');
+  toastMsg.textContent = msg;
+  toastBox.classList.add('show');
+  setTimeout(() => toastBox.classList.remove('show'), 3200);
+}
 </script>
 </body>
 </html>
