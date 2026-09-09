@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seu Zé Choperia e Hamburgueria | Balneário Camboriú - Frente Mar</title>
+<meta name="description" content="Do almoço ao happy hour. Chopp gelado, Coxinha de Costela, Burguer Especial Seu Zé. Av. Atlântica 2350 e 4040 - BC.">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+ --amber:#fbbf24; --amber-dark:#d97706; --red:#dc2626;
+ --bg:#0f0f0f; --card:#1a1a1a; --line:#2a2a2a;
+ --green:#25D366; --gray:#a3a3a3;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:#fff;padding-bottom:90px}
+h1,h2,.anton{font-family:'Anton',sans-serif;letter-spacing:.5px;font-weight:400}
+/* PROMO TOP */
+.promo-top{background:var(--red);text-align:center;padding:8px 12px;font-size:.85rem;font-weight:600;position:sticky;top:0;z-index:1200}
+/* HEADER */
+header{background:#000;padding:14px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--amber);position:sticky;top:33px;z-index:1100}
+.logo{font-family:'Anton';font-size:1.9rem;color:var(--amber);line-height:1}
+.logo small{display:block;font-family:'Poppins';font-size:.65rem;color:#fff;letter-spacing:2px;font-weight:600}
+.header-actions{display:flex;gap:10px;align-items:center}
+.badge-open{background:var(--green);font-size:.7rem;padding:5px 10px;border-radius:20px;font-weight:700}
+.btn-call{background:#222;border:1px solid #333;color:#fff;padding:8px 14px;border-radius:20px;text-decoration:none;font-size:.85rem;font-weight:600}
+.btn-call i{color:var(--amber)}
+/* HERO */
+.hero{min-height:520px;background:linear-gradient(rgba(0,0,0,.55),rgba(15,15,15,1)),url('https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1350&q=80') center/cover;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px 20px}
+.hero-pill{background:rgba(0,0,0,.7);border:1px solid var(--amber);color:var(--amber);padding:6px 16px;border-radius:20px;font-size:.8rem;font-weight:700;margin-bottom:15px}
+.hero h1{font-size:3.8rem;line-height:.95;text-shadow:3px 3px 0 #000}
+.hero h1 span{color:var(--amber)}
+.hero p{max-width:620px;margin:15px 0;color:#e5e5e5}
+.rating-hero{background:#000;padding:10px 18px;border-radius:12px;margin:10px 0;border:1px solid #333}
+.rating-hero strong{color:var(--amber);font-size:1.3rem}
+.stars{color:gold}
+.hero-btns{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;justify-content:center}
+.btn-primary{background:var(--amber);color:#000;padding:14px 28px;border-radius:50px;text-decoration:none;font-weight:800;display:inline-flex;gap:8px;align-items:center}
+.btn-ghost{background:rgba(255,255,255,.1);border:1px solid #fff;color:#fff;padding:14px 24px;border-radius:50px;text-decoration:none;font-weight:600;backdrop-filter:blur(5px)}
+/* INFO BAR */
+.info-bar{display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border-bottom:1px solid var(--line);text-align:center}
+.info-bar div{padding:16px 8px;border-right:1px solid var(--line)}
+.info-bar i{color:var(--amber);font-size:1.4rem;display:block;margin-bottom:6px}
+.info-bar b{font-size:.9rem} .info-bar small{display:block;color:var(--gray);font-size:.75rem}
+/* DIFERENCIAIS */
+.diffs{padding:30px 5%;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.diff{background:#151515;border:1px solid var(--line);border-radius:12px;padding:15px;text-align:center;font-size:.85rem}
+.diff i{font-size:1.6rem;margin-bottom:8px;display:block}
+/* FILTROS + BUSCA */
+.sticky-menu{position:sticky;top:78px;z-index:1000;background:rgba(15,15,15,.96);backdrop-filter:blur(10px);padding:12px 5%;border-bottom:1px solid var(--line)}
+.search-box{background:#222;border:1px solid #333;border-radius:10px;padding:10px 14px;display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.search-box input{background:none;border:none;outline:none;color:#fff;width:100%;font-family:'Poppins'}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.filter-btn{background:#222;border:1px solid #333;color:#fff;padding:8px 16px;border-radius:20px;white-space:nowrap;cursor:pointer;font-family:'Poppins';font-weight:600;font-size:.85rem}
+.filter-btn.active{background:var(--amber);color:#000;border-color:var(--amber)}
+/* CARDAPIO */
+.menu-container{padding:10px 5% 20px}
+.category-title{font-size:2rem;color:var(--amber);margin:32px 0 14px;border-left:5px solid var(--amber);padding-left:12px}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.product-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;min-height:130px;transition:.2s}
+.product-card:hover{border-color:var(--amber);transform:translateY(-3px)}
+.product-img{width:130px;min-width:130px;object-fit:cover}
+.product-info{padding:12px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.product-info h4{font-size:1rem;line-height:1.2}
+.tag-top{background:var(--red);color:#fff;font-size:.65rem;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.desc{font-size:.8rem;color:var(--gray);margin:6px 0;line-height:1.4}
+.product-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.price{color:var(--amber);font-weight:800;font-size:1.1rem}
+.add-btn{background:var(--amber);border:none;width:36px;height:36px;border-radius:10px;font-size:1.3rem;font-weight:800;cursor:pointer}
+/* GALERIA */
+.gallery{padding:20px 5%;display:flex;gap:10px;overflow-x:auto}
+.gallery img{width:220px;height:150px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+/* REVIEWS */
+.reviews-section{background:#080808;padding:40px 5%}
+.reviews-head{text-align:center;margin-bottom:20px}
+.reviews-head .big{font-size:3rem;color:var(--amber);font-family:'Anton'}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:20px}
+.review-card{background:var(--card);border:1px solid var(--line);padding:18px;border-radius:14px}
+.review-top{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#000;background:var(--amber)}
+.review-text{font-size:.88rem;color:#ddd;font-style:italic}
+.google-tag{font-size:.75rem;color:var(--gray);margin-top:10px;display:block}
+/* UNIDADES */
+.units{padding:40px 5%}
+.units-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:20px}
+.unit-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.unit-card .unit-body{padding:20px}
+.unit-card h3{color:var(--amber);font-size:1.5rem}
+.unit-card p{font-size:.9rem;color:#ddd;margin:6px 0}
+.unit-card p i{color:var(--amber);width:20px}
+.unit-btns{display:flex;gap:10px;margin-top:14px}
+.btn-route{flex:1;text-align:center;background:#fff;color:#000;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.9rem}
+.btn-wa{flex:1;text-align:center;background:var(--green);color:#fff;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.9rem}
+.map-box{margin-top:16px;height:280px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+footer{background:#000;padding:30px 5%;text-align:center;border-top:1px solid var(--line)}
+footer p{color:var(--gray);font-size:.85rem;margin:4px 0}
+/* CARRINHO */
+.cart-float{position:fixed;bottom:18px;left:18px;right:18px;background:var(--amber);color:#000;padding:15px;border-radius:14px;font-weight:800;display:flex;justify-content:space-between;align-items:center;cursor:pointer;z-index:1050;box-shadow:0 8px 25px rgba(0,0,0,.6);max-width:500px;margin:0 auto}
+.cart-modal{position:fixed;top:0;right:-420px;width:410px;max-width:95%;height:100%;background:#141414;z-index:1300;transition:.35s;display:flex;flex-direction:column;border-left:2px solid var(--amber)}
+.cart-modal.open{right:0}
+.cart-header{padding:18px;background:#000;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.cart-header h3{color:var(--amber);font-size:1.4rem}
+.close-cart{background:none;border:none;color:#fff;font-size:1.8rem;cursor:pointer}
+.cart-items{flex:1;overflow-y:auto;padding:14px}
+.cart-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #222}
+.qty-control{display:flex;gap:8px;align-items:center}
+.qty-control button{background:#333;color:#fff;border:none;width:26px;height:26px;border-radius:6px;cursor:pointer}
+.cart-footer{padding:16px;background:#000;border-top:1px solid var(--line)}
+.type-select{display:flex;gap:8px;margin-bottom:12px}
+.type-select label{flex:1;background:#222;border:1px solid #333;border-radius:8px;padding:8px;text-align:center;font-size:.8rem;cursor:pointer}
+.type-select input{display:none}
+.type-select input:checked + span{font-weight:800;color:var(--amber)}
+.coupon-row{display:flex;gap:8px;margin-bottom:10px}
+.coupon-row input{flex:1;background:#222;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;outline:none}
+.coupon-row button{background:#333;color:#fff;border:none;padding:0 14px;border-radius:8px;cursor:pointer;font-weight:700}
+.obs-input{width:100%;background:#222;border:1px solid #333;border-radius:8px;padding:10px;color:#fff;margin-bottom:10px;font-family:'Poppins';resize:none}
+.total-line{display:flex;justify-content:space-between;font-weight:800;font-size:1.15rem;margin-bottom:12px}
+.checkout-btn{width:100%;background:var(--green);color:#fff;border:none;padding:15px;border-radius:10px;font-weight:800;font-size:1.05rem;cursor:pointer}
+.checkout-btn:disabled{background:#333;cursor:not-allowed}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--green);padding:12px 20px;border-radius:10px;font-weight:700;opacity:0;transition:.3s;z-index:1400;white-space:nowrap}
+.toast.show{opacity:1}
+@media(max-width:700px){
+.hero h1{font-size:2.6rem}.info-bar{grid-template-columns:repeat(2,1fr)}.info-bar div{border-bottom:1px solid var(--line)}
+header{top:37px}.sticky-menu{top:74px}.products-grid{grid-template-columns:1fr}.product-img{width:110px;min-width:110px}
+}
+</style>
+</head>
+<body>
+
+<div class="promo-top">🔥 DURANTE OS JOGOS: CHOPP BRAHMA 500ml EM DOBRO! 🔥 Vem pro Seu Zé!</div>
+
+<header>
+<div class="logo">SEU ZÉ<small>CHOPERIA • BC • FRENTE MAR</small></div>
+<div class="header-actions">
+<span class="badge-open" id="statusBadge">● Aberto</span>
+<a class="btn-call" href="tel:+554731700263"><i class="fas fa-phone"></i> Ligar</a>
+</div>
+</header>
+
+<section class="hero">
+<div class="hero-pill">📍 AV. ATLÂNTICA 2350 & 4040 • BALNEÁRIO CAMBORIÚ</div>
+<h1>DO ALMOÇO AO <span>HAPPY HOUR</span></h1>
+<p>O point de BC para comer, beber e aproveitar. Chopp gelado, costela, burgers fartos e pratos executivos.</p>
+<div class="rating-hero"><strong>4.9</strong> <span class="stars">★★★★★</span> <small style="color:#aaa">3.205 avaliações no Google • R$ 40–120</small></div>
+<div class="hero-btns">
+<a href="#cardapio" class="btn-primary"><i class="fas fa-utensils"></i> VER CARDÁPIO</a>
+<a href="https://www.google.com/maps/search/?api=1&query=Seu+Ze+Choperia+Av+Atlantica+2350+Balneario+Camboriu" target="_blank" class="btn-ghost"><i class="fas fa-location-arrow"></i> COMO CHEGAR</a>
+</div>
+</section>
+
+<div class="info-bar">
+<div><i class="far fa-clock"></i><b>Todos os dias</b><small>11:30 às 23:30</small></div>
+<div><i class="fas fa-beer"></i><b>Chopp Gelado</b><small>Brahma 500ml</small></div>
+<div><i class="fas fa-futbol"></i><b>Passa Futebol</b><small>Na tela grande</small></div>
+<div><i class="fas fa-store"></i><b>2 Unidades</b><small>Atlântica frente mar</small></div>
+</div>
+
+<div class="diffs">
+<div class="diff"><i>🌊</i><b>Frente Praia</b><br><small style="color:var(--gray)">Em frente ao mar no Centro</small></div>
+<div class="diff"><i>🍻</i><b>Custo-Benefício</b><br><small style="color:var(--gray)">Preço justo sem enganação</small></div>
+<div class="diff"><i>🍖</i><b>Bem Servido</b><br><small style="color:var(--gray)">Porções p/ 3-4 pessoas</small></div>
+<div class="diff"><i>🌈</i><b>Para Todos</b><br><small style="color:var(--gray)">Espaço LGBTQ+ friendly</small></div>
+</div>
+
+<div class="sticky-menu" id="cardapio">
+<div class="search-box"><i class="fas fa-search" style="color:var(--amber)"></i><input type="text" id="searchInput" placeholder="Buscar no cardápio... ex: coxinha, chopp, costela"></div>
+<div class="filters" id="filters">
+<button class="filter-btn active" data-cat="todos">Todos</button>
+<button class="filter-btn" data-cat="destaques">🔥 Mais Pedidos</button>
+<button class="filter-btn" data-cat="porcoes">🍟 Porções</button>
+<button class="filter-btn" data-cat="burgers">🍔 Burgers</button>
+<button class="filter-btn" data-cat="almoco">🍛 Almoço Executivo</button>
+<button class="filter-btn" data-cat="chopp">🍺 Chopp & Cerveja</button>
+<button class="filter-btn" data-cat="drinks">🍹 Drinks</button>
+<button class="filter-btn" data-cat="sobremesa">🍨 Sobremesa</button>
+</div>
+</div>
+
+<div class="menu-container" id="menuContainer"></div>
+
+<section style="padding:10px 5%">
+<h2 class="category-title">📸 Da nossa cozinha</h2>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=70" alt="Burger">
+<img src="https://images.unsplash.com/photo-1436076863939-06870fe779c2?auto=format&fit=crop&w=400&q=70" alt="Chopp">
+<img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=70" alt="Costela">
+<img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=400&q=70" alt="Batata">
+<img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?auto=format&fit=crop&w=400&q=70" alt="Caipirinha">
+<img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=70" alt="Lanche">
+</div>
+</section>
+
+<section class="reviews-section">
+<div class="reviews-head">
+<div class="big">4.9 ★★★★★</div>
+<p>3.205 avaliações no Google</p>
+<p style="color:var(--gray);font-size:.85rem;max-width:600px;margin:10px auto">“Comida deliciosa e saborosa, hambúrgueres fartos, costelas saborosas e pratos executivos bem-preparados. Chopp gelado e serviço atencioso e rápido.” — Resumo IA do Google</p>
+</div>
+<div class="reviews-grid">
+<div class="review-card"><div class="review-top"><div class="avatar">D</div><div><b>Danilo Aquino</b><div class="stars">★★★★★</div></div></div><p class="review-text">“Preço justo sem enganação em frente a praia é no seu Zé. Pode confiar sem medo. Chopp bom gelado e no preço, drinks caprichados e comida boa.”</p><span class="google-tag">✔ Avaliação do Google • 5 meses atrás</span></div>
+<div class="review-card"><div class="review-top"><div class="avatar" style="background:#22c55e">E</div><div><b>Edna Cristina</b><div class="stars">★★★★★</div></div></div><p class="review-text">“Experiência única, comida deliciosa, atendimento de excelência, todos de parabéns, em especial o Conceição Goiano e o Bruno. Com certeza voltaremos.”</p><span class="google-tag">✔ Avaliação do Google • 5 meses atrás</span></div>
+<div class="review-card"><div class="review-top"><div class="avatar" style="background:#38bdf8">F</div><div><b>Felipe do MKT</b><div class="stars">★★★★★</div></div></div><p class="review-text">“As porções são muito gostosas, mas exageradamente grandes. Batata e polenta servem 4 pessoas facilmente. Proposta é prato bem servido.”</p><span class="google-tag">✔ Avaliação do Google • 6 meses atrás</span></div>
+</div>
+</section>
+
+<section class="units">
+<h2 class="category-title">📍 Nossas 2 Unidades na Atlântica</h2>
+<div class="units-grid">
+<div class="unit-card"><div class="unit-body">
+<h3>UNIDADE 2350</h3>
+<p><i class="fas fa-map-marker-alt"></i> Av. Atlântica, 2350 - Centro - Ed. Pietro Zanella</p>
+<p><i class="far fa-clock"></i> Todos os dias 11:30 às 23:30 • Fecha 00:00</p>
+<p><i class="fas fa-phone"></i> (47) 3170-0263</p>
+<div class="unit-btns">
+<a class="btn-route" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Seu+Ze+Av+Atlantica+2350+Balneario+Camboriu">Rotas</a>
+<a class="btn-wa" target="_blank" href="https://wa.me/554731700263?text=Ol%C3%A1!%20Quero%20reservar%20uma%20mesa%20na%20unidade%202350">Reservar</a>
+</div></div></div>
+<div class="unit-card"><div class="unit-body">
+<h3>UNIDADE 4040</h3>
+<p><i class="fas fa-map-marker-alt"></i> Av. Atlântica, 4040 - Centro, Balneário Camboriú</p>
+<p><i class="far fa-clock"></i> Todos os dias 11:30 às 23:30</p>
+<p><i class="fas fa-globe"></i> seuzebc.com / seuzechoperia.com.br</p>
+<div class="unit-btns">
+<a class="btn-route" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Av+Atlantica+4040+Balneario+Camboriu">Rotas</a>
+<a class="btn-wa" target="_blank" href="https://wa.me/554731700263?text=Ol%C3%A1!%20Quero%20reservar%20uma%20mesa%20na%20unidade%204040">Reservar</a>
+</div></div></div>
+</div>
+<div class="map-box">
+<iframe src="https://maps.google.com/maps?q=Av.%20Atl%C3%A2ntica,%202350%20-%20Balne%C3%A1rio%20Cambori%C3%BA&t=&z=16&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0" loading="lazy"></iframe>
+</div>
+</section>
+
+<footer>
+<p><b style="color:var(--amber)">SEU ZÉ CHOPERIA E HAMBURGUERIA</b></p>
+<p>Refeição no local • Retirada na porta • Entrega sem contato</p>
+<p>© 2026 Seu Zé BC - Todos os direitos reservados</p>
+</footer>
+
+<div class="cart-float" onclick="toggleCart()">
+<span><i class="fas fa-shopping-bag"></i> Ver pedido • <span id="floatCount">0 itens</span></span>
+<span id="floatTotal">R$ 0,00</span>
+</div>
+
+<div class="cart-modal" id="cartModal">
+<div class="cart-header"><h3>🍻 Seu Pedido</h3><button class="close-cart" onclick="toggleCart()">×</button></div>
+<div class="cart-items" id="cartItems"><p style="text-align:center;color:var(--gray);margin-top:40px">Carrinho vazio.<br>Que tal um chopp + coxinha de costela? 😋</p></div>
+<div class="cart-footer">
+<div class="type-select">
+<label><input type="radio" name="tipo" value="Mesa / Local" checked><span>🪑 Mesa</span></label>
+<label><input type="radio" name="tipo" value="Retirada"><span>🛍️ Retirada</span></label>
+<label><input type="radio" name="tipo" value="Delivery"><span>🛵 Delivery</span></label>
+</div>
+<div class="coupon-row"><input id="couponInput" placeholder="Cupom (tente SEUZE10)"><button onclick="applyCoupon()">OK</button></div>
+<textarea class="obs-input" id="obsInput" rows="2" placeholder="Observação: ex: sem cebola, ponto da carne, nº da mesa..."></textarea>
+<div class="total-line"><span>Total:</span><span id="cartTotal" style="color:var(--amber)">R$ 0,00</span></div>
+<div id="discountLine" style="display:none;color:#22c55e;font-size:.85rem;margin-bottom:8px"></div>
+<button class="checkout-btn" id="checkoutBtn" onclick="checkout()" disabled><i class="fab fa-whatsapp"></i> Finalizar no WhatsApp</button>
+</div>
+</div>
+
+<div class="toast" id="toast">Adicionado! ✅</div>
+
+<script>
+const WHATSAPP='554731700263';
+const menuData=[
+{id:1,cat:'porcoes',destaque:true,name:'Coxinha de Costela (6un) - MAIS PEDIDA',desc:'Cremosa, desmanchando, com costela desfiada. A famosa do Seu Zé.',price:42.90,img:'https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=400&q=60'},
+{id:2,cat:'burgers',destaque:true,name:'Burguer Especial Seu Zé',desc:'Blend 180g, queijo, bacon, cebola caramelizada, alface, tomate + fritas.',price:38.90,img:'https://images.unsplash.com/photo-1553979459-d2229ba7433a?auto=format&fit=crop&w=400&q=60'},
+{id:3,cat:'chopp',destaque:true,name:'Chopp Brahma 500ml',desc:'Geladíssimo, cremoso. EM DOBRO durante jogos do Brasil!',price:13.90,img:'https://images.unsplash.com/photo-1436076863939-06870fe779c2?auto=format&fit=crop&w=400&q=60'},
+{id:4,cat:'porcoes',destaque:true,name:'Costelinha BBQ + Fritas',desc:'Costela suculenta ao molho BBQ, acompanha fritas da casa.',price:89.90,img:'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=60'},
+{id:10,cat:'porcoes',name:'Batata Frita GIGANTE (p/ 4)',desc:'Serve 4 pessoas fácil. Crocante, bem servida.',price:49.90,img:'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=400&q=60'},
+{id:11,cat:'porcoes',name:'Polenta Frita (p/ 4)',desc:'Dourada por fora, macia por dentro. Porção família.',price:45.90,img:'https://images.unsplash.com/photo-1518013431117-eb1465fa5752?auto=format&fit=crop&w=400&q=60'},
+{id:12,cat:'porcoes',name:'Arancino (6un)',desc:'Bolinho italiano de risoto, crocante e cremoso.',price:39.90,img:'https://images.unsplash.com/photo-1541014741259-de529411b96a?auto=format&fit=crop&w=400&q=60'},
+{id:13,cat:'porcoes',name:'Pulled Pork + Torradas',desc:'Costelinha desfiada lentamente com torradas artesanais.',price:59.90,img:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=400&q=60'},
+{id:14,cat:'porcoes',name:'Tábua Seu Zé p/ 4',desc:'Fritas, polenta, frango, calabresa, queijo e vinagrete.',price:129.90,img:'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=400&q=60'},
+{id:20,cat:'burgers',name:'Burguer Costela Desfiada',desc:'Costela desfiada, cheddar cremoso, picles e rúcula no brioche.',price:42.90,img:'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=60'},
+{id:21,cat:'burgers',name:'Smash Duplo Cheddar',desc:'2x 90g prensados, cheddar duplo, bacon e molho especial.',price:36.90,img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=60'},
+{id:22,cat:'burgers',name:'Frango Crispy',desc:'Peito empanado crocante, alface, tomate e maionese da casa.',price:34.90,img:'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=400&q=60'},
+{id:30,cat:'almoco',name:'Executivo Bife Acebolado',desc:'Arroz, feijão, bife, batata frita e salada. Almoço excelente!',price:42.90,img:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=60'},
+{id:31,cat:'almoco',name:'Executivo Costela c/ Mandioca',desc:'Costela macia, mandioca cozida, arroz, feijão e vinagrete.',price:49.90,img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=60'},
+{id:32,cat:'almoco',name:'Feijoada p/ 2 (Qua e Sáb)',desc:'Feijoada completa, couve, farofa, torresmo e laranja.',price:89.90,img:'https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=400&q=60'},
+{id:33,cat:'almoco',name:'Parmegiana de Frango p/ 2',desc:'Com arroz branco e fritas. Bem servido.',price:95.90,img:'https://images.unsplash.com/photo-1604908176997-125f25cc6efa?auto=format&fit=crop&w=400&q=60'},
+{id:40,cat:'chopp',name:'Chopp Brahma 300ml',desc:'Para refrescar rápido.',price:9.90,img:'https://images.unsplash.com/photo-1575037614876-c38a4d44f5b8?auto=format&fit=crop&w=400&q=60'},
+{id:41,cat:'chopp',name:'Torre de Chopp 2,5L',desc:'Ideal pra mesa. Chopp gelado direto da torneira.',price:69.90,img:'https://images.unsplash.com/photo-1535958636474-b021ee887b13?auto=format&fit=crop&w=400&q=60'},
+{id:42,cat:'chopp',name:'Heineken 600ml',desc:'Garrafa gelada.',price:18.90,img:'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=400&q=60'},
+{id:50,cat:'drinks',name:'Caipirinha Limão',desc:'Cachaça premium, limão taiti e açúcar.',price:22.00,img:'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?auto=format&fit=crop&w=400&q=60'},
+{id:51,cat:'drinks',name:'Caipirinha Morango',desc:'Feita com morangos frescos.',price:26.00,img:'https://images.unsplash.com/photo-1541546006128-e6df4d522d08?auto=format&fit=crop&w=400&q=60'},
+{id:52,cat:'drinks',name:'Gin Tônica',desc:'Gin, tônica, zimbro e limão siciliano.',price:32.00,img:'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=400&q=60'},
+{id:53,cat:'drinks',name:'Aperol Spritz',desc:'Aperol, espumante e água com gás.',price:34.00,img:'https://images.unsplash.com/photo-1560512823-829485b8bf24?auto=format&fit=crop&w=400&q=60'},
+{id:60,cat:'sobremesa',name:'Petit Gâteau c/ Sorvete',desc:'Bolinho quente de chocolate com sorvete de creme.',price:28.90,img:'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?auto=format&fit=crop&w=400&q=60'},
+{id:61,cat:'sobremesa',name:'Refrigerante Lata / Suco',desc:'Coca, Guaraná, sucos naturais e água.',price:8.00,img:'https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=400&q=60'},
+];
+const catNames={destaques:'🔥 Mais Pedidos',porcoes:'🍟 Porções p/ Compartilhar',burgers:'🍔 Hamburgueria',almoco:'🍛 Almoço Executivo (11:30-15h)',chopp:'🍺 Chopp & Cerveja Gelada',drinks:'🍹 Drinks & Caipirinhas',sobremesa:'🍨 Sobremesas & Extras'};
+let cart={},couponPct=0,currentFilter='todos',searchTerm='';
+function renderMenu(){
+const c=document.getElementById('menuContainer');c.innerHTML='';
+let items=menuData.filter(i=>i.name.toLowerCase().includes(searchTerm)||i.desc.toLowerCase().includes(searchTerm));
+if(currentFilter==='destaques'){renderCat(c,'destaques',items.filter(i=>i.destaque));return}
+let cats=currentFilter==='todos'?['porcoes','burgers','almoco','chopp','drinks','sobremesa']:[currentFilter];
+if(currentFilter==='todos'){const d=items.filter(i=>i.destaque);if(d.length&&!searchTerm)renderCat(c,'destaques',d)}
+cats.forEach(k=>{const l=items.filter(i=>i.cat===k);if(l.length)renderCat(c,k,l)});
+if(!c.innerHTML)c.innerHTML='<p style="text-align:center;color:#888;margin:30px">Nenhum item encontrado. Tente buscar por outro nome.</p>';
+}
+function renderCat(c,key,items){
+const h=document.createElement('h2');h.className='category-title';h.textContent=catNames[key]||key;c.appendChild(h);
+const g=document.createElement('div');g.className='products-grid';
+items.forEach(it=>{g.innerHTML+=`<div class="product-card"><img src="${it.img}" class="product-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=60'"><div class="product-info"><div><h4>${it.name} ${it.destaque?'<span class="tag-top">TOP</span>':''}</h4><p class="desc">${it.desc}</p></div><div class="product-bottom"><span class="price">R$ ${it.price.toFixed(2).replace('.',',')}</span><button class="add-btn" onclick="addToCart(${it.id})">+</button></div></div></div>`});
+c.appendChild(g);
+}
+function addToCart(id){if(cart[id])cart[id].qty++;else{const it=menuData.find(i=>i.id===id);cart[id]={...it,qty:1}}updateCart();showToast(itName(id))}
+function itName(id){const it=menuData.find(i=>i.id===id);return it?it.name.split('-')[0].trim():''}
+function changeQty(id,d){if(!cart[id])return;cart[id].qty+=d;if(cart[id].qty<=0)delete cart[id];updateCart()}
+function calcTotal(){let t=0;Object.values(cart).forEach(i=>t+=i.price*i.qty);let desc=t*(couponPct/100);return{sub:t,desc,total:t-desc}}
+function updateCart(){
+const el=document.getElementById('cartItems');const ids=Object.keys(cart);
+const{sub,desc,total}=calcTotal();let count=0;Object.values(cart).forEach(i=>count+=i.qty);
+document.getElementById('floatCount').textContent=count+(count===1?' item':' itens');
+document.getElementById('floatTotal').textContent='R$ '+total.toFixed(2).replace('.',',');
+document.getElementById('cartTotal').textContent='R$ '+total.toFixed(2).replace('.',',');
+const dl=document.getElementById('discountLine');
+if(couponPct>0&&sub>0){dl.style.display='block';dl.textContent=`Cupom SEUZE10: -10% (economia de R$ ${desc.toFixed(2).replace('.',',')})`}else{dl.style.display='none'}
+if(!ids.length){el.innerHTML='<p style="text-align:center;color:var(--gray);margin-top:40px">Carrinho vazio.<br>Que tal um chopp + coxinha de costela? 😋</p>';document.getElementById('checkoutBtn').disabled=true;return}
+el.innerHTML='';ids.forEach(id=>{const it=cart[id];el.innerHTML+=`<div class="cart-item"><div style="font-size:.9rem">${it.qty}x ${it.name}<br><small style="color:var(--amber)">R$ ${(it.price*it.qty).toFixed(2).replace('.',',')}</small></div><div class="qty-control"><button onclick="changeQty(${id},-1)">-</button><span>${it.qty}</span><button onclick="changeQty(${id},1)">+</button></div></div>`});
+document.getElementById('checkoutBtn').disabled=false;
+}
+function toggleCart(){document.getElementById('cartModal').classList.toggle('open')}
+function showToast(n){const t=document.getElementById('toast');t.textContent='Adicionado: '+n+' ✅';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)}
+function applyCoupon(){const v=document.getElementById('couponInput').value.trim().toUpperCase();if(v==='SEUZE10'){couponPct=10;alert('Cupom aplicado! 10% OFF 🎉')}else if(v===''){couponPct=0}else{couponPct=0;alert('Cupom inválido. Tente SEUZE10')}updateCart()}
+function checkout(){
+const{sub,desc,total}=calcTotal();const tipo=document.querySelector('input[name="tipo"]:checked').value;const obs=document.getElementById('obsInput').value;
+let msg='🍻 *PEDIDO - SEU ZÉ CHOPERIA* 🍻\n';msg+=`📍 Tipo: *${tipo}*\n\n*Itens:*\n`;
+Object.values(cart).forEach(it=>{msg+=`▪️ ${it.qty}x ${it.name} - R$ ${(it.price*it.qty).toFixed(2).replace('.',',')}\n`});
+msg+=`\nSubtotal: R$ ${sub.toFixed(2).replace('.',',')}\n`;
+if(desc>0)msg+=`Desconto (SEUZE10): -R$ ${desc.toFixed(2).replace('.',',')}\n`;
+msg+=`💰 *TOTAL: R$ ${total.toFixed(2).replace('.',',')}*\n`;
+if(obs)msg+=`\n📝 Obs: ${obs}\n`;
+msg+=`\nNome/Mesa:\nUnidade (2350 ou 4040):\n`;
+window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentFilter=b.dataset.cat;renderMenu()}));
+document.getElementById('searchInput').addEventListener('input',e=>{searchTerm=e.target.value.toLowerCase();renderMenu()});
+function checkOpen(){const h=new Date().getHours()+new Date().getMinutes()/60;const open=h>=11.5&&h<23.5;const b=document.getElementById('statusBadge');if(open){b.textContent='● Aberto Agora';b.style.background='#25D366'}else{b.textContent='● Fechado • Abre 11:30';b.style.background='#dc2626'}}
+renderMenu();updateCart();checkOpen();setInterval(checkOpen,60000);
+</script>
+</body>
+</html>

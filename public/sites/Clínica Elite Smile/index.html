@@ -1,0 +1,3849 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Clínica Elite Smile | Dentista em Itapema - SC</title>
+
+<meta name="description" content="Clínica Elite Smile em Itapema - SC. Odontologia personalizada, tecnologia, estética dental, implantes e cuidado para transformar seu sorriso. Agende sua avaliação.">
+
+<meta property="og:title" content="Clínica Elite Smile | Dentista em Itapema">
+<meta property="og:description" content="Seu sorriso merece um novo nível de cuidado. Agende sua avaliação na Elite Smile.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root {
+    --ivory: #fbfaf7;
+    --cream: #f2ede5;
+    --champagne: #c8a773;
+    --champagne-light: #e5d3b2;
+    --gold-soft: #b99661;
+    --ink: #151716;
+    --ink-soft: #292d2b;
+    --dark: #111714;
+    --dark-soft: #1d2723;
+    --muted: #737872;
+    --line: rgba(21, 23, 22, .13);
+    --white: #ffffff;
+    --whatsapp: #25d366;
+    --radius: 22px;
+    --shadow: 0 22px 60px rgba(21, 38, 30, .12);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: "DM Sans", sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: "Playfair Display", serif;
+    line-height: 1.13;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.container {
+    width: min(1180px, 92%);
+    margin: auto;
+}
+
+/* PRELOADER */
+.preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: grid;
+    place-items: center;
+    background: var(--dark);
+    transition: opacity .6s ease, visibility .6s ease;
+}
+
+.preloader.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader-content {
+    color: white;
+    text-align: center;
+}
+
+.loader-mark {
+    width: 70px;
+    height: 70px;
+    display: grid;
+    place-items: center;
+    margin: auto auto 18px;
+    color: var(--champagne-light);
+    border: 1px solid var(--champagne);
+    border-radius: 50%;
+    font-size: 1.7rem;
+    animation: pulse 1.5s infinite;
+}
+
+.loader-content strong {
+    color: var(--champagne-light);
+    letter-spacing: 4px;
+    font-size: .72rem;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(200,167,115,.35);
+    }
+
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 0 16px rgba(200,167,115,0);
+    }
+}
+
+/* TOPO */
+.topbar {
+    padding: 9px 15px;
+    color: white;
+    background: var(--dark);
+    text-align: center;
+    font-size: .76rem;
+}
+
+.topbar strong {
+    color: var(--champagne-light);
+}
+
+/* PROGRESSO */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 4000;
+    width: 0;
+    height: 3px;
+    background: var(--champagne);
+}
+
+/* HEADER */
+.site-header {
+    position: absolute;
+    top: 36px;
+    left: 0;
+    z-index: 1500;
+    width: 100%;
+    background: transparent;
+    transition: .35s ease;
+}
+
+.site-header.scrolled {
+    position: fixed;
+    top: 0;
+    background: rgba(251,250,247,.92);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 30px rgba(21,23,22,.08);
+}
+
+.navbar {
+    min-height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.brand-mark {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: var(--champagne-light);
+    border: 1px solid var(--champagne);
+    border-radius: 50%;
+    font-size: 1.1rem;
+}
+
+.site-header.scrolled .brand-mark {
+    color: var(--gold-soft);
+}
+
+.brand-name {
+    color: white;
+    font-family: "Playfair Display", serif;
+    font-size: 1.42rem;
+    font-weight: 700;
+}
+
+.site-header.scrolled .brand-name {
+    color: var(--dark);
+}
+
+.brand-name span {
+    color: var(--champagne);
+}
+
+.brand small {
+    display: block;
+    color: rgba(255,255,255,.68);
+    font-family: "DM Sans", sans-serif;
+    font-size: .53rem;
+    font-weight: 800;
+    letter-spacing: 2.2px;
+}
+
+.site-header.scrolled .brand small {
+    color: var(--muted);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 21px;
+}
+
+.nav-links a {
+    position: relative;
+    color: rgba(255,255,255,.88);
+    font-size: .84rem;
+    font-weight: 700;
+}
+
+.site-header.scrolled .nav-links a {
+    color: var(--ink-soft);
+}
+
+.nav-links a::after {
+    position: absolute;
+    content: "";
+    left: 0;
+    bottom: -7px;
+    width: 0;
+    height: 1px;
+    background: var(--champagne);
+    transition: .25s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-toggle {
+    display: none;
+    color: white;
+    background: transparent;
+    border: 0;
+    font-size: 1.45rem;
+}
+
+.site-header.scrolled .menu-toggle {
+    color: var(--dark);
+}
+
+/* BOTÕES */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 20px;
+    border: 0;
+    border-radius: 11px;
+    font-weight: 800;
+    transition: .25s ease;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+}
+
+.btn-gold {
+    color: var(--dark);
+    background: var(--champagne);
+}
+
+.btn-gold:hover {
+    background: var(--champagne-light);
+    box-shadow: 0 12px 28px rgba(200,167,115,.25);
+}
+
+.btn-dark {
+    color: white;
+    background: var(--dark);
+}
+
+.btn-dark:hover {
+    background: var(--dark-soft);
+}
+
+.btn-light {
+    color: var(--dark);
+    background: white;
+}
+
+.btn-light:hover {
+    background: var(--cream);
+}
+
+.btn-outline {
+    color: var(--dark);
+    background: transparent;
+    border: 1px solid var(--dark);
+}
+
+.btn-outline:hover {
+    color: white;
+    background: var(--dark);
+}
+
+.btn-whatsapp {
+    color: white;
+    background: var(--whatsapp);
+}
+
+.btn-whatsapp:hover {
+    background: #1fb356;
+}
+
+/* HERO */
+.hero {
+    position: relative;
+    min-height: 760px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    color: white;
+    background:
+        linear-gradient(100deg, rgba(12,18,15,.93) 0%, rgba(12,18,15,.72) 46%, rgba(12,18,15,.28) 100%),
+        url("https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=2200&q=88") center/cover;
+}
+
+.hero::before {
+    position: absolute;
+    content: "";
+    top: 20%;
+    right: 7%;
+    width: 410px;
+    height: 410px;
+    border: 1px solid rgba(229,211,178,.3);
+    border-radius: 50%;
+    animation: orbit 24s linear infinite;
+}
+
+.hero::after {
+    position: absolute;
+    content: "";
+    top: 30%;
+    right: 10%;
+    width: 300px;
+    height: 100px;
+    border-bottom: 1px solid rgba(229,211,178,.45);
+    border-radius: 50%;
+    transform: rotate(-15deg);
+}
+
+@keyframes orbit {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.hero-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    align-items: center;
+    gap: 50px;
+    padding-top: 70px;
+}
+
+.hero-content {
+    max-width: 690px;
+}
+
+.hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    margin-bottom: 20px;
+    color: var(--champagne-light);
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(229,211,178,.35);
+    border-radius: 30px;
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+.hero h1 {
+    max-width: 710px;
+    color: white;
+    font-size: clamp(2.9rem, 6vw, 5.4rem);
+    letter-spacing: -2px;
+}
+
+.hero h1 em {
+    color: var(--champagne-light);
+    font-style: normal;
+}
+
+.hero-description {
+    max-width: 580px;
+    margin: 23px 0;
+    color: rgba(255,255,255,.78);
+    font-size: 1rem;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 25px 0;
+}
+
+.hero-actions .btn-outline {
+    color: white;
+    border-color: rgba(255,255,255,.7);
+}
+
+.hero-actions .btn-outline:hover {
+    color: var(--dark);
+    background: white;
+}
+
+.hero-rating {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: fit-content;
+    padding: 13px 16px;
+    background: rgba(255,255,255,.09);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 14px;
+    backdrop-filter: blur(8px);
+}
+
+.hero-rating strong {
+    color: var(--champagne-light);
+    font-family: "Playfair Display", serif;
+    font-size: 1.7rem;
+}
+
+.hero-rating .stars {
+    color: #e4bb6d;
+    letter-spacing: 2px;
+}
+
+.hero-rating small {
+    display: block;
+    color: rgba(255,255,255,.7);
+    font-size: .74rem;
+}
+
+.hero-side {
+    position: relative;
+    min-height: 470px;
+}
+
+.hero-panel {
+    position: absolute;
+    right: 5%;
+    bottom: 5%;
+    width: 245px;
+    padding: 17px;
+    color: var(--dark);
+    background: rgba(255,255,255,.88);
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+    animation: float 4.5s ease-in-out infinite;
+}
+
+.hero-panel i {
+    color: var(--gold-soft);
+    font-size: 1.3rem;
+}
+
+.hero-panel strong {
+    display: block;
+    margin-top: 8px;
+    font-family: "Playfair Display", serif;
+    font-size: 1.2rem;
+}
+
+.hero-panel small {
+    color: var(--muted);
+    font-size: .74rem;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-9px);
+    }
+}
+
+.smile-line {
+    position: absolute;
+    right: 0;
+    bottom: 10%;
+    width: 100%;
+    max-width: 560px;
+    opacity: .75;
+}
+
+.smile-line path {
+    fill: none;
+    stroke: var(--champagne-light);
+    stroke-width: 1;
+    stroke-dasharray: 10 12;
+    animation: dash 12s linear infinite;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -240;
+    }
+}
+
+/* TRUST STRIP */
+.trust-strip {
+    color: white;
+    background: var(--dark);
+}
+
+.trust-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.trust-item {
+    padding: 23px 12px;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,.13);
+}
+
+.trust-item:last-child {
+    border-right: 0;
+}
+
+.trust-item strong {
+    display: block;
+    color: var(--champagne-light);
+    font-family: "Playfair Display", serif;
+    font-size: 1.75rem;
+}
+
+.trust-item span {
+    color: #c5cec8;
+    font-size: .75rem;
+}
+
+/* SECTIONS */
+.section {
+    padding: 92px 0;
+}
+
+.section-heading {
+    max-width: 720px;
+    margin: 0 auto 38px;
+    text-align: center;
+}
+
+.eyebrow {
+    color: var(--gold-soft);
+    font-size: .74rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.section-heading h2 {
+    margin: 10px 0 14px;
+    color: var(--dark);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+}
+
+.section-heading p {
+    color: var(--muted);
+    font-size: .94rem;
+}
+
+/* EDITORIAL */
+.editorial {
+    background: var(--ivory);
+}
+
+.editorial-grid {
+    display: grid;
+    grid-template-columns: .9fr 1.1fr;
+    align-items: center;
+    gap: 65px;
+}
+
+.editorial-image {
+    position: relative;
+}
+
+.editorial-image img {
+    width: 100%;
+    height: 510px;
+    object-fit: cover;
+    border-radius: 18px 75px 18px 75px;
+    box-shadow: 20px 22px 0 rgba(200,167,115,.28);
+}
+
+.editorial-label {
+    position: absolute;
+    right: -20px;
+    bottom: 28px;
+    max-width: 200px;
+    padding: 16px;
+    color: white;
+    background: var(--dark);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    font-size: .76rem;
+}
+
+.editorial-label strong {
+    display: block;
+    color: var(--champagne-light);
+    font-family: "Playfair Display", serif;
+    font-size: 1.2rem;
+}
+
+.editorial-content h2 {
+    margin: 10px 0 16px;
+    color: var(--dark);
+    font-size: clamp(2.2rem, 4vw, 3.7rem);
+}
+
+.editorial-content > p {
+    color: var(--muted);
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 13px;
+    margin-top: 26px;
+}
+
+.metric {
+    padding: 17px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+}
+
+.metric strong {
+    display: block;
+    color: var(--gold-soft);
+    font-family: "Playfair Display", serif;
+    font-size: 1.7rem;
+}
+
+.metric span {
+    color: var(--muted);
+    font-size: .75rem;
+}
+
+/* TRATAMENTOS */
+.treatments {
+    background: var(--cream);
+}
+
+.treatment-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 17px;
+}
+
+.treatment-card {
+    position: relative;
+    min-height: 350px;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--dark);
+    transform-style: preserve-3d;
+    transition: .3s ease;
+}
+
+.treatment-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 25px 45px rgba(21,23,22,.22);
+}
+
+.treatment-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: .7;
+    transition: transform .7s ease, opacity .4s ease;
+}
+
+.treatment-card:hover img {
+    opacity: .48;
+    transform: scale(1.09);
+}
+
+.treatment-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 23px;
+    color: white;
+    background: linear-gradient(transparent 30%, rgba(10,15,13,.9));
+}
+
+.treatment-overlay h3 {
+    color: var(--champagne-light);
+    font-size: 1.5rem;
+}
+
+.treatment-overlay p {
+    max-width: 290px;
+    margin: 8px 0 15px;
+    color: rgba(255,255,255,.78);
+    font-size: .82rem;
+}
+
+.treatment-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    color: white;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.treatment-link i {
+    color: var(--champagne);
+    transition: .25s ease;
+}
+
+.treatment-card:hover .treatment-link i {
+    transform: translateX(7px);
+}
+
+/* TECNOLOGIA */
+.tech-section {
+    position: relative;
+    overflow: hidden;
+    color: white;
+    background: var(--dark);
+}
+
+.tech-section .section-heading h2 {
+    color: white;
+}
+
+.tech-section .section-heading p {
+    color: #bdc8c1;
+}
+
+.tech-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 55px;
+}
+
+.tech-copy .eyebrow {
+    color: var(--champagne-light);
+}
+
+.tech-copy h2 {
+    margin: 10px 0 18px;
+    color: white;
+    font-size: clamp(2.2rem, 4vw, 3.6rem);
+}
+
+.tech-copy p {
+    color: #bec9c1;
+}
+
+.tech-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.tech-list-item {
+    padding: 15px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 13px;
+}
+
+.tech-list-item i {
+    color: var(--champagne-light);
+}
+
+.tech-list-item strong {
+    display: block;
+    margin-top: 7px;
+    font-size: .83rem;
+}
+
+.tech-list-item span {
+    display: block;
+    margin-top: 3px;
+    color: #aebbb3;
+    font-size: .73rem;
+}
+
+.tech-visual {
+    position: relative;
+    min-height: 420px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 35px 35px;
+    border: 1px solid rgba(229,211,178,.19);
+    border-radius: 25px;
+}
+
+.tech-visual::before {
+    position: absolute;
+    content: "";
+    inset: 35px;
+    border: 1px solid rgba(229,211,178,.18);
+    border-radius: 50%;
+    transform: rotate(25deg);
+}
+
+.tech-arch {
+    position: relative;
+    z-index: 2;
+    width: 260px;
+    height: 150px;
+    display: grid;
+    place-items: center;
+    color: var(--champagne-light);
+    border: 2px solid var(--champagne);
+    border-top: 0;
+    border-radius: 0 0 50% 50%;
+    transform: perspective(500px) rotateX(20deg);
+    box-shadow: 0 18px 35px rgba(200,167,115,.17);
+}
+
+.tech-arch::before,
+.tech-arch::after {
+    position: absolute;
+    content: "";
+    width: 205px;
+    height: 108px;
+    border: 1px solid rgba(229,211,178,.5);
+    border-top: 0;
+    border-radius: 0 0 50% 50%;
+}
+
+.tech-arch::after {
+    width: 150px;
+    height: 75px;
+}
+
+.scanner-line {
+    position: absolute;
+    z-index: 3;
+    left: 18%;
+    right: 18%;
+    top: 38%;
+    height: 1px;
+    background: var(--champagne-light);
+    box-shadow: 0 0 16px var(--champagne-light);
+    animation: scan 3.8s ease-in-out infinite;
+}
+
+@keyframes scan {
+    0%, 100% {
+        transform: translateY(-95px);
+        opacity: .1;
+    }
+
+    50% {
+        transform: translateY(100px);
+        opacity: 1;
+    }
+}
+
+.tech-badge {
+    position: absolute;
+    right: 23px;
+    bottom: 23px;
+    z-index: 4;
+    padding: 12px;
+    color: var(--dark);
+    background: var(--champagne-light);
+    border-radius: 11px;
+    font-size: .73rem;
+    font-weight: 800;
+}
+
+/* ANTES DEPOIS */
+.before-after {
+    background: var(--ivory);
+}
+
+.comparison {
+    position: relative;
+    max-width: 900px;
+    height: 490px;
+    margin: auto;
+    overflow: hidden;
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    user-select: none;
+}
+
+.comparison img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.comparison-after {
+    width: 50%;
+    overflow: hidden;
+    clip-path: inset(0 0 0 0);
+}
+
+.comparison-after img {
+    width: 900px;
+    max-width: none;
+}
+
+.comparison-range {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: ew-resize;
+}
+
+.comparison-divider {
+    position: absolute;
+    z-index: 4;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: white;
+    pointer-events: none;
+}
+
+.comparison-divider::after {
+    position: absolute;
+    content: "↔";
+    top: 50%;
+    left: 50%;
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    color: var(--dark);
+    background: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 900;
+}
+
+.comparison-label {
+    position: absolute;
+    z-index: 3;
+    top: 18px;
+    padding: 7px 11px;
+    color: white;
+    background: rgba(17,23,20,.68);
+    border-radius: 8px;
+    font-size: .7rem;
+    font-weight: 800;
+}
+
+.label-before {
+    left: 18px;
+}
+
+.label-after {
+    right: 18px;
+}
+
+.demo-note {
+    margin-top: 13px;
+    color: var(--muted);
+    text-align: center;
+    font-size: .74rem;
+}
+
+/* GALERIA */
+.gallery-section {
+    background: var(--cream);
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: 1.2fr .8fr .8fr;
+    grid-template-rows: 210px 210px;
+    gap: 12px;
+}
+
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    cursor: pointer;
+}
+
+.gallery-item:first-child {
+    grid-row: span 2;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .65s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.08);
+}
+
+.gallery-caption {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    padding: 8px 10px;
+    color: white;
+    background: rgba(17,23,20,.72);
+    border-radius: 8px;
+    font-size: .67rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: .3s ease;
+}
+
+.gallery-item:hover .gallery-caption {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* SORRISOS */
+.smiles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+.smile-card {
+    position: relative;
+    height: 285px;
+    overflow: hidden;
+    border-radius: 18px;
+    transform: rotate(-1deg);
+    transition: .3s ease;
+}
+
+.smile-card:nth-child(2) {
+    transform: rotate(1.5deg);
+}
+
+.smile-card:nth-child(3) {
+    transform: rotate(-1.5deg);
+}
+
+.smile-card:nth-child(4) {
+    transform: rotate(1deg);
+}
+
+.smile-card:hover {
+    z-index: 2;
+    transform: rotate(0) translateY(-7px);
+    box-shadow: var(--shadow);
+}
+
+.smile-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: .5s ease;
+}
+
+.smile-card:hover img {
+    transform: scale(1.08);
+}
+
+.smile-card span {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    padding: 8px;
+    color: white;
+    background: rgba(17,23,20,.73);
+    border-radius: 8px;
+    font-size: .68rem;
+}
+
+/* REVIEWS */
+.reviews-section {
+    color: white;
+    background: var(--dark);
+}
+
+.reviews-section .section-heading h2 {
+    color: white;
+}
+
+.reviews-section .section-heading p {
+    color: #bdc8c1;
+}
+
+.reviews-section .eyebrow {
+    color: var(--champagne-light);
+}
+
+.review-summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 17px;
+    margin-bottom: 29px;
+    text-align: center;
+}
+
+.review-summary strong {
+    color: var(--champagne-light);
+    font-family: "Playfair Display", serif;
+    font-size: 3.3rem;
+}
+
+.review-summary .stars {
+    color: #e4bb6d;
+    letter-spacing: 3px;
+}
+
+.review-summary small {
+    display: block;
+    color: #bcc9c1;
+    font-size: .76rem;
+}
+
+.review-viewport {
+    overflow: hidden;
+}
+
+.review-track {
+    display: flex;
+    transition: transform .5s cubic-bezier(.2,.7,.2,1);
+}
+
+.review-slide {
+    min-width: 50%;
+    padding: 0 8px;
+}
+
+.review-card {
+    min-height: 245px;
+    padding: 28px;
+    color: var(--ink);
+    background: var(--ivory);
+    border-radius: 21px;
+}
+
+.review-card .stars {
+    color: #bd8e39;
+    letter-spacing: 2px;
+}
+
+.review-card p {
+    margin: 15px 0;
+    font-family: "Playfair Display", serif;
+    font-size: 1.18rem;
+    line-height: 1.45;
+}
+
+.review-author {
+    color: var(--muted);
+    font-size: .75rem;
+    font-weight: 800;
+}
+
+.review-controls {
+    display: flex;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 23px;
+}
+
+.review-controls button {
+    width: 42px;
+    height: 42px;
+    color: var(--champagne-light);
+    background: transparent;
+    border: 1px solid var(--champagne);
+    border-radius: 50%;
+}
+
+.review-controls button:hover {
+    color: var(--dark);
+    background: var(--champagne);
+}
+
+.placeholder-review {
+    border: 1px dashed var(--champagne);
+    background: rgba(255,255,255,.06);
+    color: white;
+}
+
+.placeholder-review p,
+.placeholder-review .review-author {
+    color: #bcc9c1;
+}
+
+/* PROFISSIONAL */
+.professional {
+    background: var(--ivory);
+}
+
+.professional-grid {
+    display: grid;
+    grid-template-columns: .85fr 1.15fr;
+    gap: 65px;
+    align-items: center;
+}
+
+.professional-image {
+    position: relative;
+}
+
+.professional-image img {
+    width: 100%;
+    height: 510px;
+    object-fit: cover;
+    border-radius: 18px 75px 18px 75px;
+    box-shadow: 20px 22px 0 rgba(200,167,115,.28);
+}
+
+.professional-content h2 {
+    margin: 10px 0 15px;
+    color: var(--dark);
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+}
+
+.professional-content p {
+    color: var(--muted);
+}
+
+.professional-data {
+    display: grid;
+    gap: 11px;
+    margin-top: 24px;
+}
+
+.data-line {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 13px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    color: var(--muted);
+    font-size: .82rem;
+}
+
+.data-line i {
+    width: 22px;
+    color: var(--gold-soft);
+    text-align: center;
+}
+
+/* DIFERENCIAIS */
+.difference {
+    background: var(--cream);
+}
+
+.difference-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 13px;
+}
+
+.difference-card {
+    padding: 21px 16px;
+    background: rgba(255,255,255,.72);
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    transition: .25s ease;
+}
+
+.difference-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow);
+}
+
+.difference-card i {
+    color: var(--gold-soft);
+    font-size: 1.45rem;
+}
+
+.difference-card h3 {
+    margin: 12px 0 6px;
+    color: var(--dark);
+    font-size: 1.15rem;
+}
+
+.difference-card p {
+    color: var(--muted);
+    font-size: .76rem;
+}
+
+/* AGENDAMENTO */
+.appointment-section {
+    background: var(--ivory);
+}
+
+.appointment-shell {
+    max-width: 920px;
+    margin: auto;
+    padding: 30px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    box-shadow: var(--shadow);
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 33px;
+}
+
+.step-dot {
+    position: relative;
+    z-index: 2;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    font-size: .76rem;
+    font-weight: 800;
+}
+
+.step-dot.active,
+.step-dot.completed {
+    color: white;
+    background: var(--dark);
+    border-color: var(--dark);
+}
+
+.step-line {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+}
+
+.appointment-step {
+    display: none;
+    animation: stepIn .35s ease;
+}
+
+.appointment-step.active {
+    display: block;
+}
+
+@keyframes stepIn {
+    from {
+        opacity: 0;
+        transform: translateX(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.appointment-step h3 {
+    color: var(--dark);
+    font-size: 2rem;
+}
+
+.appointment-step > p {
+    margin: 8px 0 20px;
+    color: var(--muted);
+    font-size: .86rem;
+}
+
+.choice-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 11px;
+}
+
+.choice {
+    padding: 16px;
+    color: var(--dark);
+    background: var(--ivory);
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    text-align: left;
+    transition: .2s ease;
+}
+
+.choice:hover,
+.choice.selected {
+    border-color: var(--champagne);
+    box-shadow: 0 8px 20px rgba(200,167,115,.14);
+    transform: translateY(-3px);
+}
+
+.choice i {
+    color: var(--gold-soft);
+    font-size: 1.2rem;
+}
+
+.choice strong {
+    display: block;
+    margin-top: 8px;
+    font-size: .83rem;
+}
+
+.choice small {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: .7rem;
+}
+
+.periods,
+.times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.period-btn,
+.time-btn {
+    padding: 10px 15px;
+    color: var(--dark);
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font-size: .8rem;
+    font-weight: 700;
+}
+
+.period-btn.selected,
+.time-btn.selected,
+.period-btn:hover,
+.time-btn:hover {
+    color: white;
+    background: var(--dark);
+    border-color: var(--dark);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.date-btn {
+    padding: 11px 5px;
+    color: var(--dark);
+    background: var(--ivory);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font-size: .73rem;
+}
+
+.date-btn.selected,
+.date-btn:hover {
+    color: white;
+    background: var(--champagne);
+    border-color: var(--champagne);
+}
+
+.date-btn small {
+    display: block;
+    font-size: .63rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    color: var(--dark);
+    font-size: .75rem;
+    font-weight: 800;
+}
+
+.form-group input {
+    padding: 12px;
+    background: var(--ivory);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: var(--champagne);
+}
+
+.summary {
+    padding: 18px;
+    margin-top: 18px;
+    background: var(--cream);
+    border-radius: 14px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: .82rem;
+}
+
+.summary-row:last-child {
+    border-bottom: 0;
+}
+
+.summary-row span {
+    color: var(--muted);
+}
+
+.summary-row strong {
+    color: var(--dark);
+    text-align: right;
+}
+
+.step-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.appointment-note {
+    margin-top: 17px;
+    color: var(--muted);
+    font-size: .72rem;
+    text-align: center;
+}
+
+/* FAQ */
+.faq-section {
+    background: var(--cream);
+}
+
+.faq-list {
+    max-width: 820px;
+    margin: auto;
+}
+
+.faq-item {
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+}
+
+.faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 17px 19px;
+    color: var(--dark);
+    background: transparent;
+    border: 0;
+    text-align: left;
+    font-weight: 800;
+}
+
+.faq-question i {
+    color: var(--gold-soft);
+    transition: .25s ease;
+}
+
+.faq-answer {
+    display: none;
+    padding: 0 19px 17px;
+    color: var(--muted);
+    font-size: .86rem;
+}
+
+.faq-item.open .faq-answer {
+    display: block;
+}
+
+.faq-item.open .faq-question i {
+    transform: rotate(180deg);
+}
+
+/* LOCALIZAÇÃO */
+.location {
+    background: var(--ivory);
+}
+
+.location-grid {
+    display: grid;
+    grid-template-columns: .85fr 1.15fr;
+    gap: 20px;
+}
+
+.location-card {
+    padding: 30px;
+    color: white;
+    background: var(--dark);
+    border-radius: var(--radius);
+}
+
+.location-card h2 {
+    color: white;
+    font-size: 2rem;
+}
+
+.location-card p {
+    margin: 12px 0 20px;
+    color: #c3cec6;
+    font-size: .86rem;
+}
+
+.location-list {
+    list-style: none;
+}
+
+.location-list li {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+    margin: 14px 0;
+    color: #d4ded7;
+    font-size: .83rem;
+}
+
+.location-list i {
+    width: 20px;
+    margin-top: 4px;
+    color: var(--champagne-light);
+    text-align: center;
+}
+
+.location-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 22px;
+}
+
+.location-card .btn-outline {
+    color: white;
+    border-color: white;
+}
+
+.location-card .btn-outline:hover {
+    color: var(--dark);
+    background: white;
+}
+
+.map {
+    min-height: 375px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.map iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 375px;
+    border: 0;
+}
+
+/* CTA FINAL */
+.final-cta {
+    position: relative;
+    min-height: 490px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: white;
+    text-align: center;
+    background:
+        linear-gradient(rgba(17,23,20,.72), rgba(17,23,20,.78)),
+        url("https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=1900&q=85") center/cover;
+}
+
+.final-cta-content {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+}
+
+.final-cta h2 {
+    font-size: clamp(2.4rem, 5vw, 4.3rem);
+}
+
+.final-cta p {
+    margin: 17px 0 24px;
+    color: rgba(255,255,255,.79);
+}
+
+/* FOOTER */
+footer {
+    padding: 36px 15px 100px;
+    color: #b9c3bd;
+    background: #0c1210;
+    text-align: center;
+    font-size: .77rem;
+}
+
+footer strong {
+    color: var(--champagne-light);
+    font-family: "Playfair Display", serif;
+    font-size: 1.6rem;
+}
+
+footer p {
+    margin-top: 8px;
+}
+
+/* WHATSAPP */
+.floating-whatsapp {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 1600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 59px;
+    height: 59px;
+    overflow: hidden;
+    padding: 0 17px;
+    color: white;
+    background: var(--whatsapp);
+    border-radius: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    font-size: 1.6rem;
+    transition: width .3s ease, transform .3s ease;
+}
+
+.floating-whatsapp span {
+    opacity: 0;
+    white-space: nowrap;
+    font-size: .77rem;
+    font-weight: 800;
+    transition: .2s ease;
+}
+
+.floating-whatsapp:hover {
+    width: 205px;
+    transform: translateY(-4px);
+}
+
+.floating-whatsapp:hover span {
+    opacity: 1;
+}
+
+/* LIGHTBOX */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 3500;
+    display: none;
+    place-items: center;
+    padding: 20px;
+    background: rgba(0,0,0,.86);
+}
+
+.lightbox.open {
+    display: grid;
+}
+
+.lightbox img {
+    max-width: min(1000px, 94vw);
+    max-height: 85vh;
+    border-radius: 15px;
+    box-shadow: 0 25px 80px rgba(0,0,0,.3);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    color: white;
+    background: transparent;
+    border: 0;
+    font-size: 2rem;
+}
+
+/* REVEAL */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .8s ease, transform .8s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* RESPONSIVO */
+@media (max-width: 1080px) {
+    .treatment-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .difference-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .nav-links {
+        gap: 13px;
+    }
+}
+
+@media (max-width: 850px) {
+    .hero-grid,
+    .editorial-grid,
+    .tech-grid,
+    .professional-grid,
+    .location-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        min-height: 820px;
+        padding: 80px 0 60px;
+    }
+
+    .hero-side {
+        min-height: 330px;
+    }
+
+    .hero-panel {
+        right: 4%;
+        bottom: 4%;
+    }
+
+    .editorial-image,
+    .professional-image {
+        max-width: 620px;
+        margin: auto;
+    }
+
+    .difference-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .review-slide {
+        min-width: 100%;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 78px;
+        right: 4%;
+        left: 4%;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 10px;
+        background: var(--ivory);
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        padding: 12px;
+        color: var(--dark);
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-actions > .btn {
+        display: none;
+    }
+
+    .floating-whatsapp {
+        width: 59px;
+    }
+
+    .floating-whatsapp span {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .topbar {
+        font-size: .68rem;
+    }
+
+    .brand-name {
+        font-size: 1.13rem;
+    }
+
+    .brand-mark {
+        width: 36px;
+        height: 36px;
+        font-size: .9rem;
+    }
+
+    .hero {
+        min-height: 850px;
+    }
+
+    .hero h1 {
+        font-size: 2.65rem;
+        letter-spacing: -1px;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+
+    .hero-side {
+        min-height: 270px;
+    }
+
+    .hero-panel {
+        width: 210px;
+        font-size: .7rem;
+    }
+
+    .smile-line {
+        display: none;
+    }
+
+    .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .trust-item {
+        border-bottom: 1px solid rgba(255,255,255,.13);
+    }
+
+    .metrics,
+    .tech-list,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .treatment-grid,
+    .animal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .treatment-card {
+        min-height: 300px;
+    }
+
+    .comparison {
+        height: 330px;
+    }
+
+    .comparison-after img {
+        width: 100vw;
+        max-width: none;
+    }
+
+    .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 175px 175px 175px;
+    }
+
+    .gallery-item:first-child {
+        grid-column: span 2;
+        grid-row: span 1;
+    }
+
+    .smiles-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .smile-card {
+        height: 230px;
+    }
+
+    .difference-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .choice-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .appointment-shell {
+        padding: 20px 15px;
+    }
+
+    .calendar-grid {
+        gap: 5px;
+    }
+
+    .date-btn {
+        padding: 9px 2px;
+        font-size: .65rem;
+    }
+
+    .step-dot {
+        width: 29px;
+        height: 29px;
+        font-size: .68rem;
+    }
+
+    .step-actions {
+        flex-direction: column-reverse;
+    }
+
+    .step-actions .btn {
+        width: 100%;
+    }
+
+    .floating-whatsapp {
+        right: 15px;
+        bottom: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        transition-duration: .001ms !important;
+    }
+
+    .reveal {
+        opacity: 1;
+        transform: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="preloader" id="preloader">
+    <div class="loader-content">
+        <div class="loader-mark">
+            <i class="fa-solid fa-tooth"></i>
+        </div>
+        <strong>CLÍNICA ELITE SMILE</strong>
+    </div>
+</div>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<div class="topbar">
+    <strong>Clínica Elite Smile</strong>
+    · Odontologia premium em Itapema
+    · Espaço acolhedor e inclusivo
+</div>
+
+<header class="site-header" id="siteHeader">
+    <div class="container navbar">
+
+        <a href="#inicio" class="brand">
+            <div class="brand-mark">
+                <i class="fa-solid fa-tooth"></i>
+            </div>
+
+            <div class="brand-name">
+                ELITE<span>SMILE</span>
+                <small>ODONTOLOGIA CONTEMPORÂNEA</small>
+            </div>
+        </a>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="#inicio">Início</a>
+            <a href="#clinica">A Clínica</a>
+            <a href="#tratamentos">Tratamentos</a>
+            <a href="#resultados">Resultados</a>
+            <a href="#avaliacoes">Avaliações</a>
+            <a href="#faq">FAQ</a>
+            <a href="#contato">Contato</a>
+        </nav>
+
+        <div class="nav-actions">
+            <button class="btn btn-gold" onclick="startAppointment()">
+                <i class="fa-regular fa-calendar-check"></i>
+                Agendar avaliação
+            </button>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+    </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+    <div class="container hero-grid">
+
+        <div class="hero-content reveal">
+            <span class="hero-kicker">
+                <i class="fa-solid fa-sparkles"></i>
+                Odontologia personalizada em Itapema
+            </span>
+
+            <h1>
+                Seu sorriso merece um novo
+                <em>nível de cuidado.</em>
+            </h1>
+
+            <p class="hero-description">
+                Odontologia personalizada, tecnologia e excelência para transformar
+                seu sorriso com segurança, planejamento e naturalidade.
+            </p>
+
+            <div class="hero-actions">
+                <button class="btn btn-gold" onclick="startAppointment()">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    Agendar avaliação
+                </button>
+
+                <a class="btn btn-light" href="#clinica">
+                    Conhecer a Elite Smile
+                    <i class="fa-solid fa-arrow-down"></i>
+                </a>
+
+                <a class="btn btn-outline" id="heroWhatsapp" target="_blank" rel="noopener">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    Falar pelo WhatsApp
+                </a>
+            </div>
+
+            <div class="hero-rating">
+                <strong>5,0</strong>
+
+                <div>
+                    <div class="stars">★★★★★</div>
+                    <small>10 avaliações no Google</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-side reveal">
+            <svg class="smile-line" viewBox="0 0 600 220" aria-hidden="true">
+                <path d="M30 130 C180 260 415 250 570 70"></path>
+                <path d="M100 116 C220 210 390 190 520 55"></path>
+            </svg>
+
+            <div class="hero-panel">
+                <i class="fa-solid fa-award"></i>
+                <strong>Excelência em atendimento</strong>
+                <small>Uma experiência odontológica mais humana, clara e cuidadosa.</small>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- TRUST -->
+<section class="trust-strip">
+    <div class="container trust-grid">
+        <div class="trust-item">
+            <strong>5,0 ★</strong>
+            <span>Avaliação no Google</span>
+        </div>
+
+        <div class="trust-item">
+            <strong>10</strong>
+            <span>Avaliações públicas</span>
+        </div>
+
+        <div class="trust-item">
+            <strong>Itapema</strong>
+            <span>Santa Catarina</span>
+        </div>
+
+        <div class="trust-item">
+            <strong>18h</strong>
+            <span>Horário informado de fechamento</span>
+        </div>
+    </div>
+</section>
+
+<!-- EDITORIAL -->
+<section class="section editorial" id="clinica">
+    <div class="container editorial-grid">
+
+        <div class="editorial-image reveal">
+            <img
+                src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1000&q=85"
+                alt="Ambiente odontológico premium ilustrativo"
+                loading="lazy">
+
+            <div class="editorial-label">
+                <strong>Elite Smile</strong>
+                Cuidado que você sente. Resultado que você vê.
+            </div>
+        </div>
+
+        <div class="editorial-content reveal">
+            <span class="eyebrow">UMA NOVA EXPERIÊNCIA EM ODONTOLOGIA</span>
+
+            <h2>Cuidado que você sente. Resultado que você vê.</h2>
+
+            <p>
+                A Clínica Elite Smile combina atendimento humanizado,
+                planejamento personalizado e recursos modernos para tornar
+                cada etapa mais segura, confortável e compreensível.
+            </p>
+
+            <div class="metrics">
+                <div class="metric">
+                    <strong data-counter="5" data-decimal="1">0</strong>
+                    <span>Google</span>
+                </div>
+
+                <div class="metric">
+                    <strong data-counter="10">0</strong>
+                    <span>Avaliações</span>
+                </div>
+
+                <div class="metric">
+                    <strong>100%</strong>
+                    <span>Atenção ao paciente</span>
+                </div>
+            </div>
+
+            <button class="btn btn-dark" style="margin-top:25px" onclick="startAppointment()">
+                Quero conhecer a clínica
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<!-- TRATAMENTOS -->
+<section class="section treatments" id="tratamentos">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">CUIDADO PERSONALIZADO</span>
+            <h2>Tratamentos pensados para o seu sorriso</h2>
+            <p>
+                Cada sorriso possui necessidades diferentes.
+                Converse com a equipe sobre o tratamento ideal para você.
+            </p>
+        </div>
+
+        <div class="treatment-grid">
+
+            <article class="treatment-card reveal tilt-card">
+                <img
+                    src="https://images.unsplash.com/photo-1606265752439-1f18756aa2a3?auto=format&fit=crop&w=900&q=85"
+                    alt="Imagem ilustrativa de implante dentário"
+                    loading="lazy">
+
+                <div class="treatment-overlay">
+                    <h3>Implantes Dentários</h3>
+                    <p>Recupere função, segurança e confiança para sorrir novamente.</p>
+                    <a href="#agendamento" class="treatment-link">
+                        Saber mais <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <article class="treatment-card reveal tilt-card">
+                <img
+                    src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=900&q=85"
+                    alt="Imagem ilustrativa de clareamento dental"
+                    loading="lazy">
+
+                <div class="treatment-overlay">
+                    <h3>Clareamento Dental</h3>
+                    <p>Um sorriso mais luminoso, preservando naturalidade.</p>
+                    <a href="#agendamento" class="treatment-link">
+                        Saber mais <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <article class="treatment-card reveal tilt-card">
+                <img
+                    src="https://images.unsplash.com/photo-1588776814546-daab30f310ce?auto=format&fit=crop&w=900&q=85"
+                    alt="Imagem ilustrativa de estética dental"
+                    loading="lazy">
+
+                <div class="treatment-overlay">
+                    <h3>Lentes e Facetas</h3>
+                    <p>Harmonia estética e transformação personalizada.</p>
+                    <a href="#agendamento" class="treatment-link">
+                        Saber mais <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <article class="treatment-card reveal tilt-card">
+                <img
+                    src="https://images.unsplash.com/photo-1581585099408-9f7f9f8f4a85?auto=format&fit=crop&w=900&q=85"
+                    alt="Imagem ilustrativa de reabilitação oral"
+                    loading="lazy">
+
+                <div class="treatment-overlay">
+                    <h3>Reabilitação Oral</h3>
+                    <p>Planejamento para recuperar saúde, função e estética.</p>
+                    <a href="#agendamento" class="treatment-link">
+                        Saber mais <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <article class="treatment-card reveal tilt-card">
+                <img
+                    src="https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=900&q=85"
+                    alt="Imagem ilustrativa de sorriso"
+                    loading="lazy">
+
+                <div class="treatment-overlay">
+                    <h3>Estética Dental</h3>
+                    <p>Pequenos detalhes podem transformar completamente um sorriso.</p>
+                    <a href="#agendamento" class="treatment-link">
+                        Saber mais <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+            <article class="treatment-card reveal tilt-card">
+                <img
+                    src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=900&q=85"
+                    alt="Imagem ilustrativa de prevenção odontológica"
+                    loading="lazy">
+
+                <div class="treatment-overlay">
+                    <h3>Prevenção e Manutenção</h3>
+                    <p>Cuidado contínuo para preservar seu sorriso por mais tempo.</p>
+                    <a href="#agendamento" class="treatment-link">
+                        Saber mais <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </article>
+
+        </div>
+
+        <p class="demo-note">
+            Os tratamentos apresentados devem ser confirmados com a clínica antes da publicação.
+        </p>
+    </div>
+</section>
+
+<!-- TECNOLOGIA -->
+<section class="section tech-section">
+    <canvas id="techCanvas"></canvas>
+
+    <div class="container tech-grid">
+
+        <div class="tech-copy reveal">
+            <span class="eyebrow">A TECNOLOGIA POR TRÁS DO SORRISO</span>
+
+            <h2>Tecnologia para planejar. Precisão para transformar.</h2>
+
+            <p>
+                A tecnologia ajuda a visualizar possibilidades, melhorar o planejamento
+                e tornar a comunicação entre profissional e paciente mais clara.
+            </p>
+
+            <div class="tech-list">
+                <div class="tech-list-item">
+                    <i class="fa-solid fa-camera"></i>
+                    <strong>Diagnóstico visual</strong>
+                    <span>Registros para acompanhar cada etapa.</span>
+                </div>
+
+                <div class="tech-list-item">
+                    <i class="fa-solid fa-cubes"></i>
+                    <strong>Planejamento digital</strong>
+                    <span>Mais previsibilidade antes do tratamento.</span>
+                </div>
+
+                <div class="tech-list-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    <strong>Precisão</strong>
+                    <span>Decisões baseadas em avaliação detalhada.</span>
+                </div>
+
+                <div class="tech-list-item">
+                    <i class="fa-solid fa-comments"></i>
+                    <strong>Comunicação clara</strong>
+                    <span>Você entende as possibilidades do seu caso.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tech-visual reveal">
+            <div class="scanner-line"></div>
+
+            <div class="tech-arch">
+                <i class="fa-solid fa-tooth" style="font-size:3rem"></i>
+            </div>
+
+            <div class="tech-badge">
+                <i class="fa-solid fa-circle-check"></i>
+                Planejamento visual
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ANTES E DEPOIS -->
+<section class="section before-after" id="resultados">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">VISUALIZE POSSIBILIDADES</span>
+            <h2>Imagine o seu próximo sorriso.</h2>
+            <p>
+                Arraste a barra para visualizar a comparação demonstrativa.
+            </p>
+        </div>
+
+        <div class="comparison reveal">
+            <img
+                src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=85"
+                alt="Imagem demonstrativa antes">
+
+            <div class="comparison-after" id="comparisonAfter">
+                <img
+                    src="https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=1200&q=85"
+                    alt="Imagem demonstrativa depois">
+            </div>
+
+            <span class="comparison-label label-before">ANTES — DEMONSTRATIVO</span>
+            <span class="comparison-label label-after">DEPOIS — DEMONSTRATIVO</span>
+
+            <div class="comparison-divider" id="comparisonDivider"></div>
+
+            <input
+                class="comparison-range"
+                id="comparisonRange"
+                type="range"
+                min="0"
+                max="100"
+                value="50"
+                aria-label="Comparar imagens">
+        </div>
+
+        <p class="demo-note">
+            Imagem demonstrativa. Não representa resultado clínico específico.
+            Utilize fotos reais somente com autorização do paciente.
+        </p>
+    </div>
+</section>
+
+<!-- GALERIA -->
+<section class="section gallery-section">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">MOMENTOS ELITE SMILE</span>
+            <h2>Detalhes que fazem diferença.</h2>
+            <p>
+                Ambiente, tecnologia e cuidado em cada etapa da experiência.
+            </p>
+        </div>
+
+        <div class="gallery-grid reveal">
+
+            <div class="gallery-item">
+                <img
+                    data-lightbox
+                    src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1100&q=85"
+                    alt="Ambiente de clínica odontológica">
+                <span class="gallery-caption">Ambiente contemporâneo</span>
+            </div>
+
+            <div class="gallery-item">
+                <img
+                    data-lightbox
+                    src="https://images.unsplash.com/photo-1588776814546-daab30f310ce?auto=format&fit=crop&w=800&q=85"
+                    alt="Profissional em atendimento odontológico">
+                <span class="gallery-caption">Cuidado em cada detalhe</span>
+            </div>
+
+            <div class="gallery-item">
+                <img
+                    data-lightbox
+                    src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=800&q=85"
+                    alt="Instrumentos odontológicos">
+                <span class="gallery-caption">Precisão e tecnologia</span>
+            </div>
+
+            <div class="gallery-item">
+                <img
+                    data-lightbox
+                    src="https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=800&q=85"
+                    alt="Pessoa sorrindo">
+                <span class="gallery-caption">Sorrisos naturais</span>
+            </div>
+
+            <div class="gallery-item">
+                <img
+                    data-lightbox
+                    src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=800&q=85"
+                    alt="Atendimento odontológico">
+                <span class="gallery-caption">Experiência acolhedora</span>
+            </div>
+
+        </div>
+
+        <p class="demo-note">
+            Imagens ilustrativas. Substitua por fotos reais da clínica e da equipe.
+        </p>
+    </div>
+</section>
+
+<!-- SORRISOS -->
+<section class="section">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">SORRISOS QUE CONTAM HISTÓRIAS</span>
+            <h2>Naturalidade, confiança e personalidade.</h2>
+            <p>
+                Uma galeria de referência para futuras fotos autorizadas de pacientes.
+            </p>
+        </div>
+
+        <div class="smiles-grid">
+
+            <div class="smile-card reveal">
+                <img
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85"
+                    alt="Pessoa sorrindo - imagem ilustrativa"
+                    loading="lazy">
+                <span>Imagem ilustrativa — sorriso natural</span>
+            </div>
+
+            <div class="smile-card reveal">
+                <img
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=700&q=85"
+                    alt="Pessoa sorrindo - imagem ilustrativa"
+                    loading="lazy">
+                <span>Imagem ilustrativa — confiança</span>
+            </div>
+
+            <div class="smile-card reveal">
+                <img
+                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=700&q=85"
+                    alt="Pessoa sorrindo - imagem ilustrativa"
+                    loading="lazy">
+                <span>Imagem ilustrativa — autoestima</span>
+            </div>
+
+            <div class="smile-card reveal">
+                <img
+                    src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=700&q=85"
+                    alt="Pessoa sorrindo - imagem ilustrativa"
+                    loading="lazy">
+                <span>Imagem ilustrativa — bem-estar</span>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- AVALIAÇÕES -->
+<section class="section reviews-section" id="avaliacoes">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">PROVA SOCIAL REAL</span>
+            <h2>Quem vive a experiência Elite Smile, recomenda.</h2>
+            <p>
+                Depoimentos públicos informados no Google.
+            </p>
+        </div>
+
+        <div class="review-summary reveal">
+            <strong>5,0</strong>
+
+            <div>
+                <div class="stars">★★★★★</div>
+                <small>10 avaliações no Google</small>
+            </div>
+        </div>
+
+        <div class="review-viewport reveal">
+            <div class="review-track" id="reviewTrack">
+
+                <div class="review-slide">
+                    <article class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <p>
+                            “Atendimento maravilhoso o doutor Matheus é um ótimo
+                            profissional amei super indico.”
+                        </p>
+                        <div class="review-author">
+                            Louise Souza · 2 meses atrás
+                        </div>
+                    </article>
+                </div>
+
+                <div class="review-slide">
+                    <article class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <p>
+                            “Profissional muito competente, ótimo atendimento. Recomendo!”
+                        </p>
+                        <div class="review-author">
+                            Gustavo Zatt · 1 mês atrás
+                        </div>
+                    </article>
+                </div>
+
+                <div class="review-slide">
+                    <article class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <p>
+                            “Ótimo atendimento, profissional muito cuidadoso e capacitado.
+                            Eu recomendo esse consultório.”
+                        </p>
+                        <div class="review-author">
+                            Wagner Reis · 1 mês atrás
+                        </div>
+                    </article>
+                </div>
+
+                <div class="review-slide">
+                    <article class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <p>
+                            “Nota 10, sabe muito, profissional exemplar!”
+                        </p>
+                        <div class="review-author">
+                            Avaliação pública do Google
+                        </div>
+                    </article>
+                </div>
+
+                <div class="review-slide">
+                    <article class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <p>
+                            “Eu recomendo esse consultório.”
+                        </p>
+                        <div class="review-author">
+                            Avaliação pública do Google
+                        </div>
+                    </article>
+                </div>
+
+                <div class="review-slide">
+                    <article class="review-card placeholder-review">
+                        <div class="stars">★★★★★</div>
+                        <p>
+                            Espaço reservado para uma nova avaliação real.
+                        </p>
+                        <div class="review-author">
+                            Adicione somente depoimentos autorizados.
+                        </div>
+                    </article>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="review-controls">
+            <button onclick="changeReview(-1)" aria-label="Avaliação anterior">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <button onclick="changeReview(1)" aria-label="Próxima avaliação">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- PROFISSIONAL -->
+<section class="section professional">
+    <div class="container professional-grid">
+
+        <div class="professional-image reveal">
+            <img
+                src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=1000&q=85"
+                alt="Profissional de odontologia - imagem ilustrativa"
+                loading="lazy">
+        </div>
+
+        <div class="professional-content reveal">
+            <span class="eyebrow">QUEM CUIDA DO SEU SORRISO</span>
+
+            <h2>Conheça quem cuida do seu sorriso.</h2>
+
+            <p>
+                O Dr. Matheus é citado pelos pacientes como um profissional
+                cuidadoso, atencioso e competente. Complete os dados profissionais
+                abaixo antes da publicação definitiva.
+            </p>
+
+            <div class="professional-data">
+                <div class="data-line">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <span><strong>Dr. Matheus</strong> — nome completo a preencher</span>
+                </div>
+
+                <div class="data-line">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span>CRO: inserir registro profissional</span>
+                </div>
+
+                <div class="data-line">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Formação e especialidades: inserir informações oficiais</span>
+                </div>
+
+                <div class="data-line">
+                    <i class="fa-solid fa-award"></i>
+                    <span>Experiência profissional: inserir dados confirmados</span>
+                </div>
+            </div>
+
+            <button class="btn btn-gold" style="margin-top:25px" onclick="startAppointment()">
+                Falar com a Elite Smile
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<!-- DIFERENCIAIS -->
+<section class="section difference">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">POR QUE ELITE SMILE?</span>
+            <h2>Uma experiência pensada em cada detalhe.</h2>
+        </div>
+
+        <div class="difference-grid">
+
+            <div class="difference-card reveal">
+                <i class="fa-solid fa-comments"></i>
+                <h3>Atendimento Humanizado</h3>
+                <p>Você é ouvido antes de qualquer procedimento.</p>
+            </div>
+
+            <div class="difference-card reveal">
+                <i class="fa-solid fa-compass-drafting"></i>
+                <h3>Planejamento</h3>
+                <p>Cada sorriso possui necessidades diferentes.</p>
+            </div>
+
+            <div class="difference-card reveal">
+                <i class="fa-solid fa-microscope"></i>
+                <h3>Tecnologia</h3>
+                <p>Recursos modernos para apoiar decisões mais precisas.</p>
+            </div>
+
+            <div class="difference-card reveal">
+                <i class="fa-solid fa-shield-heart"></i>
+                <h3>Segurança</h3>
+                <p>Protocolos e planejamento em cada etapa.</p>
+            </div>
+
+            <div class="difference-card reveal">
+                <i class="fa-solid fa-star"></i>
+                <h3>Experiência Premium</h3>
+                <p>Do primeiro contato ao acompanhamento.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- AGENDAMENTO -->
+<section class="section appointment-section" id="agendamento">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">AGENDAMENTO INTELIGENTE</span>
+            <h2>Vamos começar pelo seu sorriso.</h2>
+            <p>
+                Escolha suas preferências. A solicitação será enviada para confirmação
+                pelo WhatsApp da clínica.
+            </p>
+        </div>
+
+        <div class="appointment-shell reveal">
+
+            <div class="step-indicator">
+                <div class="step-dot active" data-step-dot="1">1</div>
+                <div class="step-line"></div>
+                <div class="step-dot" data-step-dot="2">2</div>
+                <div class="step-line"></div>
+                <div class="step-dot" data-step-dot="3">3</div>
+                <div class="step-line"></div>
+                <div class="step-dot" data-step-dot="4">4</div>
+                <div class="step-line"></div>
+                <div class="step-dot" data-step-dot="5">5</div>
+            </div>
+
+            <!-- STEP 1 -->
+            <div class="appointment-step active" data-step="1">
+                <h3>O que você procura?</h3>
+                <p>Escolha uma opção para começarmos.</p>
+
+                <div class="choice-grid">
+                    <button class="choice selected" data-treatment="Avaliação odontológica">
+                        <i class="fa-solid fa-tooth"></i>
+                        <strong>Avaliação</strong>
+                        <small>Primeiro contato</small>
+                    </button>
+
+                    <button class="choice" data-treatment="Implante dentário">
+                        <i class="fa-solid fa-circle-plus"></i>
+                        <strong>Implante</strong>
+                        <small>Função e segurança</small>
+                    </button>
+
+                    <button class="choice" data-treatment="Estética dental">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <strong>Estética dental</strong>
+                        <small>Harmonia do sorriso</small>
+                    </button>
+
+                    <button class="choice" data-treatment="Clareamento dental">
+                        <i class="fa-solid fa-sparkles"></i>
+                        <strong>Clareamento</strong>
+                        <small>Mais luminosidade</small>
+                    </button>
+
+                    <button class="choice" data-treatment="Reabilitação oral">
+                        <i class="fa-solid fa-teeth"></i>
+                        <strong>Reabilitação</strong>
+                        <small>Plano completo</small>
+                    </button>
+
+                    <button class="choice" data-treatment="Outro assunto">
+                        <i class="fa-solid fa-comment-medical"></i>
+                        <strong>Outro</strong>
+                        <small>Quero conversar</small>
+                    </button>
+                </div>
+
+                <div class="step-actions">
+                    <span></span>
+                    <button class="btn btn-dark" onclick="nextAppointmentStep()">
+                        Continuar <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="appointment-step" data-step="2">
+                <h3>Qual período é melhor?</h3>
+                <p>Selecione uma preferência de atendimento.</p>
+
+                <div class="periods">
+                    <button class="period-btn selected" data-period="Manhã">Manhã</button>
+                    <button class="period-btn" data-period="Tarde">Tarde</button>
+                    <button class="period-btn" data-period="Noite">Noite</button>
+                    <button class="period-btn" data-period="Sem preferência">Sem preferência</button>
+                </div>
+
+                <div class="step-actions">
+                    <button class="btn btn-outline" onclick="previousAppointmentStep()">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar
+                    </button>
+
+                    <button class="btn btn-dark" onclick="nextAppointmentStep()">
+                        Continuar <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="appointment-step" data-step="3">
+                <h3>Escolha uma data</h3>
+                <p>Selecione uma preferência. A clínica confirmará a disponibilidade.</p>
+
+                <div class="calendar-grid" id="calendarGrid"></div>
+
+                <div style="margin-top:24px">
+                    <strong style="font-size:.85rem">Horário preferencial</strong>
+                    <div class="times" id="timeGrid" style="margin-top:10px"></div>
+                </div>
+
+                <div class="step-actions">
+                    <button class="btn btn-outline" onclick="previousAppointmentStep()">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar
+                    </button>
+
+                    <button class="btn btn-dark" onclick="nextAppointmentStep()">
+                        Continuar <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="appointment-step" data-step="4">
+                <h3>Seus dados</h3>
+                <p>Usaremos estas informações apenas para retornar sua solicitação.</p>
+
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label for="appointmentName">Nome completo</label>
+                        <input id="appointmentName" type="text" placeholder="Digite seu nome">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appointmentPhone">WhatsApp</label>
+                        <input id="appointmentPhone" type="tel" placeholder="(47) 99999-9999">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appointmentEmail">E-mail</label>
+                        <input id="appointmentEmail" type="email" placeholder="seu@email.com">
+                    </div>
+                </div>
+
+                <div class="step-actions">
+                    <button class="btn btn-outline" onclick="previousAppointmentStep()">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar
+                    </button>
+
+                    <button class="btn btn-dark" onclick="nextAppointmentStep()">
+                        Ver resumo <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="appointment-step" data-step="5">
+                <h3>Confira sua solicitação</h3>
+                <p>Revise os dados antes de enviar para a clínica.</p>
+
+                <div class="summary" id="appointmentSummary"></div>
+
+                <div class="step-actions">
+                    <button class="btn btn-outline" onclick="previousAppointmentStep()">
+                        <i class="fa-solid fa-arrow-left"></i> Voltar
+                    </button>
+
+                    <button class="btn btn-whatsapp" onclick="confirmAppointment()">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        Confirmar pelo WhatsApp
+                    </button>
+                </div>
+            </div>
+
+            <div class="appointment-note">
+                A solicitação não representa confirmação automática de horário.
+                A equipe retornará para confirmar disponibilidade.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-section" id="faq">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">DÚVIDAS FREQUENTES</span>
+            <h2>Antes de agendar</h2>
+            <p>
+                Se sua dúvida não estiver aqui, fale diretamente com a equipe.
+            </p>
+        </div>
+
+        <div class="faq-list">
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Como funciona a primeira avaliação?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    A primeira avaliação é o momento para entender sua necessidade,
+                    conversar sobre possibilidades e definir os próximos passos.
+                    Confirme duração e valores diretamente com a clínica.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Quanto tempo dura uma consulta?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    A duração pode variar conforme o tipo de atendimento e procedimento.
+                    A equipe informará o tempo estimado durante o agendamento.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    A clínica trabalha com implantes?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    O perfil da clínica informa conteúdo relacionado a implante dentário.
+                    Solicite uma avaliação para confirmar as possibilidades indicadas
+                    para o seu caso.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Como funciona o planejamento do tratamento?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    O planejamento depende da avaliação clínica e dos exames necessários.
+                    A equipe apresentará as alternativas, etapas e orientações adequadas.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    É possível agendar pelo WhatsApp?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    Sim. O formulário desta página monta uma solicitação com suas
+                    preferências e abre o WhatsApp da clínica para confirmação.
+                </div>
+            </div>
+
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Onde fica a Elite Smile?
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+
+                <div class="faq-answer">
+                    A clínica fica na Rua 288, 236, Sala 01, Castelo Branco,
+                    Itapema - SC, CEP 88220-000.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- LOCALIZAÇÃO -->
+<section class="section location" id="contato">
+    <div class="container">
+
+        <div class="section-heading reveal">
+            <span class="eyebrow">ESTAMOS EM ITAPEMA</span>
+            <h2>Seu sorriso começa perto de você.</h2>
+        </div>
+
+        <div class="location-grid">
+
+            <div class="location-card reveal">
+                <h2>Clínica Elite Smile</h2>
+
+                <p>
+                    Atendimento odontológico personalizado em um ambiente
+                    contemporâneo, acolhedor e pensado para você.
+                </p>
+
+                <ul class="location-list">
+                    <li>
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>
+                            Rua 288, 236 - Sala 01<br>
+                            Castelo Branco, Itapema - SC<br>
+                            CEP 88220-000
+                        </span>
+                    </li>
+
+                    <li>
+                        <i class="fa-solid fa-phone"></i>
+                        <span>(47) 93383-1207</span>
+                    </li>
+
+                    <li>
+                        <i class="fa-regular fa-clock"></i>
+                        <span>Horário informado: fecha às 18:00. Confirme os horários atualizados.</span>
+                    </li>
+
+                    <li>
+                        <i class="fa-brands fa-instagram"></i>
+                        <span>@c_elitesmile</span>
+                    </li>
+                </ul>
+
+                <div class="location-actions">
+                    <a
+                        class="btn btn-whatsapp"
+                        id="locationWhatsapp"
+                        target="_blank"
+                        rel="noopener">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        WhatsApp
+                    </a>
+
+                    <a
+                        class="btn btn-outline"
+                        href="tel:+5547933831207">
+                        <i class="fa-solid fa-phone"></i>
+                        Ligar
+                    </a>
+
+                    <a
+                        class="btn btn-outline"
+                        target="_blank"
+                        rel="noopener"
+                        href="https://www.google.com/maps/search/?api=1&query=Rua+288+236+Sala+01+Castelo+Branco+Itapema+SC">
+                        <i class="fa-solid fa-route"></i>
+                        Como chegar
+                    </a>
+                </div>
+            </div>
+
+            <div class="map reveal">
+                <iframe
+                    src="https://maps.google.com/maps?q=Rua%20288%2C%20236%20Castelo%20Branco%20Itapema%20SC&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                    loading="lazy"
+                    title="Mapa da Clínica Elite Smile">
+                </iframe>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="final-cta">
+    <div class="container final-cta-content reveal">
+        <span class="eyebrow" style="color:var(--champagne-light)">
+            O PRÓXIMO PASSO É SEU
+        </span>
+
+        <h2>Seu sorriso pode começar uma nova história.</h2>
+
+        <p>
+            Agende sua avaliação e descubra o cuidado que a Elite Smile preparou para você.
+        </p>
+
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="startAppointment()">
+                <i class="fa-regular fa-calendar-check"></i>
+                Agendar avaliação
+            </button>
+
+            <a class="btn btn-light" id="finalWhatsapp" target="_blank" rel="noopener">
+                <i class="fa-brands fa-whatsapp"></i>
+                Falar no WhatsApp
+            </a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <strong>ELITE SMILE</strong>
+
+    <p>
+        Clínica odontológica · Itapema - SC
+    </p>
+
+    <p>
+        Rua 288, 236 - Sala 01 · Castelo Branco · Itapema - SC
+    </p>
+
+    <p>
+        (47) 93383-1207 · @c_elitesmile
+    </p>
+
+    <p>
+        Inserir responsável técnico e CRO antes da publicação.
+    </p>
+
+    <p>
+        © <span id="year"></span> Clínica Elite Smile. Todos os direitos reservados.
+    </p>
+</footer>
+
+<a
+    class="floating-whatsapp"
+    id="floatingWhatsapp"
+    target="_blank"
+    rel="noopener"
+    aria-label="Agendar pelo WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+    <span>Agendar pelo WhatsApp</span>
+</a>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fechar imagem">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <img id="lightboxImage" src="" alt="Imagem ampliada">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WHATSAPP = "5547933831207";
+const INSTAGRAM = "https://www.instagram.com/c_elitesmile/";
+
+const defaultMessage =
+    "Olá! Vim pelo site da Clínica Elite Smile e gostaria de agendar uma avaliação.";
+
+function whatsappLink(message) {
+    return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
+}
+
+document.getElementById("heroWhatsapp").href = whatsappLink(defaultMessage);
+document.getElementById("locationWhatsapp").href = whatsappLink(defaultMessage);
+document.getElementById("finalWhatsapp").href = whatsappLink(defaultMessage);
+document.getElementById("floatingWhatsapp").href = whatsappLink(defaultMessage);
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/* PRELOADER */
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("preloader").classList.add("hidden");
+    }, 650);
+});
+
+/* HEADER + PROGRESSO */
+window.addEventListener("scroll", () => {
+    const header = document.getElementById("siteHeader");
+
+    header.classList.toggle("scrolled", window.scrollY > 25);
+
+    const totalHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+    const progress =
+        totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0;
+
+    document.getElementById("scrollProgress").style.width = `${progress}%`;
+});
+
+/* MENU MOBILE */
+document.getElementById("menuToggle").addEventListener("click", () => {
+    document.getElementById("navLinks").classList.toggle("open");
+});
+
+document.querySelectorAll(".nav-links a").forEach(link => {
+    link.addEventListener("click", () => {
+        document.getElementById("navLinks").classList.remove("open");
+    });
+});
+
+/* REVEAL */
+const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            revealObserver.unobserve(entry.target);
+        }
+    });
+}, {
+    threshold: .12
+});
+
+document.querySelectorAll(".reveal").forEach(element => {
+    revealObserver.observe(element);
+});
+
+/* CONTADORES */
+const counterObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        const element = entry.target;
+        const target = Number(element.dataset.counter);
+        const decimal = Number(element.dataset.decimal || 0);
+        const duration = 1300;
+        const start = performance.now();
+
+        function animate(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const value = target * progress;
+
+            element.textContent =
+                value.toFixed(decimal).replace(".", ",");
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        }
+
+        requestAnimationFrame(animate);
+        counterObserver.unobserve(element);
+    });
+}, {
+    threshold: .8
+});
+
+document.querySelectorAll("[data-counter]").forEach(element => {
+    counterObserver.observe(element);
+});
+
+/* TILT */
+function activateTiltCards() {
+    if (window.innerWidth < 900) return;
+
+    document.querySelectorAll(".tilt-card").forEach(card => {
+        if (card.dataset.tiltActive) return;
+
+        card.dataset.tiltActive = "true";
+
+        card.addEventListener("mousemove", event => {
+            const rect = card.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            const rotateX = ((y / rect.height) - .5) * -4;
+            const rotateY = ((x / rect.width) - .5) * 4;
+
+            card.style.transform =
+                `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-7px)`;
+        });
+
+        card.addEventListener("mouseleave", () => {
+            card.style.transform = "";
+        });
+    });
+}
+
+activateTiltCards();
+
+/* PARALLAX SUTIL */
+document.addEventListener("mousemove", event => {
+    if (window.innerWidth < 900) return;
+
+    const hero = document.querySelector(".hero-side");
+
+    if (!hero) return;
+
+    const x = (window.innerWidth / 2 - event.clientX) / 120;
+    const y = (window.innerHeight / 2 - event.clientY) / 120;
+
+    hero.style.transform = `translate(${x}px, ${y}px)`;
+});
+
+/* TECNOLOGIA - PARTÍCULAS */
+const canvas = document.getElementById("techCanvas");
+const ctx = canvas.getContext("2d");
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+}
+
+function createParticles() {
+    particles = [];
+
+    for (let i = 0; i < 38; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 2 + 1,
+            speed: Math.random() * .35 + .1,
+            opacity: Math.random() * .55 + .15
+        });
+    }
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(particle => {
+        particle.y -= particle.speed;
+
+        if (particle.y < 0) {
+            particle.y = canvas.height;
+            particle.x = Math.random() * canvas.width;
+        }
+
+        ctx.beginPath();
+        ctx.arc(
+            particle.x,
+            particle.y,
+            particle.size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = `rgba(229,211,178,${particle.opacity})`;
+        ctx.fill();
+    });
+
+    requestAnimationFrame(animateParticles);
+}
+
+window.addEventListener("resize", () => {
+    resizeCanvas();
+    createParticles();
+});
+
+resizeCanvas();
+createParticles();
+animateParticles();
+
+/* ANTES E DEPOIS */
+const range = document.getElementById("comparisonRange");
+const afterLayer = document.getElementById("comparisonAfter");
+const divider = document.getElementById("comparisonDivider");
+
+function updateComparison() {
+    const value = range.value;
+
+    afterLayer.style.width = `${value}%`;
+    divider.style.left = `${value}%`;
+}
+
+range.addEventListener("input", updateComparison);
+updateComparison();
+
+/* LIGHTBOX */
+document.querySelectorAll("[data-lightbox]").forEach(image => {
+    image.addEventListener("click", () => {
+        document.getElementById("lightboxImage").src = image.src;
+        document.getElementById("lightbox").classList.add("open");
+    });
+});
+
+function closeLightbox() {
+    document.getElementById("lightbox").classList.remove("open");
+}
+
+document.getElementById("lightbox").addEventListener("click", event => {
+    if (event.target.id === "lightbox") {
+        closeLightbox();
+    }
+});
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+        closeLightbox();
+    }
+});
+
+/* AVALIAÇÕES */
+let currentReview = 0;
+
+function getVisibleReviews() {
+    return window.innerWidth <= 850 ? 1 : 2;
+}
+
+function changeReview(direction) {
+    const track = document.getElementById("reviewTrack");
+    const total = document.querySelectorAll(".review-slide").length;
+    const visible = getVisibleReviews();
+    const maxIndex = Math.max(0, total - visible);
+
+    currentReview += direction;
+
+    if (currentReview < 0) {
+        currentReview = maxIndex;
+    }
+
+    if (currentReview > maxIndex) {
+        currentReview = 0;
+    }
+
+    const percentage = 100 / visible;
+
+    track.style.transform =
+        `translateX(-${currentReview * percentage}%)`;
+}
+
+let reviewStartX = null;
+
+document.getElementById("reviewTrack").addEventListener("pointerdown", event => {
+    reviewStartX = event.clientX;
+});
+
+document.getElementById("reviewTrack").addEventListener("pointerup", event => {
+    if (reviewStartX === null) return;
+
+    const distance = event.clientX - reviewStartX;
+
+    if (Math.abs(distance) > 45) {
+        changeReview(distance < 0 ? 1 : -1);
+    }
+
+    reviewStartX = null;
+});
+
+setInterval(() => {
+    changeReview(1);
+}, 7000);
+
+/* AGENDAMENTO */
+const appointment = {
+    step: 1,
+    treatment: "Avaliação odontológica",
+    period: "Manhã",
+    date: "",
+    dateLabel: "",
+    time: "A combinar",
+    name: "",
+    phone: "",
+    email: ""
+};
+
+function startAppointment() {
+    document.getElementById("agendamento").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+document.querySelectorAll("[data-treatment]").forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelectorAll("[data-treatment]")
+            .forEach(item => item.classList.remove("selected"));
+
+        button.classList.add("selected");
+        appointment.treatment = button.dataset.treatment;
+    });
+});
+
+document.querySelectorAll("[data-period]").forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelectorAll("[data-period]")
+            .forEach(item => item.classList.remove("selected"));
+
+        button.classList.add("selected");
+        appointment.period = button.dataset.period;
+        renderTimes();
+    });
+});
+
+function renderCalendar() {
+    const calendar = document.getElementById("calendarGrid");
+    calendar.innerHTML = "";
+
+    for (let i = 1; i <= 14; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+
+        const iso = date.toISOString().split("T")[0];
+
+        const label = date.toLocaleDateString("pt-BR", {
+            weekday: "short",
+            day: "2-digit",
+            month: "short"
+        });
+
+        const button = document.createElement("button");
+        button.className = "date-btn";
+        button.innerHTML = label.replace(".", "");
+        button.dataset.date = iso;
+
+        button.addEventListener("click", () => {
+            document.querySelectorAll(".date-btn")
+                .forEach(item => item.classList.remove("selected"));
+
+            button.classList.add("selected");
+            appointment.date = iso;
+            appointment.dateLabel = label.replace(".", "");
+        });
+
+        calendar.appendChild(button);
+    }
+}
+
+function renderTimes() {
+    const grid = document.getElementById("timeGrid");
+
+    const times = {
+        "Manhã": ["08:00", "09:00", "10:00", "11:00"],
+        "Tarde": ["13:30", "14:30", "15:30", "16:30"],
+        "Noite": ["17:00", "17:30"],
+        "Sem preferência": ["A combinar"]
+    };
+
+    grid.innerHTML = times[appointment.period].map(time => `
+        <button class="time-btn ${appointment.time === time ? "selected" : ""}" data-time="${time}">
+            ${time}
+        </button>
+    `).join("");
+
+    document.querySelectorAll("[data-time]").forEach(button => {
+        button.addEventListener("click", () => {
+            document.querySelectorAll("[data-time]")
+                .forEach(item => item.classList.remove("selected"));
+
+            button.classList.add("selected");
+            appointment.time = button.dataset.time;
+        });
+    });
+}
+
+function updateStepIndicator() {
+    document.querySelectorAll("[data-step-dot]").forEach(dot => {
+        const step = Number(dot.dataset.stepDot);
+
+        dot.classList.toggle("active", step === appointment.step);
+        dot.classList.toggle("completed", step < appointment.step);
+    });
+
+    document.querySelectorAll(".appointment-step").forEach(section => {
+        section.classList.toggle(
+            "active",
+            Number(section.dataset.step) === appointment.step
+        );
+    });
+}
+
+function nextAppointmentStep() {
+    if (appointment.step === 3 && !appointment.date) {
+        showToast("Escolha uma data para continuar.");
+        return;
+    }
+
+    if (appointment.step === 4) {
+        appointment.name =
+            document.getElementById("appointmentName").value.trim();
+
+        appointment.phone =
+            document.getElementById("appointmentPhone").value.trim();
+
+        appointment.email =
+            document.getElementById("appointmentEmail").value.trim();
+
+        if (!appointment.name || !appointment.phone) {
+            showToast("Informe seu nome e WhatsApp.");
+            return;
+        }
+
+        renderSummary();
+    }
+
+    if (appointment.step < 5) {
+        appointment.step++;
+        updateStepIndicator();
+
+        if (appointment.step === 3) {
+            renderCalendar();
+            renderTimes();
+        }
+    }
+}
+
+function previousAppointmentStep() {
+    if (appointment.step > 1) {
+        appointment.step--;
+        updateStepIndicator();
+    }
+}
+
+function renderSummary() {
+    document.getElementById("appointmentSummary").innerHTML = `
+        <div class="summary-row">
+            <span>Tratamento</span>
+            <strong>${appointment.treatment}</strong>
+        </div>
+
+        <div class="summary-row">
+            <span>Período</span>
+            <strong>${appointment.period}</strong>
+        </div>
+
+        <div class="summary-row">
+            <span>Data</span>
+            <strong>${appointment.dateLabel || "A confirmar"}</strong>
+        </div>
+
+        <div class="summary-row">
+            <span>Horário</span>
+            <strong>${appointment.time}</strong>
+        </div>
+
+        <div class="summary-row">
+            <span>Nome</span>
+            <strong>${appointment.name}</strong>
+        </div>
+
+        <div class="summary-row">
+            <span>WhatsApp</span>
+            <strong>${appointment.phone}</strong>
+        </div>
+    `;
+}
+
+function confirmAppointment() {
+    const emailText = appointment.email
+        ? `\n📧 E-mail: ${appointment.email}`
+        : "";
+
+    const message =
+`✨ *SOLICITAÇÃO DE AGENDAMENTO — ELITE SMILE* ✨
+
+👤 Nome: ${appointment.name}
+📱 WhatsApp: ${appointment.phone}${emailText}
+
+🦷 Tratamento: ${appointment.treatment}
+📅 Data preferencial: ${appointment.dateLabel || "A combinar"}
+⏰ Período: ${appointment.period}
+⌚ Horário preferencial: ${appointment.time}
+
+Gostaria de confirmar disponibilidade, valores e orientações.
+
+📍 Rua 288, 236 - Sala 01
+Castelo Branco, Itapema - SC`;
+
+    window.open(whatsappLink(message), "_blank", "noopener");
+    showToast("Abrindo o WhatsApp...");
+}
+
+/* FAQ */
+document.querySelectorAll(".faq-question").forEach(question => {
+    question.addEventListener("click", () => {
+        question.parentElement.classList.toggle("open");
+    });
+});
+
+/* TOAST */
+function showToast(message) {
+    const toast = document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2600);
+}
+
+/* INICIALIZAÇÃO */
+renderTimes();
+updateStepIndicator();
+</script>
+
+</body>
+</html>

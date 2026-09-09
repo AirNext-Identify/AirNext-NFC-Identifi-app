@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clínica Vivere | Espaço de Saúde e Bem-estar em Balneário Camboriú</title>
+<meta name="description" content="Clínica Vivere - R. 2300, 1375 Centro BC. Psicologia, terapias integrativas e bem-estar. Atendemos Unimed. Ambiente leve onde você entra e sai melhor.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --vivere-green:#25756A;
+  --vivere-dark:#123332;
+  --vivere-sage:#D9E8E3;
+  --vivere-sand:#F7F2E9;
+  --vivere-gold:#C2A083;
+  --vivere-light:#FFFEFB;
+  --text:#22302E;
+  --gray:#6B7D7A;
+  --radius:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--vivere-light);color:var(--text);line-height:1.6}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.15}
+a{text-decoration:none}
+/* TOPBAR */
+.topbar{background:var(--vivere-dark);color:#fff;text-align:center;font-size:.82rem;padding:8px 12px}
+.topbar b{color:var(--vivere-gold)}
+/* HEADER */
+header{background:rgba(255,254,251,.95);backdrop-filter:blur(10px);padding:14px 5%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;border-bottom:1px solid #eee}
+.logo{font-family:'Fraunces';font-size:1.8rem;color:var(--vivere-dark);letter-spacing:1px}
+.logo span{color:var(--vivere-green)}
+.logo small{display:block;font-family:'Inter';font-size:.62rem;letter-spacing:3px;color:var(--vivere-gold);font-weight:700}
+nav{display:flex;gap:22px}
+nav a{color:var(--text);font-size:.92rem;font-weight:500}
+.btn-agendar{background:var(--vivere-green);color:#fff;padding:12px 22px;border-radius:50px;font-weight:600;font-size:.9rem;border:none;cursor:pointer;transition:.2s}
+.btn-agendar:hover{background:var(--vivere-dark);transform:translateY(-2px)}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600;background:#E6F4F1;padding:5px 10px;border-radius:20px;margin-left:10px}
+.dot{width:8px;height:8px;border-radius:50%;background:#22c55e}
+/* HERO */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:60px 5%;background:linear-gradient(180deg,var(--vivere-sand) 0%,var(--vivere-light) 100%)}
+.hero-pill{display:inline-block;background:#fff;border:1px solid var(--vivere-sage);padding:7px 14px;border-radius:20px;font-size:.8rem;font-weight:600;color:var(--vivere-green);margin-bottom:16px}
+.hero h1{font-size:3.4rem;color:var(--vivere-dark)}
+.hero h1 em{color:var(--vivere-green);font-style:normal}
+.hero p{color:var(--gray);margin:18px 0 20px;max-width:500px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.btn-outline{background:#fff;border:1.5px solid var(--vivere-dark);color:var(--vivere-dark);padding:12px 22px;border-radius:50px;font-weight:600;cursor:pointer}
+.hero-proof{display:flex;gap:14px;align-items:center;background:#fff;padding:12px 16px;border-radius:14px;border:1px solid #eee;max-width:420px}
+.hero-proof strong{font-size:1.4rem}
+.stars{color:#EAB308}
+.hero-img{position:relative}
+.hero-img img{width:100%;height:520px;object-fit:cover;border-radius:30px;box-shadow:0 20px 50px rgba(37,117,106,.2)}
+.float-card{position:absolute;background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.1);display:flex;gap:10px;align-items:center}
+.fc1{bottom:20px;left:-20px}
+.fc2{top:20px;right:-10px}
+/* TRUST */
+.trust{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid #eee;border-bottom:1px solid #eee;text-align:center}
+.trust div{padding:20px;border-right:1px solid #f0f0f0}
+.trust b{font-size:1.3rem;color:var(--vivere-dark);display:block}
+/* SECTION */
+.section{padding:60px 5%}
+.section-head{text-align:center;max-width:650px;margin:0 auto 30px}
+.section-head span{color:var(--vivere-green);font-weight:700;font-size:.85rem;letter-spacing:2px;text-transform:uppercase}
+.section-head h2{font-size:2.5rem;color:var(--vivere-dark);margin:10px 0}
+/* FILTERS */
+.search-filters{background:#fff;border:1px solid #eee;border-radius:18px;padding:16px;margin-bottom:24px;position:sticky;top:74px;z-index:900}
+.search-box{background:var(--vivere-sand);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.search-box input{background:none;border:none;outline:none;width:100%;font-size:.95rem;font-family:'Inter'}
+.filters{display:flex;gap:8px;overflow-x:auto}
+.filter-btn{background:#fff;border:1.5px solid #e5e5e5;padding:8px 18px;border-radius:20px;white-space:nowrap;cursor:pointer;font-weight:600;font-size:.85rem}
+.filter-btn.active{background:var(--vivere-dark);color:#fff;border-color:var(--vivere-dark)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.card{background:#fff;border:1px solid #EDEBE5;border-radius:var(--radius);overflow:hidden;transition:.25s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-5px);box-shadow:0 15px 35px rgba(0,0,0,.08);border-color:var(--vivere-green)}
+.card img{width:100%;height:180px;object-fit:cover}
+.card-body{padding:20px;flex:1;display:flex;flex-direction:column}
+.card-tag{font-size:.72rem;font-weight:700;color:var(--vivere-green);background:var(--vivere-sage);display:inline-block;padding:4px 10px;border-radius:20px;margin-bottom:10px;align-self:flex-start}
+.card-body h3{font-size:1.35rem;margin-bottom:8px}
+.card-body p{font-size:.9rem;color:var(--gray);flex:1}
+.card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px dashed #ddd}
+.duration{font-size:.82rem;color:var(--gray)}
+.btn-sm{background:var(--vivere-green);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:600;cursor:pointer}
+/* HOW */
+.how{background:var(--vivere-dark);color:#fff;border-radius:30px;margin:0 5%;padding:50px 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center}
+.how h3{margin:12px 0 8px;font-size:1.4rem}
+.how p{font-size:.9rem;opacity:.8}
+.step-num{width:50px;height:50px;background:var(--vivere-gold);color:var(--vivere-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;margin:0 auto}
+/* ABOUT */
+.about{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center}
+.about img{width:100%;height:440px;object-fit:cover;border-radius:24px}
+.check-list{list-style:none;margin:18px 0}
+.check-list li{margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+.check-list i{color:var(--vivere-green);margin-top:4px}
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.team-card{background:#fff;border:1px solid #eee;border-radius:18px;padding:20px;text-align:center}
+.team-card img{width:110px;height:110px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:3px solid var(--vivere-sage)}
+/* REVIEWS */
+.reviews{background:var(--vivere-sand);border-radius:30px;margin:0 5%;padding:50px 40px}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:24px}
+.review-card{background:#fff;padding:22px;border-radius:18px;border:1px solid #eee}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--vivere-green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.review-top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+/* FAQ */
+.faq-item{background:#fff;border:1px solid #eee;border-radius:14px;margin-bottom:10px;overflow:hidden}
+.faq-q{padding:16px 18px;cursor:pointer;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.faq-a{padding:0 18px 16px;color:var(--gray);font-size:.9rem;display:none}
+.faq-item.open .faq-a{display:block}
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.info-box{background:var(--vivere-dark);color:#fff;padding:30px;border-radius:22px}
+.info-box p{margin:12px 0;display:flex;gap:12px;align-items:center}
+.info-box i{color:var(--vivere-gold);width:22px;text-align:center}
+.map-box{height:380px;border-radius:22px;overflow:hidden;border:1px solid #ddd}
+footer{background:#0C2321;color:#B9C9C6;padding:30px 5%;text-align:center;font-size:.85rem}
+/* FLOAT + MODAL */
+.float-wa{position:fixed;bottom:20px;right:20px;background:#25D366;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:1100;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:22px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;position:relative}
+.modal h3{font-size:1.7rem;color:var(--vivere-dark)}
+.modal label{font-size:.82rem;font-weight:600;margin:14px 0 6px;display:block}
+.modal input,.modal select,.modal textarea{width:100%;padding:12px;border:1.5px solid #ddd;border-radius:12px;font-family:'Inter';font-size:.95rem;outline:none}
+.modal input:focus,.modal select:focus{border-color:var(--vivere-green)}
+.close-modal{position:absolute;top:16px;right:18px;background:none;border:none;font-size:1.6rem;cursor:pointer;color:#999}
+.btn-confirm{width:100%;background:#25D366;color:#fff;border:none;padding:15px;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer;margin-top:18px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--vivere-dark);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;opacity:0;transition:.3s;z-index:1300}
+.toast.show{opacity:1}
+@media(max-width:900px){
+.hero,.about,.contact-grid{grid-template-columns:1fr}
+.hero h1{font-size:2.5rem}.hero-img img{height:340px}
+.trust{grid-template-columns:repeat(2,1fr)}
+.how{grid-template-columns:1fr;margin:0 12px}
+nav{display:none}.fc1{left:10px}
+.section-head h2{font-size:2rem}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">✨ <b>Atendemos Unimed</b> • R. 2300, 1375 - Centro, Balneário Camboriú • <b>Agende pelo WhatsApp</b></div>
+
+<header>
+<div class="logo">VIVERE<span>.</span><small>CLÍNICA • SAÚDE INTEGRAL</small></div>
+<nav>
+<a href="#especialidades">Especialidades</a>
+<a href="#sobre">A Clínica</a>
+<a href="#equipe">Equipe</a>
+<a href="#avaliacoes">Avaliações</a>
+<a href="#contato">Contato</a>
+</nav>
+<div>
+<button class="btn-agendar" onclick="openBooking()">Agendar Avaliação</button>
+<span class="status" id="statusBadge"><span class="dot"></span> Aberto</span>
+</div>
+</header>
+
+<section class="hero">
+<div>
+<div class="hero-pill">🌿 Saúde física, mental e emocional em um só lugar</div>
+<h1>Uma casa feita de amor, onde você <em>entra e sai melhor.</em></h1>
+<p>Na Clínica Vivere você é acolhido por profissionais capacitados em um ambiente leve e tranquilo no coração de Balneário Camboriú. Atendimento particular e Unimed.</p>
+<div class="hero-cta">
+<button class="btn-agendar" style="padding:15px 30px;font-size:1rem" onclick="openBooking()">📅 Agendar minha consulta</button>
+<a href="https://wa.me/554730650023?text=Ol%C3%A1!%20Quero%20conhecer%20a%20Cl%C3%ADnica%20Vivere" target="_blank"><button class="btn-outline">💬 Falar no WhatsApp</button></a>
+</div>
+<div class="hero-proof">
+<strong>4.7</strong>
+<div><div class="stars">★★★★★</div><small style="color:var(--gray)">12 avaliações no Google • Clínica especializada</small></div>
+</div>
+</div>
+<div class="hero-img">
+<img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=70" alt="Clínica Vivere">
+<div class="float-card fc1"><span style="font-size:2rem">🤍</span><div><b style="font-size:.9rem">Ambiente leve</b><br><small style="color:var(--gray)">Acolhimento desde a recepção</small></div></div>
+<div class="float-card fc2"><span style="font-size:2rem">🩺</span><div><b style="font-size:.9rem">Equipe Multi</b><br><small style="color:var(--gray)">+ Unimed</small></div></div>
+</div>
+</section>
+
+<div class="trust">
+<div><b>4.7 ★</b><small>Nota no Google</small></div>
+<div><b>Centro - BC</b><small>Rua 2300, 1375</small></div>
+<div><b>Unimed</b><small>+ Particular</small></div>
+<div><b>Seg a Sex</b><small>até 19:30</small></div>
+</div>
+
+<section class="section" id="especialidades">
+<div class="section-head">
+<span>Nossos cuidados</span>
+<h2>Especialidades & Terapias</h2>
+<p style="color:var(--gray)">Busque pelo que você precisa e agende direto. Presencial em BC e Online para todo Brasil.</p>
+</div>
+
+<div class="search-filters">
+<div class="search-box">🔍 <input id="searchInput" placeholder="Buscar... ex: ansiedade, dor, nutrição, Unimed"></div>
+<div class="filters">
+<button class="filter-btn active" data-cat="todos">Todos</button>
+<button class="filter-btn" data-cat="mente">🧠 Mente & Emoções</button>
+<button class="filter-btn" data-cat="corpo">💪 Corpo & Dor</button>
+<button class="filter-btn" data-cat="bemestar">🥗 Nutrição & Bem-estar</button>
+<button class="filter-btn" data-cat="integrativa">🌿 Integrativas</button>
+</div>
+</div>
+<div class="grid" id="grid"></div>
+</section>
+
+<section class="how">
+<div><div class="step-num">1</div><h3>Escolha o cuidado</h3><p>Selecione a especialidade ideal para seu momento.</p></div>
+<div><div class="step-num">2</div><h3>Agende em 30s</h3><p>Preencha nome, convênio e melhor período. Sem espera.</p></div>
+<div><div class="step-num">3</div><h3>Receba confirmação</h3><p>Nosso time confirma no WhatsApp com data e preparo.</p></div>
+</section>
+
+<section class="section about" id="sobre">
+<img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=700&q=70" alt="Recepção Vivere">
+<div>
+<span style="color:var(--vivere-green);font-weight:700;font-size:.85rem;letter-spacing:2px">SOBRE A VIVERE</span>
+<h2 style="font-size:2.5rem;color:var(--vivere-dark);margin:10px 0">Mais que uma clínica, um espaço para respirar.</h2>
+<p style="color:var(--gray)">Localizada na Rua 2300, no Centro de Balneário Camboriú, a Vivere nasceu com o propósito de cuidar de pessoas de forma integral - não só sintomas.</p>
+<ul class="check-list">
+<li><i class="fas fa-check-circle"></i> <span><b>Profissionais capacitados</b> e atendimento atencioso do início ao fim</span></li>
+<li><i class="fas fa-check-circle"></i> <span><b>Ambiente leve e silencioso,</b> pensado para reduzir ansiedade</span></li>
+<li><i class="fas fa-check-circle"></i> <span><b>Atendemos Unimed</b> e particular com valores acessíveis</span></li>
+<li><i class="fas fa-check-circle"></i> <span><b>Localização central,</b> fácil acesso e estacionamento próximo</span></li>
+</ul>
+<button class="btn-agendar" onclick="openBooking()">Quero conhecer a Vivere</button>
+</div>
+</section>
+
+<section class="section" id="equipe" style="padding-top:0">
+<div class="section-head"><span>Quem cuida de você</span><h2>Nossa equipe</h2></div>
+<div class="team-grid">
+<div class="team-card"><img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=300&q=60"><h4>Equipe Psicologia</h4><small style="color:var(--vivere-green);font-weight:600">CRP Ativo • Adulto e Adolescente</small><p style="font-size:.85rem;color:var(--gray);margin-top:8px">Ansiedade, depressão, autoconhecimento</p></div>
+<div class="team-card"><img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=300&q=60"><h4>Equipe Médica</h4><small style="color:var(--vivere-green);font-weight:600">Clínica Geral & Especialidades</small><p style="font-size:.85rem;color:var(--gray);margin-top:8px">Avaliação integral + Unimed</p></div>
+<div class="team-card"><img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=300&q=60"><h4>Equipe Nutrição</h4><small style="color:var(--vivere-green);font-weight:600">Nutrição Funcional</small><p style="font-size:.85rem;color:var(--gray);margin-top:8px">Emagrecimento saudável, energia</p></div>
+<div class="team-card"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=300&q=60"><h4>Equipe Corpo</h4><small style="color:var(--vivere-green);font-weight:600">Fisio & Terapias Manuais</small><p style="font-size:.85rem;color:var(--gray);margin-top:8px">Dores crônicas, postura, reabilitação</p></div>
+</div>
+<p style="text-align:center;font-size:.8rem;color:var(--gray);margin-top:14px">* Substitua pelas fotos e nomes reais da equipe. Isso aumenta 3x a confiança e agendamentos.</p>
+</section>
+
+<section class="reviews" id="avaliacoes">
+<div style="text-align:center"><span style="font-weight:700;color:var(--vivere-green)">PROVA SOCIAL REAL</span><h2 style="font-size:2.4rem;color:var(--vivere-dark)">4.7 ★★★★★ no Google</h2><p style="color:var(--gray)">O que os pacientes dizem da Vivere</p></div>
+<div class="reviews-grid">
+<div class="review-card"><div class="review-top"><div class="avatar">Z</div><div><b>zilma lopes</b><div class="stars">★★★★★</div></div></div><p style="font-style:italic">“Casa feita de amor! Onde tudo é feito por pessoas capacitadas!! Também esse lugar é leve você entra e sai muito melhor!!”</p><small style="color:var(--gray)">✔ Avaliação do Google</small></div>
+<div class="review-card"><div class="review-top"><div class="avatar" style="background:var(--vivere-gold)">N</div><div><b>Najan Marcelo Jorge</b><div class="stars">★★★★★</div></div></div><p style="font-style:italic">“Atendimento excelente... Profissionais atenciosos... Atende pela Unimed”</p><small style="color:var(--gray)">✔ Local Guide Google • 79 avaliações</small></div>
+<div class="review-card" style="background:var(--vivere-dark);color:#fff;border:none"><div class="review-top"><div class="avatar" style="background:#fff;color:var(--vivere-dark)">V</div><div><b>Compromisso Vivere</b><div style="color:var(--vivere-gold)">★★★★★</div></div></div><p>“Estamos melhorando nosso atendimento no WhatsApp com agendamento automático para você nunca mais esperar. Sua experiência importa.”</p><small style="opacity:.7">Resposta da equipe</small></div>
+</div>
+</section>
+
+<section class="section" style="max-width:800px;margin:0 auto">
+<div class="section-head"><span>Dúvidas frequentes</span><h2>Perguntas & Respostas</h2></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Vocês atendem Unimed? <span>+</span></div><div class="faq-a">Sim! Atendemos Unimed para diversas especialidades além do particular. Na hora de agendar, selecione seu convênio que já verificamos a cobertura para você.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Onde fica e qual horário? <span>+</span></div><div class="faq-a">Rua 2300, nº 1375 - Centro, Balneário Camboriú. Segunda a sexta até 19:30. Sábado sob agendamento.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Primeira consulta como funciona? <span>+</span></div><div class="faq-a">É uma escuta completa de 50 min. Entendemos sua história, objetivos e montamos um plano de cuidado personalizado, sem pressa.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Tem atendimento online? <span>+</span></div><div class="faq-a">Sim, para psicologia, nutrição e retornos médicos. Você escolhe Presencial ou Online no agendamento.</div></div>
+</section>
+
+<section class="section" id="contato" style="padding-top:0">
+<div class="section-head"><span>Visite-nos</span><h2>Como chegar</h2></div>
+<div class="contact-grid">
+<div class="info-box">
+<h3 style="font-size:1.8rem">Clínica Vivere</h3>
+<p><i class="fas fa-map-marker-alt"></i> R. 2300, 1375 - Centro, Balneário Camboriú - SC, 88330-430</p>
+<p><i class="fas fa-phone"></i> (47) 3065-0023</p>
+<p><i class="far fa-clock"></i> Seg-Sex: 08:00 às 19:30 • Sáb: sob agendamento</p>
+<p><i class="fab fa-instagram"></i> @clinicavivere • Instagram oficial</p>
+<div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+<a href="https://www.google.com/maps/search/?api=1&query=Rua+2300+1375+Centro+Balneario+Camboriu" target="_blank" style="flex:1;text-align:center;background:#fff;color:var(--vivere-dark);padding:12px;border-radius:12px;font-weight:700">📍 Traçar Rota</a>
+<button onclick="openBooking()" style="flex:1;background:var(--vivere-green);color:#fff;padding:12px;border-radius:12px;font-weight:700;border:none;cursor:pointer">Agendar</button>
+</div>
+</div>
+<div class="map-box">
+<iframe src="https://maps.google.com/maps?q=Rua%202300,%201375%20Centro%20Balne%C3%A1rio%20Cambori%C3%BA&t=&z=16&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0" loading="lazy"></iframe>
+</div>
+</div>
+</section>
+
+<footer>
+<b style="color:#fff;font-family:'Fraunces';font-size:1.2rem">VIVERE.</b>
+<p>Clínica especializada • Balneário Camboriú - SC • Responsável técnica: incluir CRO/CRP aqui</p>
+<p>© 2026 Clínica Vivere - Todos os direitos reservados • Privacidade e LGPD</p>
+</footer>
+
+<a class="float-wa" target="_blank" href="https://wa.me/554730650023?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20quero%20agendar%20na%20Vivere"><i class="fab fa-whatsapp"></i></a>
+
+<div class="modal-bg" id="modalBg">
+<div class="modal">
+<button class="close-modal" onclick="closeBooking()">×</button>
+<span style="font-size:.75rem;font-weight:700;color:var(--vivere-green);letter-spacing:1px">AGENDAMENTO INTELIGENTE</span>
+<h3>Agende sua consulta</h3>
+<p style="font-size:.88rem;color:var(--gray)">Preencha e receba confirmação rápida no WhatsApp. Sem espera.</p>
+
+<label>1. O que você precisa?</label>
+<select id="f_spec"></select>
+
+<label>Modalidade</label>
+<select id="f_mod"><option>Presencial - Centro BC</option><option>Online - Videochamada</option></select>
+
+<label>2. Seus dados</label>
+<input id="f_name" placeholder="Seu nome completo">
+<input id="f_phone" placeholder="Seu WhatsApp (ex: 47 99999-9999)" style="margin-top:8px">
+
+<label>Convênio</label>
+<select id="f_conv"><option>Particular</option><option>Unimed</option><option>Outro convênio</option></select>
+
+<label>Melhor período</label>
+<select id="f_per"><option>Manhã (8h-12h)</option><option>Tarde (13h-17h)</option><option>Noite (17h-19:30)</option></select>
+
+<label>Resumo (opcional)</label>
+<textarea id="f_obs" rows="2" placeholder="Ex: ansiedade, dor lombar, check-up..."></textarea>
+
+<button class="btn-confirm" onclick="submitBooking()"><i class="fab fa-whatsapp"></i> Confirmar no WhatsApp</button>
+<p style="font-size:.72rem;color:var(--gray);text-align:center;margin-top:10px">Ao enviar você concorda em ser contatado. Seus dados estão protegidos (LGPD).</p>
+</div>
+</div>
+
+<div class="toast" id="toast">Recebido!</div>
+
+<script>
+const WHATSAPP='554730650023'; // TROCAR pelo WhatsApp móvel real se for diferente do fixo 3065-0023
+const specs=[
+{id:1,cat:'mente',tag:'MAIS PROCURADA',name:'Psicoterapia - Ansiedade e Depressão',desc:'Escuta sem julgamento para ansiedade, burnout, luto e autoconhecimento. Adulto e adolescente.',dur:'50 min • Presencial / Online',img:'https://images.unsplash.com/photo-1493836512294-502baa1986e2?auto=format&fit=crop&w=500&q=60'},
+{id:2,cat:'mente',tag:'UNIMED',name:'Avaliação Psicológica / Neuropsicológica',desc:'Avaliação completa para diagnóstico, laudos e orientação de tratamento.',dur:'90 min • Presencial',img:'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=500&q=60'},
+{id:3,cat:'corpo',tag:'DOR CRÔNICA',name:'Fisioterapia Integrativa',desc:'Para dores lombares, cervical, joelho, pós-operatório e postura. Alívio desde a 1ª sessão.',dur:'60 min • Presencial',img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=500&q=60'},
+{id:4,cat:'corpo',tag:'BEM-ESTAR',name:'Terapia Manual & Liberação Miofascial',desc:'Técnicas manuais para tensão muscular, enxaqueca tensional e mobilidade.',dur:'50 min',img:'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=500&q=60'},
+{id:5,cat:'bemestar',tag:'UNIMED',name:'Nutrição Funcional',desc:'Emagrecimento saudável, intestino, energia e equilíbrio hormonal sem dieta maluca.',dur:'60 min • Presencial / Online',img:'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=500&q=60'},
+{id:6,cat:'bemestar',tag:'CHECK-UP',name:'Clínica Geral Integrativa',desc:'Olhar completo: exames, sono, estresse, cansaço. Plano de saúde personalizado.',dur:'40 min • Unimed / Particular',img:'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=500&q=60'},
+{id:7,cat:'integrativa',tag:'EQUILÍBRIO',name:'Acupuntura & Auriculoterapia',desc:'Para ansiedade, dores, insônia e compulsão. Técnica milenar com evidência.',dur:'50 min',img:'https://images.unsplash.com/photo-1512291313931-d4291048e7b6?auto=format&fit=crop&w=500&q=60'},
+{id:8,cat:'integrativa',tag:'RELAXAMENTO',name:'Massoterapia Terapêutica',desc:'Alívio de estresse e tensão acumulada em ambiente calmo e leve.',dur:'60 min',img:'https://images.unsplash.com/photo-1600334129128-685c5582fd35?auto=format&fit=crop&w=500&q=60'},
+{id:9,cat:'mente',tag:'ONLINE',name:'Primeira Escuta Vivere (Acolhimento)',desc:'Não sabe por onde começar? Conversa inicial para direcionar ao profissional ideal.',dur:'30 min • Gratuita / Cortesia',img:'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=500&q=60'},
+];
+let curCat='todos',term='';
+function render(){
+const g=document.getElementById('grid');g.innerHTML='';
+let items=specs.filter(s=>(curCat==='todos'||s.cat===curCat)&&(s.name.toLowerCase().includes(term)||s.desc.toLowerCase().includes(term)));
+if(!items.length){g.innerHTML='<p style="color:#888">Nenhum cuidado encontrado. Tente outro termo ou fale no WhatsApp.</p>';return}
+items.forEach(s=>{
+g.innerHTML+=`<div class="card"><img src="${s.img}" loading="lazy"><div class="card-body"><span class="card-tag">${s.tag}</span><h3>${s.name}</h3><p>${s.desc}</p><div class="card-foot"><span class="duration">⏱ ${s.dur}</span><button class="btn-sm" onclick="openBooking(${s.id})">Agendar</button></div></div></div>`
+});
+const sel=document.getElementById('f_spec');sel.innerHTML='';
+specs.forEach(s=>{sel.innerHTML+=`<option value="${s.name}">${s.name}</option>`});
+}
+document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');curCat=b.dataset.cat;render()}));
+document.getElementById('searchInput').addEventListener('input',e=>{term=e.target.value.toLowerCase();render()});
+
+function openBooking(id){
+render();
+if(id){const s=specs.find(x=>x.id===id);if(s)document.getElementById('f_spec').value=s.name;}
+document.getElementById('modalBg').classList.add('open');
+}
+function closeBooking(){document.getElementById('modalBg').classList.remove('open')}
+document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')closeBooking()});
+
+function submitBooking(){
+const spec=document.getElementById('f_spec').value;
+const mod=document.getElementById('f_mod').value;
+const name=document.getElementById('f_name').value||'[Nome]';
+const phone=document.getElementById('f_phone').value||'[meu número]';
+const conv=document.getElementById('f_conv').value;
+const per=document.getElementById('f_per').value;
+const obs=document.getElementById('f_obs').value;
+let msg=`🌿 *NOVO AGENDAMENTO - CLÍNICA VIVERE* 🌿\n\n`;
+msg+=`👤 Nome: ${name}\n📱 WhatsApp: ${phone}\n\n`;
+msg+=`💚 Especialidade: ${spec}\n`;
+msg+=`📍 Modalidade: ${mod}\n🏥 Convênio: ${conv}\n⏰ Preferência: ${per}\n`;
+if(obs)msg+=`\n📝 Queixa: ${obs}\n`;
+msg+=`\nAguardo confirmação de data e horário. Obrigado!`;
+window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,'_blank');
+const t=document.getElementById('toast');t.textContent='Abrindo WhatsApp para confirmar ✅';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
+}
+function checkOpen(){
+const d=new Date();const h=d.getHours()+d.getMinutes()/60;const day=d.getDay();
+const open=day>=1&&day<=5&&h>=8&&h<19.5;
+const b=document.getElementById('statusBadge');
+if(open){b.innerHTML='<span class="dot"></span> Aberto agora • até 19:30';b.style.background='#E6F4F1'}
+else{b.innerHTML='<span class="dot" style="background:#ef4444"></span> Fechado • abre 08h';b.style.background='#FEE2E2'}
+}
+render();checkOpen();setInterval(checkOpen,60000);
+</script>
+</body>
+</html>

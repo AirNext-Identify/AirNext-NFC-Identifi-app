@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Be Unique Odonto Clinic | Odontologia em Itapema</title>
+<meta name="description" content="Be Unique Odonto Clinic em Meia Praia, Itapema. Atendimento odontológico personalizado, profissionais qualificados e uma experiência pensada para valorizar a individualidade de cada paciente.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* ============================================================
+   SISTEMA VISUAL — TROQUE AS CORES DA MARCA AQUI
+============================================================ */
+:root{
+    --bg:        #FAF7F3;  /* fundo principal — branco quente */
+    --bg-alt:    #F1EAE2;  /* fundo alternativo — areia */
+    --blush:     #EAD9CF;  /* nude suave */
+    --rose:      #B76E6E;  /* ASSINATURA DA MARCA (ajustar ao logo) */
+    --rose-deep: #96534F;
+    --champagne: #C9A876;  /* acento premium */
+    --ink:       #1C1A17;  /* texto principal */
+    --ink-soft:  #2E2A25;
+    --muted:     #7C7469;  /* texto secundário */
+    --line:      rgba(28,26,23,.12);
+    --white:     #ffffff;
+    --wa:        #25D366;
+    --radius:    20px;
+    --shadow:    0 24px 60px rgba(60,42,38,.12);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+    font-family:"DM Sans",sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+}
+body.locked{overflow:hidden}
+h1,h2,h3,h4{font-family:"Fraunces",serif;line-height:1.12;font-weight:500}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+button{cursor:pointer;border:none;background:none}
+::selection{background:rgba(183,110,110,.25)}
+.container{width:min(1180px,92%);margin:auto}
+
+/* ============ PRELOADER ============ */
+.preloader{
+    position:fixed;inset:0;z-index:9999;display:grid;place-items:center;
+    background:var(--ink);transition:opacity .7s,visibility .7s;
+}
+.preloader.hidden{opacity:0;visibility:hidden}
+.loader-mark{
+    width:78px;height:78px;border:1px solid var(--champagne);border-radius:50%;
+    display:grid;place-items:center;margin:0 auto 18px;
+    color:var(--blush);font-family:"Fraunces",serif;font-size:1.9rem;
+    animation:pulse 1.6s infinite;
+}
+.loader-mark em{font-style:italic}
+.preloader p{color:var(--blush);letter-spacing:4px;font-size:.68rem;font-weight:700}
+@keyframes pulse{
+    0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,168,118,.35)}
+    50%{transform:scale(1.07);box-shadow:0 0 0 16px rgba(201,168,118,0)}
+}
+
+/* ============ PROGRESSO ============ */
+.scroll-progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:4000;background:linear-gradient(90deg,var(--rose),var(--champagne))}
+
+/* ============ HEADER ============ */
+.site-header{
+    position:fixed;top:0;left:0;right:0;z-index:1500;
+    transition:.35s ease;padding:4px 0;
+}
+.site-header.scrolled{
+    background:rgba(250,247,243,.9);
+    backdrop-filter:blur(16px) saturate(1.2);
+    box-shadow:0 1px 0 var(--line),0 12px 32px rgba(28,26,23,.06);
+}
+.navbar{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:12px;min-width:max-content}
+.brand-mark{
+    width:46px;height:46px;border:1.5px solid var(--champagne);border-radius:50%;
+    display:grid;place-items:center;color:var(--blush);
+    font-family:"Fraunces",serif;font-size:1.15rem;
+    box-shadow:inset 0 0 0 1px rgba(201,168,118,.2);
+    transition:.3s;
+}
+.site-header.scrolled .brand-mark{color:var(--rose)}
+.brand-name{color:#fff;font-family:"Fraunces",serif;font-size:1.35rem;line-height:1}
+.brand-name em{font-style:italic;color:var(--champagne)}
+.site-header.scrolled .brand-name{color:var(--ink)}
+.brand-name small{
+    display:block;font-family:"DM Sans";font-size:.55rem;font-weight:700;
+    letter-spacing:2.6px;color:rgba(255,255,255,.6);margin-top:4px;
+}
+.site-header.scrolled .brand-name small{color:var(--muted)}
+.nav-links{display:flex;gap:22px;align-items:center}
+.nav-links a{
+    position:relative;color:rgba(255,255,255,.85);
+    font-size:.82rem;font-weight:600;
+}
+.site-header.scrolled .nav-links a{color:var(--ink-soft)}
+.nav-links a::after{
+    content:"";position:absolute;left:0;bottom:-7px;width:0;height:1px;
+    background:var(--champagne);transition:.25s;
+}
+.nav-links a:hover::after{width:100%}
+.menu-toggle{display:none;color:#fff;font-size:1.5rem}
+.site-header.scrolled .menu-toggle{color:var(--ink)}
+
+/* MENU MOBILE FULLSCREEN */
+.mobile-menu{
+    position:fixed;inset:0;z-index:2000;background:var(--ink);
+    display:flex;flex-direction:column;justify-content:center;
+    padding:40px 8vw;transform:translateY(-100%);
+    transition:transform .5s cubic-bezier(.7,0,.3,1);
+}
+.mobile-menu.open{transform:translateY(0)}
+.mobile-menu a{
+    color:#fff;font-family:"Fraunces",serif;font-size:2rem;
+    padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.mobile-menu a em{color:var(--champagne);font-size:.8rem;margin-right:12px;font-family:"DM Sans"}
+.mobile-close{position:absolute;top:26px;right:26px;color:#fff;font-size:1.8rem}
+
+/* ============ BOTÕES ============ */
+.btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    padding:14px 26px;border-radius:50px;font-weight:700;font-size:.86rem;
+    transition:.28s ease;position:relative;overflow:hidden;
+}
+.btn:hover{transform:translateY(-3px)}
+.btn-rose{background:var(--rose);color:#fff}
+.btn-rose:hover{background:var(--rose-deep);box-shadow:0 14px 30px rgba(183,110,110,.32)}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-dark:hover{background:var(--ink-soft)}
+.btn-light{background:#fff;color:var(--ink)}
+.btn-light:hover{background:var(--bg-alt)}
+.btn-outline{border:1px solid var(--ink);color:var(--ink)}
+.btn-outline:hover{background:var(--ink);color:#fff}
+.btn-outline-light{border:1px solid rgba(255,255,255,.55);color:#fff}
+.btn-outline-light:hover{background:#fff;color:var(--ink)}
+.btn-wa{background:var(--wa);color:#fff}
+.btn-wa:hover{background:#1fb456;box-shadow:0 14px 30px rgba(37,211,102,.3)}
+/* varredura de luz */
+.btn-rose::after{
+    content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);
+    transform:skewX(-20deg);transition:.5s;
+}
+.btn-rose:hover::after{left:130%}
+
+/* ============ HERO ============ */
+.hero{
+    position:relative;min-height:100vh;display:flex;align-items:center;
+    overflow:hidden;color:#fff;background:var(--ink);
+}
+.hero::before{
+    content:"";position:absolute;inset:0;
+    background:url("https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=2200&q=85") center/cover;
+    opacity:.32;filter:saturate(.85);
+}
+.hero::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(115deg,rgba(28,26,23,.96) 0%,rgba(28,26,23,.72) 48%,rgba(28,26,23,.3) 100%);
+}
+.hero-inner{
+    position:relative;z-index:2;padding:150px 0 110px;
+    display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center;
+}
+.hero-tag{
+    display:inline-flex;align-items:center;gap:9px;padding:9px 16px;
+    border:1px solid rgba(234,217,207,.35);border-radius:30px;
+    color:var(--blush);font-size:.72rem;font-weight:700;letter-spacing:1.4px;
+    background:rgba(255,255,255,.05);backdrop-filter:blur(6px);margin-bottom:26px;
+}
+.hero h1{
+    font-size:clamp(2.9rem,6vw,5.3rem);letter-spacing:-2px;
+    color:#FBF8F4;max-width:680px;font-weight:300;
+}
+.hero h1 em{font-style:italic;color:var(--blush)}
+.hero-sub{max-width:520px;margin:22px 0 0;color:rgba(255,255,255,.75);font-size:1.02rem}
+.hero-sub strong{color:var(--blush)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.hero-proof{
+    display:flex;align-items:center;gap:14px;width:fit-content;margin-top:30px;
+    padding:13px 18px;border-radius:16px;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+    backdrop-filter:blur(8px);
+}
+.hero-proof strong{font-family:"Fraunces",serif;font-size:1.7rem;color:var(--blush)}
+.stars{color:#D9A94E;letter-spacing:2px}
+.hero-proof small{display:block;color:rgba(255,255,255,.65);font-size:.72rem}
+
+.hero-side{position:relative;min-height:480px}
+.hero-frame{
+    position:absolute;right:0;top:0;width:82%;height:440px;
+    border-radius:190px 20px 20px 20px;overflow:hidden;
+    border:1px solid rgba(234,217,207,.3);
+    box-shadow:0 30px 80px rgba(0,0,0,.35);
+}
+.hero-frame img{width:100%;height:100%;object-fit:cover}
+.hero-card{
+    position:absolute;bottom:0;left:0;max-width:250px;
+    background:rgba(250,247,243,.94);color:var(--ink);
+    border-radius:18px;padding:18px;box-shadow:var(--shadow);
+    animation:floatY 5s ease-in-out infinite;
+}
+.hero-card i{color:var(--rose);font-size:1.3rem}
+.hero-card strong{display:block;font-family:"Fraunces",serif;font-size:1.15rem;margin-top:8px}
+.hero-card small{color:var(--muted);font-size:.73rem}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+.scroll-hint{
+    position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;
+    color:rgba(255,255,255,.55);font-size:.68rem;letter-spacing:2px;text-align:center;
+}
+.scroll-hint::after{
+    content:"";display:block;width:1px;height:34px;margin:8px auto 0;
+    background:linear-gradient(var(--champagne),transparent);
+    animation:drip 1.8s infinite;
+}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}60%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ============ FAIXA DE CONFIANÇA ============ */
+.trust{background:var(--ink);color:#fff;border-top:1px solid rgba(255,255,255,.08)}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.trust-item{padding:24px 14px;text-align:center;border-right:1px solid rgba(255,255,255,.1)}
+.trust-item:last-child{border-right:none}
+.trust-item strong{display:block;font-family:"Fraunces",serif;font-size:1.9rem;color:var(--blush)}
+.trust-item span{color:#BDB4A9;font-size:.74rem}
+
+/* ============ SEÇÕES BASE ============ */
+.section{padding:100px 0}
+.section-head{max-width:700px;margin:0 auto 48px;text-align:center}
+.section-head.left{margin-left:0;text-align:left}
+.eyebrow{
+    color:var(--rose);font-size:.72rem;font-weight:800;letter-spacing:2.4px;
+    text-transform:uppercase;
+}
+.section-head h2{margin:12px 0 14px;font-size:clamp(2rem,4vw,3.1rem);color:var(--ink)}
+.section-head p{color:var(--muted);font-size:.96rem}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:none}
+.reveal.d1{transition-delay:.1s}.reveal.d2{transition-delay:.2s}.reveal.d3{transition-delay:.3s}
+
+/* ============ FILOSOFIA ============ */
+.philosophy{background:var(--bg)}
+.philo-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:70px;align-items:center}
+.philo-text h2{font-size:clamp(2.1rem,4vw,3.3rem);color:var(--ink);margin:12px 0 18px}
+.philo-text h2 em{font-style:italic;color:var(--rose)}
+.philo-text p{color:var(--muted);margin-bottom:14px}
+.philo-quote{
+    margin-top:24px;padding:20px 0 20px 22px;border-left:2px solid var(--champagne);
+}
+.philo-quote p{
+    font-family:"Fraunces",serif;font-style:italic;font-size:1.35rem;color:var(--ink-soft);
+}
+.philo-visual{position:relative}
+.philo-visual img{
+    width:100%;height:540px;object-fit:cover;
+    border-radius:150px 18px 18px 18px;
+    box-shadow:22px 22px 0 rgba(183,110,110,.16);
+}
+.philo-stamp{
+    position:absolute;right:-18px;bottom:32px;background:var(--ink);color:#fff;
+    border-radius:16px;padding:16px 20px;box-shadow:var(--shadow);max-width:210px;
+}
+.philo-stamp strong{font-family:"Fraunces",serif;font-size:1.15rem;color:var(--blush);display:block}
+.philo-stamp small{color:#BDB4A9;font-size:.72rem}
+
+/* ============ EXPERIÊNCIA / TIMELINE ============ */
+.experience{background:var(--bg-alt)}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-top:20px}
+.timeline::before{
+    content:"";position:absolute;top:34px;left:6%;right:6%;height:1px;background:var(--line);
+}
+.timeline-progress{
+    position:absolute;top:34px;left:6%;height:1px;background:var(--rose);width:0;
+    transition:width 1.4s ease .3s;
+}
+.experience.visible .timeline-progress{width:88%}
+.tl-step{position:relative;padding:0 18px;text-align:center}
+.tl-num{
+    width:68px;height:68px;margin:0 auto 18px;border-radius:50%;
+    display:grid;place-items:center;background:#fff;border:1px solid var(--line);
+    font-family:"Fraunces",serif;font-size:1.4rem;color:var(--rose);
+    position:relative;z-index:2;transition:.3s;
+}
+.tl-step:hover .tl-num{background:var(--rose);color:#fff;transform:scale(1.06)}
+.tl-step h3{font-size:1.3rem;color:var(--ink);margin-bottom:8px}
+.tl-step p{color:var(--muted);font-size:.83rem}
+
+/* ============ TRATAMENTOS ============ */
+.treatments{background:var(--bg)}
+.treat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.treat-card{
+    position:relative;min-height:400px;border-radius:var(--radius);overflow:hidden;
+    background:var(--ink);transform-style:preserve-3d;transition:.3s;
+}
+.treat-card:hover{transform:translateY(-7px);box-shadow:var(--shadow)}
+.treat-card img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    opacity:.62;transition:.7s;
+}
+.treat-card:hover img{opacity:.42;transform:scale(1.08)}
+.treat-body{
+    position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;
+    justify-content:flex-end;padding:26px;color:#fff;
+    background:linear-gradient(transparent 38%,rgba(20,17,15,.9));
+}
+.treat-tag{
+    width:fit-content;padding:5px 10px;border-radius:20px;margin-bottom:10px;
+    background:rgba(255,255,255,.14);backdrop-filter:blur(6px);
+    font-size:.62rem;font-weight:800;letter-spacing:1px;color:var(--blush);
+}
+.treat-body h3{font-size:1.5rem;color:#fff}
+.treat-body p{color:rgba(255,255,255,.78);font-size:.83rem;margin:8px 0 14px}
+.treat-link{
+    display:inline-flex;align-items:center;gap:8px;color:var(--blush);
+    font-size:.8rem;font-weight:700;
+}
+.treat-link i{transition:.25s}
+.treat-card:hover .treat-link i{transform:translateX(6px)}
+.treat-note{text-align:center;color:var(--muted);font-size:.74rem;margin-top:18px}
+
+/* ============ DIFERENCIAIS ============ */
+.differentials{background:var(--ink);color:#fff}
+.differentials .section-head h2{color:#fff}
+.differentials .section-head p{color:#BDB4A9}
+.diff-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.diff-card{
+    padding:26px 22px;border-radius:18px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    transition:.3s;
+}
+.diff-card:hover{background:rgba(255,255,255,.09);transform:translateY(-5px);border-color:rgba(234,217,207,.35)}
+.diff-card i{color:var(--champagne);font-size:1.4rem}
+.diff-card h3{font-size:1.2rem;color:#fff;margin:14px 0 8px}
+.diff-card p{color:#BDB4A9;font-size:.82rem}
+.diff-quote{
+    margin-top:34px;text-align:center;
+    font-family:"Fraunces",serif;font-style:italic;font-size:1.3rem;color:var(--blush);
+}
+
+/* ============ A CLÍNICA / GALERIA ============ */
+.clinic{background:var(--bg-alt)}
+.clinic-grid{
+    display:grid;grid-template-columns:1.3fr .7fr .7fr;
+    grid-template-rows:230px 230px;gap:12px;
+}
+.clinic-item{position:relative;overflow:hidden;border-radius:16px;cursor:pointer}
+.clinic-item:first-child{grid-row:span 2}
+.clinic-item img{width:100%;height:100%;object-fit:cover;transition:.7s}
+.clinic-item:hover img{transform:scale(1.08)}
+.clinic-item span{
+    position:absolute;left:12px;bottom:12px;padding:7px 11px;border-radius:8px;
+    background:rgba(28,26,23,.72);color:#fff;font-size:.66rem;font-weight:700;
+    opacity:0;transform:translateY(8px);transition:.3s;
+}
+.clinic-item:hover span{opacity:1;transform:none}
+
+/* ============ PROFISSIONAIS ============ */
+.team{background:var(--bg)}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.team-card{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;transition:.3s;
+}
+.team-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.team-photo{height:320px;overflow:hidden;position:relative}
+.team-photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.9);transition:.6s}
+.team-card:hover .team-photo img{transform:scale(1.05);filter:saturate(1.05)}
+.team-info{padding:22px}
+.team-info h3{font-size:1.4rem;color:var(--ink)}
+.team-info .role{color:var(--rose);font-size:.74rem;font-weight:800;letter-spacing:1px;margin-top:4px}
+.team-info p{color:var(--muted);font-size:.83rem;margin-top:10px;min-height:60px}
+.team-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.team-badges span{
+    padding:4px 10px;border-radius:20px;background:var(--bg-alt);
+    color:var(--muted);font-size:.66rem;font-weight:700;
+}
+
+/* ============ RESULTADOS ============ */
+.results{background:var(--bg-alt)}
+.comparison{
+    position:relative;max-width:880px;height:470px;margin:0 auto;
+    border-radius:24px;overflow:hidden;box-shadow:var(--shadow);user-select:none;
+}
+.comparison img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.comparison .after-layer{position:absolute;inset:0;overflow:hidden;width:50%}
+.comparison .after-layer img{width:880px;max-width:none}
+.cmp-divider{
+    position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;z-index:4;pointer-events:none;
+    box-shadow:0 0 22px rgba(255,255,255,.8);
+}
+.cmp-divider::after{
+    content:"↔";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:46px;height:46px;background:#fff;border-radius:50%;display:grid;place-items:center;
+    font-weight:900;color:var(--rose);box-shadow:0 6px 18px rgba(0,0,0,.2);
+}
+.cmp-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:5}
+.cmp-label{
+    position:absolute;top:16px;z-index:3;padding:7px 12px;border-radius:8px;
+    background:rgba(28,26,23,.7);color:#fff;font-size:.66rem;font-weight:800;letter-spacing:1px;
+}
+.cmp-before{left:16px}.cmp-after{right:16px}
+.results-note{text-align:center;color:var(--muted);font-size:.72rem;margin-top:14px}
+
+/* ============ AVALIAÇÕES ============ */
+.reviews{background:var(--bg)}
+.review-hero{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:36px}
+.review-hero strong{font-family:"Fraunces",serif;font-size:3.6rem;color:var(--rose)}
+.review-hero small{display:block;color:var(--muted);font-size:.78rem}
+.review-viewport{overflow:hidden}
+.review-track{display:flex;transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.review-slide{min-width:50%;padding:0 9px}
+.review-card{
+    min-height:250px;padding:30px;background:#fff;border:1px solid var(--line);
+    border-radius:20px;display:flex;flex-direction:column;
+}
+.review-card p{
+    flex:1;font-family:"Fraunces",serif;font-size:1.15rem;line-height:1.5;
+    color:var(--ink-soft);margin:14px 0 18px;font-style:italic;
+}
+.review-author{display:flex;align-items:center;gap:11px}
+.review-avatar{
+    width:42px;height:42px;border-radius:50%;background:var(--rose);color:#fff;
+    display:grid;place-items:center;font-weight:800;
+}
+.review-author small{display:block;color:var(--muted);font-size:.7rem}
+.review-controls{display:flex;justify-content:center;gap:10px;margin-top:26px}
+.review-controls button{
+    width:44px;height:44px;border-radius:50%;border:1px solid var(--rose);color:var(--rose);
+    transition:.25s;
+}
+.review-controls button:hover{background:var(--rose);color:#fff}
+
+/* ============ SEÇÃO EMOCIONAL ============ */
+.emotional{
+    position:relative;min-height:520px;display:grid;place-items:center;
+    color:#fff;text-align:center;overflow:hidden;
+}
+.emotional-bg{
+    position:absolute;inset:-15% 0;
+    background:url("https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=1900&q=85") center/cover;
+    filter:saturate(.85);
+    will-change:transform;
+}
+.emotional::after{content:"";position:absolute;inset:0;background:rgba(28,26,23,.72)}
+.emotional-content{position:relative;z-index:2;max-width:820px;padding:60px 20px}
+.emotional-content h2{
+    font-size:clamp(1.9rem,4.4vw,3.4rem);color:#FBF8F4;font-weight:300;letter-spacing:-1px;
+}
+.emotional-content h2 em{font-style:italic;color:var(--blush)}
+
+/* ============ INTERATIVA ============ */
+.interactive{background:var(--bg-alt)}
+.inter-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.inter-options{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.inter-btn{
+    padding:18px;border-radius:15px;text-align:left;
+    background:#fff;border:1px solid var(--line);transition:.25s;
+}
+.inter-btn:hover,.inter-btn.active{border-color:var(--rose);background:rgba(183,110,110,.06);transform:translateY(-3px)}
+.inter-btn i{color:var(--rose);font-size:1.2rem}
+.inter-btn strong{display:block;margin-top:9px;font-size:.88rem;color:var(--ink)}
+.inter-btn small{color:var(--muted);font-size:.7rem}
+.inter-result{
+    margin-top:16px;padding:18px;border-radius:15px;background:var(--ink);color:#fff;
+    font-size:.83rem;
+}
+.inter-result b{color:var(--blush);display:block;font-size:.68rem;letter-spacing:1.4px;margin-bottom:6px}
+.inter-result .btn{margin-top:12px;padding:11px 20px;font-size:.78rem}
+
+/* ============ AGENDAMENTO ============ */
+.booking{background:var(--bg)}
+.booking-shell{
+    max-width:880px;margin:0 auto;background:#fff;border:1px solid var(--line);
+    border-radius:26px;padding:38px;box-shadow:var(--shadow);
+}
+.steps-bar{display:flex;align-items:center;margin-bottom:34px}
+.step-dot{
+    width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+    background:var(--bg-alt);border:1px solid var(--line);color:var(--muted);
+    font-size:.74rem;font-weight:800;position:relative;z-index:2;transition:.3s;
+}
+.step-dot.active{background:var(--rose);border-color:var(--rose);color:#fff}
+.step-dot.done{background:var(--ink);border-color:var(--ink);color:#fff}
+.step-link{flex:1;height:1px;background:var(--line)}
+.b-step{display:none;animation:stepIn .35s ease}
+.b-step.active{display:block}
+@keyframes stepIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.b-step h3{font-size:1.8rem;color:var(--ink)}
+.b-step > p{color:var(--muted);font-size:.85rem;margin:6px 0 20px}
+.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.choice{
+    padding:16px;border-radius:13px;text-align:left;background:var(--bg);
+    border:1px solid var(--line);transition:.2s;
+}
+.choice:hover,.choice.selected{border-color:var(--rose);background:rgba(183,110,110,.07);transform:translateY(-3px)}
+.choice i{color:var(--rose)}
+.choice strong{display:block;margin-top:8px;font-size:.82rem;color:var(--ink)}
+.choice small{display:block;color:var(--muted);font-size:.68rem;margin-top:3px}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px}
+.pill{
+    padding:10px 17px;border-radius:30px;background:#fff;border:1px solid var(--line);
+    font-size:.8rem;font-weight:700;color:var(--ink-soft);transition:.2s;
+}
+.pill:hover,.pill.selected{background:var(--ink);border-color:var(--ink);color:#fff}
+.date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.date-btn{
+    padding:11px 4px;border-radius:10px;background:var(--bg);border:1px solid var(--line);
+    font-size:.7rem;color:var(--ink-soft);transition:.2s;
+}
+.date-btn:hover,.date-btn.selected{background:var(--champagne);border-color:var(--champagne);color:var(--ink);font-weight:800}
+.date-btn small{display:block;font-size:.62rem;opacity:.75}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid .full{grid-column:1/-1}
+.form-grid label{display:block;font-size:.72rem;font-weight:800;color:var(--ink);margin-bottom:5px}
+.form-grid input{
+    width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
+    background:var(--bg);outline:none;transition:.2s;
+}
+.form-grid input:focus{border-color:var(--rose);background:#fff}
+.summary{background:var(--bg-alt);border-radius:14px;padding:18px;margin-top:16px}
+.summary-row{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.83rem}
+.summary-row:last-child{border-bottom:none}
+.summary-row span{color:var(--muted)}
+.summary-row strong{color:var(--ink);text-align:right}
+.step-actions{display:flex;justify-content:space-between;gap:10px;margin-top:24px}
+.booking-note{text-align:center;color:var(--muted);font-size:.7rem;margin-top:16px}
+
+/* ============ INSTAGRAM ============ */
+.instagram{background:var(--ink);color:#fff;text-align:center}
+.instagram h2{font-size:clamp(1.9rem,3.6vw,2.8rem);color:#fff}
+.instagram h2 em{color:var(--blush);font-style:italic}
+.instagram p{color:#BDB4A9;margin:12px auto 30px;max-width:520px;font-size:.92rem}
+.insta-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.insta-grid a{position:relative;overflow:hidden;border-radius:12px;aspect-ratio:1}
+.insta-grid img{width:100%;height:100%;object-fit:cover;transition:.5s;opacity:.85}
+.insta-grid a:hover img{transform:scale(1.08);opacity:1}
+.insta-grid a::after{
+    content:"\f16d";font-family:"Font Awesome 6 Brands";position:absolute;inset:0;
+    display:grid;place-items:center;color:#fff;font-size:1.3rem;
+    background:rgba(183,110,110,.55);opacity:0;transition:.3s;
+}
+.insta-grid a:hover::after{opacity:1}
+
+/* ============ LOCALIZAÇÃO ============ */
+.location{background:var(--bg-alt)}
+.loc-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:22px}
+.loc-card{background:var(--ink);color:#fff;border-radius:var(--radius);padding:32px}
+.loc-card h2{font-size:2rem;color:#fff}
+.loc-card p{color:#BDB4A9;font-size:.86rem;margin:12px 0 18px}
+.loc-list{list-style:none}
+.loc-list li{display:flex;gap:11px;margin:13px 0;color:#D9D0C3;font-size:.85rem;align-items:flex-start}
+.loc-list i{width:20px;color:var(--champagne);margin-top:4px;text-align:center}
+.loc-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+.loc-actions .btn-outline{border-color:#fff;color:#fff}
+.loc-actions .btn-outline:hover{background:#fff;color:var(--ink)}
+.loc-map{min-height:380px;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.loc-map iframe{width:100%;height:100%;min-height:380px;border:0}
+
+/* ============ FAQ ============ */
+.faq{background:var(--bg)}
+.faq-list{max-width:800px;margin:0 auto}
+.faq-item{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.faq-q{
+    width:100%;display:flex;justify-content:space-between;align-items:center;gap:14px;
+    padding:17px 19px;text-align:left;font-weight:700;color:var(--ink);
+}
+.faq-q i{color:var(--rose);transition:.25s}
+.faq-a{display:none;padding:0 19px 17px;color:var(--muted);font-size:.86rem}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-q i{transform:rotate(180deg)}
+
+/* ============ CTA FINAL ============ */
+.final-cta{
+    position:relative;min-height:520px;display:grid;place-items:center;text-align:center;
+    color:#fff;overflow:hidden;
+    background:
+        linear-gradient(rgba(28,26,23,.78),rgba(28,26,23,.82)),
+        url("https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1900&q=85") center/cover;
+}
+.final-cta h2{font-size:clamp(2.2rem,5vw,4rem);color:#FBF8F4;font-weight:300;letter-spacing:-1px}
+.final-cta h2 em{font-style:italic;color:var(--blush)}
+.final-cta p{max-width:560px;margin:18px auto 26px;color:rgba(255,255,255,.78)}
+
+/* ============ FOOTER ============ */
+footer{background:#14110E;color:#A79C8E;padding:50px 0 110px;font-size:.8rem}
+.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1.2fr;gap:34px}
+footer strong{display:block;color:var(--blush);font-family:"Fraunces",serif;font-size:1.3rem;margin-bottom:12px}
+footer h4{color:#fff;font-family:"DM Sans";font-size:.78rem;letter-spacing:1.6px;margin-bottom:12px}
+footer a{display:block;margin-bottom:7px;color:#A79C8E;transition:.2s}
+footer a:hover{color:#fff}
+.footer-bottom{
+    margin-top:38px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);
+    display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:.72rem;
+}
+
+/* ============ WHATSAPP FLUTUANTE ============ */
+.wa-float{
+    position:fixed;right:20px;bottom:20px;z-index:1600;
+    display:flex;align-items:center;gap:10px;height:58px;width:58px;padding:0 17px;
+    border-radius:40px;background:var(--wa);color:#fff;overflow:hidden;
+    box-shadow:0 12px 32px rgba(0,0,0,.22);font-size:1.6rem;
+    transition:width .3s,transform .3s;
+}
+.wa-float span{opacity:0;white-space:nowrap;font-size:.78rem;font-weight:800;transition:.2s}
+.wa-float:hover{width:216px;transform:translateY(-4px)}
+.wa-float:hover span{opacity:1}
+
+/* ============ LIGHTBOX ============ */
+.lightbox{position:fixed;inset:0;z-index:3500;display:none;place-items:center;padding:20px;background:rgba(15,12,10,.92)}
+.lightbox.open{display:grid}
+.lightbox img{max-width:min(980px,94vw);max-height:86vh;border-radius:14px}
+.lightbox-close{position:absolute;top:20px;right:24px;color:#fff;font-size:2rem}
+
+/* ============ TOAST ============ */
+.toast{
+    position:fixed;left:50%;bottom:92px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:12px 20px;border-radius:10px;
+    font-size:.82rem;font-weight:600;opacity:0;pointer-events:none;transition:.3s;z-index:4000;
+}
+.toast.show{opacity:1}
+
+/* ============ RESPONSIVO ============ */
+@media(max-width:1080px){
+    .treat-grid,.team-grid{grid-template-columns:repeat(2,1fr)}
+    .diff-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:880px){
+    .hero-inner{grid-template-columns:1fr;gap:30px;padding-top:130px}
+    .hero-side{min-height:340px}
+    .hero-frame{height:330px;width:88%}
+    .philo-grid,.inter-grid,.loc-grid{grid-template-columns:1fr}
+    .timeline{grid-template-columns:1fr;gap:26px}
+    .timeline::before,.timeline-progress{left:34px;right:auto;top:6%;bottom:6%;width:1px;height:auto}
+    .experience.visible .timeline-progress{width:1px;height:88%}
+    .tl-step{text-align:left;display:flex;gap:18px;align-items:flex-start;padding:0}
+    .tl-num{margin:0;min-width:68px}
+    .review-slide{min-width:100%}
+    .choice-grid{grid-template-columns:1fr 1fr}
+    .form-grid{grid-template-columns:1fr}
+    .insta-grid{grid-template-columns:repeat(3,1fr)}
+    .nav-links,.nav-cta-desktop{display:none}
+    .menu-toggle{display:block}
+}
+@media(max-width:560px){
+    .hero h1{font-size:2.6rem;letter-spacing:-1px}
+    .hero-actions .btn{width:100%}
+    .trust-grid{grid-template-columns:repeat(2,1fr)}
+    .trust-item{border-bottom:1px solid rgba(255,255,255,.1)}
+    .treat-grid,.team-grid,.diff-grid,.choice-grid,.inter-options{grid-template-columns:1fr}
+    .clinic-grid{grid-template-columns:1fr 1fr;grid-template-rows:170px 170px 170px}
+    .clinic-item:first-child{grid-column:span 2;grid-row:span 1}
+    .insta-grid{grid-template-columns:repeat(2,1fr)}
+    .comparison{height:320px}
+    .comparison .after-layer img{width:100vw}
+    .date-grid{gap:5px}
+    .date-btn{font-size:.62rem;padding:9px 2px}
+    .booking-shell{padding:24px 16px}
+    .step-actions{flex-direction:column-reverse}
+    .step-actions .btn{width:100%}
+    .footer-grid{grid-template-columns:1fr}
+    .wa-float{width:58px}
+    .wa-float span{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+    .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div class="preloader" id="preloader">
+    <div>
+        <div class="loader-mark"><em>U</em></div>
+        <p>BE UNIQUE ODONTO CLINIC</p>
+    </div>
+</div>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- HEADER -->
+<header class="site-header" id="siteHeader">
+    <div class="container navbar">
+        <a href="#inicio" class="brand">
+            <div class="brand-mark"><em>U</em></div>
+            <div class="brand-name">
+                Be <em>Unique</em>
+                <small>ODONTO CLINIC • ITAPEMA</small>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="#inicio">Início</a>
+            <a href="#filosofia">A Clínica</a>
+            <a href="#tratamentos">Tratamentos</a>
+            <a href="#diferenciais">Diferenciais</a>
+            <a href="#equipe">Profissionais</a>
+            <a href="#resultados">Resultados</a>
+            <a href="#avaliacoes">Avaliações</a>
+            <a href="#contato">Contato</a>
+        </nav>
+
+        <div class="nav-cta-desktop">
+            <a href="#agendamento" class="btn btn-rose" style="padding:12px 22px;font-size:.8rem">
+                Agendar avaliação
+            </a>
+        </div>
+
+        <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+</header>
+
+<!-- MENU MOBILE -->
+<div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-close" onclick="toggleMenu(false)" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
+    <a href="#inicio" onclick="toggleMenu(false)"><em>01</em>Início</a>
+    <a href="#filosofia" onclick="toggleMenu(false)"><em>02</em>A Clínica</a>
+    <a href="#tratamentos" onclick="toggleMenu(false)"><em>03</em>Tratamentos</a>
+    <a href="#equipe" onclick="toggleMenu(false)"><em>04</em>Profissionais</a>
+    <a href="#avaliacoes" onclick="toggleMenu(false)"><em>05</em>Avaliações</a>
+    <a href="#agendamento" onclick="toggleMenu(false)"><em>06</em>Agendar avaliação</a>
+</div>
+
+<main>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="inicio">
+    <div class="container hero-inner">
+        <div>
+            <span class="hero-tag reveal visible">
+                <i class="fa-solid fa-star"></i>
+                ODONTOLOGIA PERSONALIZADA • MEIA PRAIA, ITAPEMA
+            </span>
+
+            <h1 class="reveal visible d1">
+                Seu sorriso não precisa seguir <em>padrões.</em>
+            </h1>
+
+            <p class="hero-sub reveal visible d2">
+                Odontologia personalizada para valorizar o que torna você único.
+                Na Be Unique, <strong>cada tratamento começa entendendo quem você é</strong> —
+                porque não existe um único sorriso ideal. Existe o sorriso que combina com você.
+            </p>
+
+            <div class="hero-actions reveal visible d3">
+                <a href="#agendamento" class="btn btn-rose">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    Agendar avaliação
+                </a>
+                <a href="#filosofia" class="btn btn-outline-light">
+                    Conhecer a Be Unique
+                    <i class="fa-solid fa-arrow-down"></i>
+                </a>
+            </div>
+
+            <div class="hero-proof reveal visible d3">
+                <strong>5,0</strong>
+                <div>
+                    <div class="stars">★★★★★</div>
+                    <small>59 avaliações no Google</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-side reveal visible d2">
+            <div class="hero-frame">
+                <img src="https://images.unsplash.com/photo-1588776814546-daab30f310ce?auto=format&fit=crop&w=1000&q=85"
+                     alt="Atendimento odontológico premium — imagem ilustrativa">
+            </div>
+            <div class="hero-card">
+                <i class="fa-solid fa-award"></i>
+                <strong>Excelência reconhecida</strong>
+                <small>Nota máxima nas avaliações de pacientes</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-hint">EXPLORAR</div>
+</section>
+
+<!-- ================= FAIXA ================= -->
+<section class="trust">
+    <div class="container trust-grid">
+        <div class="trust-item"><strong>5,0 ★</strong><span>Avaliação no Google</span></div>
+        <div class="trust-item"><strong data-counter="59">0</strong><span>Avaliações de pacientes</span></div>
+        <div class="trust-item"><strong>Siframar</strong><span>Platinum Executive · Sala 503</span></div>
+        <div class="trust-item"><strong>Meia Praia</strong><span>Itapema — SC</span></div>
+    </div>
+</section>
+
+<!-- ================= FILOSOFIA ================= -->
+<section class="section philosophy" id="filosofia">
+    <div class="container philo-grid">
+        <div class="philo-text reveal">
+            <span class="eyebrow">A FILOSOFIA BE UNIQUE</span>
+            <h2>Ser único também está <em>no sorriso.</em></h2>
+            <p>
+                Acreditamos que um sorriso bonito não precisa seguir um padrão.
+                Cada rosto possui proporções, características e histórias diferentes.
+                Por isso, cada planejamento deve respeitar a individualidade de quem
+                está diante de nós.
+            </p>
+            <p>
+                Antes de falar em procedimentos, falamos sobre você — suas
+                expectativas, seu estilo, o que faz sentido para a sua vida.
+            </p>
+            <div class="philo-quote">
+                <p>“Personalização antes de qualquer procedimento.”</p>
+            </div>
+            <a href="#agendamento" class="btn btn-dark" style="margin-top:24px">
+                Começar minha avaliação <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="philo-visual reveal d2">
+            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1000&q=85"
+                 alt="Espaço da clínica — imagem ilustrativa" loading="lazy">
+            <div class="philo-stamp">
+                <strong>Be Unique.</strong>
+                <small>Cuidado que começa pela escuta.</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= EXPERIÊNCIA ================= -->
+<section class="section experience" id="experiencia">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">EXPERIÊNCIA BE UNIQUE</span>
+            <h2>Do primeiro olhar ao resultado.</h2>
+            <p>Quatro etapas que transformam uma consulta em uma jornada de cuidado.</p>
+        </div>
+
+        <div class="timeline reveal">
+            <div class="timeline-progress"></div>
+
+            <div class="tl-step">
+                <div class="tl-num">01</div>
+                <div>
+                    <h3>Escuta</h3>
+                    <p>Entender expectativas, necessidades e objetivos antes de qualquer proposta.</p>
+                </div>
+            </div>
+
+            <div class="tl-step">
+                <div class="tl-num">02</div>
+                <div>
+                    <h3>Planejamento</h3>
+                    <p>Avaliar cada detalhe antes de definir o tratamento ideal para o seu caso.</p>
+                </div>
+            </div>
+
+            <div class="tl-step">
+                <div class="tl-num">03</div>
+                <div>
+                    <h3>Precisão</h3>
+                    <p>Executar cada etapa com técnica, cuidado e atenção aos detalhes.</p>
+                </div>
+            </div>
+
+            <div class="tl-step">
+                <div class="tl-num">04</div>
+                <div>
+                    <h3>Acompanhamento</h3>
+                    <p>Estar presente durante a jornada — e também depois dela.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= TRATAMENTOS ================= -->
+<section class="section treatments" id="tratamentos">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">CUIDADO SOB MEDIDA</span>
+            <h2>Tratamentos pensados para você.</h2>
+            <p>Estrutura editável — inclua aqui apenas os tratamentos confirmados pela clínica.</p>
+        </div>
+
+        <div class="treat-grid">
+            <article class="treat-card reveal">
+                <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=900&q=85" alt="Odontologia estética — imagem ilustrativa" loading="lazy">
+                <div class="treat-body">
+                    <span class="treat-tag">PERSONALIZADO</span>
+                    <h3>Odontologia Estética</h3>
+                    <p>Planejamento personalizado para transformar estética e harmonia do sorriso.</p>
+                    <a href="#agendamento" class="treat-link">Conversar sobre <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="treat-card reveal d1">
+                <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=900&q=85" alt="Tratamento — espaço editável" loading="lazy">
+                <div class="treat-body">
+                    <span class="treat-tag">EDITÁVEL</span>
+                    <h3>Tratamento 02</h3>
+                    <p>Espaço reservado para tratamento confirmado pela clínica. Nome, descrição e imagem editáveis.</p>
+                    <a href="#agendamento" class="treat-link">Conversar sobre <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="treat-card reveal d2">
+                <img src="https://eapgoias.com.br/wp-content/uploads/2023/11/tratamento-odontologico-preventivo-2.jpg" alt="Tratamento — espaço editável" loading="lazy">
+                <div class="treat-body">
+                    <span class="treat-tag">EDITÁVEL</span>
+                    <h3>Tratamento 03</h3>
+                    <p>Espaço reservado para tratamento confirmado pela clínica. Nome, descrição e imagem editáveis.</p>
+                    <a href="#agendamento" class="treat-link">Conversar sobre <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </article>
+        </div>
+
+        <p class="treat-note">Nenhum procedimento foi inventado. Complete esta seção com as informações oficiais da Be Unique.</p>
+    </div>
+</section>
+
+<!-- ================= DIFERENCIAIS ================= -->
+<section class="section differentials" id="diferenciais">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow" style="color:var(--blush)">POR QUE BE UNIQUE</span>
+            <h2>O detalhe faz diferença.</h2>
+            <p>Os pilares que os pacientes reconhecem — e repetem nas avaliações.</p>
+        </div>
+
+        <div class="diff-grid">
+            <div class="diff-card reveal">
+                <i class="fa-solid fa-comments"></i>
+                <h3>Atendimento humano</h3>
+                <p>Cada paciente é tratado de forma individual, com atenção e paciência.</p>
+            </div>
+            <div class="diff-card reveal d1">
+                <i class="fa-solid fa-compass-drafting"></i>
+                <h3>Planejamento personalizado</h3>
+                <p>Decisões baseadas nas características e objetivos de cada pessoa.</p>
+            </div>
+            <div class="diff-card reveal d2">
+                <i class="fa-solid fa-shield-heart"></i>
+                <h3>Profissionais que transmitem segurança</h3>
+                <p>Como relatam os pacientes: dedicação, técnica e trabalho com a verdade.</p>
+            </div>
+            <div class="diff-card reveal d3">
+                <i class="fa-solid fa-fingerprint"></i>
+                <h3>Resultados com identidade</h3>
+                <p>Sem estética exagerada ou artificial. O resultado continua sendo você.</p>
+            </div>
+        </div>
+
+        <p class="diff-quote reveal">“Não existe um único sorriso ideal. Existe o sorriso que combina com você.”</p>
+    </div>
+</section>
+
+<!-- ================= A CLÍNICA ================= -->
+<section class="section clinic" id="clinica">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">O ESPAÇO</span>
+            <h2>Um espaço pensado para você se sentir bem.</h2>
+            <p>Recepção, consultórios, detalhes e equipe — substitua pelas fotos reais da clínica.</p>
+        </div>
+
+        <div class="clinic-grid reveal">
+            <div class="clinic-item" data-lightbox>
+                <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1100&q=85" alt="Recepção — imagem ilustrativa" loading="lazy">
+                <span>Recepção</span>
+            </div>
+            <div class="clinic-item" data-lightbox>
+                <img src="https://images.unsplash.com/photo-1588776814546-daab30f310ce?auto=format&fit=crop&w=800&q=85" alt="Consultório — imagem ilustrativa" loading="lazy">
+                <span>Consultório</span>
+            </div>
+            <div class="clinic-item" data-lightbox>
+                <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=800&q=85" alt="Detalhes — imagem ilustrativa" loading="lazy">
+                <span>Detalhes</span>
+            </div>
+            <div class="clinic-item" data-lightbox>
+                <img src="https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=800&q=85" alt="Sorrisos — imagem ilustrativa" loading="lazy">
+                <span>Sorrisos</span>
+            </div>
+            <div class="clinic-item" data-lightbox>
+                <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=800&q=85" alt="Atendimento — imagem ilustrativa" loading="lazy">
+                <span>Atendimento</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= PROFISSIONAIS ================= -->
+<section class="section team" id="equipe">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">QUEM CUIDA DE VOCÊ</span>
+            <h2>Experiência, técnica e cuidado.</h2>
+            <p>Dados profissionais editáveis — preencher somente com informações confirmadas.</p>
+        </div>
+
+        <div class="team-grid">
+            <article class="team-card reveal">
+                <div class="team-photo">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=700&q=80" alt="Foto do profissional — ilustrativa" loading="lazy">
+                </div>
+                <div class="team-info">
+                    <h3>Dr. Matheus</h3>
+                    <div class="role">CITADO NAS AVALIAÇÕES</div>
+                    <p>Reconhecido pelos pacientes por transmitir segurança e trabalhar com a verdade. Complete com formação e apresentação oficial.</p>
+                    <div class="team-badges">
+                        <span>CRO: a preencher</span>
+                        <span>Formação: a preencher</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="team-card reveal d1">
+                <div class="team-photo">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=700&q=80" alt="Foto da profissional — ilustrativa" loading="lazy">
+                </div>
+                <div class="team-info">
+                    <h3>Profissional 02</h3>
+                    <div class="role">ESPAÇO EDITÁVEL</div>
+                    <p>Espaço reservado para apresentação de profissional da equipe Be Unique.</p>
+                    <div class="team-badges">
+                        <span>CRO: a preencher</span>
+                        <span>Especialidade: a preencher</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="team-card reveal d2">
+                <div class="team-photo">
+                    <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=700&q=80" alt="Foto da profissional — ilustrativa" loading="lazy">
+                </div>
+                <div class="team-info">
+                    <h3>Profissional 03</h3>
+                    <div class="role">ESPAÇO EDITÁVEL</div>
+                    <p>Espaço reservado para apresentação de profissional da equipe Be Unique.</p>
+                    <div class="team-badges">
+                        <span>CRO: a preencher</span>
+                        <span>Especialidade: a preencher</span>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- ================= RESULTADOS ================= -->
+<section class="section results" id="resultados">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">TRANSFORMAÇÃO</span>
+            <h2>Resultados que continuam sendo você.</h2>
+            <p>Arraste para comparar. Substitua por casos reais somente com autorização do paciente.</p>
+        </div>
+
+        <div class="comparison reveal">
+            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=85" alt="Antes — demonstrativo">
+            <div class="after-layer" id="afterLayer">
+                <img src="https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=1200&q=85" alt="Depois — demonstrativo">
+            </div>
+            <span class="cmp-label cmp-before">ANTES — DEMONSTRATIVO</span>
+            <span class="cmp-label cmp-after">DEPOIS — DEMONSTRATIVO</span>
+            <div class="cmp-divider" id="cmpDivider"></div>
+            <input type="range" class="cmp-range" id="cmpRange" min="0" max="100" value="50" aria-label="Comparar antes e depois">
+        </div>
+
+        <p class="results-note">Imagens demonstrativas. Resultados individuais podem variar.</p>
+    </div>
+</section>
+
+<!-- ================= AVALIAÇÕES ================= -->
+<section class="section reviews" id="avaliacoes">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">PROVA SOCIAL REAL</span>
+            <h2>Quem vive a experiência, conta.</h2>
+        </div>
+
+        <div class="review-hero reveal">
+            <strong data-counter="5" data-decimal="1">0</strong>
+            <div>
+                <div class="stars">★★★★★</div>
+                <small><b data-counter="59">0</b> avaliações no Google</small>
+            </div>
+        </div>
+
+        <div class="review-viewport reveal">
+            <div class="review-track" id="reviewTrack">
+
+                <div class="review-slide"><article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>“Clínica linda, profissionais super atenciosos e pacientes.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar">P</div>
+                        <div><b>Paciente Be Unique</b><small>Avaliação pública do Google</small></div>
+                    </div>
+                </article></div>
+
+                <div class="review-slide"><article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>“Excelentes profissionais, atendimento e resultados com um ótimo custo benefício.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar" style="background:var(--champagne)">P</div>
+                        <div><b>Paciente Be Unique</b><small>Avaliação pública do Google</small></div>
+                    </div>
+                </article></div>
+
+                <div class="review-slide"><article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>“Ótimo atendimento, superou minhas expectativas.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar" style="background:var(--ink)">P</div>
+                        <div><b>Paciente Be Unique</b><small>Avaliação pública do Google</small></div>
+                    </div>
+                </article></div>
+
+                <div class="review-slide"><article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>“Ótimo atendimento, excelentes profissionais, fizeram um trabalho impecável, recomendo.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar" style="background:var(--rose-deep)">P</div>
+                        <div><b>Paciente Be Unique</b><small>Avaliação pública do Google</small></div>
+                    </div>
+                </article></div>
+
+                <div class="review-slide"><article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>“Excelente atendimento!! Ótimo profissional, Dr. Matheus passa muita segurança e o diferencial que ele trabalha com a verdade.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar" style="background:var(--champagne)">P</div>
+                        <div><b>Paciente Be Unique</b><small>Avaliação pública do Google</small></div>
+                    </div>
+                </article></div>
+
+                <div class="review-slide"><article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>“Precisei de atendimento de emergência, fui atendida pelo Dr Matheus com excelência.”</p>
+                    <div class="review-author">
+                        <div class="review-avatar">P</div>
+                        <div><b>Paciente Be Unique</b><small>Avaliação pública do Google</small></div>
+                    </div>
+                </article></div>
+
+            </div>
+        </div>
+
+        <div class="review-controls">
+            <button onclick="moveReview(-1)" aria-label="Avaliação anterior"><i class="fa-solid fa-arrow-left"></i></button>
+            <button onclick="moveReview(1)" aria-label="Próxima avaliação"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+</section>
+
+<!-- ================= EMOCIONAL ================= -->
+<section class="emotional">
+    <div class="emotional-bg" id="emotionalBg"></div>
+    <div class="emotional-content reveal">
+        <h2>“Não buscamos criar um sorriso perfeito.<br>
+        Buscamos criar um sorriso que <em>faça sentido para você.</em>”</h2>
+    </div>
+</section>
+
+<!-- ================= INTERATIVA ================= -->
+<section class="section interactive" id="interativa">
+    <div class="container inter-grid">
+        <div class="reveal">
+            <span class="eyebrow">COMECE POR VOCÊ</span>
+            <h2 style="font-size:clamp(2rem,4vw,3rem);color:var(--ink);margin:12px 0 14px">
+                O que você gostaria de transformar?
+            </h2>
+            <p style="color:var(--muted)">
+                Escolha uma opção e descubra o melhor ponto de partida — sem compromisso.
+            </p>
+
+            <div class="inter-result" id="interResult">
+                <b>SEU PRÓXIMO PASSO</b>
+                <span id="interText">Uma avaliação individual é o melhor ponto de partida para entender suas necessidades e possibilidades.</span>
+                <br>
+                <a href="#agendamento" class="btn btn-rose">Encontrar o melhor caminho</a>
+            </div>
+        </div>
+
+        <div class="inter-options reveal d2">
+            <button class="inter-btn" onclick="selectInterest(this,'Estética do sorriso','Vamos conversar sobre as possibilidades estéticas que respeitam sua identidade e seus traços.')">
+                <i class="fa-regular fa-face-smile"></i>
+                <strong>Estética do sorriso</strong>
+                <small>Harmonia e naturalidade</small>
+            </button>
+            <button class="inter-btn" onclick="selectInterest(this,'Harmonia facial','Uma avaliação ajuda a entender o equilíbrio entre sorriso, rosto e expressão.')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <strong>Harmonia facial</strong>
+                <small>Equilíbrio dos traços</small>
+            </button>
+            <button class="inter-btn" onclick="selectInterest(this,'Saúde bucal','Prevenção e cuidado contínuo são a base de qualquer sorriso bonito.')">
+                <i class="fa-solid fa-tooth"></i>
+                <strong>Saúde bucal</strong>
+                <small>Prevenção e cuidado</small>
+            </button>
+            <button class="inter-btn" onclick="selectInterest(this,'Melhorar meu sorriso','Pequenos detalhes podem transformar muito. O primeiro passo é uma conversa.')">
+                <i class="fa-solid fa-star"></i>
+                <strong>Melhorar meu sorriso</strong>
+                <small>Detalhes que transformam</small>
+            </button>
+            <button class="inter-btn" onclick="selectInterest(this,'Quero conhecer as possibilidades','Perfeito: uma avaliação abre o mapa de possibilidades para o seu caso.')">
+                <i class="fa-regular fa-compass"></i>
+                <strong>Conhecer possibilidades</strong>
+                <small>Explorar caminhos</small>
+            </button>
+            <button class="inter-btn" onclick="selectInterest(this,'Ainda não sei','Sem problema. A avaliação existe justamente para isso: entender antes de decidir.')">
+                <i class="fa-regular fa-circle-question"></i>
+                <strong>Ainda não sei</strong>
+                <small>Começar pela escuta</small>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- ================= AGENDAMENTO ================= -->
+<section class="section booking" id="agendamento">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">AGENDAMENTO INTELIGENTE</span>
+            <h2>Vamos conversar sobre o seu sorriso?</h2>
+            <p>Sem compromisso. A solicitação chega pronta no WhatsApp da clínica.</p>
+        </div>
+
+        <div class="booking-shell reveal">
+            <div class="steps-bar" id="stepsBar">
+                <div class="step-dot active">1</div><div class="step-link"></div>
+                <div class="step-dot">2</div><div class="step-link"></div>
+                <div class="step-dot">3</div><div class="step-link"></div>
+                <div class="step-dot">4</div><div class="step-link"></div>
+                <div class="step-dot">5</div>
+            </div>
+
+            <!-- ETAPA 1 -->
+            <div class="b-step active" data-step="1">
+                <h3>O que você procura?</h3>
+                <p>Escolha a opção mais próxima do seu objetivo.</p>
+                <div class="choice-grid" id="treatChoices">
+                    <button class="choice selected" data-value="Avaliação odontológica"><i class="fa-solid fa-tooth"></i><strong>Avaliação</strong><small>Primeiro passo</small></button>
+                    <button class="choice" data-value="Estética do sorriso"><i class="fa-regular fa-face-smile"></i><strong>Estética do sorriso</strong><small>Harmonia</small></button>
+                    <button class="choice" data-value="Harmonia facial"><i class="fa-solid fa-wand-magic-sparkles"></i><strong>Harmonia facial</strong><small>Equilíbrio</small></button>
+                    <button class="choice" data-value="Saúde bucal"><i class="fa-solid fa-shield-heart"></i><strong>Saúde bucal</strong><small>Prevenção</small></button>
+                    <button class="choice" data-value="Melhorar meu sorriso"><i class="fa-solid fa-star"></i><strong>Melhorar o sorriso</strong><small>Detalhes</small></button>
+                    <button class="choice" data-value="Ainda não sei"><i class="fa-regular fa-circle-question"></i><strong>Ainda não sei</strong><small>Quero conversar</small></button>
+                </div>
+                <div class="step-actions">
+                    <span></span>
+                    <button class="btn btn-dark" onclick="nextStep()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ETAPA 2 -->
+            <div class="b-step" data-step="2">
+                <h3>Qual período prefere?</h3>
+                <p>A clínica confirmará os horários disponíveis.</p>
+                <div class="pill-row" id="periodChoices">
+                    <button class="pill selected" data-value="Manhã">Manhã</button>
+                    <button class="pill" data-value="Tarde">Tarde</button>
+                    <button class="pill" data-value="Sem preferência">Sem preferência</button>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline" onclick="prevStep()"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <button class="btn btn-dark" onclick="nextStep()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ETAPA 3 -->
+            <div class="b-step" data-step="3">
+                <h3>Melhor dia</h3>
+                <p>Selecione uma preferência de data.</p>
+                <div class="date-grid" id="dateGrid"></div>
+                <div class="step-actions">
+                    <button class="btn btn-outline" onclick="prevStep()"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <button class="btn btn-dark" onclick="nextStep()">Continuar <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ETAPA 4 -->
+            <div class="b-step" data-step="4">
+                <h3>Seus dados</h3>
+                <p>Usados apenas para retornar o contato.</p>
+                <div class="form-grid">
+                    <div class="full">
+                        <label for="bkName">Nome</label>
+                        <input id="bkName" type="text" placeholder="Seu nome completo">
+                    </div>
+                    <div class="full">
+                        <label for="bkPhone">WhatsApp</label>
+                        <input id="bkPhone" type="tel" placeholder="(47) 99999-9999">
+                    </div>
+                </div>
+                <div class="step-actions">
+                    <button class="btn btn-outline" onclick="prevStep()"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <button class="btn btn-dark" onclick="nextStep()">Ver resumo <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- ETAPA 5 -->
+            <div class="b-step" data-step="5">
+                <h3>Tudo certo.</h3>
+                <p>Confira o resumo antes de enviar.</p>
+                <div class="summary" id="summaryBox"></div>
+                <div class="step-actions">
+                    <button class="btn btn-outline" onclick="prevStep()"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <button class="btn btn-wa" onclick="sendBooking()">
+                        <i class="fa-brands fa-whatsapp"></i> Solicitar atendimento
+                    </button>
+                </div>
+            </div>
+
+            <p class="booking-note">
+                A solicitação não confirma o horário automaticamente. A equipe retornará para finalizar o agendamento.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ================= INSTAGRAM ================= -->
+<section class="section instagram">
+    <div class="container">
+        <h2 class="reveal">Mais da <em>Be Unique.</em></h2>
+        <p class="reveal">Acompanhe @beunique.odontoclinic para bastidores, conteúdos e novidades da clínica.</p>
+
+        <div class="insta-grid reveal">
+            <a href="https://www.instagram.com/beunique.odontoclinic/" target="_blank" rel="noopener" aria-label="Instagram Be Unique">
+                <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=400&q=70" alt="Post ilustrativo" loading="lazy">
+            </a>
+            <a href="https://www.instagram.com/beunique.odontoclinic/" target="_blank" rel="noopener" aria-label="Instagram Be Unique">
+                <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=400&q=70" alt="Post ilustrativo" loading="lazy">
+            </a>
+            <a href="https://www.instagram.com/beunique.odontoclinic/" target="_blank" rel="noopener" aria-label="Instagram Be Unique">
+                <img src="https://images.unsplash.com/photo-1588776814546-daab30f310ce?auto=format&fit=crop&w=400&q=70" alt="Post ilustrativo" loading="lazy">
+            </a>
+            <a href="https://www.instagram.com/beunique.odontoclinic/" target="_blank" rel="noopener" aria-label="Instagram Be Unique">
+                <img src="https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=400&q=70" alt="Post ilustrativo" loading="lazy">
+            </a>
+            <a href="https://www.instagram.com/beunique.odontoclinic/" target="_blank" rel="noopener" aria-label="Instagram Be Unique">
+                <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=400&q=70" alt="Post ilustrativo" loading="lazy">
+            </a>
+            <a href="https://www.instagram.com/beunique.odontoclinic/" target="_blank" rel="noopener" aria-label="Instagram Be Unique">
+                <img src="https://images.unsplash.com/photo-1581585099408-9f7f9f8f4a85?auto=format&fit=crop&w=400&q=70" alt="Post ilustrativo" loading="lazy">
+            </a>
+        </div>
+
+        <a href="https://www.instagram.com/beunique.odontoclinic/" target="_blank" rel="noopener" class="btn btn-light" style="margin-top:26px">
+            <i class="fa-brands fa-instagram"></i> Conhecer no Instagram
+        </a>
+    </div>
+</section>
+
+<!-- ================= LOCALIZAÇÃO ================= -->
+<section class="section location" id="contato">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">LOCALIZAÇÃO</span>
+            <h2>Estamos em Meia Praia.</h2>
+        </div>
+
+        <div class="loc-grid">
+            <div class="loc-card reveal">
+                <h2>Be Unique Odonto Clinic</h2>
+                <p>Atendimento odontológico personalizado dentro do Siframar Platinum Executive.</p>
+                <ul class="loc-list">
+                    <li><i class="fa-solid fa-location-dot"></i>
+                        <span>R. 205, 75 — Sala 503<br>Meia Praia, Itapema — SC<br>CEP 88220-000</span>
+                    </li>
+                    <li><i class="fa-solid fa-building"></i><span>Siframar Platinum Executive</span></li>
+                    <li><i class="fa-solid fa-phone"></i><span>(55) 99957-9785</span></li>
+                    <li><i class="fa-brands fa-instagram"></i><span>@beunique.odontoclinic</span></li>
+                </ul>
+                <div class="loc-actions">
+                    <a href="https://wa.me/5555999579785?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Be%20Unique%20e%20quero%20agendar%20uma%20avalia%C3%A7%C3%A3o."
+                       target="_blank" rel="noopener" class="btn btn-wa">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                    </a>
+                    <a href="tel:+5555999579785" class="btn btn-outline">
+                        <i class="fa-solid fa-phone"></i> Ligar
+                    </a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Rua+205+75+Meia+Praia+Itapema+SC"
+                       target="_blank" rel="noopener" class="btn btn-outline">
+                        <i class="fa-solid fa-route"></i> Como chegar
+                    </a>
+                </div>
+            </div>
+
+            <div class="loc-map reveal d2">
+                <iframe title="Mapa Be Unique Odonto Clinic" loading="lazy"
+                    src="https://maps.google.com/maps?q=Rua%20205%2C%2075%20Meia%20Praia%20Itapema%20SC&t=&z=16&ie=UTF8&iwloc=&output=embed">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="section faq" id="faq">
+    <div class="container">
+        <div class="section-head reveal">
+            <span class="eyebrow">DÚVIDAS</span>
+            <h2>Perguntas frequentes</h2>
+            <p>Respostas editáveis — ajuste conforme os protocolos oficiais da clínica.</p>
+        </div>
+
+        <div class="faq-list">
+            <div class="faq-item reveal">
+                <button class="faq-q">Como funciona a primeira avaliação? <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="faq-a">A primeira avaliação é o momento de escuta: entendemos suas expectativas, avaliamos seu caso e apresentamos os caminhos possíveis — sem compromisso.</div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">Quais tratamentos a Be Unique oferece? <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="faq-a">A lista oficial de tratamentos deve ser confirmada com a clínica. Entre em contato pelo WhatsApp para receber as informações atualizadas.</div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">Como funciona o planejamento personalizado? <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="faq-a">Cada plano é construído a partir das características, objetivos e rotina de cada paciente. Nenhum tratamento é proposto antes dessa compreensão.</div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">Onde a clínica está localizada? <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="faq-a">Na Rua 205, nº 75, Sala 503, dentro do Siframar Platinum Executive, no bairro Meia Praia, em Itapema — SC.</div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">Como posso agendar? <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="faq-a">Pelo fluxo de agendamento desta página ou diretamente pelo WhatsApp (55) 99957-9785. A equipe confirma data e horário.</div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">Posso entrar em contato pelo WhatsApp? <i class="fa-solid fa-chevron-down"></i></button>
+                <div class="faq-a">Sim. O WhatsApp oficial é o (55) 99957-9785. Você também pode usar o botão verde fixo nesta página.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="final-cta">
+    <div class="container reveal">
+        <h2>Seu sorriso. Sua identidade. <em>Seu momento.</em></h2>
+        <p>Descubra o que é possível quando o tratamento é pensado para você — e não para um padrão.</p>
+        <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+            <a href="#agendamento" class="btn btn-rose" style="padding:16px 32px">
+                <i class="fa-regular fa-calendar-check"></i> Agendar avaliação
+            </a>
+            <a href="https://wa.me/5555999579785?text=Ol%C3%A1!%20Quero%20conversar%20com%20a%20Be%20Unique."
+               target="_blank" rel="noopener" class="btn btn-light" style="padding:16px 32px">
+                <i class="fa-brands fa-whatsapp"></i> Falar com a Be Unique
+            </a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <strong>Be Unique.</strong>
+                <p>Odontologia personalizada em Itapema — porque cada sorriso possui uma identidade própria.</p>
+            </div>
+            <div>
+                <h4>NAVEGAR</h4>
+                <a href="#inicio">Início</a>
+                <a href="#filosofia">A Clínica</a>
+                <a href="#tratamentos">Tratamentos</a>
+                <a href="#equipe">Profissionais</a>
+                <a href="#avaliacoes">Avaliações</a>
+            </div>
+            <div>
+                <h4>AJUDA</h4>
+                <a href="#faq">FAQ</a>
+                <a href="#agendamento">Agendamento</a>
+                <a href="#">Política de Privacidade</a>
+                <a href="#">Termos de Uso</a>
+            </div>
+            <div>
+                <h4>CONTATO</h4>
+                <a href="tel:+5555999579785">(55) 99957-9785</a>
+                <a href="https://www.instagram.com/beunique.odontoclinic/" target="_blank" rel="noopener">@beunique.odontoclinic</a>
+                <a href="https://www.google.com/maps/search/?api=1&query=Rua+205+75+Meia+Praia+Itapema+SC" target="_blank" rel="noopener">
+                    R. 205, 75 — Sala 503, Meia Praia, Itapema — SC
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© <span id="year"></span> Be Unique Odonto Clinic. Todos os direitos reservados.</span>
+            <span>Inserir responsável técnico e CRO antes da publicação.</span>
+        </div>
+    </div>
+</footer>
+
+<!-- WHATSAPP FLUTUANTE -->
+<a class="wa-float" target="_blank" rel="noopener" aria-label="Agendar pelo WhatsApp"
+   href="https://wa.me/5555999579785?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Be%20Unique%20e%20quero%20agendar%20uma%20avalia%C3%A7%C3%A3o.">
+    <i class="fa-brands fa-whatsapp"></i>
+    <span>Agendar pelo WhatsApp</span>
+</a>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+    <img id="lightboxImg" src="" alt="Imagem ampliada">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG
+============================================================ */
+const WA_NUMBER = "5555999579785"; // (55) 99957-9785
+const waLink = msg => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/* PRELOADER */
+window.addEventListener("load", () => {
+    setTimeout(() => document.getElementById("preloader").classList.add("hidden"), 600);
+});
+
+/* HEADER + PROGRESSO */
+const header = document.getElementById("siteHeader");
+window.addEventListener("scroll", () => {
+    header.classList.toggle("scrolled", window.scrollY > 40);
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById("scrollProgress").style.width =
+        (total > 0 ? (window.scrollY / total) * 100 : 0) + "%";
+});
+
+/* MENU MOBILE */
+function toggleMenu(force){
+    const menu = document.getElementById("mobileMenu");
+    const open = force !== undefined ? force : !menu.classList.contains("open");
+    menu.classList.toggle("open", open);
+    document.body.classList.toggle("locked", open);
+}
+document.getElementById("menuToggle").addEventListener("click", () => toggleMenu());
+
+/* REVEAL */
+const revealObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting){ e.target.classList.add("visible"); revealObs.unobserve(e.target); }
+    });
+}, { threshold:.12 });
+document.querySelectorAll(".reveal").forEach(el => revealObs.observe(el));
+
+/* COUNT-UP */
+const countObs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target, target = +el.dataset.counter, dec = +(el.dataset.decimal||0);
+        const start = performance.now(), dur = 1300;
+        (function tick(now){
+            const p = Math.min((now-start)/dur, 1);
+            el.textContent = (target*p).toFixed(dec).replace(".",",");
+            if (p < 1) requestAnimationFrame(tick);
+        })(start);
+        countObs.unobserve(el);
+    });
+},{threshold:.8});
+document.querySelectorAll("[data-counter]").forEach(el => countObs.observe(el));
+
+/* PARALLAX EMOCIONAL */
+const emoBg = document.getElementById("emotionalBg");
+window.addEventListener("scroll", () => {
+    if (!emoBg || window.innerWidth < 900) return;
+    const r = emoBg.parentElement.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0){
+        emoBg.style.transform = `translateY(${(r.top - window.innerHeight/2) * -0.08}px)`;
+    }
+});
+
+/* ANTES / DEPOIS */
+const cmpRange = document.getElementById("cmpRange");
+const afterLayer = document.getElementById("afterLayer");
+const cmpDivider = document.getElementById("cmpDivider");
+function updateCmp(){
+    afterLayer.style.width = cmpRange.value + "%";
+    cmpDivider.style.left = cmpRange.value + "%";
+}
+cmpRange.addEventListener("input", updateCmp);
+updateCmp();
+
+/* CARROSSEL DE AVALIAÇÕES */
+let reviewIndex = 0;
+const track = document.getElementById("reviewTrack");
+function visibleSlides(){ return window.innerWidth <= 880 ? 1 : 2; }
+function moveReview(dir){
+    const total = track.children.length;
+    const max = Math.max(0, total - visibleSlides());
+    reviewIndex = (reviewIndex + dir + (max+1)) % (max+1);
+    track.style.transform = `translateX(-${reviewIndex * (100/visibleSlides())}%)`;
+}
+let touchX = null;
+track.addEventListener("pointerdown", e => touchX = e.clientX);
+track.addEventListener("pointerup", e => {
+    if (touchX === null) return;
+    const d = e.clientX - touchX;
+    if (Math.abs(d) > 45) moveReview(d < 0 ? 1 : -1);
+    touchX = null;
+});
+setInterval(() => moveReview(1), 7000);
+
+/* LIGHTBOX */
+document.querySelectorAll("[data-lightbox] img").forEach(img => {
+    img.parentElement.addEventListener("click", () => {
+        document.getElementById("lightboxImg").src = img.src;
+        document.getElementById("lightbox").classList.add("open");
+        document.body.classList.add("locked");
+    });
+});
+function closeLightbox(){
+    document.getElementById("lightbox").classList.remove("open");
+    document.body.classList.remove("locked");
+}
+document.getElementById("lightbox").addEventListener("click", e => {
+    if (e.target.id === "lightbox") closeLightbox();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape"){ closeLightbox(); toggleMenu(false);} });
+
+/* FAQ */
+document.querySelectorAll(".faq-q").forEach(q =>
+    q.addEventListener("click", () => q.parentElement.classList.toggle("open"))
+);
+
+/* INTERATIVA */
+function selectInterest(btn, interest, text){
+    document.querySelectorAll(".inter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("interText").textContent = text;
+    booking.treatment = interest;
+    syncChoices("#treatChoices", interest);
+    showToast("Ótima escolha! Vamos personalizar seu caminho.");
+}
+
+/* AGENDAMENTO */
+const booking = {
+    step: 1,
+    treatment: "Avaliação odontológica",
+    period: "Manhã",
+    dateLabel: "",
+    name: "",
+    phone: ""
+};
+
+function syncChoices(selector, value){
+    document.querySelectorAll(selector + " [data-value]").forEach(b => {
+        b.classList.toggle("selected", b.dataset.value === value);
+    });
+}
+
+document.querySelectorAll("#treatChoices [data-value]").forEach(btn =>
+    btn.addEventListener("click", () => {
+        booking.treatment = btn.dataset.value;
+        syncChoices("#treatChoices", booking.treatment);
+    })
+);
+document.querySelectorAll("#periodChoices [data-value]").forEach(btn =>
+    btn.addEventListener("click", () => {
+        booking.period = btn.dataset.value;
+        syncChoices("#periodChoices", booking.period);
+    })
+);
+
+/* calendário (próximos 14 dias úteis + sábado) */
+function buildCalendar(){
+    const grid = document.getElementById("dateGrid");
+    grid.innerHTML = "";
+    let added = 0, d = new Date();
+    while (added < 14){
+        d.setDate(d.getDate() + 1);
+        if (d.getDay() === 0) continue; // sem domingo
+        const iso = d.toISOString().split("T")[0];
+        const label = d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"short"}).replace(/\./g,"");
+        const btn = document.createElement("button");
+        btn.className = "date-btn";
+        btn.dataset.value = label;
+        btn.innerHTML = `<small>${label.split(" ")[0]}</small>${label.split(" ")[1]}`;
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".date-btn").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            booking.dateLabel = label;
+        });
+        grid.appendChild(btn);
+        added++;
+    }
+}
+buildCalendar();
+
+function updateSteps(){
+    document.querySelectorAll(".b-step").forEach(s =>
+        s.classList.toggle("active", +s.dataset.step === booking.step));
+    document.querySelectorAll("#stepsBar .step-dot").forEach((dot,i) => {
+        dot.classList.toggle("active", i+1 === booking.step);
+        dot.classList.toggle("done", i+1 < booking.step);
+    });
+}
+
+function nextStep(){
+    if (booking.step === 3 && !booking.dateLabel){
+        showToast("Escolha uma data para continuar."); return;
+    }
+    if (booking.step === 4){
+        booking.name = document.getElementById("bkName").value.trim();
+        booking.phone = document.getElementById("bkPhone").value.trim();
+        if (!booking.name || !booking.phone){
+            showToast("Informe nome e WhatsApp."); return;
+        }
+        renderSummary();
+    }
+    if (booking.step < 5){ booking.step++; updateSteps(); }
+}
+function prevStep(){ if (booking.step > 1){ booking.step--; updateSteps(); } }
+
+function renderSummary(){
+    document.getElementById("summaryBox").innerHTML = `
+        <div class="summary-row"><span>O que procura</span><strong>${booking.treatment}</strong></div>
+        <div class="summary-row"><span>Período</span><strong>${booking.period}</strong></div>
+        <div class="summary-row"><span>Dia preferido</span><strong>${booking.dateLabel || "A combinar"}</strong></div>
+        <div class="summary-row"><span>Nome</span><strong>${booking.name}</strong></div>
+        <div class="summary-row"><span>WhatsApp</span><strong>${booking.phone}</strong></div>`;
+}
+
+function sendBooking(){
+    const msg =
+`✨ *SOLICITAÇÃO DE AGENDAMENTO — BE UNIQUE* ✨
+
+👤 Nome: ${booking.name}
+📱 WhatsApp: ${booking.phone}
+
+🦷 Interesse: ${booking.treatment}
+📅 Dia preferido: ${booking.dateLabel || "A combinar"}
+⏰ Período: ${booking.period}
+
+Gostaria de confirmar disponibilidade para avaliação.
+
+📍 R. 205, 75 — Sala 503 (Siframar Platinum), Meia Praia, Itapema`;
+    window.open(waLink(msg), "_blank", "noopener");
+    showToast("Abrindo o WhatsApp...");
+}
+
+/* TOAST */
+function showToast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+updateSteps();
+</script>
+</body>
+</html>

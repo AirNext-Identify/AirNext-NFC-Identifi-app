@@ -1,0 +1,2830 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Privilège Odontologia | Dentista em Camboriú</title>
+
+    <meta name="description" content="Privilège Odontologia em Camboriú. Atendimento odontológico humanizado no Centro de Camboriú. Agende sua avaliação.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --ink: #17201f;
+            --ink-soft: #263331;
+            --green: #214c49;
+            --green-dark: #102c2a;
+            --gold: #c8a16a;
+            --gold-light: #ead5ad;
+            --cream: #f5efe5;
+            --paper: #fffdf9;
+            --muted: #75817d;
+            --line: rgba(23, 32, 31, .13);
+            --white: #ffffff;
+            --whatsapp: #25d366;
+            --danger: #c34242;
+            --radius: 22px;
+            --shadow: 0 20px 55px rgba(18, 40, 37, .11);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: "DM Sans", sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: "Playfair Display", serif;
+            line-height: 1.15;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .container {
+            width: min(1180px, 92%);
+            margin: auto;
+        }
+
+        /* PRELOADER */
+        .preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: grid;
+            place-items: center;
+            background: var(--green-dark);
+            transition: opacity .6s ease, visibility .6s ease;
+        }
+
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loader-symbol {
+            width: 65px;
+            height: 65px;
+            display: grid;
+            place-items: center;
+            margin: auto auto 17px;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            color: var(--gold-light);
+            font-size: 1.55rem;
+            animation: loaderPulse 1.5s infinite;
+        }
+
+        .loader-content strong {
+            letter-spacing: 4px;
+            font-size: .8rem;
+        }
+
+        @keyframes loaderPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(200,161,106,.35);
+            }
+
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 0 0 14px rgba(200,161,106,0);
+            }
+        }
+
+        /* CURSOR */
+        .cursor-dot,
+        .cursor-ring {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        .cursor-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--gold);
+        }
+
+        .cursor-ring {
+            width: 33px;
+            height: 33px;
+            border: 1px solid var(--gold);
+            transition: width .2s, height .2s, background .2s;
+        }
+
+        @media (min-width: 1000px) {
+            body.custom-cursor {
+                cursor: none;
+            }
+
+            body.custom-cursor a,
+            body.custom-cursor button {
+                cursor: none;
+            }
+
+            body.custom-cursor .cursor-dot,
+            body.custom-cursor .cursor-ring {
+                opacity: 1;
+            }
+        }
+
+        /* PROGRESS */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 3000;
+            width: 0;
+            height: 3px;
+            background: var(--gold);
+        }
+
+        /* TOPBAR */
+        .topbar {
+            padding: 9px 15px;
+            background: var(--green-dark);
+            color: white;
+            text-align: center;
+            font-size: .78rem;
+            letter-spacing: .2px;
+        }
+
+        .topbar strong {
+            color: var(--gold-light);
+        }
+
+        /* HEADER */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 1500;
+            background: rgba(255, 253, 249, .92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid transparent;
+            transition: .3s ease;
+        }
+
+        .site-header.scrolled {
+            box-shadow: 0 8px 30px rgba(19, 39, 36, .08);
+            border-color: var(--line);
+        }
+
+        .navbar {
+            min-height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: max-content;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+
+        .brand-name {
+            color: var(--green-dark);
+            font-family: "Playfair Display", serif;
+            font-weight: 700;
+            font-size: 1.45rem;
+            letter-spacing: .2px;
+        }
+
+        .brand-name span {
+            color: var(--gold);
+        }
+
+        .brand small {
+            display: block;
+            color: var(--muted);
+            font-family: "DM Sans", sans-serif;
+            font-size: .55rem;
+            font-weight: 700;
+            letter-spacing: 2.1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 23px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            position: relative;
+            color: var(--ink-soft);
+            font-size: .87rem;
+            font-weight: 600;
+        }
+
+        .nav-links a::after {
+            position: absolute;
+            content: "";
+            left: 0;
+            bottom: -7px;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: .25s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-toggle {
+            display: none;
+            border: 0;
+            background: transparent;
+            color: var(--green-dark);
+            font-size: 1.45rem;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            border: 0;
+            border-radius: 12px;
+            padding: 13px 21px;
+            font-weight: 700;
+            transition: .25s ease;
+        }
+
+        .btn-gold {
+            background: var(--gold);
+            color: var(--green-dark);
+        }
+
+        .btn-gold:hover {
+            background: var(--gold-light);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(200,161,106,.25);
+        }
+
+        .btn-dark {
+            background: var(--green-dark);
+            color: white;
+        }
+
+        .btn-dark:hover {
+            background: var(--green);
+            transform: translateY(-3px);
+        }
+
+        .btn-outline {
+            color: var(--green-dark);
+            background: transparent;
+            border: 1px solid var(--green-dark);
+        }
+
+        .btn-outline:hover {
+            color: white;
+            background: var(--green-dark);
+        }
+
+        .btn-whatsapp {
+            background: var(--whatsapp);
+            color: white;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1fb456;
+            transform: translateY(-3px);
+        }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            min-height: 690px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 86% 18%, rgba(200,161,106,.25), transparent 24%),
+                linear-gradient(115deg, var(--cream), var(--paper) 67%);
+        }
+
+        .hero::before {
+            position: absolute;
+            content: "";
+            top: -180px;
+            right: -170px;
+            width: 500px;
+            height: 500px;
+            border: 1px solid rgba(200,161,106,.3);
+            border-radius: 50%;
+            animation: rotateCircle 22s linear infinite;
+        }
+
+        .hero::after {
+            position: absolute;
+            content: "";
+            left: -200px;
+            bottom: -300px;
+            width: 600px;
+            height: 600px;
+            border: 1px solid rgba(33,76,73,.15);
+            border-radius: 50%;
+        }
+
+        @keyframes rotateCircle {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hero-grid {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1fr .9fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 13px;
+            margin-bottom: 20px;
+            color: var(--green);
+            background: rgba(255,255,255,.7);
+            border: 1px solid rgba(33,76,73,.18);
+            border-radius: 30px;
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .5px;
+        }
+
+        .hero h1 {
+            max-width: 650px;
+            color: var(--green-dark);
+            font-size: clamp(2.6rem, 5.5vw, 5rem);
+            letter-spacing: -2.5px;
+        }
+
+        .hero h1 em {
+            color: var(--gold);
+            font-style: normal;
+        }
+
+        .hero-description {
+            max-width: 580px;
+            margin: 23px 0;
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 11px;
+            margin: 25px 0;
+        }
+
+        .hero-proof {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            width: fit-content;
+            padding: 12px 15px;
+            background: rgba(255,255,255,.75);
+            border: 1px solid var(--line);
+            border-radius: 15px;
+        }
+
+        .rating-number {
+            color: var(--green-dark);
+            font-family: "Playfair Display", serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stars {
+            color: #c49338;
+            letter-spacing: 2px;
+        }
+
+        .hero-proof small {
+            display: block;
+            color: var(--muted);
+            font-size: .76rem;
+        }
+
+        .hero-visual {
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .hero-photo {
+            position: relative;
+            height: 540px;
+            overflow: hidden;
+            border-radius: 40px 8px 40px 8px;
+            box-shadow: 0 30px 70px rgba(33,76,73,.22);
+            transform: rotate(2deg);
+            transition: transform .3s ease;
+        }
+
+        .hero-photo:hover {
+            transform: rotate(0) scale(1.015);
+        }
+
+        .hero-photo::after {
+            position: absolute;
+            content: "";
+            inset: 0;
+            background: linear-gradient(180deg, transparent 45%, rgba(16,44,42,.58));
+        }
+
+        .hero-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-photo-label {
+            position: absolute;
+            z-index: 2;
+            left: 25px;
+            bottom: 24px;
+            color: white;
+            font-size: .78rem;
+            letter-spacing: .6px;
+        }
+
+        .hero-photo-label strong {
+            display: block;
+            font-family: "Playfair Display", serif;
+            font-size: 1.45rem;
+        }
+
+        .floating-badge {
+            position: absolute;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 15px;
+            color: var(--green-dark);
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            font-size: .78rem;
+            animation: floatBadge 4s ease-in-out infinite;
+        }
+
+        .floating-badge i {
+            color: var(--gold);
+            font-size: 1.3rem;
+        }
+
+        .badge-one {
+            top: 35px;
+            right: -25px;
+        }
+
+        .badge-two {
+            left: -32px;
+            bottom: 40px;
+            animation-delay: 1s;
+        }
+
+        @keyframes floatBadge {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-9px);
+            }
+        }
+
+        /* STATS */
+        .stats {
+            position: relative;
+            z-index: 4;
+            margin-top: -1px;
+            color: white;
+            background: var(--green-dark);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .stat {
+            padding: 23px 12px;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,.13);
+        }
+
+        .stat:last-child {
+            border: 0;
+        }
+
+        .stat strong {
+            display: block;
+            color: var(--gold-light);
+            font-family: "Playfair Display", serif;
+            font-size: 1.9rem;
+        }
+
+        .stat span {
+            color: #c9d8d4;
+            font-size: .76rem;
+        }
+
+        /* MARQUEE */
+        .marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            color: var(--green-dark);
+            background: var(--gold);
+        }
+
+        .marquee-track {
+            display: inline-flex;
+            gap: 32px;
+            min-width: 100%;
+            padding: 12px 0;
+            animation: marquee 25s linear infinite;
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        @keyframes marquee {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-45%);
+            }
+        }
+
+        /* SECTIONS */
+        .section {
+            padding: 90px 0;
+        }
+
+        .section-heading {
+            max-width: 690px;
+            margin: 0 auto 38px;
+            text-align: center;
+        }
+
+        .section-heading .eyebrow {
+            color: var(--gold);
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .section-heading h2 {
+            margin: 10px 0 13px;
+            color: var(--green-dark);
+            font-size: clamp(2rem, 4vw, 3.1rem);
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: .94rem;
+        }
+
+        /* SERVICES */
+        .service-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 15px;
+            margin-bottom: 26px;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 230px;
+            padding: 11px 14px;
+            background: var(--cream);
+            border-radius: 11px;
+        }
+
+        .search-box i {
+            color: var(--gold);
+        }
+
+        .search-box input {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            color: var(--ink);
+            background: transparent;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 7px;
+            overflow-x: auto;
+        }
+
+        .filter-btn {
+            padding: 8px 14px;
+            color: var(--green-dark);
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 30px;
+            white-space: nowrap;
+            font-size: .76rem;
+            font-weight: 700;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            color: white;
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .service-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 305px;
+            padding: 22px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            transition: transform .2s ease, box-shadow .2s ease, border .2s ease;
+            transform-style: preserve-3d;
+        }
+
+        .service-card::before {
+            position: absolute;
+            content: "";
+            top: -70px;
+            right: -70px;
+            width: 150px;
+            height: 150px;
+            border: 1px solid rgba(200,161,106,.22);
+            border-radius: 50%;
+        }
+
+        .service-card:hover {
+            border-color: var(--gold);
+            box-shadow: var(--shadow);
+        }
+
+        .service-icon {
+            position: relative;
+            z-index: 1;
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 22px;
+            color: var(--gold);
+            background: var(--green-dark);
+            border-radius: 15px;
+            font-size: 1.25rem;
+        }
+
+        .service-card .tag {
+            width: fit-content;
+            padding: 4px 9px;
+            margin-bottom: 8px;
+            color: var(--green);
+            background: var(--cream);
+            border-radius: 20px;
+            font-size: .65rem;
+            font-weight: 800;
+        }
+
+        .service-card h3 {
+            color: var(--green-dark);
+            font-size: 1.25rem;
+        }
+
+        .service-card p {
+            flex: 1;
+            margin-top: 9px;
+            color: var(--muted);
+            font-size: .84rem;
+        }
+
+        .service-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 15px;
+            margin-top: 17px;
+            border-top: 1px dashed var(--line);
+        }
+
+        .service-card-footer small {
+            color: var(--muted);
+            font-size: .7rem;
+        }
+
+        .service-card-footer button {
+            padding: 9px 12px;
+            color: var(--green-dark);
+            background: var(--gold);
+            border: 0;
+            border-radius: 9px;
+            font-size: .76rem;
+            font-weight: 800;
+        }
+
+        .service-note {
+            margin-top: 17px;
+            color: var(--muted);
+            text-align: center;
+            font-size: .76rem;
+        }
+
+        /* STORY */
+        .story-section {
+            background: var(--cream);
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: .9fr 1.1fr;
+            gap: 65px;
+            align-items: center;
+        }
+
+        .story-image {
+            position: relative;
+        }
+
+        .story-image img {
+            width: 100%;
+            height: 520px;
+            object-fit: cover;
+            border-radius: 16px 70px 16px 70px;
+            box-shadow: 20px 22px 0 rgba(200,161,106,.35);
+        }
+
+        .story-caption {
+            position: absolute;
+            right: -22px;
+            bottom: 30px;
+            max-width: 190px;
+            padding: 16px;
+            color: white;
+            background: var(--green-dark);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            font-size: .75rem;
+        }
+
+        .story-caption strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--gold-light);
+            font-family: "Playfair Display", serif;
+            font-size: 1.2rem;
+        }
+
+        .story-content .eyebrow {
+            color: var(--gold);
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .story-content h2 {
+            margin: 11px 0 16px;
+            color: var(--green-dark);
+            font-size: clamp(2rem, 4vw, 3.25rem);
+        }
+
+        .story-content > p {
+            color: var(--muted);
+        }
+
+        .benefit-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .benefit {
+            padding: 17px;
+            background: rgba(255,255,255,.63);
+            border: 1px solid rgba(33,76,73,.1);
+            border-radius: 14px;
+        }
+
+        .benefit i {
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+
+        .benefit strong {
+            display: block;
+            margin: 8px 0 4px;
+            color: var(--green-dark);
+            font-size: .87rem;
+        }
+
+        .benefit span {
+            color: var(--muted);
+            font-size: .76rem;
+        }
+
+        /* PROCESS */
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 17px;
+        }
+
+        .process-card {
+            position: relative;
+            padding: 28px 22px;
+            text-align: center;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+        }
+
+        .process-number {
+            width: 47px;
+            height: 47px;
+            display: grid;
+            place-items: center;
+            margin: auto;
+            color: var(--green-dark);
+            background: var(--gold);
+            border-radius: 50%;
+            font-family: "Playfair Display", serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .process-card h3 {
+            margin: 15px 0 8px;
+            color: var(--green-dark);
+            font-size: 1.35rem;
+        }
+
+        .process-card p {
+            color: var(--muted);
+            font-size: .84rem;
+        }
+
+        /* REVIEWS */
+        .reviews-section {
+            color: white;
+            background: var(--green-dark);
+        }
+
+        .reviews-section .section-heading h2 {
+            color: white;
+        }
+
+        .reviews-section .section-heading p {
+            color: #cbd9d6;
+        }
+
+        .reviews-section .section-heading .eyebrow {
+            color: var(--gold-light);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .review-header strong {
+            color: var(--gold-light);
+            font-family: "Playfair Display", serif;
+            font-size: 3.4rem;
+        }
+
+        .review-header small {
+            color: #cbd9d6;
+            display: block;
+        }
+
+        .review-slider {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .review-track {
+            display: flex;
+            transition: transform .55s cubic-bezier(.2,.7,.2,1);
+        }
+
+        .review-slide {
+            min-width: 100%;
+            padding: 0 6%;
+        }
+
+        .review-card {
+            position: relative;
+            max-width: 760px;
+            min-height: 230px;
+            margin: auto;
+            padding: 33px;
+            color: var(--ink);
+            background: var(--paper);
+            border-radius: 24px;
+            text-align: center;
+        }
+
+        .review-card::before {
+            position: absolute;
+            content: "“";
+            top: -15px;
+            left: 22px;
+            color: var(--gold);
+            font-family: Georgia, serif;
+            font-size: 7rem;
+            line-height: 1;
+        }
+
+        .review-card .stars {
+            margin-bottom: 13px;
+        }
+
+        .review-card p {
+            max-width: 600px;
+            margin: auto;
+            font-family: "Playfair Display", serif;
+            font-size: 1.35rem;
+            line-height: 1.45;
+        }
+
+        .review-author {
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .slider-controls button {
+            width: 40px;
+            height: 40px;
+            color: var(--gold-light);
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+        }
+
+        .slider-controls button:hover {
+            color: var(--green-dark);
+            background: var(--gold);
+        }
+
+        /* GALLERY */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: 1.25fr .75fr .75fr;
+            grid-template-rows: 210px 210px;
+            gap: 12px;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: var(--cream);
+        }
+
+        .gallery-item:first-child {
+            grid-row: span 2;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .6s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.09);
+        }
+
+        .gallery-item::after {
+            position: absolute;
+            content: "Imagem ilustrativa";
+            right: 10px;
+            bottom: 10px;
+            padding: 4px 7px;
+            color: white;
+            background: rgba(16,44,42,.72);
+            border-radius: 5px;
+            font-size: .6rem;
+        }
+
+        /* FAQ */
+        .faq-list {
+            max-width: 830px;
+            margin: auto;
+        }
+
+        .faq-item {
+            margin-bottom: 10px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .faq-question {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 17px 19px;
+            color: var(--green-dark);
+            background: transparent;
+            border: 0;
+            text-align: left;
+            font-weight: 800;
+        }
+
+        .faq-question i {
+            color: var(--gold);
+            transition: transform .25s ease;
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 0 19px 17px;
+            color: var(--muted);
+            font-size: .87rem;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        .faq-item.open .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        /* CONTACT */
+        .contact-section {
+            background: var(--cream);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: .85fr 1.15fr;
+            gap: 20px;
+        }
+
+        .contact-card {
+            padding: 30px;
+            color: white;
+            background: var(--green-dark);
+            border-radius: var(--radius);
+        }
+
+        .contact-card h2 {
+            margin-bottom: 18px;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .contact-list {
+            list-style: none;
+        }
+
+        .contact-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 15px 0;
+            color: #d1e0dc;
+            font-size: .87rem;
+        }
+
+        .contact-list i {
+            width: 20px;
+            margin-top: 4px;
+            color: var(--gold-light);
+            text-align: center;
+        }
+
+        .contact-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 24px;
+        }
+
+        .contact-card .btn-outline {
+            color: white;
+            border-color: white;
+        }
+
+        .contact-card .btn-outline:hover {
+            color: var(--green-dark);
+            background: white;
+        }
+
+        .map {
+            min-height: 390px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+        }
+
+        .map iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 390px;
+            border: 0;
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 35px 15px 100px;
+            color: #b7c8c4;
+            background: #0a211f;
+            text-align: center;
+            font-size: .78rem;
+        }
+
+        footer strong {
+            color: var(--gold-light);
+            font-family: "Playfair Display", serif;
+            font-size: 1.5rem;
+        }
+
+        footer p {
+            margin-top: 8px;
+        }
+
+        /* FLOATING WHATSAPP */
+        .floating-whatsapp {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 1400;
+            width: 59px;
+            height: 59px;
+            display: grid;
+            place-items: center;
+            color: white;
+            background: var(--whatsapp);
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,.22);
+            font-size: 1.7rem;
+            animation: whatsappPulse 2.7s infinite;
+        }
+
+        @keyframes whatsappPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(37,211,102,.35), 0 10px 30px rgba(0,0,0,.22);
+            }
+
+            60% {
+                box-shadow: 0 0 0 15px rgba(37,211,102,0), 0 10px 30px rgba(0,0,0,.22);
+            }
+        }
+
+        /* MOBILE CTA */
+        .mobile-cta {
+            display: none;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: rgba(10,33,31,.78);
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            position: relative;
+            width: min(500px, 100%);
+            max-height: 93vh;
+            overflow-y: auto;
+            padding: 29px;
+            background: var(--paper);
+            border-radius: 22px;
+            box-shadow: 0 30px 80px rgba(0,0,0,.25);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 17px;
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            font-size: 1.5rem;
+        }
+
+        .modal-label {
+            display: block;
+            margin: 13px 0 5px;
+            color: var(--green-dark);
+            font-size: .78rem;
+            font-weight: 800;
+        }
+
+        .modal input,
+        .modal select,
+        .modal textarea {
+            width: 100%;
+            padding: 11px 12px;
+            color: var(--ink);
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            outline: none;
+        }
+
+        .modal input:focus,
+        .modal select:focus,
+        .modal textarea:focus {
+            border-color: var(--gold);
+        }
+
+        .consent {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 13px;
+            color: var(--muted);
+            font-size: .73rem;
+        }
+
+        .consent input {
+            width: auto;
+            margin-top: 4px;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 92px;
+            z-index: 4000;
+            padding: 12px 18px;
+            color: white;
+            background: var(--green-dark);
+            border-radius: 10px;
+            transform: translateX(-50%);
+            opacity: 0;
+            pointer-events: none;
+            transition: .25s ease;
+            font-size: .82rem;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* REVEAL */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity .8s ease, transform .8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1050px) {
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero-grid {
+                gap: 35px;
+            }
+
+            .nav-links {
+                gap: 14px;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .hero-grid,
+            .story-grid,
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 65px 0;
+            }
+
+            .hero-visual {
+                max-width: 640px;
+                width: 100%;
+                margin: 15px auto 0;
+            }
+
+            .story-image {
+                max-width: 610px;
+                margin: auto;
+            }
+
+            .nav-links {
+                position: absolute;
+                top: 78px;
+                left: 4%;
+                right: 4%;
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+                padding: 10px;
+                background: var(--paper);
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                box-shadow: var(--shadow);
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .nav-links a {
+                padding: 12px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-actions .btn {
+                display: none;
+            }
+
+            .process-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .floating-whatsapp {
+                display: none;
+            }
+
+            .mobile-cta {
+                position: fixed;
+                right: 10px;
+                bottom: 10px;
+                left: 10px;
+                z-index: 1300;
+                display: flex;
+                gap: 8px;
+                padding: 8px;
+                background: white;
+                border: 1px solid var(--line);
+                border-radius: 14px;
+                box-shadow: 0 10px 30px rgba(0,0,0,.15);
+            }
+
+            .mobile-cta .btn {
+                flex: 1;
+                padding: 11px 7px;
+                font-size: .74rem;
+            }
+
+            footer {
+                padding-bottom: 90px;
+            }
+        }
+
+        @media (max-width: 580px) {
+            .brand-name {
+                font-size: 1.2rem;
+            }
+
+            .brand-icon {
+                width: 35px;
+                height: 35px;
+                font-size: .9rem;
+            }
+
+            .topbar {
+                font-size: .69rem;
+            }
+
+            .hero h1 {
+                font-size: 2.7rem;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .hero-photo {
+                height: 340px;
+                border-radius: 25px 7px 25px 7px;
+            }
+
+            .badge-one {
+                right: 5px;
+            }
+
+            .badge-two {
+                left: 5px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat {
+                border-bottom: 1px solid rgba(255,255,255,.13);
+            }
+
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .benefit-list {
+                grid-template-columns: 1fr;
+            }
+
+            .story-image img {
+                height: 360px;
+            }
+
+            .story-caption {
+                right: 10px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 180px 180px 180px;
+            }
+
+            .gallery-item:first-child {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+
+            .review-card {
+                padding: 25px 19px;
+            }
+
+            .review-card p {
+                font-size: 1.1rem;
+            }
+
+            .review-header strong {
+                font-size: 2.6rem;
+            }
+
+            .contact-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="preloader" id="preloader">
+        <div class="loader-content">
+            <div class="loader-symbol">
+                <i class="fa-solid fa-tooth"></i>
+            </div>
+            <strong>PRIVILÈGE ODONTOLOGIA</strong>
+        </div>
+    </div>
+
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <div class="topbar">
+        <strong>Privilège Odontologia</strong>
+        · Clínica odontológica no Centro de Camboriú
+        · Atendimento informado até 20h
+    </div>
+
+    <header class="site-header" id="siteHeader">
+        <div class="container navbar">
+
+            <a href="#inicio" class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-tooth"></i>
+                </div>
+
+                <div class="brand-name">
+                    PRIVILÈGE<span>.</span>
+                    <small>ODONTOLOGIA CAMBORIÚ</small>
+                </div>
+            </a>
+
+            <nav class="nav-links" id="navLinks">
+                <a href="#inicio">Início</a>
+                <a href="#servicos">Serviços</a>
+                <a href="#experiencia">A clínica</a>
+                <a href="#avaliacoes">Avaliações</a>
+                <a href="#contato">Contato</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="btn btn-dark" onclick="openBooking()">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    Agendar avaliação
+                </button>
+
+                <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <main>
+
+        <!-- HERO -->
+        <section class="hero" id="inicio">
+            <div class="container hero-grid">
+
+                <div class="reveal">
+                    <span class="hero-kicker">
+                        <i class="fa-solid fa-sparkles"></i>
+                        Odontologia com cuidado, clareza e elegância
+                    </span>
+
+                    <h1>
+                        O seu sorriso merece uma experiência
+                        <em>Privilège.</em>
+                    </h1>
+
+                    <p class="hero-description">
+                        Atendimento odontológico no Centro de Camboriú,
+                        com ambiente acolhedor, profissionais atenciosos e
+                        uma abordagem transparente para cuidar do seu sorriso.
+                    </p>
+
+                    <div class="hero-actions">
+                        <button class="btn btn-gold" onclick="openBooking()">
+                            <i class="fa-regular fa-calendar-check"></i>
+                            Agendar minha avaliação
+                        </button>
+
+                        <a class="btn btn-whatsapp" id="heroWhatsapp" target="_blank" rel="noopener">
+                            <i class="fa-brands fa-whatsapp"></i>
+                            Falar no WhatsApp
+                        </a>
+
+                        <a class="btn btn-outline" target="_blank" rel="noopener"
+                           href="https://www.google.com/maps/search/?api=1&query=R.+Lauro+Muller+102+Camboriu+SC">
+                            <i class="fa-solid fa-route"></i>
+                            Como chegar
+                        </a>
+                    </div>
+
+                    <div class="hero-proof">
+                        <span class="rating-number">4,9</span>
+
+                        <div>
+                            <div class="stars">★★★★★</div>
+                            <small>224 avaliações no Google</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual reveal">
+                    <!-- Substitua por foto real da clínica -->
+                    <div class="hero-photo" id="heroPhoto">
+                        <img
+                            src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1000&q=85"
+                            alt="Ambiente odontológico moderno">
+
+                        <div class="hero-photo-label">
+                            <strong>Cuidado em cada detalhe.</strong>
+                            Clínica odontológica em Camboriú
+                        </div>
+                    </div>
+
+                    <div class="floating-badge badge-one">
+                        <i class="fa-solid fa-star"></i>
+                        <span>
+                            <strong>4,9 no Google</strong><br>
+                            224 avaliações
+                        </span>
+                    </div>
+
+                    <div class="floating-badge badge-two">
+                        <i class="fa-solid fa-heart"></i>
+                        <span>
+                            <strong>Atendimento humano</strong><br>
+                            Para você e sua família
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- STATS -->
+        <section class="stats">
+            <div class="container stats-grid">
+                <div class="stat">
+                    <strong data-counter="4.9" data-decimal="1">0</strong>
+                    <span>Nota no Google</span>
+                </div>
+
+                <div class="stat">
+                    <strong data-counter="224">0</strong>
+                    <span>Avaliações públicas</span>
+                </div>
+
+                <div class="stat">
+                    <strong>Centro</strong>
+                    <span>Camboriú - SC</span>
+                </div>
+
+                <div class="stat">
+                    <strong>20h</strong>
+                    <span>Horário informado de fechamento</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- MARQUEE -->
+        <div class="marquee">
+            <div class="marquee-track">
+                <span>ODONTOLOGIA HUMANIZADA</span>
+                <span>✦</span>
+                <span>AVALIAÇÃO TRANSPARENTE</span>
+                <span>✦</span>
+                <span>ATENDIMENTO EM CAMBORIÚ</span>
+                <span>✦</span>
+                <span>CUIDADO PARA TODA A FAMÍLIA</span>
+                <span>✦</span>
+                <span>ODONTOLOGIA HUMANIZADA</span>
+                <span>✦</span>
+                <span>AVALIAÇÃO TRANSPARENTE</span>
+            </div>
+        </div>
+
+        <!-- SERVIÇOS -->
+        <section class="section" id="servicos">
+            <div class="container">
+
+                <div class="section-heading reveal">
+                    <span class="eyebrow">CUIDADO PERSONALIZADO</span>
+                    <h2>Encontre o tratamento ideal para o seu momento</h2>
+                    <p>
+                        Confira algumas áreas odontológicas e solicite informações
+                        sobre disponibilidade, valores e avaliação.
+                    </p>
+                </div>
+
+                <div class="service-toolbar reveal">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input
+                            type="search"
+                            id="serviceSearch"
+                            placeholder="Buscar por clareamento, implante, limpeza...">
+                    </div>
+
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="todos">Todos</button>
+                        <button class="filter-btn" data-filter="estetica">Estética</button>
+                        <button class="filter-btn" data-filter="clinica">Clínica geral</button>
+                        <button class="filter-btn" data-filter="reabilitacao">Reabilitação</button>
+                        <button class="filter-btn" data-filter="familia">Família</button>
+                    </div>
+                </div>
+
+                <div class="service-grid" id="serviceGrid"></div>
+
+                <p class="service-note">
+                    * Os serviços são categorias de referência. Confirme procedimentos,
+                    profissionais, valores e disponibilidade diretamente com a clínica.
+                </p>
+
+            </div>
+        </section>
+
+        <!-- EXPERIÊNCIA -->
+        <section class="section story-section" id="experiencia">
+            <div class="container story-grid">
+
+                <div class="story-image reveal">
+                    <!-- Substitua por foto real da recepção -->
+                    <img
+                        src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=900&q=85"
+                        alt="Imagem ilustrativa de clínica odontológica">
+
+                    <div class="story-caption">
+                        <strong>Mais tranquilidade.</strong>
+                        Um atendimento pensado para você se sentir seguro desde a primeira conversa.
+                    </div>
+                </div>
+
+                <div class="story-content reveal">
+                    <span class="eyebrow">A EXPERIÊNCIA PRIVILÈGE</span>
+
+                    <h2>
+                        Odontologia sem exageros,
+                        com escuta e transparência.
+                    </h2>
+
+                    <p>
+                        Cada sorriso tem uma história. Por isso, a proposta da
+                        Privilège é oferecer uma experiência próxima, clara e
+                        cuidadosa, respeitando o tempo e as necessidades de cada paciente.
+                    </p>
+
+                    <div class="benefit-list">
+                        <div class="benefit">
+                            <i class="fa-solid fa-comments"></i>
+                            <strong>Explicação clara</strong>
+                            <span>Entenda as possibilidades antes de decidir.</span>
+                        </div>
+
+                        <div class="benefit">
+                            <i class="fa-solid fa-hand-holding-heart"></i>
+                            <strong>Acolhimento</strong>
+                            <span>Atendimento atento desde a recepção.</span>
+                        </div>
+
+                        <div class="benefit">
+                            <i class="fa-solid fa-shield-heart"></i>
+                            <strong>Mais segurança</strong>
+                            <span>Converse sobre dúvidas e expectativas.</span>
+                        </div>
+
+                        <div class="benefit">
+                            <i class="fa-solid fa-people-group"></i>
+                            <strong>Para a família</strong>
+                            <span>Uma clínica para diferentes fases da vida.</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-dark" style="margin-top:25px" onclick="openBooking()">
+                        Quero conhecer a Privilège
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- PROCESSO -->
+        <section class="section">
+            <div class="container">
+
+                <div class="section-heading reveal">
+                    <span class="eyebrow">SIMPLES E TRANQUILO</span>
+                    <h2>Como funciona sua primeira visita</h2>
+                    <p>
+                        Um caminho simples para você dar o próximo passo com mais segurança.
+                    </p>
+                </div>
+
+                <div class="process-grid">
+                    <div class="process-card reveal">
+                        <div class="process-number">1</div>
+                        <h3>Converse com a equipe</h3>
+                        <p>
+                            Informe o que você procura e tire suas primeiras dúvidas pelo WhatsApp.
+                        </p>
+                    </div>
+
+                    <div class="process-card reveal">
+                        <div class="process-number">2</div>
+                        <h3>Agende sua avaliação</h3>
+                        <p>
+                            Escolha sua preferência de dia e período para a equipe confirmar.
+                        </p>
+                    </div>
+
+                    <div class="process-card reveal">
+                        <div class="process-number">3</div>
+                        <h3>Receba um plano claro</h3>
+                        <p>
+                            Entenda as alternativas de cuidado antes de iniciar qualquer procedimento.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- AVALIAÇÕES -->
+        <section class="section reviews-section" id="avaliacoes">
+            <div class="container">
+
+                <div class="section-heading reveal">
+                    <span class="eyebrow">EXPERIÊNCIAS REAIS</span>
+                    <h2>Quem passa pela Privilège recomenda</h2>
+                    <p>
+                        Avaliações públicas informadas no Google da clínica.
+                    </p>
+                </div>
+
+                <div class="review-header reveal">
+                    <strong>4,9</strong>
+
+                    <div>
+                        <div class="stars">★★★★★</div>
+                        <small>224 avaliações no Google</small>
+                    </div>
+                </div>
+
+                <div class="review-slider reveal">
+                    <div class="review-track" id="reviewTrack">
+
+                        <div class="review-slide">
+                            <article class="review-card">
+                                <div class="stars">★★★★★</div>
+                                <p>
+                                    “Excelente atendimento! Eu e minha família fazemos
+                                    tratamento com a dra. e sempre tivemos uma experiência satisfatória.”
+                                </p>
+                                <div class="review-author">
+                                    Ricardo Bosso · Avaliação pública do Google
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="review-slide">
+                            <article class="review-card">
+                                <div class="stars">★★★★★</div>
+                                <p>
+                                    “Dra. Jordana é maravilhosa. Me senti acolhida e ela é
+                                    super sincera, sem exagero.”
+                                </p>
+                                <div class="review-author">
+                                    Aline Ramos · Avaliação pública do Google
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="review-slide">
+                            <article class="review-card">
+                                <div class="stars">★★★★★</div>
+                                <p>
+                                    “Cheguei ao consultório com muita dor e saí aliviada.
+                                    A Dra. Jordana foi maravilhosa, muito paciente, humana e competente.”
+                                </p>
+                                <div class="review-author">
+                                    Eloize Kindinger · Avaliação pública do Google
+                                </div>
+                            </article>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="slider-controls">
+                    <button onclick="changeReview(-1)" aria-label="Avaliação anterior">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+
+                    <button onclick="changeReview(1)" aria-label="Próxima avaliação">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- GALERIA -->
+        <section class="section">
+            <div class="container">
+
+                <div class="section-heading reveal">
+                    <span class="eyebrow">UM AMBIENTE PARA CUIDAR</span>
+                    <h2>Detalhes que fazem diferença</h2>
+                    <p>
+                        Substitua as imagens abaixo por fotos reais da clínica,
+                        equipe, recepção e consultórios.
+                    </p>
+                </div>
+
+                <div class="gallery-grid reveal">
+                    <div class="gallery-item">
+                        <img
+                            src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=1000&q=80"
+                            alt="Imagem ilustrativa de atendimento odontológico">
+                    </div>
+
+                    <div class="gallery-item">
+                        <img
+                            src="https://images.unsplash.com/photo-1588776814546-daab30f310ce?auto=format&fit=crop&w=800&q=80"
+                            alt="Imagem ilustrativa de consultório odontológico">
+                    </div>
+
+                    <div class="gallery-item">
+                        <img
+                            src="https://images.unsplash.com/photo-1581585099408-9f7f9f8f4a85?auto=format&fit=crop&w=800&q=80"
+                            alt="Imagem ilustrativa de clínica">
+                    </div>
+
+                    <div class="gallery-item">
+                        <img
+                            src="https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=800&q=80"
+                            alt="Imagem ilustrativa de profissional da saúde">
+                    </div>
+
+                    <div class="gallery-item">
+                        <img
+                            src="https://images.unsplash.com/photo-1606265752439-1f18756aa2a3?auto=format&fit=crop&w=800&q=80"
+                            alt="Imagem ilustrativa de cuidado odontológico">
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="section" style="background:var(--cream)">
+            <div class="container">
+
+                <div class="section-heading reveal">
+                    <span class="eyebrow">DÚVIDAS FREQUENTES</span>
+                    <h2>Antes de agendar</h2>
+                    <p>
+                        Se sua dúvida não estiver aqui, fale diretamente com a equipe.
+                    </p>
+                </div>
+
+                <div class="faq-list">
+
+                    <div class="faq-item reveal">
+                        <button class="faq-question">
+                            Como faço para agendar?
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <div class="faq-answer">
+                            Clique em “Agendar avaliação”, preencha seus dados básicos
+                            e envie a mensagem pelo WhatsApp. A equipe confirmará
+                            disponibilidade, horário e orientações.
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal">
+                        <button class="faq-question">
+                            A clínica atende emergência odontológica?
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <div class="faq-answer">
+                            Entre em contato pelo telefone ou WhatsApp para verificar
+                            a disponibilidade de atendimento para o seu caso.
+                            Em situações graves, procure um pronto atendimento.
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal">
+                        <button class="faq-question">
+                            Quais tratamentos estão disponíveis?
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <div class="faq-answer">
+                            A página apresenta categorias odontológicas de referência.
+                            Confirme diretamente com a clínica quais procedimentos,
+                            profissionais e condições estão disponíveis atualmente.
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal">
+                        <button class="faq-question">
+                            Posso fazer uma avaliação antes de decidir?
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <div class="faq-answer">
+                            Solicite uma avaliação pelo WhatsApp. A equipe informará
+                            como funciona a consulta, valores e próximos passos.
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal">
+                        <button class="faq-question">
+                            Qual é o endereço?
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <div class="faq-answer">
+                            A Privilège Odontologia fica na Rua Lauro Müller,
+                            102, sala 04, Centro de Camboriú, Santa Catarina.
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CONTATO -->
+        <section class="section contact-section" id="contato">
+            <div class="container">
+
+                <div class="section-heading reveal">
+                    <span class="eyebrow">FALE COM A PRIVILÈGE</span>
+                    <h2>Seu próximo sorriso começa aqui</h2>
+                    <p>
+                        Tire suas dúvidas, solicite uma avaliação e descubra
+                        qual caminho faz sentido para você.
+                    </p>
+                </div>
+
+                <div class="contact-grid">
+
+                    <div class="contact-card reveal">
+                        <h2>Privilège Odontologia</h2>
+
+                        <ul class="contact-list">
+                            <li>
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span>
+                                    R. Lauro Müller, 102 - sala 04,
+                                    Centro, Camboriú - SC, 88340-293
+                                </span>
+                            </li>
+
+                            <li>
+                                <i class="fa-solid fa-phone"></i>
+                                <span>(47) 99255-6193</span>
+                            </li>
+
+                            <li>
+                                <i class="fa-regular fa-clock"></i>
+                                <span>
+                                    Horário informado: aberta e fecha às 20:00.
+                                    Confirme dias e disponibilidade.
+                                </span>
+                            </li>
+
+                            <li>
+                                <i class="fa-solid fa-globe"></i>
+                                <span>privilegeodontocamboriu.com.br</span>
+                            </li>
+                        </ul>
+
+                        <div class="contact-actions">
+                            <a class="btn btn-whatsapp" id="contactWhatsapp" target="_blank" rel="noopener">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                WhatsApp
+                            </a>
+
+                            <a class="btn btn-outline" href="tel:+5547992556193">
+                                <i class="fa-solid fa-phone"></i>
+                                Ligar
+                            </a>
+
+                            <a
+                                class="btn btn-outline"
+                                target="_blank"
+                                rel="noopener"
+                                href="https://www.google.com/maps/search/?api=1&query=R.+Lauro+Muller+102+04+Centro+Camboriu+SC">
+                                <i class="fa-solid fa-route"></i>
+                                Rotas
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="map reveal">
+                        <iframe
+                            src="https://maps.google.com/maps?q=Rua%20Lauro%20Muller%20102%20Centro%20Camboriu%20SC&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                            loading="lazy"
+                            title="Mapa da Privilège Odontologia">
+                        </iframe>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <strong>PRIVILÈGE.</strong>
+
+        <p>
+            Clínica odontológica em Camboriú · R. Lauro Müller, 102 - sala 04
+        </p>
+
+        <p>
+            Site informativo. Confirme tratamentos, valores, horários,
+            profissionais e disponibilidade diretamente com a clínica.
+        </p>
+
+        <p>
+            Inserir responsável técnico e CRO antes da publicação.
+        </p>
+
+        <p>
+            © <span id="year"></span> Privilège Odontologia.
+            Todos os direitos reservados.
+        </p>
+    </footer>
+
+    <!-- WHATSAPP FLUTUANTE -->
+    <a
+        class="floating-whatsapp"
+        id="floatingWhatsapp"
+        target="_blank"
+        rel="noopener"
+        aria-label="Falar com a Privilège pelo WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- CTA MOBILE -->
+    <div class="mobile-cta">
+        <button class="btn btn-dark" onclick="openBooking()">
+            <i class="fa-regular fa-calendar-check"></i>
+            Agendar
+        </button>
+
+        <a class="btn btn-whatsapp" id="mobileWhatsapp" target="_blank" rel="noopener">
+            <i class="fa-brands fa-whatsapp"></i>
+            WhatsApp
+        </a>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" role="dialog" aria-modal="true">
+
+            <button class="modal-close" onclick="closeBooking()" aria-label="Fechar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <span style="color:var(--gold);font-size:.72rem;font-weight:800;letter-spacing:2px">
+                AGENDAMENTO INTELIGENTE
+            </span>
+
+            <h2 style="margin-top:7px;color:var(--green-dark)">
+                Vamos conversar sobre seu sorriso?
+            </h2>
+
+            <p style="margin-top:7px;color:var(--muted);font-size:.84rem">
+                Preencha os dados básicos. A mensagem será enviada para o WhatsApp
+                da clínica para confirmação.
+            </p>
+
+            <label class="modal-label" for="modalService">
+                O que você procura?
+            </label>
+
+            <select id="modalService"></select>
+
+            <label class="modal-label" for="modalName">
+                Seu nome
+            </label>
+
+            <input
+                type="text"
+                id="modalName"
+                placeholder="Nome completo">
+
+            <label class="modal-label" for="modalPhone">
+                Seu WhatsApp
+            </label>
+
+            <input
+                type="tel"
+                id="modalPhone"
+                placeholder="(47) 99999-9999">
+
+            <label class="modal-label" for="modalPeriod">
+                Melhor período
+            </label>
+
+            <select id="modalPeriod">
+                <option>Manhã</option>
+                <option>Tarde</option>
+                <option>Noite</option>
+                <option>Sem preferência</option>
+            </select>
+
+            <label class="modal-label" for="modalMessage">
+                Observação
+                <small style="font-weight:400">
+                    — opcional
+                </small>
+            </label>
+
+            <textarea
+                id="modalMessage"
+                rows="3"
+                placeholder="Ex.: quero saber sobre avaliação, limpeza ou clareamento."></textarea>
+
+            <label class="consent">
+                <input type="checkbox" id="modalConsent">
+                <span>
+                    Autorizo o contato da Privilège para responder à minha solicitação.
+                </span>
+            </label>
+
+            <button
+                class="btn btn-whatsapp"
+                style="width:100%;margin-top:17px"
+                onclick="sendBooking()">
+                <i class="fa-brands fa-whatsapp"></i>
+                Enviar para o WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const WHATSAPP = "5547992556193";
+
+        const services = [
+            {
+                id: 1,
+                category: "clinica",
+                icon: "fa-tooth",
+                tag: "CLÍNICA GERAL",
+                title: "Avaliação odontológica",
+                description: "Converse com a equipe sobre sua necessidade e descubra as possibilidades de cuidado.",
+                note: "Solicitar avaliação"
+            },
+            {
+                id: 2,
+                category: "clinica",
+                icon: "fa-shield-heart",
+                tag: "PREVENÇÃO",
+                title: "Limpeza e prevenção",
+                description: "Cuidados preventivos para manter a saúde bucal e acompanhar seu sorriso.",
+                note: "Consultar disponibilidade"
+            },
+            {
+                id: 3,
+                category: "estetica",
+                icon: "fa-sparkles",
+                tag: "ESTÉTICA",
+                title: "Clareamento dental",
+                description: "Avalie as opções de clareamento indicadas para o seu sorriso.",
+                note: "Avaliação necessária"
+            },
+            {
+                id: 4,
+                category: "estetica",
+                icon: "fa-wand-magic-sparkles",
+                tag: "ESTÉTICA",
+                title: "Estética do sorriso",
+                description: "Planejamento personalizado para melhorar harmonia, proporção e aparência.",
+                note: "Consultar possibilidades"
+            },
+            {
+                id: 5,
+                category: "reabilitacao",
+                icon: "fa-circle-plus",
+                tag: "REABILITAÇÃO",
+                title: "Implantes e reabilitação",
+                description: "Converse sobre alternativas para recuperar função, conforto e segurança ao sorrir.",
+                note: "Solicitar avaliação"
+            },
+            {
+                id: 6,
+                category: "reabilitacao",
+                icon: "fa-teeth",
+                tag: "RESTAURAÇÃO",
+                title: "Restaurações dentárias",
+                description: "Avaliação de dentes danificados, sensibilidade, fraturas ou desconfortos.",
+                note: "Consultar tratamento"
+            },
+            {
+                id: 7,
+                category: "familia",
+                icon: "fa-children",
+                tag: "FAMÍLIA",
+                title: "Odontologia para família",
+                description: "Atendimento odontológico para diferentes fases da vida.",
+                note: "Falar com a equipe"
+            },
+            {
+                id: 8,
+                category: "clinica",
+                icon: "fa-heart-pulse",
+                tag: "URGÊNCIA",
+                title: "Dor ou desconforto",
+                description: "Entre em contato para verificar a disponibilidade de atendimento.",
+                note: "Consultar urgência"
+            }
+        ];
+
+        let activeFilter = "todos";
+        let searchTerm = "";
+        let currentReview = 0;
+
+        const defaultWhatsAppMessage =
+            "Olá! Vim pelo site da Privilège Odontologia e gostaria de obter informações.";
+
+        function createWhatsAppLink(message) {
+            return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
+        }
+
+        document.getElementById("heroWhatsapp").href =
+            createWhatsAppLink(defaultWhatsAppMessage);
+
+        document.getElementById("contactWhatsapp").href =
+            createWhatsAppLink(defaultWhatsAppMessage);
+
+        document.getElementById("floatingWhatsapp").href =
+            createWhatsAppLink(defaultWhatsAppMessage);
+
+        document.getElementById("mobileWhatsapp").href =
+            createWhatsAppLink(defaultWhatsAppMessage);
+
+        document.getElementById("year").textContent = new Date().getFullYear();
+
+        /* PRELOADER */
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                document.getElementById("preloader").classList.add("hidden");
+            }, 650);
+        });
+
+        /* HEADER */
+        const header = document.getElementById("siteHeader");
+
+        window.addEventListener("scroll", () => {
+            header.classList.toggle("scrolled", window.scrollY > 20);
+
+            const documentHeight =
+                document.documentElement.scrollHeight - window.innerHeight;
+
+            const progress =
+                documentHeight > 0 ? (window.scrollY / documentHeight) * 100 : 0;
+
+            document.getElementById("scrollProgress").style.width = `${progress}%`;
+        });
+
+        /* MENU MOBILE */
+        document.getElementById("menuToggle").addEventListener("click", () => {
+            document.getElementById("navLinks").classList.toggle("open");
+        });
+
+        document.querySelectorAll(".nav-links a").forEach(link => {
+            link.addEventListener("click", () => {
+                document.getElementById("navLinks").classList.remove("open");
+            });
+        });
+
+        /* SERVIÇOS */
+        function renderServices() {
+            const grid = document.getElementById("serviceGrid");
+
+            const filteredServices = services.filter(service => {
+                const categoryMatches =
+                    activeFilter === "todos" ||
+                    service.category === activeFilter;
+
+                const searchableText = `
+                    ${service.title}
+                    ${service.description}
+                    ${service.tag}
+                `.toLowerCase();
+
+                const searchMatches = searchableText.includes(searchTerm);
+
+                return categoryMatches && searchMatches;
+            });
+
+            if (filteredServices.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:35px;color:var(--muted)">
+                        Nenhum serviço encontrado.
+                        <br>
+                        <button class="btn btn-dark" style="margin-top:15px" onclick="openBooking()">
+                            Falar com a equipe
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredServices.map(service => `
+                <article class="service-card tilt-card reveal visible">
+                    <div class="service-icon">
+                        <i class="fa-solid ${service.icon}"></i>
+                    </div>
+
+                    <span class="tag">${service.tag}</span>
+
+                    <h3>${service.title}</h3>
+
+                    <p>${service.description}</p>
+
+                    <div class="service-card-footer">
+                        <small>
+                            <i class="fa-regular fa-circle-check"></i>
+                            ${service.note}
+                        </small>
+
+                        <button onclick="openBooking(${service.id})">
+                            Solicitar
+                        </button>
+                    </div>
+                </article>
+            `).join("");
+
+            activateTiltCards();
+        }
+
+        document.querySelectorAll(".filter-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".filter-btn")
+                    .forEach(btn => btn.classList.remove("active"));
+
+                button.classList.add("active");
+                activeFilter = button.dataset.filter;
+                renderServices();
+            });
+        });
+
+        document.getElementById("serviceSearch").addEventListener("input", event => {
+            searchTerm = event.target.value.toLowerCase().trim();
+            renderServices();
+        });
+
+        /* MODAL */
+        function fillServiceSelect(selectedId = null) {
+            const select = document.getElementById("modalService");
+
+            select.innerHTML = services.map(service => `
+                <option value="${service.title}" ${service.id === selectedId ? "selected" : ""}>
+                    ${service.title}
+                </option>
+            `).join("");
+        }
+
+        function openBooking(serviceId = null) {
+            fillServiceSelect(serviceId);
+            document.getElementById("modalOverlay").classList.add("open");
+            document.body.classList.add("modal-open");
+        }
+
+        function closeBooking() {
+            document.getElementById("modalOverlay").classList.remove("open");
+            document.body.classList.remove("modal-open");
+        }
+
+        document.getElementById("modalOverlay").addEventListener("click", event => {
+            if (event.target.id === "modalOverlay") {
+                closeBooking();
+            }
+        });
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                closeBooking();
+            }
+        });
+
+        function sendBooking() {
+            const service = document.getElementById("modalService").value;
+            const name = document.getElementById("modalName").value.trim();
+            const phone = document.getElementById("modalPhone").value.trim();
+            const period = document.getElementById("modalPeriod").value;
+            const message = document.getElementById("modalMessage").value.trim();
+            const consent = document.getElementById("modalConsent").checked;
+
+            if (!name || !phone) {
+                showToast("Informe seu nome e WhatsApp.");
+                return;
+            }
+
+            if (!consent) {
+                showToast("Autorize o contato para continuar.");
+                return;
+            }
+
+            let text = `
+✨ *SOLICITAÇÃO - PRIVILÈGE ODONTOLOGIA* ✨
+
+👤 Nome: ${name}
+📱 WhatsApp: ${phone}
+
+🦷 Interesse: ${service}
+⏰ Melhor período: ${period}
+`;
+
+            if (message) {
+                text += `
+📝 Observação:
+${message}
+`;
+            }
+
+            text += `
+Gostaria de confirmar disponibilidade, valores e horário para avaliação.
+
+📍 Endereço:
+R. Lauro Müller, 102 - sala 04
+Centro - Camboriú/SC
+`;
+
+            window.open(createWhatsAppLink(text), "_blank", "noopener");
+
+            showToast("Abrindo o WhatsApp...");
+            closeBooking();
+        }
+
+        /* FAQ */
+        document.querySelectorAll(".faq-question").forEach(question => {
+            question.addEventListener("click", () => {
+                question.parentElement.classList.toggle("open");
+            });
+        });
+
+        /* REVIEWS */
+        function changeReview(direction) {
+            const total = 3;
+
+            currentReview += direction;
+
+            if (currentReview < 0) {
+                currentReview = total - 1;
+            }
+
+            if (currentReview >= total) {
+                currentReview = 0;
+            }
+
+            document.getElementById("reviewTrack").style.transform =
+                `translateX(-${currentReview * 100}%)`;
+        }
+
+        setInterval(() => {
+            changeReview(1);
+        }, 6500);
+
+        /* REVEAL ON SCROLL */
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("visible");
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: .12
+        });
+
+        document.querySelectorAll(".reveal").forEach(element => {
+            observer.observe(element);
+        });
+
+        /* CONTADORES */
+        const counterObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+
+                const element = entry.target;
+                const target = Number(element.dataset.counter);
+                const decimal = Number(element.dataset.decimal || 0);
+                const duration = 1300;
+                const start = performance.now();
+
+                function updateCounter(now) {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const value = target * progress;
+
+                    element.textContent = value.toFixed(decimal).replace(".", ",");
+
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCounter);
+                    }
+                }
+
+                requestAnimationFrame(updateCounter);
+                counterObserver.unobserve(element);
+            });
+        }, {
+            threshold: .8
+        });
+
+        document.querySelectorAll("[data-counter]").forEach(counter => {
+            counterObserver.observe(counter);
+        });
+
+        /* TILT DOS CARDS */
+        function activateTiltCards() {
+            if (window.innerWidth < 900) return;
+
+            document.querySelectorAll(".tilt-card").forEach(card => {
+                if (card.dataset.tiltActive) return;
+                card.dataset.tiltActive = "true";
+
+                card.addEventListener("mousemove", event => {
+                    const rect = card.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+
+                    const rotateX = ((y / rect.height) - .5) * -5;
+                    const rotateY = ((x / rect.width) - .5) * 5;
+
+                    card.style.transform =
+                        `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+                });
+
+                card.addEventListener("mouseleave", () => {
+                    card.style.transform = "";
+                });
+            });
+        }
+
+        /* CURSOR PREMIUM */
+        if (window.matchMedia("(min-width: 1000px)").matches) {
+            document.body.classList.add("custom-cursor");
+
+            const dot = document.getElementById("cursorDot");
+            const ring = document.getElementById("cursorRing");
+
+            let mouseX = 0;
+            let mouseY = 0;
+            let ringX = 0;
+            let ringY = 0;
+
+            document.addEventListener("mousemove", event => {
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+
+                dot.style.left = `${mouseX}px`;
+                dot.style.top = `${mouseY}px`;
+            });
+
+            function animateCursor() {
+                ringX += (mouseX - ringX) * .16;
+                ringY += (mouseY - ringY) * .16;
+
+                ring.style.left = `${ringX}px`;
+                ring.style.top = `${ringY}px`;
+
+                requestAnimationFrame(animateCursor);
+            }
+
+            animateCursor();
+
+            document.querySelectorAll("a, button").forEach(element => {
+                element.addEventListener("mouseenter", () => {
+                    ring.style.width = "50px";
+                    ring.style.height = "50px";
+                    ring.style.background = "rgba(200,161,106,.12)";
+                });
+
+                element.addEventListener("mouseleave", () => {
+                    ring.style.width = "33px";
+                    ring.style.height = "33px";
+                    ring.style.background = "transparent";
+                });
+            });
+        }
+
+        /* PARALLAX DO HERO */
+        const heroPhoto = document.getElementById("heroPhoto");
+
+        document.addEventListener("mousemove", event => {
+            if (window.innerWidth < 900 || !heroPhoto) return;
+
+            const x = (window.innerWidth / 2 - event.clientX) / 90;
+            const y = (window.innerHeight / 2 - event.clientY) / 90;
+
+            heroPhoto.style.transform =
+                `rotate(2deg) translate(${x}px, ${y}px)`;
+        });
+
+        /* INICIALIZAÇÃO */
+        renderServices();
+        fillServiceSelect();
+        activateTiltCards();
+    </script>
+
+</body>
+</html>

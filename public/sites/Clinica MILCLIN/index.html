@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milclin | Policlínica + Laboratório no Centro de Balneário Camboriú</title>
+<meta name="description" content="Clínica Médica Milclin - Rua 980, 494 Centro BC. Consultas, Exames de Sangue, Urina e Imagem com horário marcado. Laboratório confiável e resultado no prazo.">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+ --blue:#0B4EA2; --blue-dark:#0A2540; --cyan:#00A9C5;
+ --light:#EFF6FF; --bg:#FFFFFF; --sand:#F8FAFC;
+ --text:#1E293B; --gray:#64748B; --green:#16A34A;
+ --radius:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)}
+h1,h2,h3{font-family:'Sora',sans-serif;line-height:1.15}
+.topbar{background:var(--blue-dark);color:#fff;text-align:center;font-size:.82rem;padding:9px 12px}
+.topbar b{color:#7DD3FC}
+header{background:#fff;padding:12px 5%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;border-bottom:2px solid var(--light);box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.logo{font-family:'Sora';font-weight:800;font-size:1.7rem;color:var(--blue-dark)}
+.logo span{color:var(--blue)}
+.logo small{display:block;font-family:'Inter';font-size:.62rem;letter-spacing:2px;color:var(--cyan);font-weight:700}
+nav{display:flex;gap:20px}
+nav a{font-size:.9rem;font-weight:600;color:var(--text)}
+.btn-main{background:var(--blue);color:#fff;padding:12px 22px;border-radius:50px;font-weight:700;border:none;cursor:pointer}
+.btn-main:hover{background:var(--blue-dark)}
+.status{font-size:.75rem;font-weight:700;padding:6px 12px;border-radius:20px;margin-left:8px;background:#DCFCE7;color:#166534}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding:50px 5%;background:linear-gradient(135deg,#EFF6FF 0%,#fff 70%)}
+.hero-pill{background:#fff;border:1.5px solid #BFDBFE;color:var(--blue);padding:7px 14px;border-radius:20px;font-size:.8rem;font-weight:700;display:inline-block;margin-bottom:14px}
+.hero h1{font-size:3.1rem;color:var(--blue-dark)}
+.hero h1 span{color:var(--blue)}
+.hero p{color:var(--gray);margin:16px 0;max-width:520px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
+.btn-green{background:#25D366;color:#fff;padding:14px 26px;border-radius:12px;font-weight:700;border:none;cursor:pointer;font-size:1rem}
+.btn-white{background:#fff;border:2px solid var(--blue-dark);padding:14px 22px;border-radius:12px;font-weight:700;cursor:pointer}
+.hero-cards{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.hc{background:#fff;border:1px solid #E2E8F0;border-radius:12px;padding:10px 14px;font-size:.82rem;display:flex;gap:8px;align-items:center}
+.hero-img img{width:100%;height:460px;object-fit:cover;border-radius:24px;box-shadow:0 20px 40px rgba(11,78,162,.15)}
+.bar4{display:grid;grid-template-columns:repeat(4,1fr);background:var(--blue-dark);color:#fff;text-align:center}
+.bar4 div{padding:18px 10px;border-right:1px solid rgba(255,255,255,.15)}
+.bar4 b{font-size:1.25rem;display:block}
+.bar4 small{opacity:.8}
+.section{padding:55px 5%}
+.head{text-align:center;max-width:680px;margin:0 auto 28px}
+.head span{color:var(--cyan);font-weight:800;font-size:.82rem;letter-spacing:2px}
+.head h2{font-size:2.4rem;color:var(--blue-dark);margin:8px 0}
+/* FIXES */
+.fixes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.fix{background:var(--sand);border:1px solid #E2E8F0;border-radius:16px;padding:20px}
+.fix i{font-size:1.6rem;margin-bottom:10px;display:block}
+.fix h4{margin-bottom:6px;color:var(--blue-dark)}
+.fix p{font-size:.88rem;color:var(--gray)}
+.fix s{color:#EF4444;font-size:.82rem}
+.fix b.new{color:var(--green);font-size:.85rem}
+/* SEARCH */
+.sticky{position:sticky;top:66px;z-index:900;background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:14px;margin-bottom:20px;box-shadow:0 4px 15px rgba(0,0,0,.05)}
+.search{background:var(--sand);border-radius:10px;padding:11px 14px;display:flex;gap:10px;margin-bottom:10px}
+.search input{border:none;background:none;outline:none;width:100%;font-family:'Inter'}
+.filters{display:flex;gap:8px;overflow-x:auto}
+.fbtn{background:#fff;border:1.5px solid #E2E8F0;padding:8px 16px;border-radius:20px;white-space:nowrap;font-weight:600;font-size:.85rem;cursor:pointer}
+.fbtn.active{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.card{background:#fff;border:1.5px solid #E2E8F0;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:.2s}
+.card:hover{border-color:var(--blue);transform:translateY(-4px);box-shadow:0 12px 25px rgba(0,0,0,.08)}
+.card-top{display:flex;gap:12px;padding:16px}
+.card-icon{width:50px;height:50px;min-width:50px;border-radius:12px;background:var(--light);display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+.card-top h3{font-size:1.05rem}
+.tag{font-size:.68rem;font-weight:800;padding:3px 8px;border-radius:20px;display:inline-block;margin-bottom:6px}
+.tag.blue{background:#DBEAFE;color:#1E40AF} .tag.green{background:#DCFCE7;color:#166534} .tag.orange{background:#FFEDD5;color:#9A3412}
+.card-top p{font-size:.85rem;color:var(--gray);margin-top:4px}
+.card-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px dashed #E2E8F0;background:#FCFEFF}
+.prep{font-size:.78rem;color:var(--gray)}
+.btn-sm{background:var(--blue);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer}
+/* PREPARO */
+.preparo{background:var(--blue-dark);border-radius:24px;margin:0 5%;padding:45px 35px;color:#fff}
+.prep-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:22px}
+.prep-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:18px}
+.prep-card h4{margin-bottom:8px}
+.prep-card p,.prep-card li{font-size:.87rem;opacity:.9}
+/* REVIEWS */
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:20px}
+.rev{background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:20px}
+.rev-top{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.stars{color:#EAB308;font-size:.9rem}
+.evol{background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:16px;padding:22px;margin-top:16px}
+.evol li{margin:8px 0;font-size:.92rem;list-style:none}
+/* FAQ */
+.faq{max-width:780px;margin:0 auto}
+.faq-item{background:#fff;border:1px solid #E2E8F0;border-radius:12px;margin-bottom:10px}
+.faq-q{padding:15px 18px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between}
+.faq-a{padding:0 18px 15px;color:var(--gray);font-size:.9rem;display:none}
+.faq-item.open .faq-a{display:block}
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.info{background:var(--sand);border:1px solid #E2E8F0;border-radius:18px;padding:26px}
+.info p{margin:10px 0;display:flex;gap:10px;align-items:center}
+.info i{color:var(--blue);width:22px}
+.map{height:360px;border-radius:18px;overflow:hidden;border:1px solid #E2E8F0}
+footer{background:var(--blue-dark);color:#94A3B8;padding:28px 5%;text-align:center;font-size:.85rem}
+/* FLOAT MODAL */
+.float-wa{position:fixed;bottom:20px;right:20px;background:#25D366;color:#fff;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;z-index:1100;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.modal-bg{position:fixed;inset:0;background:rgba(10,37,64,.6);z-index:1200;display:none;align-items:center;justify-content:center;padding:14px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:20px;max-width:480px;width:100%;max-height:92vh;overflow-y:auto;padding:26px;position:relative}
+.modal label{font-size:.8rem;font-weight:700;margin:12px 0 5px;display:block}
+.modal input,.modal select,.modal textarea{width:100%;padding:11px;border:1.5px solid #CBD5E1;border-radius:10px;font-family:'Inter';outline:none}
+.close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.6rem;cursor:pointer}
+.btn-confirm{width:100%;background:#25D366;color:#fff;border:none;padding:14px;border-radius:10px;font-weight:800;margin-top:16px;cursor:pointer}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--blue-dark);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;opacity:0;transition:.3s;z-index:1300}
+.toast.show{opacity:1}
+@media(max-width:900px){.hero,.contact-grid{grid-template-columns:1fr}.hero h1{font-size:2.3rem}.hero-img img{height:300px}.bar4{grid-template-columns:repeat(2,1fr)}nav{display:none}.preparo{margin:0 12px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">✅ <b>Laboratório confiável + Resultado no prazo</b> • Rua 980, 494 - Centro BC • Agende com horário marcado - sem ficha</div>
+
+<header>
+<div class="logo">MILCLIN<span>.</span><small>POLICLÍNICA + LABORATÓRIO</small></div>
+<nav><a href="#servicos">Serviços</a><a href="#preparo">Preparo Exames</a><a href="#avaliacoes">Avaliações</a><a href="#contato">Contato</a></nav>
+<div><button class="btn-main" onclick="openBooking()">Agendar Horário</button><span class="status" id="statusBadge">Aberto</span></div>
+</header>
+
+<section class="hero">
+<div>
+<div class="hero-pill">🏥 Policlínica completa no Centro - Consultas + Sangue + Imagem</div>
+<h1>Chega de fila e ficha. Aqui você agenda <span>com horário marcado.</span></h1>
+<p>Consultas médicas, exames de sangue, urina e imagem em um só lugar. Receba confirmação e orientações de preparo direto no WhatsApp.</p>
+<div class="hero-cta">
+<button class="btn-green" onclick="openBooking()">📅 Agendar agora</button>
+<button class="btn-white" onclick="document.getElementById('preparo').scrollIntoView({behavior:'smooth'})">📋 Ver preparo de exames</button>
+</div>
+<div class="hero-cards">
+<div class="hc">⭐ <b>3.8 • 562 avaliações</b>&nbsp;no Google</div>
+<div class="hc">🧪 <b>Coleta 7h às 11h</b>&nbsp;• Resultado online</div>
+<div class="hc">📍 <b>Esq. Quarta Avenida</b>&nbsp• Fácil acesso</div>
+</div>
+</div>
+<div class="hero-img"><img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=70" alt="Milclin"></div>
+</section>
+
+<div class="bar4">
+<div><b>562</b><small>avaliações reais</small></div>
+<div><b>+20</b><small>especialidades e exames</small></div>
+<div><b>7h-11h</b><small>coleta laboratorial</small></div>
+<div><b>Online</b><small>resultado e agendamento</small></div>
+</div>
+
+<section class="section" style="padding-bottom:20px">
+<div class="head"><span>O QUE MUDAMOS</span><h2>Você falou. A Milclin ouviu.</h2><p style="color:var(--gray)">Estamos em evolução para acabar com espera e desorganização:</p></div>
+<div class="fixes">
+<div class="fix"><i>⏰</i><h4>Horário marcado de verdade</h4><p><s>Antes: chegar cedo p/ ficha</s><br><b class="new">Agora: você agenda hora e é chamado pelo nome. Sem lotação.</b></p></div>
+<div class="fix"><i>📲</i><h4>Confirmação no WhatsApp</h4><p><s>Antes: demora p/ responder</s><br><b class="new">Agora: agendamento automático + lembrete com endereço e documentos.</b></p></div>
+<div class="fix"><i>🧾</i><h4>Preparo enviado antes</h4><p><s>Antes: sem instrução</s><br><b class="new">Agora: jejum, urina e coleta explicados + potinho entregue na recepção.</b></p></div>
+<div class="fix"><i>💻</i><h4>Resultado online</h4><p><s>Antes: voltar p/ buscar</s><br><b class="new">Agora: laudo no celular no prazo certo. Laboratório confiável.</b></p></div>
+</div>
+</section>
+
+<section class="section" id="servicos" style="padding-top:20px">
+<div class="head"><span>NOSSOS SERVIÇOS</span><h2>Consultas & Exames</h2><p style="color:var(--gray)">Busque e agende direto. Particular e convênios.</p></div>
+<div class="sticky">
+<div class="search">🔍 <input id="searchInput" placeholder="Buscar... ex: sangue, urina, ultrassom, cardiologista, check-up"></div>
+<div class="filters">
+<button class="fbtn active" data-cat="todos">Todos</button>
+<button class="fbtn" data-cat="consultas">🩺 Consultas</button>
+<button class="fbtn" data-cat="lab">🧪 Sangue / Lab</button>
+<button class="fbtn" data-cat="imagem">📷 Imagem</button>
+<button class="fbtn" data-cat="checkup">📋 Check-up / Ocupacional</button>
+</div>
+</div>
+<div class="grid" id="grid"></div>
+</section>
+
+<section class="preparo" id="preparo">
+<span style="color:#7DD3FC;font-weight:800;font-size:.82rem;letter-spacing:2px">GUIA DO PACIENTE - LEIA ANTES DE VIR</span>
+<h2 style="font-size:2.2rem;margin:8px 0">Preparo correto = sem retorno perdido</h2>
+<p style="opacity:.85">Coleta laboratorial: Segunda a Sexta 7h às 11h. Consultas e Imagem: com agendamento 8h-12h / 13:30-18:30.</p>
+<div class="prep-grid">
+<div class="prep-card"><h4>🩸 Exame de Sangue</h4><ul><li>Jejum 8h a 12h (água liberada)</li><li>Traga pedido médico + documento</li><li>Chegue no horário agendado, sem ficha</li></ul></div>
+<div class="prep-card"><h4>🧪 Exame de Urina</h4><ul><li>1ª urina da manhã, jato médio</li><li>Retire o potinho gratuito na recepção antes</li><li>Entrega junto com coleta até 11h</li></ul></div>
+<div class="prep-card"><h4>📷 Ultrassom / Imagem</h4><ul><li>Chegar 20 min antes</li><li>Abdome: jejum 8h. Pélvica: bexiga cheia</li><li>Traga exames anteriores para comparar</li></ul></div>
+<div class="prep-card"><h4>❤️ ECG / Cardio</h4><ul><li>Evitar café e cigarro 2h antes</li><li>Repouso 10 min antes do exame</li><li>Lista de remédios em uso</li></ul></div>
+</div>
+<div style="margin-top:18px"><button class="btn-green" onclick="openBooking()">Receber orientações no WhatsApp</button></div>
+</section>
+
+<section class="section" id="avaliacoes">
+<div class="head"><span>PROVA SOCIAL</span><h2>3.8 ★ em 562 avaliações</h2><p style="color:var(--gray)">Transparência total: mostramos os elogios e o que estamos corrigindo.</p></div>
+<div class="reviews-grid">
+<div class="rev"><div class="rev-top"><div class="avatar">L</div><div><b>Paciente Laboratório</b><div class="stars">★★★★★</div></div></div><p style="font-style:italic">“Sempre faço meus exames aqui. Laboratório confiável e resultado no prazo certo.”</p><small style="color:var(--gray)">✔ Avaliação Google</small></div>
+<div class="rev"><div class="rev-top"><div class="avatar" style="background:var(--green)">C</div><div><b>Paciente Coleta</b><div class="stars">★★★★★</div></div></div><p style="font-style:italic">“Atendimento ótimo desde a recepção, WhatsApp e profissionais da coleta.”</p><small style="color:var(--gray)">✔ Avaliação Google</small></div>
+<div class="rev"><div class="rev-top"><div class="avatar" style="background:var(--cyan)">M</div><div><b>Equipe Milclin</b><div class="stars">★★★★★</div></div></div><p>“Se seu horário atrasou ou faltou orientação, pedimos desculpas. Hoje temos agendamento por nome, reforço na recepção em pico e preparo enviado antes.”</p><small style="color:var(--gray)">Resposta oficial</small></div>
+</div>
+<div class="evol">
+<b>🎯 Plano de melhoria em andamento (baseado nas 562 avaliações):</b>
+<ul>
+<li>✅ 1. Fim da superlotação: limite de agendamentos por hora</li>
+<li>✅ 2. Chamada por nome + painel, não mais por ordem de chegada</li>
+<li>✅ 3. Potinho de urina sempre disponível + instrução impressa</li>
+<li>✅ 4. WhatsApp com resposta automática + atendente em horário comercial</li>
+</ul>
+<div style="margin-top:12px"><a href="https://www.google.com/maps/search/?api=1&query=Clinica+Medica+Milclin+Balneario+Camboriu" target="_blank" style="font-weight:700;color:var(--blue)">Foi bem atendido? Deixe sua avaliação no Google e nos ajude a chegar no 4.5★ →</a></div>
+</div>
+</section>
+
+<section class="section faq" style="padding-top:0">
+<div class="head"><span>DÚVIDAS QUE MAIS ATRASAM</span><h2>Perguntas Frequentes</h2></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Preciso pegar ficha de madrugada? <span>+</span></div><div class="faq-a">Não. Consultas e imagem são com HORÁRIO MARCADO pelo site/WhatsApp. Laboratório é por ordem de chegada das 7h às 11h, mas com agendamento você tem prioridade e não perde viagem.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Meu horário era 15h40 e fui chamado 16h20. Por quê? <span>+</span></div><div class="faq-a">Exames de imagem podem atrasar por preparo do paciente anterior. Agora limitamos encaixes e avisamos no WhatsApp se houver atraso >15 min. Você pode aguardar na cafeteria ao lado.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Qual jejum para sangue? <span>+</span></div><div class="faq-a">Maioria: 8h a 12h. Glicemia: 8h. Colesterol: 12h. Água é liberada. Remédios só com orientação médica. Na dúvida, chame no WhatsApp antes.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Como pego meu resultado? <span>+</span></div><div class="faq-a">Online pelo celular com login enviado na coleta, ou impresso na recepção. Prazo médio lab 24-48h, imagem 3-5 dias úteis.</div></div>
+<div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Atende convênio? <span>+</span></div><div class="faq-a">Atendemos diversos convênios + particular com preço acessível. Informe seu convênio no agendamento que já verificamos cobertura e autorização.</div></div>
+</section>
+
+<section class="section" id="contato" style="padding-top:0">
+<div class="head"><span>ONDE ESTAMOS</span><h2>Fácil de chegar, difícil de esquecer</h2></div>
+<div class="contact-grid">
+<div class="info">
+<h3>Clínica Médica Milclin</h3>
+<p><i class="fas fa-map-marker-alt"></i> Rua 980, 494 - esquina com Quarta Avenida - Centro, BC - SC 88330-579</p>
+<p><i class="fas fa-phone"></i> (47) 3515-0309 • WhatsApp</p>
+<p><i class="far fa-clock"></i> Seg-Sex: Lab 7h-11h | Clínica 8h-12h / 13:30-18:30 • Sáb 8h-12h</p>
+<p><i class="fab fa-instagram"></i> Instagram oficial Milclin</p>
+<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+<a href="https://www.google.com/maps/search/?api=1&query=Rua+980+494+Centro+Balneario+Camboriu" target="_blank" style="flex:1;text-align:center;background:var(--blue-dark);color:#fff;padding:12px;border-radius:10px;font-weight:700;text-decoration:none">📍 Traçar Rota</a>
+<button onclick="openBooking()" style="flex:1;background:var(--blue);color:#fff;padding:12px;border:none;border-radius:10px;font-weight:700;cursor:pointer">Agendar</button>
+</div>
+</div>
+<div class="map"><iframe src="https://maps.google.com/maps?q=Rua%20980,%20494%20Centro%20Balne%C3%A1rio%20Cambori%C3%BA&t=&z=16&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0" loading="lazy"></iframe></div>
+</div>
+</section>
+
+<footer><b style="color:#fff;font-family:'Sora'">MILCLIN.</b><p>Policlínica • Centro Balneário Camboriú • Resp. técnica: incluir CRM aqui</p><p>© 2026 Milclin - Privacidade LGPD • Resultados online</p></footer>
+
+<a class="float-wa" target="_blank" href="https://wa.me/554735150309?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Milclin%20e%20quero%20agendar"><i class="fab fa-whatsapp"></i></a>
+
+<div class="modal-bg" id="modalBg">
+<div class="modal">
+<button class="close" onclick="closeBooking()">×</button>
+<span style="font-size:.75rem;font-weight:800;color:var(--blue);letter-spacing:1px">AGENDAMENTO COM HORÁRIO MARCADO</span>
+<h3>Agende sem fila</h3>
+<p style="font-size:.88rem;color:var(--gray)">Preencha e receba confirmação + preparo no WhatsApp.</p>
+<label>1. Tipo</label>
+<select id="f_tipo" onchange="updateSpecs()"><option>Consulta Médica</option><option>Exame de Sangue / Laboratório</option><option>Exame de Imagem</option><option>Check-up / Ocupacional</option></select>
+<label>2. Especialidade / Exame</label>
+<select id="f_spec"></select>
+<label>3. Seus dados</label>
+<input id="f_name" placeholder="Nome completo">
+<input id="f_cpf" placeholder="CPF (para cadastro e resultado online)" style="margin-top:8px">
+<input id="f_phone" placeholder="Seu WhatsApp" style="margin-top:8px">
+<label>Convênio</label>
+<select id="f_conv"><option>Particular</option><option>Unimed</option><option>Bradesco Saúde</option><option>Amil</option><option>SulAmérica</option><option>Outro</option></select>
+<label>Preferência</label>
+<select id="f_per"><option>Manhã cedo (7h-9h - ideal lab)</option><option>Manhã (9h-12h)</option><option>Tarde (13:30-16h)</option><option>Fim de tarde (16h-18:30)</option></select>
+<label>Observação</label>
+<textarea id="f_obs" rows="2" placeholder="Ex: tenho pedido médico, preciso de jejum, sou diabético..."></textarea>
+<button class="btn-confirm" onclick="submitBooking()">Confirmar no WhatsApp</button>
+<p style="font-size:.72rem;color:var(--gray);text-align:center;margin-top:8px">Seus dados protegidos (LGPD). Não compartilhamos.</p>
+</div>
+</div>
+<div class="toast" id="toast">Ok!</div>
+
+<script>
+const WHATSAPP='554735150309';
+const services=[
+{id:1,cat:'consultas',icon:'🩺',tag:'HORÁRIO MARCADO',tagClass:'blue',name:'Clínico Geral',desc:'Avaliação completa, pedidos de exames, encaminhamentos e atestados.',prep:'Traga documento + exames anteriores'},
+{id:2,cat:'consultas',icon:'❤️',tag:'+ PROCURADO',tagClass:'blue',name:'Cardiologista + ECG',desc:'Check coração, pressão, colesterol, risco cirúrgico + eletro na hora.',prep:'Evitar café 2h antes • lista de remédios'},
+{id:3,cat:'consultas',icon:'🦴',tag:'HORÁRIO MARCADO',tagClass:'blue',name:'Ortopedista',desc:'Dor lombar, joelho, ombro, laudos e infiltração.',prep:'Traga Raio-X / ressonância se tiver'},
+{id:4,cat:'consultas',icon:'👩‍⚕️',tag:'HORÁRIO MARCADO',tagClass:'blue',name:'Ginecologista',desc:'Preventivo, ultrassom, pré-natal e check hormonal.',prep:'Não estar menstruada p/ preventivo'},
+{id:5,cat:'lab',icon:'🩸',tag:'COLETA 7H-11H',tagClass:'green',name:'Hemograma + Glicemia + Colesterol',desc:'Kit básico mais pedido. Resultado rápido online.',prep:'Jejum 8h-12h • água liberada'},
+{id:6,cat:'lab',icon:'🧪',tag:'RESULTADO 24H',tagClass:'green',name:'Exame de Urina Tipo 1',desc:'Infecção, rim e check. Potinho grátis na recepção.',prep:'1ª urina manhã, jato médio'},
+{id:7,cat:'lab',icon:'🤰',tag:'RESULTADO RÁPIDO',tagClass:'green',name:'Beta HCG / Hormônios / Tireoide',desc:'TSH, T4, testosterona, vitaminas e outros.',prep:'Jejum 8h • informar medicamentos'},
+{id:8,cat:'lab',icon:'🦠',tag:'SEM AGENDAR',tagClass:'green',name:'Testes Rápidos: Dengue, Covid, Gripe',desc:'Com laudo para trabalho e viagem.',prep:'Documento com foto'},
+{id:9,cat:'imagem',icon:'📷',tag:'AGENDAR',tagClass:'orange',name:'Ultrassom Abdome / Pelve / Obstétrico',desc:'Com laudo médico detalhado.',prep:'Abdome jejum 8h / Pelve bexiga cheia'},
+{id:10,cat:'imagem',icon:'🦷',tag:'AGENDAR',tagClass:'orange',name:'Raio-X Digital',desc:'Tórax, coluna, joelho e outros. Entrega rápida.',prep:'Sem metal • informe gravidez'},
+{id:11,cat:'imagem',icon:'💓',tag:'NA HORA',tagClass:'orange',name:'Eletrocardiograma (ECG)',desc:'Ideal para check-up e pré-operatório.',prep:'Repouso 10 min antes'},
+{id:12,cat:'checkup',icon:'📋',tag:'EMPRESAS',tagClass:'blue',name:'Check-up Executivo Completo',desc:'Consulta + sangue + urina + ECG + imagem em 1 manhã.',prep:'Jejum 12h • 3h de atendimento'},
+{id:13,cat:'checkup',icon:'🏢',tag:'ADMISSIONAL',tagClass:'blue',name:'Exame Admissional / Demissional / Periódico',desc:'ASO rápido para empresas de BC e região.',prep:'Documento + guia da empresa'},
+];
+let curCat='todos',term='';
+function render(){
+const g=document.getElementById('grid');g.innerHTML='';
+let items=services.filter(s=>(curCat==='todos'||s.cat===curCat)&&(s.name.toLowerCase().includes(term)||s.desc.toLowerCase().includes(term)));
+if(!items.length){g.innerHTML='<p style="color:#888">Nenhum serviço encontrado. Fale no WhatsApp que te direcionamos.</p>';return}
+items.forEach(s=>{
+g.innerHTML+=`<div class="card"><div class="card-top"><div class="card-icon">${s.icon}</div><div><span class="tag ${s.tagClass}">${s.tag}</span><h3>${s.name}</h3><p>${s.desc}</p></div></div><div class="card-foot"><span class="prep">📝 ${s.prep}</span><button class="btn-sm" onclick="openBooking(${s.id})">Agendar</button></div></div>`
+});
+}
+document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');curCat=b.dataset.cat;render()}));
+document.getElementById('searchInput').addEventListener('input',e=>{term=e.target.value.toLowerCase();render()});
+const mapTipo={'Consulta Médica':'consultas','Exame de Sangue / Laboratório':'lab','Exame de Imagem':'imagem','Check-up / Ocupacional':'checkup'};
+function updateSpecs(preId){
+const tipo=document.getElementById('f_tipo').value;const cat=mapTipo[tipo];
+const sel=document.getElementById('f_spec');sel.innerHTML='';
+services.filter(s=>s.cat===cat).forEach(s=>{sel.innerHTML+=`<option value="${s.name}">${s.name}</option>`});
+if(preId){const s=services.find(x=>x.id===preId);if(s&&s.cat===cat)sel.value=s.name}
+}
+function openBooking(id){
+if(id){const s=services.find(x=>x.id===id);if(s){const tipoKey=Object.keys(mapTipo).find(k=>mapTipo[k]===s.cat);document.getElementById('f_tipo').value=tipoKey;updateSpecs(id)}}
+else updateSpecs();
+document.getElementById('modalBg').classList.add('open');
+}
+function closeBooking(){document.getElementById('modalBg').classList.remove('open')}
+document.getElementById('modalBg').addEventListener('click',e=>{if(e.target.id==='modalBg')closeBooking()});
+function submitBooking(){
+const tipo=document.getElementById('f_tipo').value;const spec=document.getElementById('f_spec').value;
+const name=document.getElementById('f_name').value||'[Nome]';const cpf=document.getElementById('f_cpf').value||'-';
+const phone=document.getElementById('f_phone').value||'-';const conv=document.getElementById('f_conv').value;
+const per=document.getElementById('f_per').value;const obs=document.getElementById('f_obs').value;
+let msg=`🏥 *AGENDAMENTO - MILCLIN BC* 🏥\n\n👤 ${name}\n📱 ${phone}\nCPF: ${cpf}\n\n📌 Tipo: ${tipo}\n🔹 Serviço: ${spec}\n🏥 Convênio: ${conv}\n⏰ Preferência: ${per}\n`;
+if(obs)msg+=`\n📝 Obs: ${obs}\n`;
+msg+=`\nEndereço: Rua 980, 494 - Centro\nAguardo confirmação de data/hora + preparo.`;
+window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,'_blank');
+const t=document.getElementById('toast');t.textContent='Abrindo WhatsApp ✅';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
+}
+function checkOpen(){
+const d=new Date();const h=d.getHours()+d.getMinutes()/60;const day=d.getDay();
+let open=false,label='';
+if(day>=1&&day<=5){if(h>=7&&h<12){open=true;label='Aberto • Coleta até 11h'}else if(h>=13.5&&h<18.5){open=true;label='Aberto • até 18:30'}else if(h>=12&&h<13.5){label='Almoço • volta 13:30'}else{label='Fechado • abre 7h'}}
+else if(day===6){if(h>=8&&h<12){open=true;label='Aberto • Sáb até 12h'}else{label='Fechado • abre Seg 7h'}}
+else{label='Fechado • abre Seg 7h'}
+const b=document.getElementById('statusBadge');b.textContent='● '+label;
+b.style.background=open?'#DCFCE7':'#FEE2E2';b.style.color=open?'#166534':'#991B1B';
+}
+render();updateSpecs();checkOpen();setInterval(checkOpen,60000);
+</script>
+</body>
+</html>
