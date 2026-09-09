@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultório Lanius | Odontologia e Harmonização Facial em Itapema</title>
+    <meta name="description" content="Odontologia, lentes, ortodontia e harmonização facial em Itapema. Conheça o Consultório Lanius e agende sua avaliação.">
+    
+    <!-- Open Graph / Twitter -->
+    <meta property="og:title" content="Consultório Lanius | Odontologia e Harmonização Facial em Itapema">
+    <meta property="og:description" content="Odontologia, lentes, ortodontia e harmonização facial em Itapema.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://laniusodontologia.com.br">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        offwhite: '#F8F6F2',
+                        nude: '#E8DCD2',
+                        rose: '#B58F87',
+                        coffee: '#4A3935',
+                        champagne: '#C8AA82',
+                        softblack: '#242120',
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { background-color: #F8F6F2; color: #242120; }
+        
+        /* Scroll Reveal Animation */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* FAQ Accordion Animation */
+        .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #F8F6F2; }
+        ::-webkit-scrollbar-thumb { background: #C8AA82; border-radius: 10px; }
+        
+        /* Image zoom utility for Hover */
+        .img-zoom { transition: transform 0.7s ease; }
+        .group:hover .img-zoom { transform: scale(1.05); }
+    </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden selection:bg-champagne selection:text-white">
+
+    <!-- HEADER -->
+    <header id="header" class="fixed w-full top-0 z-50 transition-all duration-500 bg-transparent py-6">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
+            <a href="#inicio" class="flex flex-col z-50">
+                <span class="font-serif text-xl md:text-2xl tracking-wide text-white transition-colors duration-300" id="logo-text">CONSULTÓRIO LANIUS</span>
+                <span class="text-[0.6rem] md:text-xs tracking-[0.2em] uppercase text-champagne transition-colors duration-300" id="logo-sub">Odontologia e Harmonização Facial</span>
+            </a>
+            
+            <nav class="hidden lg:flex gap-8 items-center">
+                <a href="#especialidades" class="text-sm font-medium tracking-wide text-white/90 hover:text-white transition-colors nav-link">Especialidades</a>
+                <a href="#profissionais" class="text-sm font-medium tracking-wide text-white/90 hover:text-white transition-colors nav-link">Profissionais</a>
+                <a href="#resultados" class="text-sm font-medium tracking-wide text-white/90 hover:text-white transition-colors nav-link">Resultados</a>
+                <a href="#consultorio" class="text-sm font-medium tracking-wide text-white/90 hover:text-white transition-colors nav-link">O Consultório</a>
+                <a href="#agendamento" class="px-6 py-3 bg-champagne text-white text-sm font-medium tracking-wider rounded-full hover:bg-rose transition-colors shadow-lg hover:shadow-xl">AGENDAR AVALIAÇÃO</a>
+            </nav>
+            
+            <button id="menuBtn" class="lg:hidden text-2xl z-50 text-white focus:outline-none transition-colors" aria-label="Menu">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden absolute top-full left-0 w-full bg-white shadow-xl py-6 px-6 flex flex-col gap-6 border-t border-nude">
+            <a href="#especialidades" class="text-coffee text-lg font-medium" onclick="toggleMenu()">Especialidades</a>
+            <a href="#profissionais" class="text-coffee text-lg font-medium" onclick="toggleMenu()">Profissionais</a>
+            <a href="#resultados" class="text-coffee text-lg font-medium" onclick="toggleMenu()">Resultados</a>
+            <a href="#consultorio" class="text-coffee text-lg font-medium" onclick="toggleMenu()">O Consultório</a>
+            <a href="#agendamento" class="mt-4 px-6 py-4 bg-champagne text-white text-center rounded-full font-medium" onclick="toggleMenu()">AGENDAR AVALIAÇÃO</a>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section id="inicio" class="relative h-[90vh] min-h-[600px] w-full flex items-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?q=80&w=2000&auto=format&fit=crop" alt="Odontologia estética" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-r from-softblack/80 via-softblack/50 to-transparent"></div>
+        </div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full pt-20">
+            <div class="max-w-2xl">
+                <p class="reveal text-champagne text-xs md:text-sm tracking-[0.3em] uppercase mb-4">Odontologia • Estética • Harmonização</p>
+                <h1 class="reveal font-serif text-4xl md:text-6xl lg:text-7xl text-white leading-[1.1] mb-6" style="transition-delay: 0.1s;">
+                    Seu sorriso,<br/>do jeito que<br/><span class="text-champagne italic">você sempre imaginou.</span>
+                </h1>
+                <p class="reveal text-white/80 text-sm md:text-base max-w-lg mb-8 leading-relaxed font-light" style="transition-delay: 0.2s;">
+                    Odontologia estética e harmonização facial com planejamento personalizado, tecnologia e um olhar cuidadoso para cada detalhe.
+                </p>
+                <div class="reveal flex flex-col sm:flex-row gap-4" style="transition-delay: 0.3s;">
+                    <a href="#agendamento" class="px-8 py-4 bg-champagne text-white text-center rounded-full font-medium tracking-wide hover:bg-rose transition-colors shadow-lg">AGENDAR MINHA AVALIAÇÃO</a>
+                    <a href="#consultorio" class="px-8 py-4 border border-white/30 text-white text-center rounded-full font-medium tracking-wide hover:bg-white/10 transition-colors">CONHECER O CONSULTÓRIO</a>
+                </div>
+                <p class="reveal mt-12 text-white/60 text-xs tracking-widest uppercase" style="transition-delay: 0.4s;">Centro • Itapema</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOCO DE AUTORIDADE -->
+    <section class="bg-coffee py-12 border-b border-champagne/20">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="reveal text-center"><p class="text-white/90 text-xs md:text-sm tracking-widest uppercase font-light">Odontologia especializada</p></div>
+            <div class="reveal text-center" style="transition-delay: 0.1s;"><p class="text-white/90 text-xs md:text-sm tracking-widest uppercase font-light">Atendimento personalizado</p></div>
+            <div class="reveal text-center" style="transition-delay: 0.2s;"><p class="text-white/90 text-xs md:text-sm tracking-widest uppercase font-light">Planejamento individual</p></div>
+            <div class="reveal text-center" style="transition-delay: 0.3s;"><p class="text-white/90 text-xs md:text-sm tracking-widest uppercase font-light">Localização privilegiada</p></div>
+        </div>
+    </section>
+
+    <!-- ESPECIALIDADES -->
+    <section id="especialidades" class="py-24 bg-offwhite">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+                <h2 class="font-serif text-3xl md:text-5xl text-coffee mb-4">Tratamentos pensados para você.</h2>
+                <p class="text-coffee/70 font-light">Cada sorriso possui uma história, uma necessidade e uma estética única.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="reveal group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-transparent hover:border-champagne cursor-pointer flex flex-col" style="transition-delay: 0.1s;">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=800&auto=format&fit=crop" alt="Lentes Dentais" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col justify-between bg-white">
+                        <div>
+                            <h3 class="font-serif text-xl text-coffee mb-3">Lentes Dentais</h3>
+                            <p class="text-sm text-coffee/60 mb-6 leading-relaxed font-light">Transforme o sorriso preservando naturalidade, proporção e harmonia.</p>
+                        </div>
+                        <span class="text-champagne text-xs font-medium tracking-widest uppercase group-hover:text-rose transition-colors mt-auto inline-block">Conhecer tratamento →</span>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="reveal group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-transparent hover:border-champagne cursor-pointer flex flex-col" style="transition-delay: 0.2s;">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?q=80&w=800&auto=format&fit=crop" alt="Ortodontia" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col justify-between bg-white">
+                        <div>
+                            <h3 class="font-serif text-xl text-coffee mb-3">Ortodontia</h3>
+                            <p class="text-sm text-coffee/60 mb-6 leading-relaxed font-light">Planejamento para alinhar dentes, melhorar função e construir um sorriso equilibrado.</p>
+                        </div>
+                        <span class="text-champagne text-xs font-medium tracking-widest uppercase group-hover:text-rose transition-colors mt-auto inline-block">Conhecer tratamento →</span>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="reveal group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-transparent hover:border-champagne cursor-pointer flex flex-col" style="transition-delay: 0.3s;">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=800&auto=format&fit=crop" alt="Harmonização Facial" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col justify-between bg-white">
+                        <div>
+                            <h3 class="font-serif text-xl text-coffee mb-3">Harmonização Facial</h3>
+                            <p class="text-sm text-coffee/60 mb-6 leading-relaxed font-light">Procedimentos planejados para valorizar os traços naturais e preservar sua identidade.</p>
+                        </div>
+                        <span class="text-champagne text-xs font-medium tracking-widest uppercase group-hover:text-rose transition-colors mt-auto inline-block">Conhecer tratamento →</span>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="reveal group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-transparent hover:border-champagne cursor-pointer flex flex-col" style="transition-delay: 0.4s;">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1598256989800-fe5f95da9787?q=80&w=800&auto=format&fit=crop" alt="Odontologia Estética" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col justify-between bg-white">
+                        <div>
+                            <h3 class="font-serif text-xl text-coffee mb-3">Odontologia Estética</h3>
+                            <p class="text-sm text-coffee/60 mb-6 leading-relaxed font-light">Cuidados completos para saúde, estética e confiança no sorriso.</p>
+                        </div>
+                        <span class="text-champagne text-xs font-medium tracking-widest uppercase group-hover:text-rose transition-colors mt-auto inline-block">Conhecer tratamento →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO DIFERENCIAL -->
+    <section class="py-24 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="reveal order-2 lg:order-1">
+                <h2 class="font-serif text-3xl md:text-5xl text-coffee leading-tight mb-6">
+                    Não buscamos um sorriso perfeito.<br/>
+                    <span class="text-champagne italic">Buscamos um sorriso que combine com você.</span>
+                </h2>
+                <p class="text-lg text-coffee/70 mb-8 font-light leading-relaxed">O tratamento é planejado considerando:</p>
+                <ul class="space-y-4 text-coffee/80 font-light">
+                    <li class="flex items-center gap-4"><span class="w-1.5 h-1.5 rounded-full bg-champagne"></span> Formato do rosto</li>
+                    <li class="flex items-center gap-4"><span class="w-1.5 h-1.5 rounded-full bg-champagne"></span> Proporção</li>
+                    <li class="flex items-center gap-4"><span class="w-1.5 h-1.5 rounded-full bg-champagne"></span> Personalidade</li>
+                    <li class="flex items-center gap-4"><span class="w-1.5 h-1.5 rounded-full bg-champagne"></span> Expectativas</li>
+                    <li class="flex items-center gap-4"><span class="w-1.5 h-1.5 rounded-full bg-champagne"></span> Estrutura dentária</li>
+                    <li class="flex items-center gap-4"><span class="w-1.5 h-1.5 rounded-full bg-champagne"></span> Naturalidade</li>
+                </ul>
+            </div>
+            <div class="reveal order-1 lg:order-2" style="transition-delay: 0.2s;">
+                <div class="relative h-[400px] lg:h-[600px] rounded-lg overflow-hidden shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1000&auto=format&fit=crop" alt="Harmonização facial e odontologia" class="w-full h-full object-cover" loading="lazy" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROFISSIONAIS -->
+    <section id="profissionais" class="py-24 bg-offwhite">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-serif text-3xl md:text-5xl text-coffee">Quem cuida do seu sorriso.</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+                <!-- Pro 1 -->
+                <div class="reveal text-center group" style="transition-delay: 0.1s;">
+                    <div class="relative w-64 h-80 mx-auto mb-6 rounded-lg overflow-hidden shadow-md">
+                        <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=800&auto=format&fit=crop" alt="Dra. Rosiane Lanius" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    </div>
+                    <h3 class="font-serif text-2xl text-coffee mb-2">Dra. Rosiane Lanius</h3>
+                    <p class="text-rose text-xs tracking-[0.2em] uppercase font-medium">Harmonização Facial</p>
+                </div>
+                <!-- Pro 2 -->
+                <div class="reveal text-center group" style="transition-delay: 0.2s;">
+                    <div class="relative w-64 h-80 mx-auto mb-6 rounded-lg overflow-hidden shadow-md">
+                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop" alt="Dra. Victória Lanius A." class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    </div>
+                    <h3 class="font-serif text-2xl text-coffee mb-2">Dra. Victória Lanius A.</h3>
+                    <p class="text-rose text-xs tracking-[0.2em] uppercase font-medium">Ortodontia e Lentes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALERIA / RESULTADOS -->
+    <section id="resultados" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-serif text-3xl md:text-5xl text-coffee">Detalhes que fazem a diferença.</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[300px]">
+                <div class="reveal md:col-span-2 md:row-span-2 overflow-hidden rounded-lg group cursor-pointer relative" style="transition-delay: 0.1s;">
+                    <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=800&auto=format&fit=crop" alt="Resultado 1" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    <div class="absolute inset-0 bg-coffee/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+                <div class="reveal overflow-hidden rounded-lg group cursor-pointer relative" style="transition-delay: 0.2s;">
+                    <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?q=80&w=600&auto=format&fit=crop" alt="Resultado 2" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    <div class="absolute inset-0 bg-coffee/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+                <div class="reveal overflow-hidden rounded-lg group cursor-pointer relative" style="transition-delay: 0.3s;">
+                    <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=600&auto=format&fit=crop" alt="Resultado 3" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    <div class="absolute inset-0 bg-coffee/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+                <div class="reveal overflow-hidden rounded-lg group cursor-pointer relative" style="transition-delay: 0.4s;">
+                    <img src="https://images.unsplash.com/photo-1598256989800-fe5f95da9787?q=80&w=600&auto=format&fit=crop" alt="Resultado 4" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    <div class="absolute inset-0 bg-coffee/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+                <div class="reveal overflow-hidden rounded-lg group cursor-pointer relative" style="transition-delay: 0.5s;">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e410f624c427?q=80&w=600&auto=format&fit=crop" alt="Resultado 5" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                    <div class="absolute inset-0 bg-coffee/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONSULTÓRIO -->
+    <section id="consultorio" class="py-24 bg-offwhite">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <h2 class="reveal font-serif text-3xl md:text-5xl text-coffee mb-6">Um espaço pensado para você.</h2>
+                <p class="reveal text-coffee/70 mb-8 leading-relaxed font-light" style="transition-delay: 0.1s;">Um ambiente acolhedor, sofisticado e preparado para oferecer uma experiência confortável em cada etapa do tratamento.</p>
+                <div class="reveal" style="transition-delay: 0.2s;">
+                    <p class="text-rose text-xs tracking-[0.2em] uppercase font-medium mb-8">Centro • Itapema</p>
+                    <a href="#localizacao" class="inline-block px-8 py-4 border border-coffee text-coffee rounded-full font-medium tracking-wide hover:bg-coffee hover:text-white transition-colors">COMO CHEGAR</a>
+                </div>
+            </div>
+            <div class="reveal grid grid-cols-2 gap-4" style="transition-delay: 0.3s;">
+                <div class="relative h-64 rounded-lg overflow-hidden shadow-md">
+                    <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=600&auto=format&fit=crop" alt="Ambiente do Consultório" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                </div>
+                <div class="relative h-64 rounded-lg overflow-hidden shadow-md mt-8">
+                    <img src="https://images.unsplash.com/photo-1629909615184-74f495363b67?q=80&w=600&auto=format&fit=crop" alt="Recepção" class="w-full h-full object-cover img-zoom" loading="lazy" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section class="py-24 bg-white border-y border-nude/30">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-serif text-3xl md:text-5xl text-coffee">Como funciona.</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="reveal text-center md:text-left p-8 border-l border-champagne/30 hover:border-champagne transition-colors duration-300" style="transition-delay: 0.1s;">
+                    <span class="font-serif text-4xl text-champagne mb-4 block">01</span>
+                    <h3 class="text-lg font-medium text-coffee mb-2">Agende sua avaliação</h3>
+                    <p class="text-sm text-coffee/60 font-light">Entre em contato e escolha o melhor horário.</p>
+                </div>
+                <div class="reveal text-center md:text-left p-8 border-l border-champagne/30 hover:border-champagne transition-colors duration-300" style="transition-delay: 0.2s;">
+                    <span class="font-serif text-4xl text-champagne mb-4 block">02</span>
+                    <h3 class="text-lg font-medium text-coffee mb-2">Converse com a equipe</h3>
+                    <p class="text-sm text-coffee/60 font-light">Entendemos suas expectativas e necessidades.</p>
+                </div>
+                <div class="reveal text-center md:text-left p-8 border-l border-champagne/30 hover:border-champagne transition-colors duration-300" style="transition-delay: 0.3s;">
+                    <span class="font-serif text-4xl text-champagne mb-4 block">03</span>
+                    <h3 class="text-lg font-medium text-coffee mb-2">Receba o planejamento</h3>
+                    <p class="text-sm text-coffee/60 font-light">Um plano digital e personalizado para o seu caso.</p>
+                </div>
+                <div class="reveal text-center md:text-left p-8 border-l border-champagne/30 hover:border-champagne transition-colors duration-300" style="transition-delay: 0.4s;">
+                    <span class="font-serif text-4xl text-champagne mb-4 block">04</span>
+                    <h3 class="text-lg font-medium text-coffee mb-2">Comece o tratamento</h3>
+                    <p class="text-sm text-coffee/60 font-light">Dê o primeiro passo para o sorriso dos seus sonhos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AGENDAMENTO INTELIGENTE -->
+    <section id="agendamento" class="py-24 bg-coffee text-white relative">
+        <div class="max-w-4xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-serif text-3xl md:text-5xl mb-4 text-white">Vamos cuidar do seu sorriso?</h2>
+                <p class="text-white/70 max-w-xl mx-auto font-light">Escolha o tratamento que você deseja conhecer e encontre o melhor caminho para falar com nossa equipe.</p>
+            </div>
+            
+            <div class="reveal bg-white text-coffee rounded-2xl p-8 md:p-12 shadow-2xl relative overflow-hidden" style="transition-delay: 0.2s;">
+                <!-- Barra de Progresso -->
+                <div class="flex gap-2 mb-10">
+                    <div id="prog-1" class="h-1 flex-1 rounded-full bg-champagne transition-colors"></div>
+                    <div id="prog-2" class="h-1 flex-1 rounded-full bg-nude transition-colors"></div>
+                    <div id="prog-3" class="h-1 flex-1 rounded-full bg-nude transition-colors"></div>
+                    <div id="prog-4" class="h-1 flex-1 rounded-full bg-nude transition-colors"></div>
+                    <div id="prog-5" class="h-1 flex-1 rounded-full bg-nude transition-colors"></div>
+                </div>
+
+                <!-- Passo 1 -->
+                <div id="step-1" class="step-container">
+                    <h3 class="font-serif text-2xl mb-6 text-coffee">O que você deseja?</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button onclick="setBooking('tratamento', 'Lentes', 2)" class="p-5 border border-nude rounded-lg hover:border-champagne hover:bg-offwhite text-left transition-colors font-medium text-coffee">Lentes</button>
+                        <button onclick="setBooking('tratamento', 'Ortodontia', 2)" class="p-5 border border-nude rounded-lg hover:border-champagne hover:bg-offwhite text-left transition-colors font-medium text-coffee">Ortodontia</button>
+                        <button onclick="setBooking('tratamento', 'Harmonização Facial', 2)" class="p-5 border border-nude rounded-lg hover:border-champagne hover:bg-offwhite text-left transition-colors font-medium text-coffee">Harmonização Facial</button>
+                        <button onclick="setBooking('tratamento', 'Odontologia Estética', 2)" class="p-5 border border-nude rounded-lg hover:border-champagne hover:bg-offwhite text-left transition-colors font-medium text-coffee">Odontologia Estética</button>
+                        <button onclick="setBooking('tratamento', 'Ainda não sei', 2)" class="p-5 border border-nude rounded-lg hover:border-champagne hover:bg-offwhite text-left transition-colors font-medium text-coffee md:col-span-2 text-center">Ainda não sei</button>
+                    </div>
+                </div>
+
+                <!-- Passo 2 -->
+                <div id="step-2" class="step-container hidden">
+                    <h3 class="font-serif text-2xl mb-6 text-coffee">Como podemos ajudar?</h3>
+                    <p class="text-sm text-coffee/60 mb-4 font-light">Campo opcional. Conte um pouco o que você procura.</p>
+                    <textarea id="booking-duvida" class="w-full p-4 border border-nude rounded-lg focus:outline-none focus:border-champagne min-h-[120px] font-light text-coffee" placeholder="Escreva aqui..."></textarea>
+                    <div class="mt-8 flex justify-between">
+                        <button onclick="goToStep(1)" class="px-6 py-3 text-coffee/60 hover:text-coffee transition-colors text-sm tracking-wide uppercase">Voltar</button>
+                        <button onclick="goToStep(3)" class="px-8 py-3 bg-coffee text-white rounded-full hover:bg-softblack transition-colors text-sm tracking-wide uppercase">Continuar</button>
+                    </div>
+                </div>
+
+                <!-- Passo 3 -->
+                <div id="step-3" class="step-container hidden">
+                    <h3 class="font-serif text-2xl mb-6 text-coffee">Qual período você prefere?</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button onclick="setBooking('periodo', 'Manhã', 4)" class="p-5 border border-nude rounded-lg hover:border-champagne hover:bg-offwhite text-center transition-colors font-medium text-coffee">Manhã</button>
+                        <button onclick="setBooking('periodo', 'Tarde', 4)" class="p-5 border border-nude rounded-lg hover:border-champagne hover:bg-offwhite text-center transition-colors font-medium text-coffee">Tarde</button>
+                        <button onclick="setBooking('periodo', 'Noite', 4)" class="p-5 border border-nude rounded-lg hover:border-champagne hover:bg-offwhite text-center transition-colors font-medium text-coffee">Noite</button>
+                    </div>
+                    <div class="mt-8 flex justify-between">
+                        <button onclick="goToStep(2)" class="px-6 py-3 text-coffee/60 hover:text-coffee transition-colors text-sm tracking-wide uppercase">Voltar</button>
+                    </div>
+                </div>
+
+                <!-- Passo 4 -->
+                <div id="step-4" class="step-container hidden">
+                    <h3 class="font-serif text-2xl mb-6 text-coffee">Qual o seu nome?</h3>
+                    <input type="text" id="booking-nome" class="w-full p-4 border border-nude rounded-lg focus:outline-none focus:border-champagne text-lg font-light text-coffee" placeholder="Seu nome completo" />
+                    <div class="mt-8 flex justify-between">
+                        <button onclick="goToStep(3)" class="px-6 py-3 text-coffee/60 hover:text-coffee transition-colors text-sm tracking-wide uppercase">Voltar</button>
+                        <button onclick="validateNameAndNext()" class="px-8 py-3 bg-coffee text-white rounded-full hover:bg-softblack transition-colors text-sm tracking-wide uppercase">Continuar</button>
+                    </div>
+                </div>
+
+                <!-- Passo 5 -->
+                <div id="step-5" class="step-container hidden">
+                    <h3 class="font-serif text-2xl mb-6 text-coffee">Qual o seu WhatsApp?</h3>
+                    <input type="tel" id="booking-whatsapp" class="w-full p-4 border border-nude rounded-lg focus:outline-none focus:border-champagne text-lg font-light text-coffee mb-8" placeholder="(00) 00000-0000" />
+                    
+                    <div class="bg-offwhite p-6 rounded-lg mb-8 text-sm font-light text-coffee border border-nude/50">
+                        <p class="mb-2"><strong class="font-medium">Tratamento:</strong> <span id="sum-tratamento"></span></p>
+                        <p class="mb-2"><strong class="font-medium">Período:</strong> <span id="sum-periodo"></span></p>
+                        <p><strong class="font-medium">Nome:</strong> <span id="sum-nome"></span></p>
+                    </div>
+                    
+                    <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-4">
+                        <button onclick="goToStep(4)" class="px-6 py-3 w-full md:w-auto text-coffee/60 hover:text-coffee transition-colors text-sm tracking-wide uppercase text-center">Voltar</button>
+                        <button onclick="submitBooking()" class="px-8 py-4 w-full md:w-auto bg-champagne text-white rounded-full font-medium tracking-wide hover:bg-rose transition-colors text-sm md:text-base shadow-lg">CONTINUAR PELO WHATSAPP</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA INTERMEDIÁRIO -->
+    <section class="py-24 bg-nude/30 text-center">
+        <div class="max-w-4xl mx-auto px-6 reveal">
+            <h2 class="font-serif text-3xl md:text-5xl text-coffee mb-6">Seu próximo sorriso começa com uma conversa.</h2>
+            <p class="text-coffee/70 mb-8 max-w-2xl mx-auto font-light text-lg">Conte o que você procura. Nossa equipe ajuda você a encontrar o melhor caminho.</p>
+            <a href="https://wa.me/5547999574016" target="_blank" class="inline-block px-10 py-4 bg-coffee text-white rounded-full font-medium tracking-wide hover:bg-softblack transition-colors shadow-lg">FALAR COM A EQUIPE</a>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-24 bg-white">
+        <div class="max-w-3xl mx-auto px-6">
+            <h2 class="font-serif text-3xl md:text-4xl text-coffee text-center mb-12 reveal">Perguntas Frequentes</h2>
+            <div class="space-y-2">
+                <!-- FAQ 1 -->
+                <div class="reveal border-b border-nude pb-2" style="transition-delay: 0.1s;">
+                    <button class="faq-btn w-full text-left flex justify-between items-center py-4 focus:outline-none">
+                        <span class="font-medium text-coffee text-lg">Como funciona a avaliação?</span>
+                        <span class="faq-icon text-champagne text-2xl transition-transform duration-300">+</span>
+                    </button>
+                    <div class="faq-content">
+                        <p class="text-coffee/70 font-light pt-2 pb-4 pr-8">É uma consulta onde avaliamos sua saúde bucal, estética facial e entendemos suas expectativas para criar um planejamento personalizado.</p>
+                    </div>
+                </div>
+                <!-- FAQ 2 -->
+                <div class="reveal border-b border-nude pb-2" style="transition-delay: 0.2s;">
+                    <button class="faq-btn w-full text-left flex justify-between items-center py-4 focus:outline-none">
+                        <span class="font-medium text-coffee text-lg">Quais tratamentos são oferecidos?</span>
+                        <span class="faq-icon text-champagne text-2xl transition-transform duration-300">+</span>
+                    </button>
+                    <div class="faq-content">
+                        <p class="text-coffee/70 font-light pt-2 pb-4 pr-8">Somos especializados em Lentes Dentais, Ortodontia, Harmonização Facial e Odontologia Estética.</p>
+                    </div>
+                </div>
+                <!-- FAQ 3 -->
+                <div class="reveal border-b border-nude pb-2" style="transition-delay: 0.3s;">
+                    <button class="faq-btn w-full text-left flex justify-between items-center py-4 focus:outline-none">
+                        <span class="font-medium text-coffee text-lg">Onde fica o consultório?</span>
+                        <span class="faq-icon text-champagne text-2xl transition-transform duration-300">+</span>
+                    </button>
+                    <div class="faq-content">
+                        <p class="text-coffee/70 font-light pt-2 pb-4 pr-8">Estamos localizados no Centro de Itapema, Santa Catarina.</p>
+                    </div>
+                </div>
+                <!-- FAQ 4 -->
+                <div class="reveal border-b border-nude pb-2" style="transition-delay: 0.4s;">
+                    <button class="faq-btn w-full text-left flex justify-between items-center py-4 focus:outline-none">
+                        <span class="font-medium text-coffee text-lg">Como faço para agendar?</span>
+                        <span class="faq-icon text-champagne text-2xl transition-transform duration-300">+</span>
+                    </button>
+                    <div class="faq-content">
+                        <p class="text-coffee/70 font-light pt-2 pb-4 pr-8">Você pode preencher o formulário de agendamento inteligente no site ou chamar diretamente no nosso WhatsApp.</p>
+                    </div>
+                </div>
+                <!-- FAQ 5 -->
+                <div class="reveal border-b border-nude pb-2" style="transition-delay: 0.5s;">
+                    <button class="faq-btn w-full text-left flex justify-between items-center py-4 focus:outline-none">
+                        <span class="font-medium text-coffee text-lg">Posso falar diretamente pelo WhatsApp?</span>
+                        <span class="faq-icon text-champagne text-2xl transition-transform duration-300">+</span>
+                    </button>
+                    <div class="faq-content">
+                        <p class="text-coffee/70 font-light pt-2 pb-4 pr-8">Sim! Nosso WhatsApp é (47) 99957-4016. Nossa equipe responde o mais rápido possível.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOCALIZAÇÃO -->
+    <section id="localizacao" class="py-24 bg-offwhite">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-serif text-3xl md:text-5xl text-coffee mb-4">Estamos em Itapema.</h2>
+                <p class="text-rose tracking-widest uppercase text-xs font-medium">Centro • Itapema</p>
+            </div>
+            <div class="reveal rounded-2xl overflow-hidden shadow-lg h-[400px] bg-nude" style="transition-delay: 0.2s;">
+                <iframe src="https://www.google.com/maps?q=Centro,+Itapema,+SC&output=embed" width="100%" height="100%" style="border: 0;" allowfullscreen loading="lazy"></iframe>
+            </div>
+            <div class="reveal text-center mt-10" style="transition-delay: 0.3s;">
+                <a href="https://maps.google.com/?q=Centro,+Itapema,+SC" target="_blank" class="inline-block px-10 py-4 bg-coffee text-white rounded-full font-medium tracking-wide hover:bg-softblack transition-colors shadow-lg">ABRIR NO MAPA</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-coffee text-white py-16">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <span class="font-serif text-2xl tracking-wide block text-white">CONSULTÓRIO LANIUS</span>
+                <span class="text-champagne text-[0.6rem] tracking-[0.2em] uppercase block mt-2">Odontologia e Harmonização Facial</span>
+                <span class="text-white/50 text-xs block mt-3 font-light">Centro • Itapema</span>
+            </div>
+            <div class="flex gap-8 text-sm font-light">
+                <a href="https://instagram.com/laniusodontologia" target="_blank" class="hover:text-champagne transition-colors">Instagram</a>
+                <a href="https://wa.me/5547999574016" target="_blank" class="hover:text-champagne transition-colors">WhatsApp</a>
+                <a href="#localizacao" class="hover:text-champagne transition-colors">Localização</a>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 md:px-12 mt-12 pt-8 border-t border-white/10 text-center text-white/30 text-xs font-light">
+            <p>© 2026 Consultório Lanius. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- BOTÃO FLUTUANTE CTA (Mobile) -->
+    <div id="stickyCta" class="fixed bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-nude z-40 lg:hidden translate-y-full transition-transform duration-300 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        <a href="#agendamento" class="block w-full py-4 bg-champagne text-white text-center rounded-full font-medium tracking-wide text-sm shadow-lg hover:bg-rose transition-colors">AGENDAR AVALIAÇÃO</a>
+    </div>
+
+    <!-- SCRIPTS DE INTERAÇÃO -->
+    <script>
+        // Scroll Reveal Animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Header Scroll Effect & Sticky CTA Toggle
+        const header = document.getElementById('header');
+        const logoText = document.getElementById('logo-text');
+        const logoSub = document.getElementById('logo-sub');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const menuBtnIcon = document.querySelector('#menuBtn svg');
+        const stickyCta = document.getElementById('stickyCta');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            if (scrollY > 50) {
+                header.classList.add('bg-white/95', 'backdrop-blur-md', 'shadow-sm', 'py-4');
+                header.classList.remove('bg-transparent', 'py-6');
+                logoText.classList.replace('text-white', 'text-coffee');
+                logoSub.classList.replace('text-champagne', 'text-rose');
+                navLinks.forEach(l => {
+                    l.classList.remove('text-white/90', 'hover:text-white');
+                    l.classList.add('text-coffee/80', 'hover:text-coffee');
+                });
+                menuBtnIcon.classList.replace('text-white', 'text-coffee');
+            } else {
+                header.classList.add('bg-transparent', 'py-6');
+                header.classList.remove('bg-white/95', 'backdrop-blur-md', 'shadow-sm', 'py-4');
+                logoText.classList.replace('text-coffee', 'text-white');
+                logoSub.classList.replace('text-rose', 'text-champagne');
+                navLinks.forEach(l => {
+                    l.classList.add('text-white/90', 'hover:text-white');
+                    l.classList.remove('text-coffee/80', 'hover:text-coffee');
+                });
+                menuBtnIcon.classList.replace('text-coffee', 'text-white');
+            }
+
+            if (scrollY > 600) {
+                stickyCta.classList.remove('translate-y-full');
+            } else {
+                stickyCta.classList.add('translate-y-full');
+            }
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenu = document.getElementById('mobileMenu');
+        function toggleMenu() {
+            mobileMenu.classList.toggle('hidden');
+        }
+        document.getElementById('menuBtn').addEventListener('click', toggleMenu);
+
+        // FAQ Accordion
+        document.querySelectorAll('.faq-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const content = btn.nextElementSibling;
+                const icon = btn.querySelector('.faq-icon');
+                const isOpen = content.style.maxHeight;
+                
+                document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = null);
+                document.querySelectorAll('.faq-icon').forEach(i => i.style.transform = 'rotate(0deg)');
+                
+                if (!isOpen) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(45deg)';
+                }
+            });
+        });
+
+        // Smart Booking Logic (WhatsApp)
+        let bookingData = { tratamento: '', periodo: '', nome: '', whatsapp: '', duvida: '' };
+
+        function updateProgress(step) {
+            for (let i = 1; i <= 5; i++) {
+                const bar = document.getElementById(`prog-${i}`);
+                if (i <= step) {
+                    bar.classList.add('bg-champagne');
+                    bar.classList.remove('bg-nude');
+                } else {
+                    bar.classList.add('bg-nude');
+                    bar.classList.remove('bg-champagne');
+                }
+            }
+        }
+
+        function goToStep(step) {
+            document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            updateProgress(step);
+        }
+
+        function setBooking(field, value, nextStep) {
+            bookingData[field] = value;
+            if (field === 'tratamento') document.getElementById('sum-tratamento').innerText = value;
+            if (field === 'periodo') document.getElementById('sum-periodo').innerText = value;
+            goToStep(nextStep);
+        }
+
+        function validateNameAndNext() {
+            const nome = document.getElementById('booking-nome').value.trim();
+            if (nome === '') {
+                alert('Por favor, insira seu nome.');
+                return;
+            }
+            bookingData.nome = nome;
+            document.getElementById('sum-nome').innerText = nome;
+            goToStep(5);
+        }
+
+        function submitBooking() {
+            const whatsapp = document.getElementById('booking-whatsapp').value.trim();
+            if (whatsapp === '') {
+                alert('Por favor, insira seu WhatsApp.');
+                return;
+            }
+            bookingData.whatsapp = whatsapp;
+            
+            const duvida = document.getElementById('booking-duvida').value.trim();
+            const waNumber = '5547999574016';
+            
+            let msg = `Olá! Vim pelo site do Consultório Lanius e gostaria de agendar uma avaliação.%0A%0A`;
+            msg += `Meu nome é ${bookingData.nome}.%0A%0A`;
+            msg += `Tenho interesse em ${bookingData.tratamento}.%0A%0A`;
+            msg += `Prefiro atendimento no período da ${bookingData.periodo}.%0A%0A`;
+            if(duvida) msg += `Observação: ${duvida}%0A%0A`;
+            msg += `Gostaria de saber os próximos horários disponíveis.`;
+
+            window.open(`https://wa.me/${waNumber}?text=${msg}`, '_blank');
+        }
+    </script>
+</body>
+</html>
