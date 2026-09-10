@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Clínica Flórida | Odontologia Digital em Itapema</title>
+  <meta name="description" content="Clínica Flórida em Itapema - SC. Odontologia digital, implantes, prótese, cirurgia oral menor e harmonização orofacial com a Dra. Laisy. Nota 5.0 no Google. Agende pelo WhatsApp." />
+  <meta name="theme-color" content="#22342E" />
+
+  <meta property="og:title" content="Clínica Flórida | Odontologia Digital em Itapema" />
+  <meta property="og:description" content="Sorrisos planejados com precisão e excelência. Dra. Laisy David, odontologia digital, implantes, prótese e harmonização orofacial." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="pt_BR" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ============================================================
+       RESET & VARIÁVEIS
+       ============================================================ */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --green: #31473F;
+      --green-2: #3F564C;
+      --green-3: #22342E;
+      --green-deep: #182520;
+      --gold: #C79B56;
+      --gold-light: #E7C892;
+      --gold-pale: #F3E3C4;
+      --cream: #F6F2EA;
+      --ivory: #FCFAF6;
+      --nude: #EDE4D7;
+      --ink: #22201C;
+      --muted: #6E6A63;
+      --line: rgba(199, 155, 86, .24);
+      --white: #fff;
+      --shadow: 0 20px 50px rgba(34, 32, 28, .08);
+      --shadow-dark: 0 28px 70px rgba(0, 0, 0, .22);
+      --fd: 'Cormorant Garamond', Georgia, serif;
+      --fb: 'Manrope', -apple-system, sans-serif;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 92px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: var(--fb);
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+      overflow-x: clip;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    body.locked { overflow: hidden; }
+
+    img, iframe, svg, video {
+      display: block;
+      max-width: 100%;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+
+    ::selection { background: var(--gold); color: #fff; }
+    ::-webkit-scrollbar { width: 9px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 999px; }
+
+    /* Blindagem anti-overflow em todos os blocos estruturais */
+    main, section, footer, header, .container,
+    .hero-grid, .about-grid, .cards, .reviews-wrap,
+    .booking-grid, .location-grid, .footer-grid,
+    .tech, .authority-grid, .review-track, .form-card {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    h1, h2, h3, h4, p, span, a, b, small, li, label, button {
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .container {
+      width: min(1200px, 100% - clamp(24px, 6vw, 48px));
+      margin-inline: auto;
+    }
+
+    .section { padding: clamp(60px, 9vw, 100px) 0; }
+
+    /* ============================================================
+       PRELOADER COM LOGO (PALMEIRA CLÍNICA FLÓRIDA)
+       ============================================================ */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(199, 155, 86, .12), transparent 45%),
+        linear-gradient(160deg, var(--green-deep), var(--green-3) 55%, var(--green));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      transition: opacity .8s ease .15s, visibility .8s ease .15s;
+      padding: 20px;
+    }
+    #preloader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .loader-logo-wrap {
+      position: relative;
+      width: clamp(120px, 30vw, 160px);
+      height: clamp(120px, 30vw, 160px);
+      display: grid;
+      place-items: center;
+    }
+
+    /* Anel dourado que se desenha */
+    .loader-ring {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg);
+    }
+    .loader-ring circle {
+      fill: none;
+      stroke: url(#ringGrad);
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-dasharray: 302;
+      stroke-dashoffset: 302;
+      animation: drawRing 1.6s cubic-bezier(.65, 0, .35, 1) forwards .2s;
+    }
+    @keyframes drawRing { to { stroke-dashoffset: 0; } }
+
+    /* Anel fino externo girando */
+    .loader-orbit {
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 1px dashed rgba(231, 200, 146, .28);
+      animation: orbitSpin 9s linear infinite;
+    }
+    @keyframes orbitSpin { to { transform: rotate(360deg); } }
+
+    /* Palmeira SVG */
+    .loader-palm {
+      width: 52%;
+      height: auto;
+      opacity: 0;
+      transform: scale(.7) translateY(8px);
+      animation: palmIn 1s cubic-bezier(.16, 1, .3, 1) forwards .9s;
+      filter: drop-shadow(0 4px 18px rgba(231, 200, 146, .35));
+    }
+    @keyframes palmIn {
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .loader-name {
+      font-family: var(--fd);
+      color: var(--gold-pale);
+      font-size: clamp(1.5rem, 5.5vw, 2.1rem);
+      font-weight: 600;
+      letter-spacing: .38em;
+      text-transform: uppercase;
+      text-indent: .38em;
+      text-align: center;
+      opacity: 0;
+      animation: fadeSlideUp .9s ease forwards 1.35s;
+    }
+    .loader-tag {
+      color: rgba(231, 200, 146, .75);
+      font-size: clamp(.56rem, 2.4vw, .68rem);
+      font-weight: 700;
+      letter-spacing: .42em;
+      text-transform: uppercase;
+      text-indent: .42em;
+      text-align: center;
+      opacity: 0;
+      animation: fadeSlideUp .9s ease forwards 1.55s;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loader-bar {
+      width: min(180px, 50vw);
+      height: 2px;
+      background: rgba(255, 255, 255, .12);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .loader-bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      animation: barFill 2.1s cubic-bezier(.65, 0, .35, 1) forwards .3s;
+    }
+    @keyframes barFill { to { width: 100%; } }
+
+    /* Barra de progresso do scroll */
+    #scrollProgress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+      z-index: 9999;
+      transition: width .08s linear;
+    }
+
+    /* ============================================================
+       ANIMAÇÃO DE REVELAÇÃO
+       ============================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .9s cubic-bezier(.16, 1, .3, 1), transform .9s cubic-bezier(.16, 1, .3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal.show { opacity: 1; transform: none; }
+    .d1 { transition-delay: .12s; }
+    .d2 { transition-delay: .24s; }
+    .d3 { transition-delay: .36s; }
+
+    /* Entrada escalonada do hero após preloader */
+    .hero-stagger {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 1s cubic-bezier(.16, 1, .3, 1), transform 1s cubic-bezier(.16, 1, .3, 1);
+    }
+    body.page-ready .hero-stagger { opacity: 1; transform: none; }
+    body.page-ready .hs-1 { transition-delay: .1s; }
+    body.page-ready .hs-2 { transition-delay: .25s; }
+    body.page-ready .hs-3 { transition-delay: .4s; }
+    body.page-ready .hs-4 { transition-delay: .55s; }
+    body.page-ready .hs-5 { transition-delay: .7s; }
+
+    /* ============================================================
+       TIPOGRAFIA & COMPONENTES
+       ============================================================ */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(.62rem, 1.6vw, .72rem);
+      text-transform: uppercase;
+      letter-spacing: .22em;
+      color: var(--gold);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 32px; height: 1px;
+      background: var(--gold);
+      opacity: .8;
+      flex-shrink: 0;
+    }
+
+    .section-head { max-width: 720px; margin-bottom: clamp(32px, 5vw, 48px); }
+    .section-head.center { text-align: center; margin-inline: auto; }
+    .section-head.center .eyebrow { justify-content: center; }
+
+    h1, h2, h3 { font-family: var(--fd); line-height: 1.06; font-weight: 600; }
+    h2 { font-size: clamp(2rem, 4.6vw, 3.8rem); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 50px;
+      padding: 13px 26px;
+      border-radius: 999px;
+      transition: all .3s cubic-bezier(.16, 1, .3, 1);
+      font-size: clamp(.74rem, 1.8vw, .84rem);
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      text-align: center;
+      white-space: normal;
+      max-width: 100%;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: var(--green-3);
+      box-shadow: 0 10px 30px rgba(199, 155, 86, .28);
+    }
+    .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.04); }
+    .btn-dark { background: var(--green-3); color: var(--cream); }
+    .btn-dark:hover { background: var(--green-deep); transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--green);
+      border: 1px solid rgba(49, 71, 63, .2);
+    }
+    .btn-outline:hover { background: var(--green); color: #fff; border-color: var(--green); }
+    .btn-light { background: #fff; color: var(--green); }
+    .btn-light:hover { transform: translateY(-2px); }
+
+    /* ============================================================
+       HEADER
+       ============================================================ */
+    .header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 1000;
+      padding: 14px 0;
+      transition: .35s;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    body.page-ready .header {
+      opacity: 1;
+      transform: none;
+      transition: opacity .8s ease .3s, transform .8s ease .3s, padding .35s, background .35s;
+    }
+    .header-wrap {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .13);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 999px;
+      padding: 9px 10px 9px 18px;
+    }
+    .header.scrolled {
+      padding: 8px 0;
+      background: rgba(246, 242, 234, .94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(199, 155, 86, .16);
+      box-shadow: 0 8px 30px rgba(34, 32, 28, .06);
+    }
+    .header.scrolled .header-wrap {
+      background: transparent;
+      border-color: transparent;
+      border-radius: 0;
+      padding-block: 0;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .brand { display: flex; align-items: center; gap: 11px; min-width: 0; flex-shrink: 1; }
+    .brand-mark {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--green), var(--green-2));
+      border: 1px solid rgba(231, 200, 146, .3);
+      flex-shrink: 0;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+    }
+    .brand-mark svg { width: 20px; height: 20px; }
+    .brand-text { min-width: 0; }
+    .brand-text strong {
+      display: block;
+      font-family: var(--fd);
+      font-size: clamp(.95rem, 2.6vw, 1.12rem);
+      line-height: 1;
+      color: #fff;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-text small {
+      display: block;
+      color: var(--gold-light);
+      font-size: clamp(.44rem, 1.4vw, .55rem);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .24em;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+    .header.scrolled .brand-text strong { color: var(--green); }
+    .header.scrolled .brand-text small { color: var(--gold); }
+
+    .nav { display: flex; align-items: center; gap: clamp(14px, 2vw, 26px); }
+    .nav a {
+      color: rgba(255, 255, 255, .85);
+      font-size: .76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      position: relative;
+      padding: 4px 0;
+      transition: .25s;
+      white-space: nowrap;
+    }
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: -4px;
+      width: 0; height: 1px;
+      background: var(--gold-light);
+      transition: .3s;
+    }
+    .nav a:hover::after { width: 100%; }
+    .header.scrolled .nav a { color: var(--green); }
+    .header.scrolled .nav a::after { background: var(--gold); }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .desktop-book { min-height: 44px; padding: 10px 20px; font-size: .72rem; }
+    .menu-btn {
+      display: none;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .12);
+      color: #fff;
+      font-size: 1.05rem;
+      flex-shrink: 0;
+      place-items: center;
+    }
+    .header.scrolled .menu-btn { background: var(--green); }
+
+    /* ============================================================
+       MOBILE DRAWER
+       ============================================================ */
+    .mobile-drawer {
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 22, 19, .72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: flex-end;
+      opacity: 0;
+      visibility: hidden;
+      transition: .35s;
+      z-index: 2000;
+    }
+    .mobile-drawer.open { opacity: 1; visibility: visible; }
+    .mobile-panel {
+      width: min(86vw, 380px);
+      height: 100%;
+      background: var(--ivory);
+      padding: 22px 20px calc(26px + var(--safe-bottom));
+      transform: translateX(100%);
+      transition: .4s cubic-bezier(.16, 1, .3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: -12px 0 40px rgba(0, 0, 0, .18);
+      overflow-y: auto;
+    }
+    .mobile-drawer.open .mobile-panel { transform: none; }
+    .mobile-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .close-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      display: grid; place-items: center;
+      flex-shrink: 0;
+    }
+    .mobile-links { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+    .mobile-links a {
+      font-family: var(--fd);
+      font-size: clamp(1.6rem, 7vw, 2rem);
+      color: var(--green);
+      line-height: 1.1;
+      transition: color .2s, transform .2s;
+    }
+    .mobile-links a:active { color: var(--gold); transform: translateX(6px); }
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+    .hero {
+      min-height: 100svh;
+      padding: clamp(120px, 18vw, 160px) 0 clamp(50px, 8vw, 80px);
+      color: #fff;
+      background:
+        radial-gradient(circle at 12% 15%, rgba(231, 200, 146, .16), transparent 30%),
+        radial-gradient(circle at 88% 12%, rgba(255, 255, 255, .07), transparent 28%),
+        linear-gradient(135deg, var(--green-deep) 0%, var(--green-3) 40%, var(--green) 75%, var(--green-2) 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -14%; bottom: -20%;
+      width: min(560px, 70vw);
+      height: min(560px, 70vw);
+      border-radius: 50%;
+      border: 1px solid rgba(231, 200, 146, .15);
+      pointer-events: none;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      right: -8%; bottom: -14%;
+      width: min(420px, 55vw);
+      height: min(420px, 55vw);
+      border-radius: 50%;
+      border: 1px dashed rgba(231, 200, 146, .1);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: clamp(30px, 5vw, 48px);
+      align-items: center;
+      width: 100%;
+    }
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(231, 200, 146, .24);
+      color: var(--gold-light);
+      font-size: clamp(.58rem, 1.8vw, .7rem);
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-bottom: 22px;
+      max-width: 100%;
+    }
+    .hero-label .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #7BE3A2;
+      box-shadow: 0 0 0 4px rgba(123, 227, 162, .18);
+      animation: pulseDot 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulseDot {
+      0% { box-shadow: 0 0 0 0 rgba(123, 227, 162, .5); }
+      70% { box-shadow: 0 0 0 8px rgba(123, 227, 162, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(123, 227, 162, 0); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.7rem, 7.2vw, 5.6rem);
+      margin-bottom: 20px;
+      line-height: .96;
+      letter-spacing: -.02em;
+    }
+    .hero h1 em { font-style: italic; font-weight: 500; color: var(--gold-light); }
+    .hero p.lead {
+      max-width: 600px;
+      color: rgba(255, 255, 255, .82);
+      font-size: clamp(.92rem, 2vw, 1.04rem);
+      font-weight: 300;
+      line-height: 1.85;
+      margin-bottom: 30px;
+    }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: clamp(12px, 3vw, 22px);
+      align-items: center;
+      color: rgba(255, 255, 255, .72);
+      font-size: clamp(.74rem, 1.8vw, .84rem);
+    }
+    .hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
+    .hero-meta i { color: var(--gold-light); }
+
+    .hero-visual { position: relative; min-width: 0; }
+    .hero-image {
+      width: 100%;
+      aspect-ratio: 4 / 4.7;
+      border-radius: clamp(20px, 3vw, 30px);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .13);
+      box-shadow: var(--shadow-dark);
+      background: #20312B;
+    }
+    .hero-image img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      transition: transform .8s ease;
+    }
+    .hero-image:hover img { transform: scale(1.04); }
+
+    .glass-card {
+      position: absolute;
+      background: rgba(255, 250, 243, .93);
+      color: var(--green);
+      border: 1px solid rgba(199, 155, 86, .28);
+      border-radius: 18px;
+      padding: 15px 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      max-width: 220px;
+    }
+    .glass-card.top { top: 22px; left: -16px; animation: floatY 5.5s ease-in-out infinite; }
+    .glass-card.bottom { bottom: 24px; right: -16px; animation: floatY 6.8s ease-in-out infinite 1.4s; }
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .glass-card b { display: block; font-size: .9rem; }
+    .glass-card small { color: #6b716d; font-size: .73rem; line-height: 1.45; display: block; }
+
+    /* ============================================================
+       AUTHORITY STRIP
+       ============================================================ */
+    .authority {
+      background: #fff;
+      border-block: 1px solid rgba(199, 155, 86, .15);
+    }
+    .authority-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .authority-item {
+      padding: clamp(22px, 4vw, 30px) 14px;
+      text-align: center;
+      border-right: 1px solid rgba(199, 155, 86, .12);
+    }
+    .authority-item:last-child { border-right: none; }
+    .authority-item b {
+      display: block;
+      font-family: var(--fd);
+      font-size: clamp(2rem, 4.5vw, 2.7rem);
+      line-height: 1;
+      color: var(--green);
+    }
+    .authority-item span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: clamp(.62rem, 1.6vw, .76rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    /* ============================================================
+       SOBRE
+       ============================================================ */
+    .about-grid {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: clamp(36px, 6vw, 56px);
+      align-items: center;
+    }
+    .about-photo { position: relative; }
+    .about-photo .frame {
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(199, 155, 86, .22);
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+    .about-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+    .about-badge {
+      position: absolute;
+      bottom: -20px; right: clamp(8px, 3vw, 20px);
+      background: var(--green);
+      color: #fff;
+      padding: clamp(14px, 3vw, 20px) clamp(16px, 3.5vw, 24px);
+      border-radius: 18px;
+      border: 1px solid rgba(231, 200, 146, .25);
+      box-shadow: var(--shadow-dark);
+    }
+    .about-badge b {
+      display: block;
+      font-family: var(--fd);
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      line-height: 1;
+      color: var(--gold-light);
+    }
+    .about-badge span { font-size: clamp(.56rem, 1.5vw, .7rem); letter-spacing: .14em; text-transform: uppercase; }
+
+    .credential-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .credential {
+      background: #fff;
+      border: 1px solid rgba(199, 155, 86, .18);
+      border-radius: 16px;
+      padding: 16px;
+      transition: .3s;
+    }
+    .credential:hover { border-color: var(--gold); transform: translateY(-3px); }
+    .credential strong {
+      display: block;
+      font-size: .74rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 5px;
+    }
+    .credential p { font-size: .88rem; color: var(--green); font-weight: 600; }
+
+    /* ============================================================
+       CARDS ESPECIALIDADES
+       ============================================================ */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid rgba(199, 155, 86, .18);
+      border-radius: 24px;
+      overflow: hidden;
+      transition: transform .35s, border-color .35s, box-shadow .35s;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(199, 155, 86, .55);
+      box-shadow: var(--shadow);
+    }
+    .card-media { aspect-ratio: 16 / 10; overflow: hidden; background: var(--nude); }
+    .card-media img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .8s;
+    }
+    .card:hover .card-media img { transform: scale(1.06); }
+    .card-body { padding: clamp(20px, 3vw, 26px); flex: 1; display: flex; flex-direction: column; }
+    .card-tag {
+      display: inline-block;
+      font-size: .64rem;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      color: var(--gold);
+      font-weight: 800;
+      margin-bottom: 9px;
+    }
+    .card h3 { font-size: clamp(1.55rem, 3vw, 1.9rem); color: var(--green); margin-bottom: 9px; }
+    .card p { font-size: .9rem; color: var(--muted); margin-bottom: 18px; flex: 1; }
+    .card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .74rem;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      font-weight: 800;
+      color: var(--green);
+      transition: .25s;
+    }
+    .card:hover .card-link { color: var(--gold); gap: 12px; }
+
+    /* ============================================================
+       TECNOLOGIA
+       ============================================================ */
+    .tech {
+      background: linear-gradient(135deg, var(--green-3), var(--green));
+      color: #fff;
+      border-radius: clamp(22px, 4vw, 32px);
+      padding: clamp(26px, 5vw, 44px);
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: clamp(24px, 4vw, 34px);
+      align-items: center;
+      box-shadow: var(--shadow-dark);
+      position: relative;
+      overflow: hidden;
+    }
+    .tech::after {
+      content: "";
+      position: absolute;
+      top: -30%; right: -10%;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      border: 1px solid rgba(231, 200, 146, .14);
+      pointer-events: none;
+    }
+    .tech-list { display: grid; gap: 12px; margin-top: 22px; list-style: none; }
+    .tech-list li { display: flex; gap: 11px; color: rgba(255, 255, 255, .82); font-size: .94rem; align-items: flex-start; }
+    .tech-list i { color: var(--gold-light); margin-top: 4px; flex-shrink: 0; }
+    .tech-badge {
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(231, 200, 146, .22);
+      border-radius: 20px;
+      padding: clamp(20px, 4vw, 26px);
+      position: relative;
+      z-index: 1;
+    }
+    .tech-badge strong {
+      display: block;
+      font-family: var(--fd);
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      color: var(--gold-light);
+      line-height: 1;
+    }
+    .tech-badge span { display: block; margin-top: 10px; color: #d7d5d0; font-size: .88rem; line-height: 1.7; }
+
+    /* ============================================================
+       AVALIAÇÕES
+       ============================================================ */
+    .reviews-wrap {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: clamp(24px, 4vw, 34px);
+      align-items: start;
+    }
+    .score-card {
+      background: linear-gradient(160deg, var(--green), var(--green-3));
+      color: #fff;
+      border-radius: 26px;
+      padding: clamp(26px, 4vw, 34px);
+      text-align: center;
+      box-shadow: var(--shadow-dark);
+      position: sticky;
+      top: 100px;
+    }
+    .score-card .big {
+      font-family: var(--fd);
+      font-size: clamp(3.8rem, 8vw, 4.8rem);
+      line-height: 1;
+      color: var(--gold-light);
+    }
+    .stars { color: #FFD978; letter-spacing: 3px; font-size: 1rem; }
+    .score-card p { font-size: .86rem; color: #d8ddd8; margin-top: 8px; }
+
+    .review-window {
+      overflow: hidden;
+      border-radius: 24px;
+      touch-action: pan-y;
+      cursor: grab;
+    }
+    .review-window:active { cursor: grabbing; }
+    .review-track {
+      display: flex;
+      gap: 16px;
+      transition: transform .5s cubic-bezier(.16, 1, .3, 1);
+      will-change: transform;
+    }
+    .review-card {
+      flex: 0 0 calc(50% - 8px);
+      min-width: 0;
+      background: #fff;
+      border: 1px solid rgba(199, 155, 86, .16);
+      border-radius: 22px;
+      padding: clamp(20px, 3vw, 26px);
+      display: flex;
+      flex-direction: column;
+    }
+    .review-card p { font-size: .9rem; color: #46514b; margin: 14px 0 20px; font-style: italic; flex: 1; }
+    .review-user { display: flex; align-items: center; gap: 12px; }
+    .review-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--green);
+      color: var(--gold-light);
+      display: grid; place-items: center;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .review-user b { display: block; color: var(--green); font-size: .9rem; }
+    .review-user small { color: var(--muted); font-size: .74rem; }
+    .review-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 18px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .review-btns { display: flex; gap: 8px; }
+    .round-btn {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid rgba(199, 155, 86, .25);
+      color: var(--green);
+      display: grid; place-items: center;
+      transition: .25s;
+    }
+    .round-btn:hover { background: var(--green); color: #fff; border-color: var(--green); }
+
+    /* ============================================================
+       AGENDAMENTO
+       ============================================================ */
+    .booking {
+      background:
+        radial-gradient(circle at 85% 12%, rgba(231, 200, 146, .18), transparent 32%),
+        linear-gradient(135deg, var(--green), var(--green-3));
+      color: #fff;
+      border-radius: clamp(22px, 4vw, 34px);
+      padding: clamp(24px, 5vw, 54px);
+      box-shadow: var(--shadow-dark);
+    }
+    .booking-grid {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: clamp(28px, 5vw, 36px);
+    }
+    .booking-side p { color: rgba(255, 255, 255, .78); }
+    .info-stack { display: grid; gap: 13px; margin-top: 24px; }
+    .info-box {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid rgba(231, 200, 146, .15);
+      padding: 15px;
+      border-radius: 16px;
+    }
+    .info-box i { color: var(--gold-light); margin-top: 4px; flex-shrink: 0; }
+    .info-box b { display: block; color: #fff; font-size: .92rem; }
+    .info-box small { color: rgba(255, 255, 255, .7); font-size: .8rem; }
+
+    .form-card {
+      background: #fff;
+      color: var(--ink);
+      border-radius: 24px;
+      padding: clamp(20px, 4vw, 30px);
+      border: 1px solid rgba(199, 155, 86, .18);
+    }
+    .field { margin-top: 16px; }
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--green);
+      font-weight: 800;
+    }
+    .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .chip, .period {
+      min-height: 46px;
+      padding: 10px 8px;
+      border-radius: 13px;
+      border: 1px solid rgba(199, 155, 86, .26);
+      background: var(--ivory);
+      color: var(--green);
+      font-size: clamp(.68rem, 1.8vw, .78rem);
+      font-weight: 800;
+      transition: .2s;
+      text-align: center;
+    }
+    .chip.active, .period.active {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+      box-shadow: 0 6px 16px rgba(49, 71, 63, .22);
+    }
+    input, select, textarea {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid rgba(199, 155, 86, .3);
+      background: #fff;
+      padding: 14px 16px;
+      border-radius: 13px;
+      color: var(--ink);
+      outline: none;
+      transition: .2s;
+      font-size: .92rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(199, 155, 86, .13);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    .summary {
+      margin-top: 18px;
+      padding: 15px 16px;
+      background: var(--cream);
+      border: 1px dashed rgba(199, 155, 86, .5);
+      border-radius: 14px;
+      font-size: .84rem;
+      color: #504942;
+      line-height: 1.8;
+    }
+
+    /* ============================================================
+       FAQ
+       ============================================================ */
+    .faq { max-width: 840px; margin: 0 auto; display: grid; gap: 12px; }
+    .faq-item {
+      background: #fff;
+      border: 1px solid rgba(199, 155, 86, .16);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .faq-q {
+      width: 100%;
+      text-align: left;
+      padding: 19px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      color: var(--green);
+      font-weight: 800;
+      font-size: clamp(.88rem, 2vw, .98rem);
+    }
+    .faq-q i { transition: .28s; color: var(--gold); flex-shrink: 0; }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .38s ease, padding .38s ease;
+      padding: 0 20px;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.75;
+    }
+    .faq-item.open .faq-a { max-height: 220px; padding: 0 20px 18px; }
+    .faq-item.open .faq-q i { transform: rotate(45deg); }
+
+    /* ============================================================
+       LOCALIZAÇÃO
+       ============================================================ */
+    .location-grid {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: clamp(20px, 4vw, 28px);
+      align-items: stretch;
+    }
+    .contact-stack { display: flex; flex-direction: column; gap: 13px; justify-content: center; }
+    .contact-card {
+      background: #fff;
+      border: 1px solid rgba(199, 155, 86, .18);
+      border-radius: 18px;
+      padding: 17px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: .25s;
+    }
+    .contact-card:hover { border-color: var(--gold); transform: translateX(4px); }
+    .contact-card > i {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      background: rgba(199, 155, 86, .13);
+      color: var(--gold);
+      flex-shrink: 0;
+      font-size: 1.05rem;
+    }
+    .contact-card b { display: block; color: var(--green); font-size: .94rem; }
+    .contact-card p { font-size: .85rem; color: var(--muted); }
+    .contact-card a { font-size: .8rem; color: var(--gold); font-weight: 800; display: inline-block; margin-top: 5px; }
+    .map {
+      overflow: hidden;
+      border-radius: 22px;
+      border: 5px solid #fff;
+      box-shadow: var(--shadow);
+      min-height: 340px;
+      background: var(--nude);
+    }
+    .map iframe { width: 100%; height: 100%; min-height: 340px; border: 0; }
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    .footer {
+      background: var(--green-deep);
+      color: #d8d8d4;
+      padding: clamp(48px, 7vw, 64px) 0 calc(28px + var(--safe-bottom));
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: clamp(26px, 4vw, 34px);
+    }
+    .footer h4 {
+      color: #fff;
+      font-family: var(--fb);
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      margin-bottom: 14px;
+      font-weight: 800;
+    }
+    .footer a { display: block; margin: 8px 0; font-size: .86rem; color: #d8d8d4; transition: .25s; }
+    .footer a:hover { color: var(--gold-light); padding-left: 4px; }
+    .copy {
+      border-top: 1px solid rgba(255, 255, 255, .09);
+      margin-top: 32px;
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: .74rem;
+      color: #b9b8b3;
+    }
+
+    /* ============================================================
+       FLUTUANTES
+       ============================================================ */
+    .wpp-float {
+      position: fixed;
+      right: max(18px, var(--safe-right));
+      bottom: max(18px, var(--safe-bottom));
+      z-index: 990;
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: #25D366;
+      color: #fff;
+      display: grid; place-items: center;
+      font-size: 1.7rem;
+      box-shadow: 0 12px 28px rgba(37, 211, 102, .4);
+      transition: transform .3s;
+    }
+    .wpp-float::before {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid #25D366;
+      animation: wppPulse 2s infinite;
+    }
+    @keyframes wppPulse {
+      0% { transform: scale(1); opacity: .8; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+    .wpp-float:hover { transform: scale(1.08); }
+
+    .top-btn {
+      position: fixed;
+      right: max(26px, var(--safe-right));
+      bottom: 92px;
+      z-index: 980;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid rgba(199, 155, 86, .25);
+      color: var(--green);
+      display: grid; place-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: .3s;
+      box-shadow: var(--shadow);
+    }
+    .top-btn.show { opacity: 1; visibility: visible; }
+
+    .mobile-cta {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 970;
+      padding: 11px 14px calc(11px + var(--safe-bottom));
+      background: rgba(246, 242, 234, .97);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(199, 155, 86, .16);
+    }
+    .mobile-cta a {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 50px;
+      border-radius: 999px;
+      background: var(--green);
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: calc(24px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(110px);
+      background: var(--green-deep);
+      color: #fff;
+      border: 1px solid var(--gold);
+      border-radius: 999px;
+      padding: 13px 26px;
+      font-size: .84rem;
+      font-weight: 700;
+      z-index: 5000;
+      transition: transform .45s cubic-bezier(.16, 1, .3, 1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: calc(100vw - 32px);
+      text-align: center;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ============================================================
+       RESPONSIVIDADE COMPLETA
+       ============================================================ */
+
+    /* Tablets grandes / laptops pequenos */
+    @media (max-width: 1100px) {
+      .nav { gap: 14px; }
+      .nav a { font-size: .68rem; }
+    }
+
+    /* Tablets */
+    @media (max-width: 1024px) {
+      .hero-grid,
+      .about-grid,
+      .reviews-wrap,
+      .booking-grid,
+      .location-grid,
+      .tech {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .hero { min-height: auto; }
+      .hero-visual { max-width: 520px; margin: 0 auto; width: 100%; }
+      .glass-card.top,
+      .glass-card.bottom {
+        position: static;
+        max-width: 100%;
+        margin-top: 12px;
+        animation: none;
+      }
+      .hero-visual { display: flex; flex-direction: column; }
+      .score-card {
+        position: static;
+        max-width: 440px;
+        margin: 0 auto;
+      }
+      .about-photo { max-width: 480px; margin: 0 auto; width: 100%; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .tech::after { display: none; }
+    }
+
+    /* Celulares grandes / tablets pequenos */
+    @media (max-width: 840px) {
+      .nav, .desktop-book { display: none; }
+      .menu-btn { display: grid; }
+      .authority-grid { grid-template-columns: repeat(2, 1fr); }
+      .authority-item:nth-child(2) { border-right: none; }
+      .authority-item:nth-child(-n+2) { border-bottom: 1px solid rgba(199, 155, 86, .12); }
+      .review-card { flex: 0 0 100%; }
+    }
+
+    /* Celulares padrão */
+    @media (max-width: 640px) {
+      .section { padding: 58px 0; }
+      .hero { padding: 118px 0 52px; }
+      .hero h1 { font-size: clamp(2.5rem, 12.5vw, 3.6rem); }
+      .hero-ctas { flex-direction: column; }
+      .hero-ctas .btn { width: 100%; }
+      .hero-meta { gap: 10px 16px; }
+
+      .credential-grid { grid-template-columns: 1fr; }
+      .chips { grid-template-columns: repeat(2, 1fr); }
+      .chips .chip:last-child:nth-child(odd) { grid-column: 1 / -1; }
+      #periodChips { grid-template-columns: repeat(3, 1fr) !important; }
+
+      .cards { grid-template-columns: 1fr; }
+      .booking { border-radius: 22px; }
+      .review-nav { justify-content: center; flex-direction: column; gap: 14px; }
+
+      .map, .map iframe { min-height: 280px; height: 280px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .copy { flex-direction: column; text-align: center; }
+
+      .mobile-cta { display: block; }
+      .footer { padding-bottom: calc(110px + var(--safe-bottom)); }
+      .wpp-float { bottom: calc(84px + var(--safe-bottom)); width: 56px; height: 56px; font-size: 1.55rem; }
+      .top-btn { bottom: calc(152px + var(--safe-bottom)); right: 20px; }
+
+      .btn { width: 100%; }
+      .hero-meta .btn, .card-link { width: auto; }
+      .tech .btn, .score-card .btn { width: 100%; }
+    }
+
+    /* Telas ultra pequenas: 320px - 380px */
+    @media (max-width: 380px) {
+      html { font-size: 14.5px; }
+      .container { width: calc(100% - 20px); }
+      .brand-text strong { font-size: .88rem; letter-spacing: .04em; }
+      .brand-text small { display: none; }
+      .brand-mark { width: 38px; height: 38px; }
+      .hero h1 { font-size: 2.3rem; }
+      .hero-label { font-size: .54rem; padding: 7px 12px; letter-spacing: .12em; }
+      .authority-grid { grid-template-columns: 1fr; }
+      .authority-item { border-right: none !important; border-bottom: 1px solid rgba(199, 155, 86, .12); }
+      .authority-item:last-child { border-bottom: none; }
+      .chips { grid-template-columns: 1fr; }
+      #periodChips { grid-template-columns: repeat(3, 1fr) !important; }
+      .about-badge { padding: 12px 16px; bottom: -14px; }
+      .glass-card { padding: 12px 14px; }
+      .form-card { padding: 18px 14px; }
+      .booking { padding: 20px 12px; }
+      .review-card { padding: 18px; }
+      .loader-name { letter-spacing: .22em; text-indent: .22em; }
+    }
+
+    /* Acessibilidade: movimento reduzido */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+      #preloader { display: none; }
+      body .hero-stagger, body .header { opacity: 1; transform: none; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": ["Dentist", "LocalBusiness", "MedicalBusiness"],
+    "name": "Clínica Flórida",
+    "telephone": "+5547996568563",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Rua 236, 314 - Sala 02, Meia Praia",
+      "addressLocality": "Itapema",
+      "addressRegion": "SC",
+      "postalCode": "88220-000",
+      "addressCountry": "BR"
+    },
+    "url": "https://clinicafloridaitapema.com.br",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5.0",
+      "reviewCount": "56"
+    },
+    "medicalSpecialty": ["Implantodontia", "Odontologia Digital", "Prótese", "Cirurgia Oral Menor", "Harmonização Orofacial"]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ============================================================
+       PRELOADER COM LOGO ANIMADO
+       ============================================================ -->
+  <div id="preloader" aria-hidden="true">
+    <div class="loader-logo-wrap">
+      <div class="loader-orbit"></div>
+      <svg class="loader-ring" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#E7C892"/>
+            <stop offset="50%" stop-color="#C79B56"/>
+            <stop offset="100%" stop-color="#E7C892"/>
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="48"/>
+      </svg>
+
+      <!-- Palmeira dourada (logo Clínica Flórida) -->
+      <svg class="loader-palm" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#E7C892" stroke-width="2.4" stroke-linecap="round" fill="none">
+          <!-- Tronco -->
+          <path d="M31 58 C33 46, 34 38, 32 27"/>
+          <!-- Folhas -->
+          <path d="M32 27 C24 20, 14 19, 8 24 C16 24, 25 25, 32 27 Z" fill="rgba(231,200,146,.25)"/>
+          <path d="M32 27 C40 20, 50 19, 56 24 C48 24, 39 25, 32 27 Z" fill="rgba(231,200,146,.25)"/>
+          <path d="M32 27 C28 18, 22 12, 14 11 C21 15, 27 21, 32 27 Z" fill="rgba(231,200,146,.25)"/>
+          <path d="M32 27 C36 18, 42 12, 50 11 C43 15, 37 21, 32 27 Z" fill="rgba(231,200,146,.25)"/>
+          <path d="M32 27 C31 17, 32 10, 36 5 C33 12, 32 19, 32 27 Z" fill="rgba(231,200,146,.25)"/>
+          <!-- Base / areia -->
+          <path d="M22 58 C28 56, 36 56, 42 58"/>
+        </g>
+        <!-- Cocos -->
+        <circle cx="29" cy="28" r="2" fill="#E7C892"/>
+        <circle cx="35" cy="29" r="2" fill="#E7C892"/>
+      </svg>
+    </div>
+
+    <div class="loader-name">Clínica Flórida</div>
+    <div class="loader-tag">Odontologia • Saúde • Estética</div>
+    <div class="loader-bar"><span></span></div>
+  </div>
+
+  <div id="scrollProgress"></div>
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+  <header class="header" id="header">
+    <div class="container">
+      <div class="header-wrap">
+        <a href="#inicio" class="brand" aria-label="Clínica Flórida">
+          <div class="brand-mark">
+            <svg viewBox="0 0 64 64" fill="none">
+              <g stroke="#E7C892" stroke-width="3" stroke-linecap="round" fill="none">
+                <path d="M31 58 C33 46, 34 38, 32 27"/>
+                <path d="M32 27 C24 20, 14 19, 8 24 C16 24, 25 25, 32 27 Z" fill="rgba(231,200,146,.3)"/>
+                <path d="M32 27 C40 20, 50 19, 56 24 C48 24, 39 25, 32 27 Z" fill="rgba(231,200,146,.3)"/>
+                <path d="M32 27 C28 18, 22 12, 14 11 C21 15, 27 21, 32 27 Z" fill="rgba(231,200,146,.3)"/>
+                <path d="M32 27 C36 18, 42 12, 50 11 C43 15, 37 21, 32 27 Z" fill="rgba(231,200,146,.3)"/>
+              </g>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <strong>Clínica Flórida</strong>
+            <small>Odontologia • Saúde • Estética</small>
+          </div>
+        </a>
+
+        <nav class="nav">
+          <a href="#inicio">Início</a>
+          <a href="#sobre">Sobre</a>
+          <a href="#especialidades">Especialidades</a>
+          <a href="#tecnologia">Tecnologia</a>
+          <a href="#avaliacoes">Avaliações</a>
+          <a href="#contato">Contato</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a href="#agendar" class="btn btn-primary desktop-book">Agendar Avaliação</a>
+          <button class="menu-btn" id="openMenu" aria-label="Abrir menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-drawer" id="mobileDrawer">
+    <div class="mobile-panel">
+      <div class="mobile-top">
+        <div class="brand">
+          <div class="brand-mark">
+            <svg viewBox="0 0 64 64" fill="none">
+              <g stroke="#E7C892" stroke-width="3" stroke-linecap="round" fill="none">
+                <path d="M31 58 C33 46, 34 38, 32 27"/>
+                <path d="M32 27 C24 20, 14 19, 8 24 C16 24, 25 25, 32 27 Z" fill="rgba(231,200,146,.3)"/>
+                <path d="M32 27 C40 20, 50 19, 56 24 C48 24, 39 25, 32 27 Z" fill="rgba(231,200,146,.3)"/>
+              </g>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <strong style="color:var(--green)">Clínica Flórida</strong>
+            <small style="color:var(--gold)">Odontologia Digital</small>
+          </div>
+        </div>
+        <button class="close-btn" id="closeMenu" aria-label="Fechar menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="mobile-links">
+        <a href="#inicio" class="mob-link">Início</a>
+        <a href="#sobre" class="mob-link">Sobre a Dra. Laisy</a>
+        <a href="#especialidades" class="mob-link">Especialidades</a>
+        <a href="#tecnologia" class="mob-link">Tecnologia</a>
+        <a href="#avaliacoes" class="mob-link">Avaliações</a>
+        <a href="#agendar" class="mob-link">Agendamento</a>
+        <a href="#contato" class="mob-link">Contato</a>
+      </div>
+
+      <a href="https://wa.me/5547996568563?text=Olá!%20Quero%20agendar%20uma%20avaliação%20na%20Clínica%20Flórida." target="_blank" rel="noopener" class="btn btn-dark" style="width:100%;margin-top:auto">
+        Agendar pelo WhatsApp <i class="fa-brands fa-whatsapp"></i>
+      </a>
+    </div>
+  </div>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="inicio">
+      <div class="container hero-grid">
+        <div>
+          <div class="hero-label hero-stagger hs-1">
+            <span class="dot"></span> Aberto hoje • Fecha às 19:00 • Itapema
+          </div>
+          <h1 class="hero-stagger hs-2">
+            Sorrisos planejados
+            <em>com precisão</em>
+            e excelência.
+          </h1>
+          <p class="lead hero-stagger hs-3">
+            Com 12 anos de formação, a Dra. Laisy construiu sua trajetória com base em conhecimento, atualização constante e tecnologia. Um novo padrão de cuidado odontológico em Meia Praia.
+          </p>
+
+          <div class="hero-ctas hero-stagger hs-4">
+            <a href="#agendar" class="btn btn-primary">Agendar Avaliação</a>
+            <a href="#especialidades" class="btn btn-light">Ver Tratamentos</a>
+          </div>
+
+          <div class="hero-meta hero-stagger hs-5">
+            <span><i class="fa-solid fa-star"></i> 5.0 no Google</span>
+            <span><i class="fa-solid fa-comment"></i> 56 avaliações</span>
+            <span><i class="fa-solid fa-laptop-medical"></i> Odontologia Digital</span>
+          </div>
+        </div>
+
+        <div class="hero-visual hero-stagger hs-3">
+          <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1606265752439-1f18756aa5fc?q=80&w=1200&auto=format&fit=crop" alt="Consultório odontológico premium da Clínica Flórida" loading="eager">
+          </div>
+
+          <div class="glass-card top">
+            <b>Dente na hora</b>
+            <small>Tecnologia CAD/CAM e agilidade no planejamento.</small>
+          </div>
+
+          <div class="glass-card bottom">
+            <b>Lentes em até 24h</b>
+            <small>Precisão digital e acabamento com alto padrão.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUTHORITY -->
+    <section class="authority">
+      <div class="container authority-grid">
+        <div class="authority-item reveal">
+          <b><span class="counter" data-target="5" data-suffix=".0★">0</span></b>
+          <span>Nota no Google</span>
+        </div>
+        <div class="authority-item reveal d1">
+          <b><span class="counter" data-target="56" data-suffix="">0</span></b>
+          <span>Avaliações reais</span>
+        </div>
+        <div class="authority-item reveal d2">
+          <b><span class="counter" data-target="12" data-suffix="">0</span></b>
+          <span>Anos de formação</span>
+        </div>
+        <div class="authority-item reveal d3">
+          <b>24h</b>
+          <span>Lentes em até 24h*</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOBRE -->
+    <section class="section" id="sobre">
+      <div class="container">
+        <div class="about-grid">
+          <div class="about-photo reveal">
+            <div class="frame">
+              <img src="https://i.postimg.cc/X7vvZwcN/Chat-GPT-Image-10-de-set-de-2026-16-54-58-(2).png" alt="Dra. Laisy David no consultório" loading="lazy">
+            </div>
+            <div class="about-badge">
+              <b>12</b>
+              <span>Anos de formação</span>
+            </div>
+          </div>
+
+          <div class="reveal d1">
+            <div class="eyebrow">Sobre a Dra. Laisy</div>
+            <h2>Conhecimento, atualização constante e tecnologia a favor do seu sorriso.</h2>
+            <p style="margin-top:18px;color:var(--muted);font-size:1rem;line-height:1.85">
+              Formada pela FURB em 2013, a Dra. Laisy construiu sua trajetória com foco em precisão clínica, excelência estética e odontologia digital. Seu atendimento une técnica, atenção aos detalhes e planejamento individualizado.
+            </p>
+
+            <div class="credential-grid">
+              <div class="credential"><strong>Formação</strong><p>FURB • 2013</p></div>
+              <div class="credential"><strong>Especialização</strong><p>Implantodontia</p></div>
+              <div class="credential"><strong>Aperfeiçoamento</strong><p>Cirurgia Oral Menor</p></div>
+              <div class="credential"><strong>Atualização</strong><p>Prótese</p></div>
+              <div class="credential"><strong>Especialista</strong><p>Odontologia Digital</p></div>
+              <div class="credential"><strong>Aperfeiçoamentos</strong><p>Harmonização Orofacial</p></div>
+            </div>
+
+            <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
+              <a href="#agendar" class="btn btn-dark">Quero agendar</a>
+              <a href="https://wa.me/5547996568563?text=Olá!%20Gostaria%20de%20tirar%20uma%20dúvida%20sobre%20a%20Clínica%20Flórida." target="_blank" rel="noopener" class="btn btn-outline">Falar no WhatsApp</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESPECIALIDADES -->
+    <section class="section" id="especialidades" style="background:var(--ivory)">
+      <div class="container">
+        <div class="section-head center reveal">
+          <div class="eyebrow">Especialidades</div>
+          <h2>Tratamentos com precisão, cuidado e estética.</h2>
+          <p style="margin-top:14px;color:var(--muted)">
+            Um atendimento construído com tecnologia, transparência e atenção em cada etapa do tratamento.
+          </p>
+        </div>
+
+        <div class="cards">
+          <article class="card reveal">
+            <div class="card-media">
+              <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?q=80&w=1200&auto=format&fit=crop" alt="Odontologia digital" loading="lazy">
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Alta tecnologia</span>
+              <h3>Odontologia Digital</h3>
+              <p>Planejamento mais preciso, fluxo moderno e resultados com mais agilidade e previsibilidade.</p>
+              <a href="#agendar" class="card-link">Quero saber mais <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </article>
+
+          <article class="card reveal d1">
+            <div class="card-media">
+              <img src="https://images.unsplash.com/photo-1606265752439-1f18756aa5fc?q=80&w=1200&auto=format&fit=crop" alt="Implantes dentários" loading="lazy">
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Reabilitação</span>
+              <h3>Implantodontia</h3>
+              <p>Reposição dentária com planejamento individual e foco em função, conforto e estética.</p>
+              <a href="#agendar" class="card-link">Quero agendar <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </article>
+
+          <article class="card reveal d2">
+            <div class="card-media">
+              <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=1200&auto=format&fit=crop" alt="Prótese dentária" loading="lazy">
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Precisão</span>
+              <h3>Prótese</h3>
+              <p>Atualização constante em prótese para devolver forma, função e harmonia ao sorriso.</p>
+              <a href="#agendar" class="card-link">Falar com a equipe <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-media">
+              <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=1200&auto=format&fit=crop" alt="Lentes dentais" loading="lazy">
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Estética</span>
+              <h3>Lentes Dentais</h3>
+              <p>Tratamentos estéticos com planejamento digital e possibilidade de lentes em até 24h.*</p>
+              <a href="#agendar" class="card-link">Quero minha avaliação <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </article>
+
+          <article class="card reveal d1">
+            <div class="card-media">
+              <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200&auto=format&fit=crop" alt="Cirurgia oral menor" loading="lazy">
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Segurança</span>
+              <h3>Cirurgia Oral Menor</h3>
+              <p>Aperfeiçoamento em cirurgia oral menor para condução segura e cuidadosa dos procedimentos.</p>
+              <a href="#agendar" class="card-link">Agendar consulta <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </article>
+
+          <article class="card reveal d2">
+            <div class="card-media">
+              <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=1200&auto=format&fit=crop" alt="Harmonização orofacial" loading="lazy">
+            </div>
+            <div class="card-body">
+              <span class="card-tag">Saúde & estética</span>
+              <h3>Harmonização Orofacial</h3>
+              <p>Aperfeiçoamentos em harmonização para complementar a estética facial com equilíbrio.</p>
+              <a href="#agendar" class="card-link">Quero conhecer <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </article>
+        </div>
+
+        <p style="margin-top:18px;color:var(--muted);font-size:.76rem;text-align:center">
+          *Disponibilidade conforme avaliação clínica e planejamento do caso.
+        </p>
+      </div>
+    </section>
+
+    <!-- TECNOLOGIA -->
+    <section class="section" id="tecnologia">
+      <div class="container">
+        <div class="tech reveal">
+          <div>
+            <div class="eyebrow" style="color:var(--gold-light)">Tecnologia clínica</div>
+            <h2 style="color:#fff">Um novo padrão de <span style="font-style:italic;color:var(--gold-light)">odontologia digital.</span></h2>
+            <p style="margin-top:16px;color:rgba(255,255,255,.8);font-size:1rem">
+              Na Clínica Flórida, tecnologia não é detalhe: ela faz parte da experiência, do diagnóstico ao resultado.
+            </p>
+            <ul class="tech-list">
+              <li><i class="fa-solid fa-circle-check"></i><span>Fluxo digital com mais precisão no planejamento</span></li>
+              <li><i class="fa-solid fa-circle-check"></i><span>CAD/CAM para agilidade e alta qualidade</span></li>
+              <li><i class="fa-solid fa-circle-check"></i><span>Estética e função tratadas com cuidado individual</span></li>
+            </ul>
+          </div>
+
+          <div class="tech-badge">
+            <strong>CAD/CAM</strong>
+            <span>Tecnologia que permite mais rapidez, previsibilidade e acabamento refinado em determinados tratamentos.</span>
+            <div style="margin-top:20px">
+              <a href="#agendar" class="btn btn-primary">Quero esse padrão de cuidado</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AVALIAÇÕES -->
+    <section class="section" id="avaliacoes" style="background:var(--ivory)">
+      <div class="container">
+        <div class="section-head center reveal">
+          <div class="eyebrow">Prova social</div>
+          <h2>Pacientes que recomendam com confiança.</h2>
+          <p style="margin-top:14px;color:var(--muted)">Comentários reais registrados na ficha do Google da Clínica Flórida.</p>
+        </div>
+
+        <div class="reviews-wrap">
+          <aside class="score-card reveal">
+            <div class="big">5.0</div>
+            <div class="stars">★★★★★</div>
+            <p>56 avaliações • atendimento elogiado por atenção, tecnologia e agilidade</p>
+            <a href="https://wa.me/5547996568563?text=Olá!%20Vim%20pelo%20site%20e%20quero%20agendar%20na%20Clínica%20Flórida." target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:22px;width:100%">Agendar agora</a>
+          </aside>
+
+          <div class="reveal d1">
+            <div class="review-window" id="reviewWindow">
+              <div class="review-track" id="reviewTrack">
+                <article class="review-card">
+                  <div class="stars">★★★★★</div>
+                  <p>"Atendimento excelente, Dra. super atenciosa e dedicada. O ambiente é seguro, organizado e muito acolhedor. Serviço perfeito, com profissionais maravilhosas e qualificadas. Super recomendo!"</p>
+                  <div class="review-user">
+                    <div class="review-avatar">A</div>
+                    <div><b>Andressa Cescon</b><small>Local Guide • Google</small></div>
+                  </div>
+                </article>
+
+                <article class="review-card">
+                  <div class="stars">★★★★★</div>
+                  <p>"Ótimo atendimento, a Dra. super atenciosa e querida. Recomendo!"</p>
+                  <div class="review-user">
+                    <div class="review-avatar" style="background:var(--gold);color:#fff">E</div>
+                    <div><b>Edilaine Da Silva</b><small>Avaliação no Google</small></div>
+                  </div>
+                </article>
+
+                <article class="review-card">
+                  <div class="stars">★★★★★</div>
+                  <p>"Tive uma emergência com um dente quebrado e fui muito bem atendido desde o agendamento até a finalização. Equipe extremamente atenciosa, educada, ágil e transparente em todas as etapas."</p>
+                  <div class="review-user">
+                    <div class="review-avatar" style="background:var(--green-2)">R</div>
+                    <div><b>Rafael Portes</b><small>Avaliação no Google</small></div>
+                  </div>
+                </article>
+
+                <article class="review-card">
+                  <div class="stars">★★★★★</div>
+                  <p>"Excelente clínica e dentistas, faz o dente na hora com tecnologia!"</p>
+                  <div class="review-user">
+                    <div class="review-avatar" style="background:var(--green-deep)">G</div>
+                    <div><b>Avaliação Google</b><small>Resumo de avaliações</small></div>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <div class="review-nav">
+              <small id="reviewIndexLabel" style="color:var(--muted);font-weight:800">1 / 3</small>
+              <div class="review-btns">
+                <button class="round-btn" id="prevReview" aria-label="Anterior"><i class="fa-solid fa-arrow-left"></i></button>
+                <button class="round-btn" id="nextReview" aria-label="Próximo"><i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENDAMENTO -->
+    <section class="section" id="agendar">
+      <div class="container">
+        <div class="booking reveal">
+          <div class="booking-grid">
+            <div class="booking-side">
+              <div class="eyebrow" style="color:var(--gold-light)">Agendamento inteligente</div>
+              <h2 style="color:#fff">Vamos encontrar o melhor tratamento para o seu caso.</h2>
+              <p style="margin-top:16px;font-size:1rem;line-height:1.8">
+                Selecione o motivo do seu contato e envie sua solicitação diretamente para o WhatsApp da clínica.
+              </p>
+
+              <div class="info-stack">
+                <div class="info-box">
+                  <i class="fa-solid fa-calendar-check"></i>
+                  <div><b>Agendamento simples</b><small>Sem complicação e sem fila.</small></div>
+                </div>
+                <div class="info-box">
+                  <i class="fa-solid fa-clock"></i>
+                  <div><b>Atendimento até 19h</b><small>Ideal para rotina organizada.</small></div>
+                </div>
+                <div class="info-box">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <div><b>Meia Praia • Itapema</b><small>Rua 236, 314 - Sala 02.</small></div>
+                </div>
+              </div>
+            </div>
+
+            <form class="form-card" id="bookingForm">
+              <h3 style="font-size:clamp(1.6rem,3vw,2rem);color:var(--green)">Solicitar avaliação</h3>
+              <p style="margin-top:4px;color:var(--muted);font-size:.86rem">Preencha e continue direto no WhatsApp.</p>
+
+              <div class="field">
+                <label>1. Qual tratamento você procura?</label>
+                <div class="chips" id="treatmentChips">
+                  <button type="button" class="chip active" data-value="Odontologia Digital">Odonto Digital</button>
+                  <button type="button" class="chip" data-value="Implantes">Implantes</button>
+                  <button type="button" class="chip" data-value="Prótese">Prótese</button>
+                  <button type="button" class="chip" data-value="Lentes Dentais">Lentes</button>
+                  <button type="button" class="chip" data-value="Cirurgia Oral Menor">Cirurgia</button>
+                  <button type="button" class="chip" data-value="Harmonização Orofacial">Harmonização</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>2. Melhor período</label>
+                <div class="chips" id="periodChips" style="grid-template-columns:repeat(3,1fr)">
+                  <button type="button" class="period active" data-value="Manhã">Manhã</button>
+                  <button type="button" class="period" data-value="Tarde">Tarde</button>
+                  <button type="button" class="period" data-value="Fim da tarde">Fim da tarde</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="name">3. Seu nome</label>
+                <input id="name" type="text" placeholder="Ex: Maria Silva" required autocomplete="name">
+              </div>
+
+              <div class="field">
+                <label for="phone">4. Seu WhatsApp</label>
+                <input id="phone" type="tel" placeholder="(47) 99999-9999" autocomplete="tel" inputmode="numeric">
+              </div>
+
+              <div class="field">
+                <label for="obs">5. Observações (opcional)</label>
+                <textarea id="obs" placeholder="Conte brevemente o que você precisa..."></textarea>
+              </div>
+
+              <div class="summary" id="summaryBox">
+                <strong>Resumo da solicitação</strong><br>
+                Tratamento: Odontologia Digital<br>
+                Período: Manhã<br>
+                Nome: —
+              </div>
+
+              <button type="submit" class="btn btn-dark" style="width:100%;margin-top:16px">
+                Continuar pelo WhatsApp <i class="fa-brands fa-whatsapp"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" style="background:#fff">
+      <div class="container">
+        <div class="section-head center reveal">
+          <div class="eyebrow">Perguntas frequentes</div>
+          <h2>Dúvidas comuns antes da sua avaliação.</h2>
+        </div>
+
+        <div class="faq reveal">
+          <div class="faq-item open">
+            <button class="faq-q" type="button">
+              <span>Como funciona a avaliação?</span>
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <div class="faq-a">
+              A avaliação é o momento para entender sua necessidade, analisar possibilidades de tratamento e montar o melhor planejamento para o seu caso.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" type="button">
+              <span>A clínica trabalha com tecnologia digital?</span>
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <div class="faq-a">
+              Sim. A Clínica Flórida destaca a odontologia digital e o uso de tecnologia CAD/CAM em sua proposta de atendimento, com possibilidade de lentes dentais em até 24h conforme o caso.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" type="button">
+              <span>Quais especialidades estão disponíveis?</span>
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <div class="faq-a">
+              Implantodontia, cirurgia oral menor, prótese, odontologia digital, lentes dentais e harmonização orofacial.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-q" type="button">
+              <span>Onde fica a clínica?</span>
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <div class="faq-a">
+              Esquina com Rua 236, 2ª Avenida, 314 - Sala 02, Meia Praia, Itapema - SC, CEP 88220-000.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTATO -->
+    <section class="section" id="contato" style="background:var(--ivory)">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="eyebrow">Localização & contato</div>
+          <h2>Venha viver um novo padrão de cuidado odontológico.</h2>
+          <p style="margin-top:14px;color:var(--muted)">Clínica Flórida • Meia Praia • Itapema • Santa Catarina</p>
+        </div>
+
+        <div class="location-grid">
+          <div class="contact-stack reveal">
+            <div class="contact-card">
+              <i class="fa-solid fa-location-dot"></i>
+              <div>
+                <b>Endereço</b>
+                <p>Esquina com Rua 236, 2ª Avenida, 314 - Sala 02<br>Meia Praia, Itapema - SC • CEP 88220-000</p>
+                <a href="https://www.google.com/maps/search/?api=1&query=Rua+236,+314,+Sala+02,+Meia+Praia,+Itapema+-+SC" target="_blank" rel="noopener">Abrir rota no Google Maps →</a>
+              </div>
+            </div>
+
+            <div class="contact-card">
+              <i class="fa-brands fa-whatsapp"></i>
+              <div>
+                <b>WhatsApp</b>
+                <p>(47) 99656-8563</p>
+                <a href="https://wa.me/5547996568563?text=Olá!%20Gostaria%20de%20agendar%20uma%20avaliação%20na%20Clínica%20Flórida." target="_blank" rel="noopener">Conversar agora →</a>
+              </div>
+            </div>
+
+            <div class="contact-card">
+              <i class="fa-regular fa-clock"></i>
+              <div>
+                <b>Horário</b>
+                <p>Aberto • Fecha às 19:00</p>
+                <a href="https://clinicafloridaitapema.com.br" target="_blank" rel="noopener">Acessar website →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="map reveal d1">
+            <iframe
+              title="Mapa Clínica Flórida"
+              src="https://www.google.com/maps?q=Rua+236,+314,+Sala+02,+Meia+Praia,+Itapema+-+SC&output=embed"
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA FINAL -->
+    <section class="section">
+      <div class="container">
+        <div class="tech reveal" style="grid-template-columns:1fr;text-align:center">
+          <div>
+            <div class="eyebrow" style="justify-content:center;color:var(--gold-light)">Pronta para agendar?</div>
+            <h2 style="color:#fff">Seu próximo sorriso começa com uma boa avaliação.</h2>
+            <p style="max-width:680px;margin:16px auto 0;color:rgba(255,255,255,.8)">
+              Fale com a equipe da Clínica Flórida e conheça um atendimento elogiado por tecnologia, atenção e transparência.
+            </p>
+            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:28px">
+              <a href="https://wa.me/5547996568563?text=Olá!%20Quero%20agendar%20uma%20avaliação%20na%20Clínica%20Flórida." target="_blank" rel="noopener" class="btn btn-primary">Agendar pelo WhatsApp</a>
+              <a href="#contato" class="btn btn-light">Como chegar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="brand" style="margin-bottom:14px">
+            <div class="brand-mark">
+              <svg viewBox="0 0 64 64" fill="none">
+                <g stroke="#E7C892" stroke-width="3" stroke-linecap="round" fill="none">
+                  <path d="M31 58 C33 46, 34 38, 32 27"/>
+                  <path d="M32 27 C24 20, 14 19, 8 24 C16 24, 25 25, 32 27 Z" fill="rgba(231,200,146,.3)"/>
+                  <path d="M32 27 C40 20, 50 19, 56 24 C48 24, 39 25, 32 27 Z" fill="rgba(231,200,146,.3)"/>
+                </g>
+              </svg>
+            </div>
+            <div class="brand-text">
+              <strong style="color:#fff">Clínica Flórida</strong>
+              <small>Odontologia • Saúde • Estética</small>
+            </div>
+          </div>
+          <p style="font-size:.88rem;line-height:1.75;color:#d8d8d4;max-width:400px">
+            Odontologia digital em Meia Praia com foco em precisão, excelência estética e atendimento acolhedor.
+          </p>
+        </div>
+
+        <div>
+          <h4>Navegação</h4>
+          <a href="#sobre">Sobre a Dra. Laisy</a>
+          <a href="#especialidades">Especialidades</a>
+          <a href="#tecnologia">Tecnologia</a>
+          <a href="#agendar">Agendamento</a>
+        </div>
+
+        <div>
+          <h4>Contato</h4>
+          <a href="https://wa.me/5547996568563" target="_blank" rel="noopener">(47) 99656-8563</a>
+          <a href="https://clinicafloridaitapema.com.br" target="_blank" rel="noopener">clinicafloridaitapema.com.br</a>
+          <a href="#contato">Rua 236, 314 - Sala 02</a>
+          <a href="#contato">Meia Praia • Itapema - SC</a>
+        </div>
+      </div>
+
+      <div class="copy">
+        <span>© <span id="year"></span> Clínica Flórida. Todos os direitos reservados.</span>
+        <span>Dra. Laisy Albanas David • CRO 13414</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FLUTUANTES -->
+  <button class="top-btn" id="topBtn" aria-label="Voltar ao topo">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+
+  <a class="wpp-float" href="https://wa.me/5547996568563?text=Olá!%20Vim%20pelo%20site%20da%20Clínica%20Flórida%20e%20quero%20agendar%20uma%20avaliação." target="_blank" rel="noopener" aria-label="WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <div class="mobile-cta">
+    <a href="https://wa.me/5547996568563?text=Olá!%20Quero%20agendar%20uma%20avaliação%20na%20Clínica%20Flórida." target="_blank" rel="noopener">
+      Agendar avaliação <i class="fa-brands fa-whatsapp"></i>
+    </a>
+  </div>
+
+  <div id="toast"><i class="fa-solid fa-circle-check" style="color:#7BE3A2"></i><span id="toastMsg"></span></div>
+
+  <script>
+    /* ==================== PRELOADER ==================== */
+    window.addEventListener('load', () => {
+      const preloader = document.getElementById('preloader');
+      // Tempo total da animação do logo: ~2.4s
+      setTimeout(() => {
+        preloader.classList.add('done');
+        document.body.classList.add('page-ready');
+      }, 2400);
+      // Fallback de segurança
+      setTimeout(() => {
+        preloader.classList.add('done');
+        document.body.classList.add('page-ready');
+      }, 4000);
+    });
+    // Se demorar a carregar, libera após 5s mesmo assim
+    setTimeout(() => {
+      document.getElementById('preloader').classList.add('done');
+      document.body.classList.add('page-ready');
+    }, 5000);
+
+    /* ==================== ANO ==================== */
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* ==================== HEADER / SCROLL / PROGRESS ==================== */
+    const header = document.getElementById('header');
+    const topBtn = document.getElementById('topBtn');
+    const scrollProgress = document.getElementById('scrollProgress');
+
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrollProgress.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
+      header.classList.toggle('scrolled', y > 30);
+      topBtn.classList.toggle('show', y > 500);
+    }, { passive: true });
+
+    topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    /* ==================== MENU MOBILE ==================== */
+    const drawer = document.getElementById('mobileDrawer');
+    function openDrawer() { drawer.classList.add('open'); document.body.classList.add('locked'); }
+    function closeDrawer() { drawer.classList.remove('open'); document.body.classList.remove('locked'); }
+
+    document.getElementById('openMenu').addEventListener('click', openDrawer);
+    document.getElementById('closeMenu').addEventListener('click', closeDrawer);
+    drawer.addEventListener('click', e => { if (e.target === drawer) closeDrawer(); });
+    document.querySelectorAll('.mob-link').forEach(l => l.addEventListener('click', closeDrawer));
+
+    /* ==================== REVEAL ON SCROLL ==================== */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    /* ==================== CONTADORES ANIMADOS ==================== */
+    const counterIO = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = parseFloat(el.dataset.target);
+        const suffix = el.dataset.suffix || '';
+        const duration = 1200;
+        const start = performance.now();
+
+        function tick(now) {
+          const p = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          const val = target * eased;
+          el.textContent = (target % 1 === 0 ? Math.round(val) : val.toFixed(1)) + (p === 1 ? suffix : '');
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        counterIO.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.counter').forEach(el => counterIO.observe(el));
+
+    /* ==================== CARROSSEL AVALIAÇÕES + SWIPE ==================== */
+    const reviewTrack = document.getElementById('reviewTrack');
+    const reviewWindow = document.getElementById('reviewWindow');
+    const reviewCards = reviewTrack ? [...reviewTrack.children] : [];
+    const reviewLabel = document.getElementById('reviewIndexLabel');
+    let reviewIndex = 0;
+    let touchStartX = 0;
+
+    function perView() { return window.innerWidth <= 840 ? 1 : 2; }
+    function maxIndex() { return Math.max(0, reviewCards.length - perView()); }
+
+    function goReview(i) {
+      const max = maxIndex();
+      reviewIndex = i > max ? 0 : i < 0 ? max : i;
+      const w = reviewCards[0].getBoundingClientRect().width;
+      reviewTrack.style.transform = `translate3d(-${reviewIndex * (w + 16)}px,0,0)`;
+      reviewLabel.textContent = `${reviewIndex + 1} / ${max + 1}`;
+    }
+
+    document.getElementById('nextReview').addEventListener('click', () => goReview(reviewIndex + 1));
+    document.getElementById('prevReview').addEventListener('click', () => goReview(reviewIndex - 1));
+
+    reviewWindow.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; }, { passive: true });
+    reviewWindow.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) < 45) return;
+      goReview(diff > 0 ? reviewIndex + 1 : reviewIndex - 1);
+    }, { passive: true });
+
+    window.addEventListener('resize', () => goReview(reviewIndex));
+    window.addEventListener('orientationchange', () => setTimeout(() => goReview(reviewIndex), 250));
+    requestAnimationFrame(() => goReview(0));
+
+    /* Auto-play suave */
+    setInterval(() => {
+      if (document.hidden) return;
+      goReview(reviewIndex + 1);
+    }, 6500);
+
+    /* ==================== AGENDAMENTO ==================== */
+    let selectedTreatment = 'Odontologia Digital';
+    let selectedPeriod = 'Manhã';
+
+    const nameInput = document.getElementById('name');
+    const phoneInput = document.getElementById('phone');
+    const obsInput = document.getElementById('obs');
+    const summaryBox = document.getElementById('summaryBox');
+
+    document.querySelectorAll('#treatmentChips .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#treatmentChips .chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        selectedTreatment = chip.dataset.value;
+        updateSummary();
+      });
+    });
+
+    document.querySelectorAll('#periodChips .period').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#periodChips .period').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        selectedPeriod = chip.dataset.value;
+        updateSummary();
+      });
+    });
+
+    phoneInput.addEventListener('input', () => {
+      let v = phoneInput.value.replace(/\D/g, '').slice(0, 11);
+      if (v.length <= 2) phoneInput.value = v;
+      else if (v.length <= 7) phoneInput.value = `(${v.slice(0,2)}) ${v.slice(2)}`;
+      else phoneInput.value = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+    });
+
+    function updateSummary() {
+      summaryBox.innerHTML = `
+        <strong>Resumo da solicitação</strong><br>
+        Tratamento: ${selectedTreatment}<br>
+        Período: ${selectedPeriod}<br>
+        Nome: ${nameInput.value.trim() || '—'}
+      `;
+    }
+    nameInput.addEventListener('input', updateSummary);
+    updateSummary();
+
+    document.getElementById('bookingForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      if (!name) {
+        showToast('Por favor, informe seu nome');
+        nameInput.focus();
+        return;
+      }
+
+      const phone = phoneInput.value.trim();
+      const obs = obsInput.value.trim();
+
+      let msg =
+`Olá! Vim pelo site da Clínica Flórida e gostaria de agendar uma avaliação.
+
+Meu nome é ${name}.
+Tenho interesse em ${selectedTreatment}.
+Prefiro atendimento no período da ${selectedPeriod}.`;
+
+      if (phone) msg += `\n\nMeu WhatsApp: ${phone}.`;
+      if (obs) msg += `\n\nObservações: ${obs}`;
+      msg += `\n\nGostaria de saber os próximos horários disponíveis.`;
+
+      window.open(`https://wa.me/5547996568563?text=${encodeURIComponent(msg)}`, '_blank');
+      showToast('Abrindo o WhatsApp da clínica...');
+    });
+
+    /* ==================== FAQ ==================== */
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.querySelector('.faq-q').addEventListener('click', () => {
+        const wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
+      });
+    });
+
+    /* ==================== TOAST ==================== */
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+  </script>
+</body>
+</html>
