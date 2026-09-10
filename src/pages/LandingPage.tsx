@@ -2878,8 +2878,8 @@ export default function LandingPage() {
 
           
           </div>
-          
-          
+        </section>
+
         {/* --- Second Products Row: new AirNext lines (Corporate, Evento, Hotel, Black) --- */}
         <section id="mais-produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
@@ -2949,9 +2949,8 @@ export default function LandingPage() {
               ))}
             </Swiper>
             <SwipeIndicator isDark={isDark} />
-          </div>
-        </section>
-           {/* Personalized products promo block */}
+
+            {/* Personalized products promo block */}
             <div className={`mt-10 rounded-[32px] p-8 md:p-12 border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#0a0a0a] to-purple-950/20 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'}`}>
               <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
               <div className="relative grid md:grid-cols-3 gap-6 items-center">
@@ -2978,7 +2977,10 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          <AnimatePresence>
+          </div>
+        </section>
+
+        <AnimatePresence>
             {selectedProduct && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -3069,8 +3071,7 @@ export default function LandingPage() {
                 </motion.div>
               </motion.div>
             )}
-          </AnimatePresence>
-        </section>
+        </AnimatePresence>
 
         {/* --- Funcionalidades AirNext: galeria horizontal com barra de scroll --- */}
         <FuncionalidadesSection isDark={isDark} />
