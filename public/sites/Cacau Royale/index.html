@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cacau Royale | Bolos e Doces Artesanais em Balneário Camboriú</title>
+<meta name="description" content="Brigadeiros gourmet, bolos, fatias e sobremesas artesanais em Balneário Camboriú - SC. O verdadeiro sabor do prazer. Peça pelo WhatsApp.">
+<meta name="theme-color" content="#7B2D3B">
+<meta property="og:title" content="Cacau Royale — O verdadeiro sabor do prazer">
+<meta property="og:description" content="Brigadeiros, bolos e doces feitos para encantar. Balneário Camboriú - SC.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Parisienne&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+/* ============================================================
+   RESET & TOKENS
+============================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+:root{
+  --rose:#E4A0AA;
+  --rose-l:#F6DDE0;
+  --rose-xl:#FDF2F3;
+  --rose-d:#C77E8A;
+  --wine:#7B2D3B;
+  --wine-d:#5E1F2B;
+  --choco:#4A2618;
+  --choco-l:#6B3A26;
+  --cream:#FFF9F5;
+  --cream-2:#FDF1EA;
+  --ink:#2E1C16;
+  --muted:#8A6B62;
+  --white:#fff;
+  --gold:#D9A566;
+
+  --sh-s:0 8px 24px rgba(74,38,24,.06);
+  --sh:0 18px 44px rgba(74,38,24,.10);
+  --sh-l:0 28px 70px rgba(74,38,24,.18);
+  --sh-rose:0 14px 34px rgba(228,160,170,.38);
+
+  --fd:'Playfair Display',Georgia,serif;
+  --fs:'Parisienne',cursive;
+  --fb:'Manrope',system-ui,-apple-system,sans-serif;
+
+  --sb:env(safe-area-inset-bottom,0px);
+  --sl:env(safe-area-inset-left,0px);
+  --sr:env(safe-area-inset-right,0px);
+}
+
+html{scroll-behavior:smooth;scroll-padding-top:86px;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--fb);background:var(--cream);color:var(--ink);
+  line-height:1.68;overflow-x:hidden;width:100%;max-width:100%;min-width:0;
+}
+body.locked{overflow:hidden}
+img,iframe,svg{display:block;max-width:100%}
+img{height:auto}
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font:inherit;color:inherit;max-width:100%}
+button{cursor:pointer;background:none;border:none}
+ul{list-style:none}
+h1,h2,h3,h4,p,span,a,li,b,small{overflow-wrap:break-word}
+::selection{background:var(--rose);color:var(--wine-d)}
+::-webkit-scrollbar{width:9px}
+::-webkit-scrollbar-track{background:var(--rose-xl)}
+::-webkit-scrollbar-thumb{background:var(--rose);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--rose-d)}
+
+/* ============================================================
+   PRELOADER
+============================================================ */
+#pre{
+  position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 40%,#FFFDFB 0%,var(--rose-xl) 55%,var(--rose-l) 100%);
+}
+#pre.done{pointer-events:none}
+.pre-veil{
+  position:absolute;left:0;width:100%;height:50.5%;z-index:4;
+  background:linear-gradient(180deg,#FFFDFB,var(--rose-xl));
+  transition:transform 1s cubic-bezier(.76,0,.24,1);
+}
+.pre-veil.t{top:0}.pre-veil.b{bottom:0;background:linear-gradient(0deg,#FFFDFB,var(--rose-xl))}
+#pre.done .pre-veil.t{transform:translateY(-100%)}
+#pre.done .pre-veil.b{transform:translateY(100%)}
+
+.pre-in{
+  position:relative;z-index:6;display:flex;flex-direction:column;align-items:center;
+  gap:clamp(12px,3vw,20px);padding:20px;
+  transition:opacity .5s,transform .7s cubic-bezier(.76,0,.24,1);
+}
+#pre.done .pre-in{opacity:0;transform:scale(.93)}
+
+.pre-badge{position:relative;width:clamp(130px,32vw,180px);aspect-ratio:1;display:grid;place-items:center}
+.pre-ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.pre-ring circle{
+  fill:none;stroke:var(--rose);stroke-width:1.2;stroke-dasharray:302;stroke-dashoffset:302;
+  animation:ringDraw 1.6s cubic-bezier(.65,0,.35,1) forwards;
+}
+@keyframes ringDraw{to{stroke-dashoffset:0}}
+.pre-ring2{
+  position:absolute;inset:10px;border:1px dashed rgba(228,160,170,.5);border-radius:50%;
+  opacity:0;animation:ringIn .8s ease .8s forwards,slowSpin 26s linear 1.6s infinite;
+}
+@keyframes ringIn{to{opacity:1}}
+@keyframes slowSpin{to{transform:rotate(360deg)}}
+
+.pre-logo{
+  width:74%;border-radius:50%;opacity:0;transform:scale(.8);
+  animation:logoPop .9s cubic-bezier(.34,1.4,.64,1) .45s forwards;
+}
+@keyframes logoPop{to{opacity:1;transform:scale(1)}}
+.pre-logo.hide{display:none}
+
+.pre-fb{display:none;flex-direction:column;align-items:center;line-height:1;opacity:0;animation:logoPop .9s cubic-bezier(.34,1.4,.64,1) .45s forwards}
+.pre-fb.show{display:flex}
+.pre-fb .brig{font-size:clamp(1.9rem,6vw,2.6rem)}
+.pre-fb .nm{font-family:var(--fs);font-size:clamp(1.7rem,5.6vw,2.4rem);color:var(--choco);margin-top:4px}
+
+.pre-word{
+  font-family:var(--fs);font-size:clamp(1.6rem,6vw,2.4rem);color:var(--wine);
+  display:flex;flex-wrap:wrap;justify-content:center;gap:1px;line-height:1.1;
+}
+.pre-word span{opacity:0;transform:translateY(14px);animation:letIn .55s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes letIn{to{opacity:1;transform:none}}
+
+.pre-sub{
+  font-size:clamp(.52rem,2.1vw,.64rem);letter-spacing:clamp(.18em,1vw,.34em);
+  text-transform:uppercase;color:var(--muted);font-weight:800;text-align:center;
+  opacity:0;animation:letIn .7s ease 1.55s forwards;
+}
+.pre-bar{
+  width:clamp(96px,30vw,168px);height:2px;background:rgba(228,160,170,.28);
+  border-radius:99px;overflow:hidden;margin-top:4px;opacity:0;animation:letIn .5s ease 1.65s forwards;
+}
+.pre-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rose-d),var(--rose),var(--gold));animation:barGo 1.25s cubic-bezier(.65,0,.35,1) 1.7s forwards}
+@keyframes barGo{to{width:100%}}
+
+/* ============================================================
+   PROGRESS
+============================================================ */
+#prog{position:fixed;top:0;left:0;height:3px;width:0;z-index:1200;background:linear-gradient(90deg,var(--wine),var(--rose),var(--gold));transition:width .1s linear}
+
+/* ============================================================
+   ELEMENTOS DECORATIVOS (BRIGADEIROS / CORAÇÕES)
+============================================================ */
+.brig-o{
+  position:absolute;border-radius:50%;pointer-events:none;z-index:1;
+  background:
+    radial-gradient(circle at 32% 28%,rgba(255,255,255,.34),transparent 42%),
+    radial-gradient(circle at 70% 68%,rgba(0,0,0,.24),transparent 46%),
+    linear-gradient(145deg,#6B3A26,#3B1D12);
+  box-shadow:inset 0 -4px 10px rgba(0,0,0,.32),0 10px 22px rgba(74,38,24,.22);
+}
+.brig-o::after{
+  content:"";position:absolute;inset:0;border-radius:50%;opacity:.5;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.7) .9px,transparent 1px),
+    radial-gradient(circle,rgba(255,255,255,.55) .8px,transparent 1px);
+  background-size:9px 9px,13px 13px;background-position:0 0,5px 6px;
+}
+.heart-o{position:absolute;color:var(--rose);pointer-events:none;z-index:1;opacity:.55}
+.sprk{position:absolute;border-radius:50%;background:var(--rose);pointer-events:none;z-index:1;opacity:.4}
+
+@keyframes floatY{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-22px) rotate(7deg)}}
+@keyframes floatY2{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(-8deg)}}
+@keyframes riseHeart{0%{transform:translateY(0) scale(.85);opacity:0}18%{opacity:.6}100%{transform:translateY(-120px) scale(1.1);opacity:0}}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:.6;transform:scale(1.15)}}
+.f1{animation:floatY 7s ease-in-out infinite}
+.f2{animation:floatY2 9s ease-in-out infinite}
+.f3{animation:floatY 11s ease-in-out infinite 1.5s}
+.hb{animation:riseHeart 7s ease-in-out infinite}
+.tw{animation:twinkle 4s ease-in-out infinite}
+
+/* ============================================================
+   LAYOUT BASE
+============================================================ */
+.wrap{width:min(1200px,100% - clamp(24px,6vw,64px));margin-inline:auto;min-width:0}
+.sec{padding:clamp(56px,9vw,102px) 0;position:relative;overflow:hidden}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:clamp(.6rem,1.6vw,.72rem);text-transform:uppercase;letter-spacing:.22em;
+  color:var(--rose-d);font-weight:800;margin-bottom:12px;flex-wrap:wrap;
+}
+.eyebrow::before{content:"";width:clamp(18px,4.5vw,30px);height:1px;background:var(--rose);flex-shrink:0}
+.eyebrow i{color:var(--rose)}
+
+h1,h2,h3{font-family:var(--fd);line-height:1.08;font-weight:600}
+h2{font-size:clamp(1.85rem,5.4vw,3.5rem)}
+h3{font-size:clamp(1.2rem,3vw,1.6rem)}
+.script{font-family:var(--fs);font-weight:400;color:var(--rose-d);display:inline-block}
+
+.head{max-width:700px;margin-bottom:clamp(30px,5vw,48px);min-width:0;position:relative;z-index:2}
+.head.center{text-align:center;margin-inline:auto}
+.head.center .eyebrow{justify-content:center}
+.head p{margin-top:13px;color:var(--muted);font-size:clamp(.9rem,2vw,1.02rem)}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  min-height:52px;padding:14px clamp(20px,3.6vw,30px);border-radius:999px;
+  font-size:clamp(.72rem,1.8vw,.83rem);font-weight:800;letter-spacing:.11em;
+  text-transform:uppercase;text-align:center;position:relative;overflow:hidden;
+  transition:transform .32s cubic-bezier(.16,1,.3,1),box-shadow .32s,background .3s,color .3s;
+}
+.btn i{flex-shrink:0;position:relative;z-index:2}
+.btn span{position:relative;z-index:2}
+.btn::before{
+  content:"";position:absolute;top:0;left:-90%;width:55%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);
+  transform:skewX(-22deg);transition:left .65s ease;
+}
+.btn:hover::before{left:150%}
+.btn-rose{background:linear-gradient(135deg,#F0B6BE,var(--rose),var(--rose-d));color:#fff;box-shadow:var(--sh-rose)}
+.btn-rose:hover{transform:translateY(-3px);box-shadow:0 20px 42px rgba(228,160,170,.5)}
+.btn-wine{background:linear-gradient(135deg,var(--wine),var(--wine-d));color:#fff;box-shadow:0 12px 30px rgba(123,45,59,.3)}
+.btn-wine:hover{transform:translateY(-3px)}
+.btn-choco{background:linear-gradient(135deg,var(--choco-l),var(--choco));color:var(--cream)}
+.btn-choco:hover{transform:translateY(-3px)}
+.btn-ghost{border:1.5px solid rgba(123,45,59,.22);color:var(--wine)}
+.btn-ghost:hover{background:var(--wine);color:#fff;border-color:var(--wine);transform:translateY(-3px)}
+.btn-white{background:#fff;color:var(--wine)}
+.btn-white:hover{transform:translateY(-3px);box-shadow:var(--sh)}
+.btn.full{width:100%}
+.btn.sm{min-height:44px;padding:11px 20px;font-size:.7rem}
+
+/* ============================================================
+   HEADER
+============================================================ */
+.hd{position:fixed;top:0;left:0;right:0;z-index:1000;padding:13px 0;pointer-events:none;transition:padding .35s,background .35s,box-shadow .35s}
+.hd-in{
+  pointer-events:auto;display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(10px,2vw,18px);min-width:0;
+  background:rgba(255,255,255,.72);border:1px solid rgba(228,160,170,.3);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-radius:999px;padding:8px 8px 8px clamp(12px,2.6vw,18px);
+  box-shadow:0 8px 28px rgba(74,38,24,.07);
+  transition:background .35s,border-radius .35s,padding .35s,border-color .35s;
+}
+.hd.scr{padding:8px 0;background:rgba(255,249,245,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 6px 26px rgba(74,38,24,.09)}
+.hd.scr .hd-in{background:transparent;border-color:transparent;border-radius:0;padding:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-badge{
+  width:clamp(40px,8.6vw,48px);aspect-ratio:1;border-radius:50%;flex-shrink:0;
+  background:#fff;border:1.5px solid var(--rose);display:grid;place-items:center;overflow:hidden;
+  box-shadow:0 5px 14px rgba(228,160,170,.32);
+}
+.brand-badge img{width:100%;height:100%;object-fit:contain;padding:2px}
+.brand-badge img.hide{display:none}
+.brand-badge .fb{display:none;font-size:1.2rem;line-height:1}
+.brand-badge .fb.show{display:block}
+.brand-txt{min-width:0}
+.brand-txt strong{
+  display:block;font-family:var(--fs);font-size:clamp(1.05rem,3.1vw,1.4rem);
+  color:var(--choco);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand-txt small{
+  display:block;font-size:clamp(.42rem,1.3vw,.53rem);font-weight:800;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--rose-d);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+.nav{display:flex;align-items:center;gap:clamp(13px,2vw,25px);min-width:0}
+.nav a{font-size:.79rem;font-weight:700;color:var(--choco);white-space:nowrap;position:relative;padding:4px 0;transition:color .28s}
+.nav a::after{content:"";position:absolute;left:0;bottom:-2px;width:0;height:2px;border-radius:9px;background:var(--rose);transition:width .3s}
+.nav a:hover{color:var(--wine)}
+.nav a:hover::after{width:100%}
+
+.hd-act{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.burger{display:none;width:46px;height:46px;border-radius:50%;background:var(--wine);color:#fff;place-items:center;font-size:1.05rem;flex-shrink:0;transition:background .3s}
+.burger:hover{background:var(--wine-d)}
+
+/* DRAWER */
+.drw{position:fixed;inset:0;z-index:1500;background:rgba(46,28,22,.55);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);display:flex;justify-content:flex-end;opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s}
+.drw.open{opacity:1;visibility:visible}
+.drw-p{
+  width:min(90vw,376px);height:100%;background:var(--cream);
+  padding:20px clamp(18px,5vw,24px) calc(24px + var(--sb));
+  transform:translateX(102%);transition:transform .44s cubic-bezier(.16,1,.3,1);
+  display:flex;flex-direction:column;box-shadow:-16px 0 46px rgba(74,38,24,.22);overflow-y:auto;
+}
+.drw.open .drw-p{transform:none}
+.drw-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.drw-x{width:44px;height:44px;border-radius:50%;background:var(--wine);color:#fff;display:grid;place-items:center;flex-shrink:0}
+.drw-nav{display:flex;flex-direction:column;gap:clamp(6px,2vw,12px);margin:auto 0;padding:22px 0}
+.drw-nav a{
+  font-family:var(--fd);font-size:clamp(1.35rem,6.4vw,1.85rem);color:var(--choco);
+  border-bottom:1px solid rgba(228,160,170,.28);padding-bottom:9px;transition:color .25s,padding-left .25s;
+}
+.drw-nav a:hover{color:var(--rose-d);padding-left:6px}
+.drw-ft{border-top:1px solid rgba(228,160,170,.3);padding-top:16px;display:grid;gap:9px}
+.drw-ft p{font-size:.74rem;color:var(--muted);text-align:center}
+
+/* ============================================================
+   HERO
+============================================================ */
+.hero{
+  position:relative;padding:clamp(110px,17vw,158px) 0 clamp(52px,8vw,86px);
+  background:
+    radial-gradient(circle at 82% 14%,rgba(228,160,170,.28),transparent 42%),
+    radial-gradient(circle at 8% 84%,rgba(217,165,102,.16),transparent 40%),
+    linear-gradient(165deg,#FFFDFB 0%,var(--rose-xl) 48%,var(--cream-2) 100%);
+  overflow:hidden;
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(32px,5vw,54px);align-items:center;position:relative;z-index:3;min-width:0}
+.hero-c{min-width:0}
+.pin{
+  display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border-radius:999px;
+  background:#fff;border:1px solid rgba(228,160,170,.42);color:var(--wine);
+  font-size:clamp(.58rem,1.7vw,.7rem);font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+  box-shadow:var(--sh-s);margin-bottom:clamp(14px,3vw,20px);
+}
+.pin .dot{width:7px;height:7px;border-radius:50%;background:#4CAF7D;flex-shrink:0;animation:pd 2s infinite}
+@keyframes pd{0%{box-shadow:0 0 0 0 rgba(76,175,125,.55)}70%{box-shadow:0 0 0 9px rgba(76,175,125,0)}100%{box-shadow:0 0 0 0 rgba(76,175,125,0)}}
+
+.hero h1{font-size:clamp(2.3rem,7.2vw,4.9rem);color:var(--choco);letter-spacing:-.02em;margin-bottom:10px}
+.hero h1 .script{font-size:clamp(2.5rem,8vw,5.4rem);color:var(--wine);display:block;line-height:1}
+.hero-sub{
+  font-family:var(--fd);font-style:italic;font-size:clamp(1.05rem,2.9vw,1.55rem);
+  color:var(--rose-d);margin-bottom:14px;font-weight:500;
+}
+.hero p.txt{max-width:540px;color:var(--muted);font-size:clamp(.9rem,2.1vw,1.02rem);line-height:1.85;margin-bottom:clamp(22px,4vw,30px)}
+.hero-cta{display:flex;gap:11px;flex-wrap:wrap;margin-bottom:clamp(20px,3.5vw,28px)}
+.hero-meta{display:flex;flex-wrap:wrap;gap:clamp(12px,3vw,22px);color:var(--muted);font-size:clamp(.74rem,1.9vw,.84rem);font-weight:600}
+.hero-meta span{display:inline-flex;align-items:center;gap:7px}
+.hero-meta i{color:var(--rose-d)}
+
+.hero-v{position:relative;min-width:0;display:flex;justify-content:center}
+.hero-plate{position:relative;width:100%;max-width:440px;aspect-ratio:1}
+.hero-ring{
+  position:absolute;inset:-4%;border-radius:50%;border:1.5px dashed rgba(228,160,170,.55);
+  animation:slowSpin 40s linear infinite;
+}
+.hero-ring2{position:absolute;inset:5%;border-radius:50%;border:1px solid rgba(217,165,102,.35)}
+.hero-img{
+  position:absolute;inset:9%;border-radius:50%;overflow:hidden;
+  border:7px solid #fff;box-shadow:var(--sh-l);
+}
+.hero-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
+.hero-img:hover img{transform:scale(1.07)}
+
+.hero-tag{
+  position:absolute;background:rgba(255,255,255,.95);border:1px solid rgba(228,160,170,.4);
+  border-radius:16px;padding:11px 15px;box-shadow:var(--sh);z-index:5;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);max-width:200px;
+}
+.hero-tag b{display:block;font-size:.84rem;color:var(--choco);line-height:1.25}
+.hero-tag small{display:block;color:var(--muted);font-size:.7rem;margin-top:1px}
+.hero-tag.t1{top:2%;left:-4%}
+.hero-tag.t2{bottom:6%;right:-4%}
+
+/* ============================================================
+   FAIXA
+============================================================ */
+.strip{background:linear-gradient(90deg,var(--choco),var(--wine),var(--choco));color:var(--rose-l);padding:15px 0;overflow:hidden;white-space:nowrap;border-block:1px solid rgba(228,160,170,.28)}
+.strip-t{display:inline-flex;gap:34px;width:max-content;animation:roll 32s linear infinite;font-family:var(--fd);font-style:italic;font-size:clamp(.98rem,2.4vw,1.28rem);letter-spacing:.05em}
+@keyframes roll{to{transform:translateX(-50%)}}
+.strip-t i{color:var(--rose);font-size:.7em;align-self:center}
+
+/* ============================================================
+   CATEGORIAS
+============================================================ */
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,206px),1fr));gap:clamp(13px,2.2vw,20px);position:relative;z-index:2}
+.cat{
+  background:#fff;border:1px solid rgba(228,160,170,.28);border-radius:22px;overflow:hidden;
+  display:flex;flex-direction:column;min-width:0;
+  transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s,border-color .4s;
+}
+.cat:hover{transform:translateY(-9px);box-shadow:var(--sh);border-color:var(--rose)}
+.cat-m{aspect-ratio:4/3;overflow:hidden;position:relative;background:var(--rose-l)}
+.cat-m img{width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.16,1,.3,1)}
+.cat:hover .cat-m img{transform:scale(1.09)}
+.cat-emo{
+  position:absolute;top:10px;left:10px;width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,.94);display:grid;place-items:center;font-size:1.1rem;
+  box-shadow:var(--sh-s);
+}
+.cat-b{padding:18px;display:flex;flex-direction:column;flex:1}
+.cat-b h3{color:var(--choco);margin-bottom:6px;font-size:clamp(1.08rem,2.6vw,1.3rem)}
+.cat-b p{font-size:clamp(.79rem,1.9vw,.87rem);color:var(--muted);margin-bottom:15px;flex:1;line-height:1.65}
+.cat-l{display:inline-flex;align-items:center;gap:8px;font-size:.7rem;text-transform:uppercase;letter-spacing:.14em;font-weight:800;color:var(--wine);transition:gap .3s,color .3s}
+.cat:hover .cat-l{gap:13px;color:var(--rose-d)}
+
+/* ============================================================
+   PRODUTOS
+============================================================ */
+.prods{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,242px),1fr));gap:clamp(13px,2.2vw,20px);position:relative;z-index:2}
+.prod{
+  background:#fff;border:1px solid rgba(228,160,170,.25);border-radius:22px;overflow:hidden;
+  display:flex;flex-direction:column;min-width:0;position:relative;
+  transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s;
+}
+.prod:hover{transform:translateY(-8px);box-shadow:var(--sh)}
+.prod-m{aspect-ratio:1;overflow:hidden;background:var(--rose-l);position:relative}
+.prod-m img{width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.16,1,.3,1)}
+.prod:hover .prod-m img{transform:scale(1.08)}
+.prod-fav{
+  position:absolute;top:10px;right:10px;background:var(--wine);color:#fff;
+  font-size:.56rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  padding:5px 11px;border-radius:99px;box-shadow:var(--sh-s);
+}
+.prod-b{padding:16px;display:flex;flex-direction:column;flex:1}
+.prod-b h3{font-size:clamp(1rem,2.4vw,1.16rem);color:var(--choco);margin-bottom:5px}
+.prod-b p{font-size:.8rem;color:var(--muted);margin-bottom:13px;flex:1;line-height:1.6}
+.prod-price{font-size:.74rem;font-weight:800;color:var(--rose-d);letter-spacing:.07em;margin-bottom:11px;text-transform:uppercase}
+
+/* carrossel mobile */
+.scroller{display:none}
+@media (max-width:640px){
+  .prods.mob-scroll{
+    display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+    padding:4px 4px 16px;margin-inline:calc(-1 * clamp(12px,3vw,32px));
+    padding-inline:clamp(12px,3vw,32px);scrollbar-width:none;
+  }
+  .prods.mob-scroll::-webkit-scrollbar{display:none}
+  .prods.mob-scroll .prod{flex:0 0 76%;scroll-snap-align:center}
+  .scroller{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:.72rem;font-weight:700}
+}
+
+/* ============================================================
+   BOLOS (SPLIT)
+============================================================ */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,60px);align-items:center;position:relative;z-index:2;min-width:0}
+.split-img{position:relative;min-width:0;width:100%}
+.split-img .fr{border-radius:clamp(18px,4vw,30px);overflow:hidden;box-shadow:var(--sh-l);border:6px solid #fff}
+.split-img .fr img{width:100%;aspect-ratio:4/4.6;object-fit:cover;transition:transform 1s cubic-bezier(.16,1,.3,1)}
+.split-img:hover .fr img{transform:scale(1.05)}
+.split-badge{
+  position:absolute;bottom:-16px;left:-14px;background:linear-gradient(140deg,var(--wine),var(--wine-d));
+  color:#fff;padding:16px 20px;border-radius:18px;box-shadow:var(--sh-l);border:1px solid rgba(228,160,170,.3);
+}
+.split-badge b{display:block;font-family:var(--fs);font-size:clamp(1.5rem,4vw,2rem);color:var(--rose-l);line-height:1}
+.split-badge span{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800}
+.feats{display:grid;gap:11px;margin:22px 0 26px}
+.feat{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid rgba(228,160,170,.25);padding:14px 16px;border-radius:15px;min-width:0;transition:transform .3s,border-color .3s}
+.feat:hover{transform:translateX(5px);border-color:var(--rose)}
+.feat i{width:34px;height:34px;border-radius:11px;background:var(--rose-xl);color:var(--rose-d);display:grid;place-items:center;flex-shrink:0;font-size:.85rem}
+.feat b{display:block;font-size:.9rem;color:var(--choco)}
+.feat small{display:block;font-size:.78rem;color:var(--muted);margin-top:1px;line-height:1.55}
+
+/* ============================================================
+   BRIGADEIROS (DARK)
+============================================================ */
+.dark{
+  background:
+    radial-gradient(circle at 15% 18%,rgba(228,160,170,.2),transparent 38%),
+    radial-gradient(circle at 88% 78%,rgba(217,165,102,.13),transparent 36%),
+    linear-gradient(150deg,#3B1D12 0%,var(--choco) 45%,#5C2A32 100%);
+  color:var(--cream);border-radius:clamp(0px,4vw,38px);margin-inline:clamp(0px,2vw,20px);
+}
+.dark h2{color:#fff}
+.dark .eyebrow{color:var(--rose)}
+.dark .eyebrow::before{background:var(--rose)}
+.dark .head p{color:rgba(255,249,245,.72)}
+.filters{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:clamp(26px,4vw,38px);position:relative;z-index:3}
+.filt{
+  padding:10px 20px;min-height:44px;border-radius:999px;border:1px solid rgba(228,160,170,.34);
+  color:var(--rose-l);font-size:.75rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  transition:background .28s,color .28s,border-color .28s,transform .25s;
+}
+.filt:hover{border-color:var(--rose);transform:translateY(-2px)}
+.filt.on{background:var(--rose);color:var(--choco);border-color:var(--rose)}
+.brigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,196px),1fr));gap:clamp(12px,2vw,18px);position:relative;z-index:3}
+.brig-c{
+  background:rgba(255,255,255,.06);border:1px solid rgba(228,160,170,.2);border-radius:20px;
+  overflow:hidden;transition:transform .4s cubic-bezier(.16,1,.3,1),background .4s,border-color .4s;min-width:0;
+}
+.brig-c:hover{transform:translateY(-8px);background:rgba(255,255,255,.1);border-color:var(--rose)}
+.brig-c .m{aspect-ratio:1;overflow:hidden;background:#2C160E}
+.brig-c .m img{width:100%;height:100%;object-fit:cover;transition:transform .9s}
+.brig-c:hover .m img{transform:scale(1.09)}
+.brig-c .b{padding:15px}
+.brig-c h4{font-family:var(--fd);font-size:1.05rem;color:#fff;margin-bottom:4px}
+.brig-c small{font-size:.75rem;color:rgba(255,249,245,.6);line-height:1.55;display:block}
+
+/* ============================================================
+   SOBRE
+============================================================ */
+.about-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:13px;margin-top:24px}
+.ai{background:#fff;border:1px solid rgba(228,160,170,.25);border-radius:17px;padding:19px;text-align:center;min-width:0;transition:transform .3s,box-shadow .3s}
+.ai:hover{transform:translateY(-5px);box-shadow:var(--sh-s)}
+.ai i{font-size:1.4rem;color:var(--rose-d);margin-bottom:9px;display:block}
+.ai b{display:block;font-size:.86rem;color:var(--choco);margin-bottom:3px}
+.ai small{font-size:.76rem;color:var(--muted);line-height:1.55}
+
+/* ============================================================
+   INSTAGRAM
+============================================================ */
+.ig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,1.5vw,13px);position:relative;z-index:2}
+.ig-i{position:relative;aspect-ratio:1;border-radius:clamp(12px,2.4vw,18px);overflow:hidden;cursor:pointer;min-width:0;background:var(--rose-l)}
+.ig-i:first-child{grid-column:span 2;grid-row:span 2;aspect-ratio:auto}
+.ig-i img{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.ig-i:hover img{transform:scale(1.09)}
+.ig-i::after{
+  content:"\f16d";font-family:"Font Awesome 6 Brands";position:absolute;inset:0;
+  display:grid;place-items:center;background:rgba(123,45,59,.55);color:#fff;font-size:1.6rem;
+  opacity:0;transition:opacity .35s;
+}
+.ig-i:hover::after{opacity:1}
+
+/* ============================================================
+   DEPOIMENTOS
+============================================================ */
+.deps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:clamp(14px,2.4vw,20px);position:relative;z-index:2}
+.dep{
+  background:#fff;border:1px solid rgba(228,160,170,.25);border-radius:22px;
+  padding:clamp(20px,3.4vw,28px);display:flex;flex-direction:column;min-width:0;
+  transition:transform .38s cubic-bezier(.16,1,.3,1),box-shadow .38s;position:relative;
+}
+.dep:hover{transform:translateY(-7px);box-shadow:var(--sh)}
+.dep::before{content:"\201C";position:absolute;top:8px;right:20px;font-family:var(--fd);font-size:4.4rem;color:var(--rose-l);line-height:1}
+.stars{color:var(--gold);letter-spacing:3px;font-size:.9rem;position:relative;z-index:2}
+.dep p{font-size:clamp(.85rem,2vw,.93rem);color:#5C4A44;font-style:italic;margin:13px 0 20px;flex:1;line-height:1.8;position:relative;z-index:2}
+.dep-u{display:flex;align-items:center;gap:12px;padding-top:15px;border-top:1px solid rgba(228,160,170,.24)}
+.dep-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--wine));color:#fff;display:grid;place-items:center;font-weight:800;flex-shrink:0;font-size:.95rem}
+.dep-u b{display:block;font-size:.89rem;color:var(--choco)}
+.dep-u small{color:var(--muted);font-size:.76rem}
+.edit-note{
+  display:inline-flex;align-items:center;gap:7px;margin-top:16px;padding:8px 15px;
+  background:var(--rose-xl);border:1px dashed var(--rose);border-radius:99px;
+  font-size:.72rem;color:var(--wine);font-weight:700;
+}
+
+/* ============================================================
+   CTA
+============================================================ */
+.cta{
+  position:relative;border-radius:clamp(20px,4vw,36px);overflow:hidden;text-align:center;
+  padding:clamp(44px,7.5vw,84px) clamp(20px,4vw,44px);color:#fff;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(228,160,170,.36),transparent 45%),
+    radial-gradient(circle at 82% 76%,rgba(217,165,102,.22),transparent 42%),
+    linear-gradient(140deg,var(--wine),var(--wine-d) 55%,var(--choco));
+  box-shadow:var(--sh-l);
+}
+.cta h2{color:#fff;position:relative;z-index:3}
+.cta h2 .script{color:var(--rose-l)}
+.cta p{max-width:600px;margin:14px auto 28px;color:rgba(255,249,245,.82);font-size:clamp(.92rem,2.1vw,1.07rem);position:relative;z-index:3}
+.cta .btn{position:relative;z-index:3}
+
+/* ============================================================
+   CONTATO
+============================================================ */
+.loc{display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(18px,3vw,28px);align-items:stretch;min-width:0;position:relative;z-index:2}
+.cstack{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ccard{background:#fff;border:1px solid rgba(228,160,170,.26);border-radius:18px;padding:clamp(15px,3vw,19px);display:flex;gap:13px;align-items:flex-start;min-width:0;transition:transform .3s,box-shadow .3s}
+.ccard:hover{transform:translateX(5px);box-shadow:var(--sh-s)}
+.ccard > i{width:46px;height:46px;border-radius:14px;background:var(--rose-xl);color:var(--rose-d);display:grid;place-items:center;flex-shrink:0;font-size:1.05rem}
+.ccard b{display:block;color:var(--choco);font-size:.92rem}
+.ccard p{font-size:.83rem;color:var(--muted);line-height:1.65;margin-top:2px}
+.ccard a.lnk{display:inline-block;font-size:.79rem;color:var(--wine);font-weight:800;margin-top:5px}
+.map{overflow:hidden;border-radius:clamp(16px,3vw,24px);border:6px solid #fff;box-shadow:var(--sh);min-height:330px;background:var(--rose-l)}
+.map iframe{width:100%;height:100%;min-height:330px;border:0}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+.ft{background:linear-gradient(160deg,var(--choco),#2E1610);color:rgba(255,249,245,.7);padding:clamp(44px,7vw,66px) 0 calc(26px + var(--sb));position:relative;overflow:hidden}
+.ft-g{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:clamp(24px,4vw,36px);position:relative;z-index:2}
+.ft-g > div{min-width:0}
+.ft h4{color:#fff;font-size:.74rem;text-transform:uppercase;letter-spacing:.2em;margin-bottom:14px}
+.ft a{display:block;margin:8px 0;font-size:.86rem;transition:color .25s,padding-left .25s}
+.ft a:hover{color:var(--rose);padding-left:4px}
+.ft-about p{font-size:.86rem;line-height:1.85;margin-top:14px;max-width:400px}
+.socs{display:flex;gap:9px;margin-top:16px}
+.socs a{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(228,160,170,.24);display:grid;place-items:center;margin:0;padding:0;color:var(--rose-l);transition:background .3s,color .3s,transform .3s}
+.socs a:hover{background:var(--rose);color:var(--choco);transform:translateY(-3px);padding-left:0}
+.ft-copy{
+  border-top:1px solid rgba(228,160,170,.18);margin-top:32px;padding-top:20px;
+  text-align:center;font-size:.79rem;position:relative;z-index:2;
+}
+.ft-copy .hl{font-family:var(--fs);font-size:1.2rem;color:var(--rose);display:block;margin-bottom:6px}
+
+/* ============================================================
+   FLUTUANTES
+============================================================ */
+.wpp{
+  position:fixed;z-index:990;right:max(16px,var(--sr));bottom:max(18px,var(--sb));
+  width:60px;height:60px;border-radius:50%;background:#25D366;color:#fff;
+  display:grid;place-items:center;font-size:1.7rem;box-shadow:0 14px 32px rgba(37,211,102,.42);
+  transition:transform .3s;
+}
+.wpp:hover{transform:scale(1.09)}
+.wpp::before{content:"";position:absolute;inset:-4px;border:2px solid #25D366;border-radius:50%;animation:rip 2.2s infinite}
+@keyframes rip{0%{transform:scale(1);opacity:.75}100%{transform:scale(1.45);opacity:0}}
+.wpp i{position:relative;z-index:2}
+
+.totop{
+  position:fixed;z-index:985;right:max(24px,calc(var(--sr) + 8px));bottom:max(88px,calc(var(--sb) + 88px));
+  width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid rgba(228,160,170,.4);
+  color:var(--wine);display:grid;place-items:center;box-shadow:var(--sh-s);
+  opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s,transform .3s;
+}
+.totop.show{opacity:1;visibility:visible}
+.totop:hover{transform:translateY(-3px)}
+
+.mcta{
+  display:none;position:fixed;left:0;right:0;bottom:0;z-index:970;
+  padding:10px max(13px,var(--sl)) calc(10px + var(--sb)) max(13px,var(--sr));
+  background:rgba(255,249,245,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-top:1px solid rgba(228,160,170,.3);
+}
+.mcta a{width:100%;min-height:52px}
+
+/* LIGHTBOX */
+.lb{position:fixed;inset:0;z-index:3000;background:rgba(46,22,16,.94);display:grid;place-items:center;padding:20px;opacity:0;visibility:hidden;transition:opacity .35s,visibility .35s}
+.lb.open{opacity:1;visibility:visible}
+.lb img{max-width:min(94vw,980px);max-height:86vh;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.lb-x{position:absolute;top:max(18px,var(--sb));right:20px;width:44px;height:44px;border-radius:50%;background:#fff;color:var(--wine);display:grid;place-items:center;font-size:1.1rem}
+
+/* REVEAL */
+.rv,.rv-l,.rv-r,.rv-s{opacity:0;transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.rv{transform:translateY(34px)}
+.rv-l{transform:translateX(-34px)}
+.rv-r{transform:translateX(34px)}
+.rv-s{transform:scale(.93)}
+.rv.on,.rv-l.on,.rv-r.on,.rv-s.on{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}
+
+/* ============================================================
+   BREAKPOINTS
+============================================================ */
+@media (max-width:1180px){
+  .nav{gap:15px}
+  .nav a{font-size:.74rem}
+}
+@media (max-width:1024px){
+  html{scroll-padding-top:78px}
+  .hero-grid,.split,.loc{grid-template-columns:minmax(0,1fr)}
+  .hero-c{text-align:center;display:flex;flex-direction:column;align-items:center}
+  .hero p.txt{margin-inline:auto}
+  .hero-cta,.hero-meta{justify-content:center}
+  .hero-v{margin-top:12px}
+  .split-img{max-width:480px;margin-inline:auto}
+  .split-badge{left:50%;transform:translateX(-50%);bottom:-14px}
+  .ft-g{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ig{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ig-i:first-child{grid-column:span 2;grid-row:span 1;aspect-ratio:16/10}
+}
+@media (max-width:900px){
+  .nav,.hd-book{display:none}
+  .burger{display:grid}
+  .hero-tag{position:static;max-width:100%;margin-top:11px;box-shadow:var(--sh-s)}
+  .hero-tags-m{display:flex;flex-direction:column;gap:9px;width:100%;max-width:400px;margin:14px auto 0}
+}
+@media (max-width:640px){
+  html{scroll-padding-top:72px}
+  .wrap{width:min(1200px,100% - 26px)}
+  .hero-cta{flex-direction:column;width:100%}
+  .hero-cta .btn{width:100%}
+  .cats{grid-template-columns:repeat(auto-fit,minmax(min(100%,158px),1fr))}
+  .ig{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ig-i:first-child{grid-column:1/-1;aspect-ratio:4/3}
+  .ft-g{grid-template-columns:minmax(0,1fr);text-align:center}
+  .ft-about p{margin-inline:auto}
+  .socs{justify-content:center}
+  .mcta{display:block}
+  .ft{padding-bottom:calc(104px + var(--sb))}
+  .wpp{width:54px;height:54px;font-size:1.5rem;bottom:max(84px,calc(var(--sb) + 84px))}
+  .totop{bottom:max(148px,calc(var(--sb) + 148px));width:40px;height:40px}
+  .brig-o{opacity:.6}
+  .ccard:hover,.feat:hover{transform:none}
+}
+@media (max-width:420px){
+  .wrap{width:min(1200px,100% - 22px)}
+  .cats{grid-template-columns:minmax(0,1fr)}
+  .brand-txt small{display:none}
+  .hero h1{font-size:clamp(2rem,10vw,2.6rem)}
+  .map,.map iframe{min-height:250px}
+  .dark{margin-inline:0;border-radius:0}
+}
+@media (max-width:340px){
+  .wrap{width:min(1200px,100% - 18px)}
+  .btn{font-size:.64rem;padding:13px 15px;letter-spacing:.07em}
+  .brand-badge{width:36px}
+  .ig{grid-template-columns:minmax(0,1fr)}
+  .ig-i:first-child{grid-column:auto}
+}
+@media (min-width:1600px){
+  .wrap{width:min(1320px,100% - 80px)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+
+<script type="application/ld+json">
+{
+"@context":"https://schema.org","@type":"Bakery",
+"name":"Cacau Royale",
+"description":"Bolos, brigadeiros e doces artesanais",
+"address":{"@type":"PostalAddress","addressLocality":"Balneário Camboriú","addressRegion":"SC","addressCountry":"BR"},
+"servesCuisine":"Confeitaria",
+"priceRange":"$$"
+}
+</script>
+</head>
+<body class="locked">
+
+<!-- ================= PRELOADER ================= -->
+<div id="pre">
+  <div class="pre-veil t"></div>
+  <div class="pre-veil b"></div>
+  <div class="pre-in">
+    <div class="pre-badge">
+      <svg class="pre-ring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48"/></svg>
+      <div class="pre-ring2"></div>
+      <img class="pre-logo" src="logo.png" alt="Cacau Royale"
+           onerror="this.classList.add('hide');document.getElementById('preFb').classList.add('show')">
+      <div class="pre-fb" id="preFb">
+        <div class="brig">🍫</div>
+        <div class="nm">Cacau</div>
+      </div>
+    </div>
+    <div class="pre-word" id="preWord" aria-label="Cacau Royale"></div>
+    <div class="pre-sub">Bolos & Doces • Balneário Camboriú</div>
+    <div class="pre-bar"><i></i></div>
+  </div>
+</div>
+
+<div id="prog"></div>
+
+<!-- ================= HEADER ================= -->
+<header class="hd" id="hd">
+  <div class="wrap">
+    <div class="hd-in">
+      <a href="#inicio" class="brand" aria-label="Cacau Royale — início">
+        <div class="brand-badge">
+          <img src="logo.png" alt="Logo Cacau Royale"
+               onerror="this.classList.add('hide');this.nextElementSibling.classList.add('show')">
+          <span class="fb">🍫</span>
+        </div>
+        <div class="brand-txt">
+          <strong>Cacau Royale</strong>
+          <small>Bolos & Doces</small>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <a href="#inicio">Início</a>
+        <a href="#sobre">Sobre Nós</a>
+        <a href="#cardapio">Cardápio</a>
+        <a href="#doces">Nossos Doces</a>
+        <a href="#depoimentos">Depoimentos</a>
+        <a href="#contato">Contato</a>
+      </nav>
+
+      <div class="hd-act">
+        <a href="#" data-wpp="Olá! Vim pelo site da Cacau Royale e gostaria de fazer um pedido." class="btn btn-rose sm hd-book"><span>Fazer Pedido</span></a>
+        <button class="burger" id="openMenu" aria-label="Abrir menu"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= DRAWER ================= -->
+<div class="drw" id="drw">
+  <aside class="drw-p">
+    <div class="drw-top">
+      <div class="brand">
+        <div class="brand-badge">
+          <img src="logo.png" alt="Cacau Royale" onerror="this.classList.add('hide');this.nextElementSibling.classList.add('show')">
+          <span class="fb">🍫</span>
+        </div>
+        <div class="brand-txt"><strong>Cacau Royale</strong><small>Bolos & Doces</small></div>
+      </div>
+      <button class="drw-x" id="closeMenu" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <nav class="drw-nav">
+      <a href="#inicio" class="mob">Início</a>
+      <a href="#sobre" class="mob">Sobre Nós</a>
+      <a href="#cardapio" class="mob">Cardápio</a>
+      <a href="#doces" class="mob">Nossos Doces</a>
+      <a href="#bolos" class="mob">Bolos</a>
+      <a href="#brigadeiros" class="mob">Brigadeiros</a>
+      <a href="#depoimentos" class="mob">Depoimentos</a>
+      <a href="#contato" class="mob">Contato</a>
+    </nav>
+
+    <div class="drw-ft">
+      <a href="#" data-wpp="Olá! Vim pelo site e quero fazer um pedido na Cacau Royale." class="btn btn-rose full">
+        <i class="fa-brands fa-whatsapp"></i><span>Pedir no WhatsApp</span>
+      </a>
+      <p>📍 Balneário Camboriú - SC</p>
+    </div>
+  </aside>
+</div>
+
+<main>
+<!-- ================= HERO ================= -->
+<section class="hero" id="inicio">
+  <!-- decorativos -->
+  <div class="brig-o f1" style="width:54px;height:54px;top:16%;left:5%"></div>
+  <div class="brig-o f2" style="width:34px;height:34px;top:70%;left:11%"></div>
+  <div class="brig-o f3" style="width:42px;height:42px;top:30%;right:4%"></div>
+  <div class="brig-o f2" style="width:26px;height:26px;bottom:14%;right:14%"></div>
+  <i class="fa-solid fa-heart heart-o hb" style="font-size:15px;top:60%;left:22%;animation-delay:.4s"></i>
+  <i class="fa-solid fa-heart heart-o hb" style="font-size:11px;top:74%;right:26%;animation-delay:2.6s"></i>
+  <i class="fa-solid fa-heart heart-o hb" style="font-size:18px;top:44%;left:47%;animation-delay:4.4s"></i>
+  <span class="sprk tw" style="width:7px;height:7px;top:24%;left:32%"></span>
+  <span class="sprk tw" style="width:5px;height:5px;top:80%;left:60%;animation-delay:1.4s"></span>
+  <span class="sprk tw" style="width:9px;height:9px;top:12%;right:30%;animation-delay:2.2s"></span>
+
+  <div class="wrap hero-grid">
+    <div class="hero-c rv">
+      <div class="pin"><span class="dot"></span> 📍 Balneário Camboriú - SC</div>
+      <h1>O verdadeiro sabor <span class="script">do prazer.</span></h1>
+      <p class="hero-sub">Brigadeiros, bolos e doces feitos para encantar.</p>
+      <p class="txt">Doces artesanais preparados com carinho, ingredientes selecionados e aquele sabor que transforma qualquer momento em uma experiência especial.</p>
+
+      <div class="hero-cta">
+        <a href="#" data-wpp="Olá! Vim pelo site da Cacau Royale e gostaria de fazer meu pedido 🍫" class="btn btn-rose">
+          <i class="fa-brands fa-whatsapp"></i><span>Fazer meu pedido</span>
+        </a>
+        <a href="#cardapio" class="btn btn-ghost"><span>Ver cardápio</span></a>
+      </div>
+
+      <div class="hero-meta">
+        <span><i class="fa-solid fa-cookie-bite"></i> Artesanal</span>
+        <span><i class="fa-solid fa-heart"></i> Feito com carinho</span>
+        <span><i class="fa-solid fa-gift"></i> Sob encomenda</span>
+      </div>
+    </div>
+
+    <div class="hero-v rv-s d2">
+      <div class="hero-plate">
+        <div class="hero-ring"></div>
+        <div class="hero-ring2"></div>
+        <div class="hero-img">
+          <img src="https://images.unsplash.com/photo-1548848221-0c2e497ed557?q=80&w=1000&auto=format&fit=crop"
+               alt="Brigadeiro gourmet artesanal da Cacau Royale" loading="eager">
+        </div>
+        <div class="hero-tag t1 f1"><b>Brigadeiro Gourmet</b><small>Cacau nobre e muito sabor</small></div>
+        <div class="hero-tag t2 f2"><b>Bolos sob encomenda</b><small>Do clássico ao personalizado</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAIXA ================= -->
+<div class="strip" aria-hidden="true">
+  <div class="strip-t">
+    <span>BRIGADEIROS GOURMET <i class="fa-solid fa-heart"></i> BOLOS ARTESANAIS <i class="fa-solid fa-heart"></i> FATIAS <i class="fa-solid fa-heart"></i> SOBREMESAS <i class="fa-solid fa-heart"></i> DOCES PERSONALIZADOS <i class="fa-solid fa-heart"></i></span>
+    <span>BRIGADEIROS GOURMET <i class="fa-solid fa-heart"></i> BOLOS ARTESANAIS <i class="fa-solid fa-heart"></i> FATIAS <i class="fa-solid fa-heart"></i> SOBREMESAS <i class="fa-solid fa-heart"></i> DOCES PERSONALIZADOS <i class="fa-solid fa-heart"></i></span>
+  </div>
+</div>
+
+<!-- ================= CATEGORIAS ================= -->
+<section class="sec" id="cardapio">
+  <div class="brig-o f2" style="width:38px;height:38px;top:8%;right:6%;opacity:.5"></div>
+  <i class="fa-solid fa-heart heart-o hb" style="font-size:13px;bottom:10%;left:8%;animation-delay:1.8s"></i>
+
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i class="fa-solid fa-cookie-bite"></i> Cardápio</span>
+      <h2>Um doce para <span class="script">cada momento.</span></h2>
+      <p>Escolha a categoria que combina com a sua vontade de hoje.</p>
+    </div>
+
+    <div class="cats">
+      <article class="cat rv d1">
+        <div class="cat-m">
+          <img src="https://images.unsplash.com/photo-1548848221-0c2e497ed557?q=80&w=600&auto=format&fit=crop" alt="Brigadeiros gourmet" loading="lazy">
+          <span class="cat-emo">🍫</span>
+        </div>
+        <div class="cat-b">
+          <h3>Brigadeiros</h3>
+          <p>Tradicionais e gourmet, feitos com cacau selecionado e ponto perfeito.</p>
+          <a href="#brigadeiros" class="cat-l">Conhecer <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </article>
+
+      <article class="cat rv d2">
+        <div class="cat-m">
+          <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=600&auto=format&fit=crop" alt="Bolos e tortas" loading="lazy">
+          <span class="cat-emo">🎂</span>
+        </div>
+        <div class="cat-b">
+          <h3>Bolos e Tortas</h3>
+          <p>Para aniversários, comemorações ou simplesmente para adoçar o dia.</p>
+          <a href="#bolos" class="cat-l">Conhecer <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </article>
+
+      <article class="cat rv d3">
+        <div class="cat-m">
+          <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=600&auto=format&fit=crop" alt="Fatias de bolo" loading="lazy">
+          <span class="cat-emo">🍓</span>
+        </div>
+        <div class="cat-b">
+          <h3>Fatias</h3>
+          <p>A porção perfeita para matar a vontade sem pensar duas vezes.</p>
+          <a href="#doces" class="cat-l">Conhecer <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </article>
+
+      <article class="cat rv d4">
+        <div class="cat-m">
+          <img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=600&auto=format&fit=crop" alt="Sobremesas" loading="lazy">
+          <span class="cat-emo">🍰</span>
+        </div>
+        <div class="cat-b">
+          <h3>Sobremesas</h3>
+          <p>Copos, potes e delícias cremosas para finalizar com chave de ouro.</p>
+          <a href="#doces" class="cat-l">Conhecer <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </article>
+
+      <article class="cat rv d5">
+        <div class="cat-m">
+          <img src="https://images.unsplash.com/photo-1587248720327-8eb72564be1e?q=80&w=600&auto=format&fit=crop" alt="Doces personalizados" loading="lazy">
+          <span class="cat-emo">🎁</span>
+        </div>
+        <div class="cat-b">
+          <h3>Doces Personalizados</h3>
+          <p>Festas, lembrancinhas e datas especiais com a sua cara.</p>
+          <a href="#" data-wpp="Olá! Gostaria de saber sobre doces personalizados 🎁" class="cat-l">Conhecer <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NOSSOS QUERIDINHOS ================= -->
+<section class="sec" id="doces" style="background:linear-gradient(180deg,var(--rose-xl),var(--cream))">
+  <div class="brig-o f1" style="width:46px;height:46px;top:12%;left:3%;opacity:.55"></div>
+  <div class="brig-o f3" style="width:30px;height:30px;bottom:18%;right:5%;opacity:.5"></div>
+
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i class="fa-solid fa-star"></i> Mais pedidos</span>
+      <h2>Os favoritos da <span class="script">Cacau Royale</span></h2>
+      <p>Aqueles que todo mundo pede de novo. E de novo.</p>
+    </div>
+
+    <div class="prods mob-scroll">
+      <article class="prod rv d1">
+        <div class="prod-m"><img src="https://images.unsplash.com/photo-1548848221-0c2e497ed557?q=80&w=520&auto=format&fit=crop" alt="Brigadeiro tradicional" loading="lazy"><span class="prod-fav">Clássico</span></div>
+        <div class="prod-b">
+          <h3>Brigadeiro Tradicional</h3>
+          <p>O sabor de infância que nunca sai de moda, no ponto perfeito.</p>
+          <div class="prod-price">Consultar valor</div>
+          <a href="#" data-wpp="Olá! Quero pedir o Brigadeiro Tradicional 🍫" class="btn btn-choco sm full"><span>Quero pedir</span></a>
+        </div>
+      </article>
+
+      <article class="prod rv d2">
+        <div class="prod-m"><img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=520&auto=format&fit=crop" alt="Brigadeiro gourmet" loading="lazy"><span class="prod-fav">Queridinho</span></div>
+        <div class="prod-b">
+          <h3>Brigadeiro Gourmet</h3>
+          <p>Cacau nobre, textura aveludada e acabamento impecável.</p>
+          <div class="prod-price">Consultar valor</div>
+          <a href="#" data-wpp="Olá! Quero pedir o Brigadeiro Gourmet 🍫✨" class="btn btn-choco sm full"><span>Quero pedir</span></a>
+        </div>
+      </article>
+
+      <article class="prod rv d3">
+        <div class="prod-m"><img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=520&auto=format&fit=crop" alt="Bolo de chocolate" loading="lazy"></div>
+        <div class="prod-b">
+          <h3>Bolo de Chocolate</h3>
+          <p>Massa fofinha, recheio generoso e muito chocolate de verdade.</p>
+          <div class="prod-price">Consultar valor</div>
+          <a href="#" data-wpp="Olá! Quero encomendar o Bolo de Chocolate 🎂" class="btn btn-choco sm full"><span>Quero pedir</span></a>
+        </div>
+      </article>
+
+      <article class="prod rv d4">
+        <div class="prod-m"><img src="https://images.unsplash.com/photo-1586985289906-406988974504?q=80&w=520&auto=format&fit=crop" alt="Red Velvet" loading="lazy"><span class="prod-fav">Especial</span></div>
+        <div class="prod-b">
+          <h3>Red Velvet</h3>
+          <p>Aveludado, delicado e com aquele creme irresistível.</p>
+          <div class="prod-price">Consultar valor</div>
+          <a href="#" data-wpp="Olá! Quero encomendar o Red Velvet ❤️" class="btn btn-choco sm full"><span>Quero pedir</span></a>
+        </div>
+      </article>
+
+      <article class="prod rv d1">
+        <div class="prod-m"><img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=520&auto=format&fit=crop" alt="Morango com chocolate" loading="lazy"></div>
+        <div class="prod-b">
+          <h3>Morango com Chocolate</h3>
+          <p>A combinação clássica que sempre conquista qualquer paladar.</p>
+          <div class="prod-price">Consultar valor</div>
+          <a href="#" data-wpp="Olá! Quero pedir Morango com Chocolate 🍓" class="btn btn-choco sm full"><span>Quero pedir</span></a>
+        </div>
+      </article>
+
+      <article class="prod rv d2">
+        <div class="prod-m"><img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=520&auto=format&fit=crop" alt="Bolo de pote" loading="lazy"></div>
+        <div class="prod-b">
+          <h3>Bolo de Pote</h3>
+          <p>Prático, cremoso e perfeito para levar para qualquer lugar.</p>
+          <div class="prod-price">Consultar valor</div>
+          <a href="#" data-wpp="Olá! Quero pedir Bolo de Pote 🍰" class="btn btn-choco sm full"><span>Quero pedir</span></a>
+        </div>
+      </article>
+
+      <article class="prod rv d3">
+        <div class="prod-m"><img src="https://images.unsplash.com/photo-1587248720327-8eb72564be1e?q=80&w=520&auto=format&fit=crop" alt="Docinhos personalizados" loading="lazy"><span class="prod-fav">Festas</span></div>
+        <div class="prod-b">
+          <h3>Docinhos Personalizados</h3>
+          <p>Cores, sabores e temas escolhidos por você para sua festa.</p>
+          <div class="prod-price">Consultar valor</div>
+          <a href="#" data-wpp="Olá! Quero orçamento de docinhos personalizados 🎁" class="btn btn-choco sm full"><span>Quero pedir</span></a>
+        </div>
+      </article>
+    </div>
+
+    <div class="scroller" style="margin-top:2px">
+      <i class="fa-solid fa-arrows-left-right"></i> Arraste para ver mais
+    </div>
+  </div>
+</section>
+
+<!-- ================= BOLOS ================= -->
+<section class="sec" id="bolos">
+  <i class="fa-solid fa-heart heart-o hb" style="font-size:16px;top:18%;right:12%;animation-delay:.9s"></i>
+  <div class="brig-o f2" style="width:32px;height:32px;bottom:22%;left:6%;opacity:.5"></div>
+  <span class="sprk tw" style="width:8px;height:8px;top:34%;right:32%"></span>
+
+  <div class="wrap split">
+    <div class="split-img rv-l">
+      <div class="fr"><img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?q=80&w=900&auto=format&fit=crop" alt="Bolo artesanal Cacau Royale" loading="lazy"></div>
+      <div class="split-badge"><b>Sob encomenda</b><span>Personalizado para você</span></div>
+    </div>
+
+    <div class="rv-r">
+      <span class="eyebrow"><i class="fa-solid fa-cake-candles"></i> Bolos & Tortas</span>
+      <h2>Bolos que transformam momentos em <span class="script">memórias.</span></h2>
+      <p style="margin-top:14px;color:var(--muted);font-size:clamp(.92rem,2vw,1.02rem);line-height:1.85">
+        Do clássico ao personalizado, cada bolo é preparado para deixar sua comemoração ainda mais especial.
+      </p>
+
+      <div class="feats">
+        <div class="feat"><i class="fa-solid fa-palette"></i><div><b>Personalização completa</b><small>Cores, tema, recheio e decoração do seu jeito.</small></div></div>
+        <div class="feat"><i class="fa-solid fa-wheat-awn"></i><div><b>Ingredientes selecionados</b><small>Massa fofinha e recheios preparados na hora certa.</small></div></div>
+        <div class="feat"><i class="fa-solid fa-calendar-check"></i><div><b>Feito sob encomenda</b><small>Combine o prazo direto com a gente pelo WhatsApp.</small></div></div>
+      </div>
+
+      <a href="#" data-wpp="Olá! Gostaria de encomendar um bolo na Cacau Royale 🎂" class="btn btn-wine">
+        <i class="fa-brands fa-whatsapp"></i><span>Encomendar meu bolo</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BRIGADEIROS ================= -->
+<section class="sec dark" id="brigadeiros">
+  <div class="brig-o f1" style="width:64px;height:64px;top:10%;left:4%;opacity:.85"></div>
+  <div class="brig-o f2" style="width:40px;height:40px;top:66%;left:12%;opacity:.75"></div>
+  <div class="brig-o f3" style="width:50px;height:50px;top:24%;right:5%;opacity:.8"></div>
+  <div class="brig-o f2" style="width:28px;height:28px;bottom:12%;right:18%;opacity:.7"></div>
+  <i class="fa-solid fa-heart heart-o hb" style="font-size:14px;top:50%;left:30%;animation-delay:1.2s;opacity:.4"></i>
+
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i class="fa-solid fa-cookie"></i> Especialidade da casa</span>
+      <h2>Pequenos no tamanho. <span class="script" style="color:var(--rose)">Gigantes no sabor.</span></h2>
+      <p>Nossos brigadeiros são feitos um a um, com o carinho que você merece.</p>
+    </div>
+
+    <div class="filters">
+      <button class="filt on" data-f="all">Todos</button>
+      <button class="filt" data-f="trad">Tradicionais</button>
+      <button class="filt" data-f="gour">Gourmet</button>
+      <button class="filt" data-f="esp">Especiais</button>
+      <button class="filt" data-f="pers">Personalizados</button>
+    </div>
+
+    <div class="brigs" id="brigGrid">
+      <article class="brig-c rv" data-c="trad">
+        <div class="m"><img src="https://images.unsplash.com/photo-1548848221-0c2e497ed557?q=80&w=480&auto=format&fit=crop" alt="Brigadeiro tradicional" loading="lazy"></div>
+        <div class="b"><h4>Tradicional</h4><small>O clássico de sempre, no ponto exato.</small></div>
+      </article>
+      <article class="brig-c rv d1" data-c="gour">
+        <div class="m"><img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?q=80&w=480&auto=format&fit=crop" alt="Brigadeiro gourmet" loading="lazy"></div>
+        <div class="b"><h4>Gourmet</h4><small>Cacau nobre e textura aveludada.</small></div>
+      </article>
+      <article class="brig-c rv d2" data-c="esp">
+        <div class="m"><img src="https://images.unsplash.com/photo-1511381939415-e44015466834?q=80&w=480&auto=format&fit=crop" alt="Brigadeiro especial" loading="lazy"></div>
+        <div class="b"><h4>Especial</h4><small>Combinações criativas da casa.</small></div>
+      </article>
+      <article class="brig-c rv d3" data-c="pers">
+        <div class="m"><img src="https://images.unsplash.com/photo-1587248720327-8eb72564be1e?q=80&w=480&auto=format&fit=crop" alt="Brigadeiro personalizado" loading="lazy"></div>
+        <div class="b"><h4>Personalizado</h4><small>Cores e temas para a sua festa.</small></div>
+      </article>
+      <article class="brig-c rv" data-c="gour">
+        <div class="m"><img src="https://images.unsplash.com/photo-1571506165871-ee72a35bc9d4?q=80&w=480&auto=format&fit=crop" alt="Brigadeiro branco" loading="lazy"></div>
+        <div class="b"><h4>Beijinho Gourmet</h4><small>Delicado, cremoso e irresistível.</small></div>
+      </article>
+      <article class="brig-c rv d1" data-c="esp">
+        <div class="m"><img src="https://images.unsplash.com/photo-1585123334904-845d60e97b29?q=80&w=480&auto=format&fit=crop" alt="Trufa" loading="lazy"></div>
+        <div class="b"><h4>Trufado</h4><small>Recheio surpresa em cada mordida.</small></div>
+      </article>
+      <article class="brig-c rv d2" data-c="trad">
+        <div class="m"><img src="https://images.unsplash.com/photo-1516684732162-798a0062be99?q=80&w=480&auto=format&fit=crop" alt="Brigadeiro com granulado" loading="lazy"></div>
+        <div class="b"><h4>Granulado Belga</h4><small>Crocância e sabor em harmonia.</small></div>
+      </article>
+      <article class="brig-c rv d3" data-c="pers">
+        <div class="m"><img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=80&w=480&auto=format&fit=crop" alt="Caixa de brigadeiros" loading="lazy"></div>
+        <div class="b"><h4>Caixa Presente</h4><small>Perfeita para presentear com afeto.</small></div>
+      </article>
+    </div>
+
+    <div style="text-align:center;margin-top:clamp(28px,4vw,40px);position:relative;z-index:3">
+      <a href="#" data-wpp="Olá! Quero ver todos os doces disponíveis da Cacau Royale 🍫" class="btn btn-rose">
+        <i class="fa-brands fa-whatsapp"></i><span>Ver todos os doces</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SOBRE ================= -->
+<section class="sec" id="sobre">
+  <div class="brig-o f2" style="width:36px;height:36px;top:14%;right:8%;opacity:.5"></div>
+  <i class="fa-solid fa-heart heart-o hb" style="font-size:13px;bottom:16%;left:12%;animation-delay:2.2s"></i>
+
+  <div class="wrap split">
+    <div class="rv-l">
+      <span class="eyebrow"><i class="fa-solid fa-heart"></i> Nossa história</span>
+      <h2>Feito com carinho. <span class="script">Pensado em cada detalhe.</span></h2>
+      <p style="margin-top:14px;color:var(--muted);font-size:clamp(.92rem,2vw,1.04rem);line-height:1.9">
+        A Cacau Royale nasceu para transformar ingredientes selecionados em momentos especiais. Cada doce é preparado artesanalmente, com cuidado, criatividade e muito carinho.
+      </p>
+
+      <div class="about-icons">
+        <div class="ai"><i class="fa-solid fa-award"></i><b>Qualidade</b><small>Ingredientes selecionados</small></div>
+        <div class="ai"><i class="fa-solid fa-hands"></i><b>Artesanal</b><small>Feito à mão, com calma</small></div>
+        <div class="ai"><i class="fa-solid fa-comments"></i><b>Atendimento</b><small>Personalizado e próximo</small></div>
+      </div>
+
+      <div style="margin-top:26px">
+        <a href="#" data-wpp="Olá! Gostaria de conhecer melhor a Cacau Royale 💕" class="btn btn-ghost"><span>Falar com a gente</span></a>
+      </div>
+    </div>
+
+    <div class="split-img rv-r">
+      <div class="fr"><img src="https://images.unsplash.com/photo-1517427294546-5aa121f68e8a?q=80&w=900&auto=format&fit=crop" alt="Produção artesanal de doces Cacau Royale" loading="lazy"></div>
+      <div class="split-badge" style="left:auto;right:-10px;transform:none"><b>Artesanal</b><span>100% feito com amor</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INSTAGRAM ================= -->
+<section class="sec" style="background:linear-gradient(180deg,var(--cream),var(--rose-xl))">
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i class="fa-brands fa-instagram"></i> Instagram</span>
+      <h2>Do nosso ateliê para o <span class="script">seu feed. 💕</span></h2>
+      <p>Toque nas fotos para ampliar e se apaixonar de pertinho.</p>
+    </div>
+
+    <div class="ig rv">
+      <div class="ig-i" data-full="https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1400&auto=format&fit=crop"><img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=800&auto=format&fit=crop" alt="Bolo artesanal" loading="lazy"></div>
+      <div class="ig-i" data-full="https://images.unsplash.com/photo-1548848221-0c2e497ed557?q=80&w=1400&auto=format&fit=crop"><img src="https://images.unsplash.com/photo-1548848221-0c2e497ed557?q=80&w=520&auto=format&fit=crop" alt="Brigadeiros" loading="lazy"></div>
+      <div class="ig-i" data-full="https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=1400&auto=format&fit=crop"><img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=520&auto=format&fit=crop" alt="Fatia de bolo" loading="lazy"></div>
+      <div class="ig-i" data-full="https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=1400&auto=format&fit=crop"><img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=520&auto=format&fit=crop" alt="Sobremesa" loading="lazy"></div>
+      <div class="ig-i" data-full="https://images.unsplash.com/photo-1587248720327-8eb72564be1e?q=80&w=1400&auto=format&fit=crop"><img src="https://images.unsplash.com/photo-1587248720327-8eb72564be1e?q=80&w=520&auto=format&fit=crop" alt="Doces personalizados" loading="lazy"></div>
+      <div class="ig-i" data-full="https://images.unsplash.com/photo-1517427294546-5aa121f68e8a?q=80&w=1400&auto=format&fit=crop"><img src="https://images.unsplash.com/photo-1517427294546-5aa121f68e8a?q=80&w=520&auto=format&fit=crop" alt="Produção" loading="lazy"></div>
+    </div>
+
+    <div style="text-align:center;margin-top:clamp(26px,4vw,36px)">
+      <a href="https://instagram.com/" target="_blank" rel="noopener" class="btn btn-rose">
+        <i class="fa-brands fa-instagram"></i><span>Seguir no Instagram</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEPOIMENTOS ================= -->
+<section class="sec" id="depoimentos">
+  <div class="brig-o f3" style="width:30px;height:30px;top:12%;left:5%;opacity:.45"></div>
+  <i class="fa-solid fa-heart heart-o hb" style="font-size:12px;top:70%;right:9%;animation-delay:3s"></i>
+
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i class="fa-solid fa-star"></i> Depoimentos</span>
+      <h2>Quem prova, <span class="script">se apaixona.</span></h2>
+      <p>O carinho de quem já experimentou os nossos doces.</p>
+    </div>
+
+    <div class="deps">
+      <article class="dep rv d1">
+        <div class="stars">★★★★★</div>
+        <p>“Espaço reservado para o depoimento do cliente. Substitua este texto por um comentário real recebido pela Cacau Royale.”</p>
+        <div class="dep-u"><div class="dep-av">C</div><div><b>Nome do cliente</b><small>Balneário Camboriú - SC</small></div></div>
+      </article>
+
+      <article class="dep rv d2">
+        <div class="stars">★★★★★</div>
+        <p>“Espaço reservado para o depoimento do cliente. Substitua este texto por um comentário real recebido pela Cacau Royale.”</p>
+        <div class="dep-u"><div class="dep-av">R</div><div><b>Nome do cliente</b><small>Balneário Camboriú - SC</small></div></div>
+      </article>
+
+      <article class="dep rv d3">
+        <div class="stars">★★★★★</div>
+        <p>“Espaço reservado para o depoimento do cliente. Substitua este texto por um comentário real recebido pela Cacau Royale.”</p>
+        <div class="dep-u"><div class="dep-av">M</div><div><b>Nome do cliente</b><small>Balneário Camboriú - SC</small></div></div>
+      </article>
+    </div>
+
+    <div style="text-align:center">
+      <span class="edit-note"><i class="fa-solid fa-pen-to-square"></i> Área editável — insira aqui os depoimentos reais dos seus clientes</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="cta rv-s">
+      <div class="brig-o f1" style="width:56px;height:56px;top:14%;left:8%"></div>
+      <div class="brig-o f2" style="width:34px;height:34px;bottom:18%;left:20%"></div>
+      <div class="brig-o f3" style="width:46px;height:46px;top:22%;right:10%"></div>
+      <div class="brig-o f2" style="width:26px;height:26px;bottom:14%;right:24%"></div>
+      <i class="fa-solid fa-heart heart-o hb" style="font-size:16px;top:60%;left:38%;color:var(--rose-l);animation-delay:.6s"></i>
+      <i class="fa-solid fa-heart heart-o hb" style="font-size:12px;top:70%;right:38%;color:var(--rose-l);animation-delay:2.8s"></i>
+
+      <h2>Seu próximo momento especial <span class="script">começa com um doce.</span></h2>
+      <p>Faça seu pedido e descubra o sabor da Cacau Royale.</p>
+      <a href="#" data-wpp="Olá! Vim pelo site da Cacau Royale e quero fazer meu pedido 🍫💕" class="btn btn-white">
+        <i class="fa-brands fa-whatsapp" style="color:#25D366;font-size:1.25rem"></i><span>Pedir pelo WhatsApp</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTATO ================= -->
+<section class="sec" id="contato" style="background:var(--rose-xl);padding-top:clamp(30px,5vw,50px)">
+  <div class="wrap">
+    <div class="head center rv">
+      <span class="eyebrow"><i class="fa-solid fa-location-dot"></i> Onde estamos</span>
+      <h2>Venha conhecer a <span class="script">Cacau Royale.</span></h2>
+      <p>Estamos em Balneário Camboriú, prontos para adoçar o seu dia.</p>
+    </div>
+
+    <div class="loc">
+      <div class="cstack rv-l">
+        <div class="ccard">
+          <i class="fa-solid fa-location-dot"></i>
+          <div>
+            <b>Localização</b>
+            <p>📍 Balneário Camboriú - SC</p>
+            <a class="lnk" href="https://maps.google.com/?q=Balne%C3%A1rio+Cambori%C3%BA+SC" target="_blank" rel="noopener">Como chegar →</a>
+          </div>
+        </div>
+
+        <div class="ccard">
+          <i class="fa-brands fa-whatsapp"></i>
+          <div>
+            <b>WhatsApp</b>
+            <p>Faça seu pedido ou tire dúvidas com a gente.</p>
+            <a class="lnk" href="#" data-wpp="Olá! Vim pelo site da Cacau Royale 💕">Falar no WhatsApp →</a>
+          </div>
+        </div>
+
+        <div class="ccard">
+          <i class="fa-brands fa-instagram"></i>
+          <div>
+            <b>Instagram</b>
+            <p>Acompanhe as novidades e os doces do dia.</p>
+            <a class="lnk" href="https://instagram.com/" target="_blank" rel="noopener">Ver perfil →</a>
+          </div>
+        </div>
+
+        <div class="ccard">
+          <i class="fa-regular fa-clock"></i>
+          <div>
+            <b>Horário de atendimento</b>
+            <p style="color:var(--wine);font-weight:700">Área editável — informe aqui os seus horários</p>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+          <a href="https://maps.google.com/?q=Balne%C3%A1rio+Cambori%C3%BA+SC" target="_blank" rel="noopener" class="btn btn-wine sm"><i class="fa-solid fa-map-location-dot"></i><span>Como chegar</span></a>
+          <a href="#" data-wpp="Olá! Gostaria de fazer um pedido 🍫" class="btn btn-rose sm"><i class="fa-brands fa-whatsapp"></i><span>Falar no WhatsApp</span></a>
+        </div>
+      </div>
+
+      <div class="map rv-r">
+        <iframe title="Mapa Cacau Royale — Balneário Camboriú" src="https://www.google.com/maps?q=Balne%C3%A1rio+Cambori%C3%BA,+SC&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="ft">
+  <div class="brig-o f2" style="width:44px;height:44px;top:16%;right:7%;opacity:.35"></div>
+  <div class="wrap">
+    <div class="ft-g">
+      <div class="ft-about">
+        <div class="brand">
+          <div class="brand-badge">
+            <img src="logo.png" alt="Cacau Royale" onerror="this.classList.add('hide');this.nextElementSibling.classList.add('show')">
+            <span class="fb">🍫</span>
+          </div>
+          <div class="brand-txt"><strong style="color:#fff">Cacau Royale</strong><small>Bolos & Doces</small></div>
+        </div>
+        <p>Doces artesanais preparados com carinho, ingredientes selecionados e aquele sabor que transforma qualquer momento em uma experiência especial.</p>
+        <div class="socs">
+          <a href="https://instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" data-wpp="Olá! Vim pelo site da Cacau Royale 💕" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="https://maps.google.com/?q=Balne%C3%A1rio+Cambori%C3%BA+SC" target="_blank" rel="noopener" aria-label="Localização"><i class="fa-solid fa-location-dot"></i></a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Navegue</h4>
+        <a href="#inicio">Início</a>
+        <a href="#sobre">Sobre Nós</a>
+        <a href="#cardapio">Cardápio</a>
+        <a href="#doces">Nossos Doces</a>
+        <a href="#depoimentos">Depoimentos</a>
+      </div>
+
+      <div>
+        <h4>Contato</h4>
+        <a href="#" data-wpp="Olá! Quero fazer um pedido 🍫">WhatsApp — Pedidos</a>
+        <a href="https://instagram.com/" target="_blank" rel="noopener">@cacauroyale</a>
+        <a href="#contato">📍 Balneário Camboriú - SC</a>
+      </div>
+    </div>
+
+    <div class="ft-copy">
+      <span class="hl">Cacau Royale</span>
+      Doces feitos para criar momentos especiais. ❤️<br>
+      <span style="opacity:.6;font-size:.74rem">© <span id="yr"></span> Cacau Royale. Todos os direitos reservados.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= FLUTUANTES ================= -->
+<button class="totop" id="totop" aria-label="Voltar ao topo"><i class="fa-solid fa-arrow-up"></i></button>
+
+<a class="wpp" href="#" data-wpp="Olá! Vim pelo site da Cacau Royale e quero fazer um pedido 🍫💕" aria-label="Pedir no WhatsApp">
+  <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<div class="mcta">
+  <a href="#" data-wpp="Olá! Quero fazer meu pedido na Cacau Royale 🍫" class="btn btn-rose full">
+    <i class="fa-brands fa-whatsapp"></i><span>Fazer meu pedido</span>
+  </a>
+</div>
+
+<div class="lb" id="lb">
+  <button class="lb-x" id="lbx" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+  <img id="lbimg" src="" alt="Foto ampliada">
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ==========================================================
+     ⚙️  CONFIGURE AQUI O NÚMERO DO WHATSAPP
+     Formato: 55 + DDD + número (só dígitos)
+     ========================================================== */
+  const WPP = '5547999999999';   // 👈 TROQUE PELO NÚMERO REAL
+  const IG  = 'https://instagram.com/';  // 👈 opcional: link do Instagram
+
+  /* ---------- monta todos os links de WhatsApp ---------- */
+  document.querySelectorAll('[data-wpp]').forEach(el => {
+    el.setAttribute('href', 'https://wa.me/' + WPP + '?text=' + encodeURIComponent(el.dataset.wpp));
+    el.setAttribute('target','_blank');
+    el.setAttribute('rel','noopener');
+  });
+
+  /* ---------- PRELOADER ---------- */
+  const w = 'Cacau Royale';
+  const pw = document.getElementById('preWord');
+  [...w].forEach((ch,i)=>{
+    const s=document.createElement('span');
+    s.textContent = ch===' ' ? '\u00A0' : ch;
+    s.style.animationDelay = (1 + i*0.05) + 's';
+    pw.appendChild(s);
+  });
+
+  const pre = document.getElementById('pre');
+  function hidePre(){
+    if(pre.classList.contains('done')) return;
+    pre.classList.add('done');
+    document.body.classList.remove('locked');
+    setTimeout(()=>{ pre.style.display='none'; },1200);
+  }
+  window.addEventListener('load', ()=> setTimeout(hidePre, 2850));
+  setTimeout(hidePre, 4500);
+
+  /* ---------- ANO ---------- */
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* ---------- HEADER / PROGRESS / TOPO ---------- */
+  const hd=document.getElementById('hd'), pg=document.getElementById('prog'), tt=document.getElementById('totop');
+  let ticking=false;
+  function onScroll(){
+    const y=window.scrollY;
+    const h=document.documentElement.scrollHeight-window.innerHeight;
+    pg.style.width=(h>0?(y/h)*100:0)+'%';
+    hd.classList.toggle('scr', y>26);
+    tt.classList.toggle('show', y>520);
+    ticking=false;
+  }
+  window.addEventListener('scroll',()=>{ if(!ticking){requestAnimationFrame(onScroll);ticking=true;} },{passive:true});
+  onScroll();
+  tt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+  /* ---------- DRAWER ---------- */
+  const drw=document.getElementById('drw');
+  const open=()=>{drw.classList.add('open');document.body.classList.add('locked')};
+  const close=()=>{drw.classList.remove('open');document.body.classList.remove('locked')};
+  document.getElementById('openMenu').addEventListener('click',open);
+  document.getElementById('closeMenu').addEventListener('click',close);
+  drw.addEventListener('click',e=>{if(e.target===drw)close()});
+  document.querySelectorAll('.mob').forEach(a=>a.addEventListener('click',close));
+
+  /* ---------- REVEAL ---------- */
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target);} });
+  },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.rv,.rv-l,.rv-r,.rv-s').forEach(el=>io.observe(el));
+
+  /* ---------- PARALLAX DISCRETO ---------- */
+  const par=[...document.querySelectorAll('.brig-o,.sprk')];
+  let pTick=false;
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.innerWidth>900){
+    window.addEventListener('scroll',()=>{
+      if(pTick) return;
+      requestAnimationFrame(()=>{
+        const y=window.scrollY;
+        par.forEach((el,i)=>{
+          const sp=((i%3)+1)*0.035;
+          el.style.marginTop = (y*sp % 60) * -1 + 'px';
+        });
+        pTick=false;
+      });
+      pTick=true;
+    },{passive:true});
+  }
+
+  /* ---------- FILTRO BRIGADEIROS ---------- */
+  const filts=document.querySelectorAll('.filt');
+  const brigs=document.querySelectorAll('#brigGrid .brig-c');
+  filts.forEach(b=>{
+    b.addEventListener('click',()=>{
+      filts.forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      const f=b.dataset.f;
+      brigs.forEach(c=>{
+        const show = (f==='all' || c.dataset.c===f);
+        c.style.display = show ? '' : 'none';
+        if(show){ c.classList.remove('on'); void c.offsetWidth; c.classList.add('on'); }
+      });
+    });
+  });
+
+  /* ---------- LIGHTBOX ---------- */
+  const lb=document.getElementById('lb'), lbimg=document.getElementById('lbimg');
+  function closeLb(){lb.classList.remove('open');document.body.classList.remove('locked')}
+  document.querySelectorAll('.ig-i').forEach(it=>{
+    it.addEventListener('click',()=>{
+      lbimg.src=it.dataset.full;
+      lb.classList.add('open');
+      document.body.classList.add('locked');
+    });
+  });
+  document.getElementById('lbx').addEventListener('click',closeLb);
+  lb.addEventListener('click',e=>{if(e.target===lb)closeLb()});
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){closeLb();close();} });
+
+})();
+</script>
+</body>
+</html>
