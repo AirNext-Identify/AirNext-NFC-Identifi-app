@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
@@ -56,8 +56,16 @@ function Protected({ children, admin = false }: { children: React.ReactNode; adm
 
 function Guest({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <LoadingScreen />;
-  if (user) return <Navigate to={user.role === 'ADMIN' ? '/admin' : '/dashboard'} replace />;
+  if (user) {
+    // Se já existe uma sessão ativa e o link trouxe "next" (ex.: alguém
+    // escaneou o QR/NFC de um produto ainda não ativado já estando logado
+    // em outra aba), respeita esse destino em vez de sempre cair no
+    // dashboard — mesma lógica usada em LoginPage/RegisterPage.
+    const next = user.role !== 'ADMIN' ? new URLSearchParams(location.search).get('next') : null;
+    return <Navigate to={next || (user.role === 'ADMIN' ? '/admin' : '/dashboard')} replace />;
+  }
   return <>{children}</>;
 }
 

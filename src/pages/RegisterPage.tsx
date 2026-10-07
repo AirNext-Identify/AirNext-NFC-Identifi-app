@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, User, Loader2, ArrowRight, ShieldCheck, Eye, EyeOff, Check } from 'lucide-react';
 import Logo from '../components/Logo';
@@ -28,6 +28,10 @@ export default function RegisterPage() {
   });
   const { register, loginWithGoogle } = useAuth();
   const nav = useNavigate();
+  const [searchParams] = useSearchParams();
+  // Mesma lógica do LoginPage: preserva o "next" (ex.: /ativar/AIR-XXXXXXXX)
+  // vindo de /n/:uuid ou /a/:code, para quem precisa criar conta primeiro.
+  const next = searchParams.get('next');
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +59,7 @@ export default function RegisterPage() {
           { type: 'marketing', accepted: consents.marketing },
         ]);
       }
-      nav('/ativar');
+      nav(next || '/ativar');
     } catch {
       setError('Email já cadastrado ou não foi possível criar a conta.');
     } finally {
@@ -242,7 +246,7 @@ export default function RegisterPage() {
           <p className="mt-6 text-center text-sm text-zinc-300">
             Já tem conta?{' '}
             <Link
-              to="/login"
+              to={next ? `/login?next=${encodeURIComponent(next)}` : '/login'}
               className="font-semibold text-[#60A5FA] hover:text-[#93c5fd] transition-colors"
             >
               Entrar

@@ -1068,6 +1068,69 @@ export function useAdminData() {
   );
 
   // ═══════════════════════════════════════════════════════════════════════
+  // QR CODE — libera um produto para ativação SEM gravação de chip NFC.
+  //
+  // O código de ativação (`code`) e a URL permanente `/a/:code` já existem
+  // desde a criação do produto (ver generateProductIdentity), então uma
+  // placa que só terá QR Code impresso (sem chip físico) não precisa passar
+  // pelo Programador NFC — ela só precisa do MESMO status final que a
+  // gravação NFC produziria ('DISPONIVEL'), reaproveitando exatamente a
+  // mesma máquina de estados e o mesmo fluxo de ativação do cliente
+  // (/a/:code → ActivationPage → activateProduct). Nenhuma tabela nova,
+  // nenhum campo novo — só pula a etapa física que o QR dispensa.
+  // ═══════════════════════════════════════════════════════════════════════
+  const activateProductForQr = useCallback(
+    async (productId: string) => {
+      const product = productRows.find((p) => p.id === productId);
+      if (!product) return;
+      if (product.status !== 'NAO_PROGRAMADO') {
+        addToast('Este produto já está disponível ou ativado.', 'error');
+        return;
+      }
+
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({ status: 'DISPONIVEL' })
+        .eq('id', productId);
+
+      if (updateError) {
+        console.error('Falha ao disponibilizar produto para QR Code:', updateError);
+        addToast(`Não foi possível disponibilizar o produto: ${updateError.message}`, 'error');
+        return;
+      }
+
+      setProductRows((prev) => prev.map((p) => (p.id === productId ? { ...p, status: 'DISPONIVEL' } : p)));
+
+      // Mesma atualização de contadores do lote que a gravação NFC faz,
+      // para que Lotes continue mostrando disponível/utilizada corretas
+      // independente do produto ter sido liberado via chip ou via QR.
+      if (product.lot_id) {
+        const lot = lotRows.find((l) => l.id === product.lot_id);
+        if (lot) {
+          const usedQuantity = (lot.used_quantity || 0) + 1;
+          const availableQuantity = Math.max(0, (lot.available_quantity || 0) - 1);
+          const { error: lotUpdateError } = await supabase
+            .from('lots')
+            .update({ used_quantity: usedQuantity, available_quantity: availableQuantity })
+            .eq('id', lot.id);
+          if (!lotUpdateError) {
+            setLotRows((prev) => prev.map((l) => (l.id === lot.id ? { ...l, used_quantity: usedQuantity, available_quantity: availableQuantity } : l)));
+          }
+        }
+      }
+
+      await addLog(
+        'Edição',
+        'Product',
+        productId,
+        `Produto ${product.internal_code} disponibilizado para ativação via QR Code (código ${product.code}), sem gravação de chip NFC.`
+      );
+      addToast('Produto disponibilizado — o QR Code já pode ser impresso e ativado.', 'success');
+    },
+    [productRows, lotRows, addLog, addToast]
+  );
+
+  // ═══════════════════════════════════════════════════════════════════════
   // CONFIGURAÇÕES — URL base gravada nos chips NFC / QR Codes
   // ═══════════════════════════════════════════════════════════════════════
   const updateAppUrl = useCallback(
@@ -1193,6 +1256,7 @@ export function useAdminData() {
     updateLot,
     deleteLot,
     programNFC,
+    activateProductForQr,
     updateNotification,
     sendNotification,
     deleteNotification,

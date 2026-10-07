@@ -2,10 +2,12 @@ import { useState } from 'react';
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, Category, ProfileTheme } from '../contexts/AuthContext';
-import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X } from 'lucide-react';
+import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X, QrCode } from 'lucide-react';
 import Logo from '../components/Logo';
 import { ConsentModal } from '../components/legal/ConsentModal';
 import { hasCurrentRequiredConsents } from '../lib/consents';
+import { QrScanner } from '../components/QrScanner';
+import { extractActivationCode } from '../lib/qrScanner';
 
 const CATS:{id:Category;label:string;desc:string;icon:React.ElementType;color:string}[]=[
   {id:'PERSONAL',label:'Pessoa',desc:'Compartilhamento pessoal',icon:UserCheck,color:'from-blue-500 to-cyan-400'},
@@ -71,15 +73,20 @@ export default function ActivationPage() {
   const set = (k:string,v:any) => setForm(p=>({...p,[k]:v}));
   const [consentModalOpen, setConsentModalOpen] = useState(false);
   const [pendingActivate, setPendingActivate] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const inp = "w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/50 text-sm transition-all";
   const inpStyle: React.CSSProperties = { color: '#ffffff' };
 
-const runActivate = async () => {
+// codeOverride permite ativar com um código que ainda não passou por
+// setCode() (ex.: acabou de ser lido pela câmera) sem esperar o próximo
+// render — sem isso, ativar logo após escanear usaria o `code` antigo
+// (stale state), já que setState é assíncrono.
+const runActivate = async (codeOverride?: string) => {
   setBusy(true);
   setError('');
 
-  const res = await activateProduct(code);
+  const res = await activateProduct(codeOverride ?? code);
 
   console.log('RESPOSTA:', res);
 
@@ -94,7 +101,7 @@ const runActivate = async () => {
   setBusy(false);
 };
 
-const handleActivate = async () => {
+const handleActivate = async (codeOverride?: string) => {
   if (!user?.id) {
     setError('Faça login para ativar o produto.');
     return;
@@ -108,7 +115,7 @@ const handleActivate = async () => {
     setConsentModalOpen(true);
     return;
   }
-  await runActivate();
+  await runActivate(codeOverride);
 };
 
 const handleConsentAccepted = async () => {
@@ -117,6 +124,22 @@ const handleConsentAccepted = async () => {
     setPendingActivate(false);
     await runActivate();
   }
+};
+
+// Chamado pelo QrScanner quando um QR é lido na tela "Ativar Produto":
+// extrai o código AIR-XXXXXXXX de dentro da URL do QR (ou do texto puro),
+// preenche o campo como se o cliente tivesse digitado, e já dispara a
+// MESMA ativação usada no fluxo manual/NFC — nenhum motor novo.
+const handleQrDetected = (rawValue: string) => {
+  setScannerOpen(false);
+  const extracted = extractActivationCode(rawValue);
+  if (!extracted) {
+    setError('QR Code lido, mas não reconhecido como um código AirNext válido.');
+    return;
+  }
+  const formatted = formatActivationCode(extracted);
+  setCode(formatted);
+  handleActivate(formatted);
 };
 
 const handleFinish = async () => {
@@ -217,11 +240,27 @@ setPhase('done');
                 style={{ color: '#ffffff' }}
                 placeholder="AIR-XXXXXXXX" />
               <p className="text-center text-[11px] text-zinc-500 mb-4">Digite só as letras e números — os traços são adicionados automaticamente</p>
-              <button onClick={handleActivate} disabled={!code.trim() || busy}
+              <button onClick={() => handleActivate()} disabled={!code.trim() || busy}
                 className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#2563EB]/30" style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}>
                 {busy ? <><Loader2 className="h-4 w-4 animate-spin" />Validando...</> : <><Zap className="h-4 w-4" />Ativar Produto</>}
               </button>
-              
+
+              {/* Divisor "ou" */}
+              <div className="flex items-center gap-3 my-4">
+                <div className="h-px flex-1 bg-white/10" />
+                <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-widest">ou</span>
+                <div className="h-px flex-1 bg-white/10" />
+              </div>
+
+              {/* Ativação via QR Code: lê o QR impresso na placa pela câmera
+                  e ativa automaticamente — mesmo motor de ativação do código
+                  digitado, só que sem precisar digitar nada (ver
+                  handleQrDetected / src/lib/qrScanner.ts). */}
+              <button onClick={() => setScannerOpen(true)} disabled={busy}
+                className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm">
+                <QrCode className="h-4 w-4" />Ativar com QR Code (câmera)
+              </button>
+              <p className="text-center text-[11px] text-zinc-500 mt-3">Aponte a câmera para o QR Code impresso na placa</p>
             </div>
           )}
 
@@ -432,6 +471,8 @@ setPhase('done');
           }}
         />
       )}
+
+      <QrScanner isOpen={scannerOpen} onClose={() => setScannerOpen(false)} onDetected={handleQrDetected} />
     </div>
   );
 }

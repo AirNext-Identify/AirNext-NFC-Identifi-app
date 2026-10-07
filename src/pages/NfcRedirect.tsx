@@ -8,7 +8,7 @@ type ProductStatus = "DISPONIVEL" | "ATIVO" | "BLOQUEADO" | "EXPIRADO" | "NAO_PR
 type NfcState =
   | { kind: "loading" }
   | { kind: "not_found" }
-  | { kind: "available" }
+  | { kind: "available"; code: string }
   | { kind: "blocked" }
   | { kind: "expired" }
   | { kind: "cancelled" }
@@ -41,8 +41,11 @@ export default function NfcRedirect() {
         return;
       }
 
-      // /n/:uuid busca sempre por nfc_uuid (nunca gerado/alterado aqui).
-      // /a/:code busca pelo código de ativação do produto.
+      // /n/:uuid busca sempre por nfc_uuid (chip NFC físico, nunca
+      // gerado/alterado aqui). /a/:code busca pelo mesmo código de ativação
+      // permanente que também é impresso como QR Code na placa — ambos os
+      // meios resolvem para a MESMA linha de products, pelo mesmo motor de
+      // ativação (ver ActivationPage/AuthContext.activateProduct).
       const query = supabase
         .from("products")
         .select("code, slug, status, nfc_uuid, expires_at");
@@ -85,7 +88,11 @@ export default function NfcRedirect() {
       }
 
       if (status === "DISPONIVEL") {
-        setState({ kind: "available" });
+        // Carrega o código de ativação junto do estado "available" para que
+        // o botão "Ativar agora" leve o cliente direto de volta para o
+        // código certo depois do login — sem isso ele precisaria digitar o
+        // código manualmente de novo em /ativar (ver App.tsx "next=").
+        setState({ kind: "available", code: data.code });
         return;
       }
 
@@ -153,7 +160,7 @@ export default function NfcRedirect() {
               Ative seu produto AirNext para criar o seu perfil digital.
             </p>
             <Link
-              to="/login"
+              to={`/login?next=${encodeURIComponent(`/ativar/${state.code}`)}`}
               className="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-5 rounded-xl transition-colors text-sm"
             >
               Ativar agora

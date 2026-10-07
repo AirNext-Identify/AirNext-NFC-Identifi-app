@@ -81,6 +81,7 @@ export default function AdminPanel() {
     updateLot,
     deleteLot,
     programNFC,
+    activateProductForQr,
     updateNotification,
     sendNotification,
     deleteNotification,
@@ -207,6 +208,8 @@ export default function AdminPanel() {
             onBlock={blockProduct}
             onCreate={createProduct}
             onProgramProduct={handleProgramProduct}
+            onActivateQr={activateProductForQr}
+            appUrl={appUrl}
             onOpenNfc={() => setModule('nfc')}
           />
         );

@@ -10,7 +10,10 @@ import {
   UserPlus,
   Plus,
   Radio,
+  QrCode,
+  Download,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { SearchBar } from '@/components/admin/ui/SearchBar';
 import { Badge } from '@/components/admin/ui/Badge';
 import { Modal } from '@/components/admin/ui/Modal';
@@ -30,6 +33,12 @@ interface ProductsViewProps {
   onBlock: (productId: string, blocked: boolean) => void;
   onCreate: (data: Partial<Product>) => void;
   onProgramProduct?: (id: string) => void;
+  /** Libera o produto para ativação via QR Code, sem gravação de chip NFC
+   *  (mesmo status final 'Disponível', ver useAdminData.activateProductForQr). */
+  onActivateQr?: (id: string) => void;
+  /** URL base usada para montar o link permanente do QR (`${appUrl}/a/{code}`),
+   *  a mesma configurada em Configurações / Programador NFC. */
+  appUrl?: string;
   onOpenNfc?: () => void;
 }
 
@@ -45,6 +54,8 @@ export function ProductsView({
   onBlock,
   onCreate,
   onProgramProduct,
+  onActivateQr,
+  appUrl,
   onOpenNfc,
 }: ProductsViewProps) {
   const [search, setSearch] = useState('');
@@ -54,6 +65,7 @@ export function ProductsView({
   const [transferModal, setTransferModal] = useState<Product | null>(null);
   const [renewModal, setRenewModal] = useState<Product | null>(null);
   const [createModal, setCreateModal] = useState(false);
+  const [qrModalProduct, setQrModalProduct] = useState<Product | null>(null);
   const pageSize = 10;
 
   const pendingCount = useMemo(() => products.filter((p) => p.status === 'Não programado').length, [products]);
@@ -182,6 +194,8 @@ export function ProductsView({
                           onBlock={onBlock}
                           onTransferRequest={setTransferModal}
                           onProgramProduct={onProgramProduct}
+                          onActivateQr={onActivateQr}
+                          onShowQr={setQrModalProduct}
                           onRenewRequest={setRenewModal}
                           closeMenu={() => setActionMenu(null)}
                         />
@@ -214,6 +228,8 @@ export function ProductsView({
                       onBlock={onBlock}
                       onTransferRequest={setTransferModal}
                           onProgramProduct={onProgramProduct}
+                      onActivateQr={onActivateQr}
+                      onShowQr={setQrModalProduct}
                       onRenewRequest={setRenewModal}
                       closeMenu={() => setActionMenu(null)}
                     />
@@ -248,6 +264,7 @@ export function ProductsView({
       <TransferModal isOpen={!!transferModal} product={transferModal} customers={customers} onClose={() => setTransferModal(null)} onTransfer={(customerId) => { onTransfer(transferModal!.id, customerId); setTransferModal(null); }} />
       <RenewModal isOpen={!!renewModal} product={renewModal} onClose={() => setRenewModal(null)} onRenew={(years) => { onRenew(renewModal!.id, renewModal!.customerId || customers[0].id, years); setRenewModal(null); }} />
       <CreateProductModal isOpen={createModal} lots={lots} onClose={() => setCreateModal(false)} onCreate={(data) => { onCreate(data); setCreateModal(false); }} />
+      <QrModal product={qrModalProduct} appUrl={appUrl} onClose={() => setQrModalProduct(null)} />
     </div>
   );
 }
@@ -281,6 +298,8 @@ function ProductActionsMenu({
   onTransferRequest,
   onRenewRequest,
   onProgramProduct,
+  onActivateQr,
+  onShowQr,
   closeMenu,
 }: {
   product: Product;
@@ -293,6 +312,8 @@ function ProductActionsMenu({
   onTransferRequest: (product: Product) => void;
   onRenewRequest: (product: Product) => void;
   onProgramProduct?: (id: string) => void;
+  onActivateQr?: (id: string) => void;
+  onShowQr: (product: Product) => void;
   closeMenu: () => void;
 }) {
   return (
@@ -306,6 +327,14 @@ function ProductActionsMenu({
           {product.status === 'Não programado' && onProgramProduct && (
             <ActionItem icon={Radio} label="Gravar chip" onClick={() => { onProgramProduct(product.id); closeMenu(); }} />
           )}
+          {/* O código de ativação (e a URL permanente /a/:code) já existe desde
+              a criação do produto — uma placa só-com-QR (sem chip NFC) não
+              precisa passar pelo Programador NFC, só precisa chegar no mesmo
+              status final 'Disponível' que a gravação do chip produziria. */}
+          {product.status === 'Não programado' && onActivateQr && (
+            <ActionItem icon={QrCode} label="Disponibilizar via QR" onClick={() => { onActivateQr(product.id); closeMenu(); }} />
+          )}
+          <ActionItem icon={QrCode} label="Ver QR Code" onClick={() => { onShowQr(product); closeMenu(); }} />
           <ActionItem icon={Copy} label="Duplicar" onClick={() => { onDuplicate(product.id); closeMenu(); }} />
           <ActionItem icon={UserPlus} label="Transferir cliente" onClick={() => { onTransferRequest(product); closeMenu(); }} />
           <ActionItem icon={RefreshCw} label="Renovar validade" onClick={() => { onRenewRequest(product); closeMenu(); }} />
@@ -356,6 +385,88 @@ function RenewModal({ isOpen, product, onClose, onRenew }: { isOpen: boolean; pr
       <div className="flex justify-end gap-2">
         <button onClick={onClose} className="rounded-xl px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800">Cancelar</button>
         <button onClick={() => onRenew(years)} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600">Renovar</button>
+      </div>
+    </Modal>
+  );
+}
+
+/**
+ * QR Code permanente do produto — aponta para `${appUrl}/a/{código}`, a
+ * mesma URL pública que o NfcRedirect já resolve (ver NfcRedirect.tsx e
+ * App.tsx, rota "/a/:code"). Pode ser gerado e baixado ANTES de qualquer
+ * ativação: o código já existe desde a criação do produto/lote, então essa
+ * imagem é exatamente o que vai impresso na placa/adesivo físico.
+ */
+function QrModal({ product, appUrl, onClose }: { product: Product | null; appUrl?: string; onClose: () => void }) {
+  const [node, setNode] = useState<HTMLDivElement | null>(null);
+  if (!product) return null;
+
+  const baseUrl = (appUrl || window.location.origin).replace(/\/$/, '');
+  const activationUrl = `${baseUrl}/a/${product.activationCode}`;
+
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(activationUrl);
+    } catch {
+      // Clipboard indisponível — a URL já está visível na tela para copiar manualmente.
+    }
+  };
+
+  const downloadPng = () => {
+    const svg = node?.querySelector('svg');
+    if (!svg) return;
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.onload = () => {
+      // Margem de respiro ao redor do QR para impressão (quiet zone).
+      const padding = 24;
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width + padding * 2;
+      canvas.height = img.height + padding * 2;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, padding, padding);
+      }
+      URL.revokeObjectURL(url);
+      const pngUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = pngUrl;
+      link.download = `qrcode-${product.activationCode}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+    img.src = url;
+  };
+
+  return (
+    <Modal
+      isOpen
+      onClose={onClose}
+      title={`QR Code — ${product.activationCode}`}
+      description="Este QR pode ser impresso na placa/adesivo antes mesmo de o produto ser vendido. O código é permanente: o cliente só precisa escanear, criar conta (ou entrar) e vincular ao perfil — o QR físico nunca muda."
+      maxWidth="max-w-md"
+    >
+      <div className="flex flex-col items-center gap-4">
+        <div ref={setNode} className="rounded-2xl bg-white p-5">
+          <QRCodeSVG value={activationUrl} size={200} level="M" />
+        </div>
+        <div className="w-full rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-500">URL permanente</p>
+          <p className="break-all font-mono text-xs text-emerald-300">{activationUrl}</p>
+        </div>
+        <div className="flex w-full gap-2">
+          <button onClick={copyUrl} className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800">
+            <Copy className="h-3.5 w-3.5" /> Copiar URL
+          </button>
+          <button onClick={downloadPng} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-500 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-600">
+            <Download className="h-3.5 w-3.5" /> Baixar PNG
+          </button>
+        </div>
       </div>
     </Modal>
   );
