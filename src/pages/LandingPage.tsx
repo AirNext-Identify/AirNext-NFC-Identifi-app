@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
 import { isVideoUrl } from '../lib/media';
+import { HUB_GOOGLE_ART, CUSTOM_PLATE_ART, COMBO_ART } from '../lib/productArt';
 import {
   ChevronDown, ChevronRight, ShoppingBag, Nfc, QrCode,
   Shield, ArrowUp, Check, ArrowRight, ArrowLeft,
@@ -27,7 +28,7 @@ import {
   Clipboard,
   ChevronUp,
   Phone, Wifi, AlertTriangle, Menu, Sparkle,
-  Ticket, BedDouble, Gem, EyeOff, Link2,
+  Ticket, Gem, EyeOff, Link2, Store, Gift,
   IdCard,
 } from 'lucide-react';
 type CP = React.CSSProperties & Record<string, string>;
@@ -196,6 +197,10 @@ interface Product {
   icon: React.ReactNode;
   formats: string[]; // ids referencing FORMATS
   specs: string[];
+  oldPrice?: number;   // preço "De" (usado em combos/promoções)
+  badge?: string;      // selo do card (padrão: "Novo")
+  combo?: boolean;     // kit com vários produtos — sem escolha de formato/personalizador
+  comboItems?: string[]; // itens incluídos no combo
 }
 
 const PRODUCTS: Product[] = [
@@ -256,6 +261,17 @@ const PRODUCTS: Product[] = [
     specs: ['Instruções de comunicação', 'Chip NFC', 'QR Code Estático + Dinâmico','Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
   },
   {
+    id: 'combo', name: 'Combo AirNext Completo', tag: 'Kit · Economize', price: 199, oldPrice: 257, badge: 'Combo',
+    desc: 'Tag + Card Pro + Pulseira NFC juntos por um preço especial.',
+    longDesc: 'O kit completo AirNext: o Card Pro para o seu networking, a Tag para chaves, mochila ou bagagem e a Pulseira NFC para ter sua identidade sempre à mão. Três produtos com a mesma identidade digital por um valor muito mais leve do que comprar separado.',
+    img: COMBO_ART,
+    color: '#ff2d55', icon: <Gift size={22} />,
+    formats: ['cartao', 'tag', 'pulseira'],
+    combo: true,
+    comboItems: ['AirNext Card Pro', 'AirNext Tag', 'Pulseira NFC AirNext'],
+    specs: ['Card Pro + Tag + Pulseira NFC', 'Um único perfil digital para os três', 'Economia de R$ 58 no kit', 'Chip NFC + QR Code em todas as peças', 'Personalização pelo WhatsApp após o pedido'],
+  },
+  {
     id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 69,
     desc: 'Tag NFC universal para bagagens, mochilas, chaves e objetos do dia a dia.',
     longDesc: 'Compacta e resistente, a AirNext Tag identifica qualquer objeto — malas, mochilas, bicicletas, notebooks e muito mais. Quem encontrar aproxima o celular e acessa seus dados de contato na hora, sem precisar instalar nenhum aplicativo.',
@@ -284,13 +300,31 @@ const PRODUCTS: Product[] = [
     specs: [ 'Programação e mapa do evento',  'Acesso por NFC + QR Code', 'Perfil digital personalizado', 'Networking sem troca de papel', 'PVC Premium Matte'],
   },
   {
-    id: 'hotel', name: 'AirNext Hotel', tag: 'Hotelaria', price: 129,
-    desc: 'Centralize todas as informações da hospedagem em uma placa NFC inteligente no quarto.',
-    longDesc: 'Com um simples toque, o hóspede acessa Wi-Fi, cardápio, serviços, avaliações, atrações locais, regras da hospedagem, checkout e outras informações importantes — tudo atualizado em tempo real, sem precisar imprimir materiais.',
+    id: 'service', name: 'AirNext Service', tag: 'Estabelecimentos', price: 129,
+    desc: 'Placa NFC inteligente para hotéis, restaurantes, clínicas, salões, lojas e qualquer negócio.',
+    longDesc: 'Com um simples toque, o cliente acessa Wi-Fi, cardápio, serviços, avaliações, localização, regras, contatos e promoções — tudo atualizado em tempo real, sem precisar imprimir materiais. Ideal para hotéis e pousadas, restaurantes e cafés, clínicas, salões, academias, lojas e prestadores de serviço.',
     img: 'https://files.catbox.moe/cuol4c.jpeg',
-    color: '#00c2a8', icon: <BedDouble size={22} />,
+    color: '#00c2a8', icon: <Store size={22} />,
     formats: ['placa', 'cartao', 'display'],
-    specs: ['Wi-Fi e informações do quarto', 'Cardápio e Room Service', 'Solicitação de serviços', 'Avaliações e feedback dos hóspedes', 'Atrações, mapas e recomendações locais'],
+    specs: ['Wi-Fi, cardápio e catálogo de serviços', 'Solicitação de atendimento e reservas', 'Avaliações e feedback dos clientes', 'Localização, horários e redes sociais', 'Para hotéis, restaurantes, clínicas, lojas e mais'],
+  },
+  {
+    id: 'hubgoogle', name: 'AirNext Hub Google Avaliação', tag: 'Google Avaliações', price: 79,
+    desc: 'Plaquinha NFC que leva o cliente direto para avaliar seu negócio no Google.',
+    longDesc: 'Um toque e o cliente cai direto na tela de avaliação do seu negócio no Google — sem buscar, sem digitar. Mais avaliações 5 estrelas, melhor posição no Google Maps e mais clientes chegando. Perfeita para balcões, mesas, recepções e caixas.',
+    img: HUB_GOOGLE_ART,
+    color: '#4285f4', icon: <Star size={22} />,
+    formats: ['placa', 'display'],
+    specs: ['Link direto para avaliação no Google', 'Chip NFC + QR Code de backup', 'Acrílico premium resistente', 'Sem app e sem mensalidade', 'Aumenta suas avaliações e sua reputação'],
+  },
+  {
+    id: 'personalizado', name: 'Personalizado AirNext', tag: 'Sob medida', price: 99,
+    desc: 'Placa NFC 100% personalizada com a sua marca, cores e o destino que você quiser.',
+    longDesc: 'Crie a sua própria placa AirNext: logo, cores, textos e o link que abre ao toque — Instagram, cardápio, WhatsApp, site, Pix ou qualquer página. Produzida sob medida com acabamento premium e a identidade visual do seu negócio.',
+    img: CUSTOM_PLATE_ART,
+    color: '#5e17eb', icon: <Palette size={22} />,
+    formats: ['placa', 'display', 'cartao', 'tag', 'chaveiro'],
+    specs: ['Logo, cores e textos da sua marca', 'Link de destino à sua escolha', 'Chip NFC + QR Code personalizado', 'Aprovação de arte pelo WhatsApp', 'Acabamento premium'],
   },
 ];
 
@@ -1246,7 +1280,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
                           <h3 className="text-xl font-bold mb-1.5">Escolha a linha AirNext</h3>
                           <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Cada linha tem um propósito — a personalização se adapta a ela.</p>
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {PRODUCTS.map(line => (
+                            {PRODUCTS.filter(l => !l.combo).map(line => (
                               <button
                                 key={line.id}
                                 onClick={() => selectLine(line)}
@@ -1662,7 +1696,7 @@ function WhatsAppButton() {
 
 export default function LandingPage() {
   const { resolve: resolveImg, loading: imagesLoading } = useSiteImages();
-  const [isDark, setIsDark] = useState(true); // Default Black theme, toggleable to White
+  const [isDark, setIsDark] = useState(false); // Tema claro por padrão, alternável para o escuro
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'form' | 'sent'>('cart');
@@ -1908,7 +1942,9 @@ export default function LandingPage() {
   ];
 
   const addToCart = (product: Product, formatId?: string) => {
-    const format = FORMATS.find(f => f.id === (formatId || product.formats[0])) || FORMATS.find(f => f.id === product.formats[0])!;
+    const format = product.combo
+      ? { id: 'combo', label: 'Kit: Card + Tag + Pulseira' }
+      : (FORMATS.find(f => f.id === (formatId || product.formats[0])) || FORMATS.find(f => f.id === product.formats[0])!);
     const key = `${product.id}::${format.id}`;
     setCart(prev => {
       const existing = prev.find(item => item.key === key);
@@ -2880,7 +2916,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* --- Second Products Row: new AirNext lines (Corporate, Evento, Hotel, Black) --- */}
+        {/* --- Second Products Row: new AirNext lines (Combo, Tag, Corporate, Evento, Service, Google Hub, Personalizado) --- */}
         <section id="mais-produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             
@@ -2923,7 +2959,7 @@ export default function LandingPage() {
                       </button>
 
                       <span className={`absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-1 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/90 text-white'}`}>
-                        Novo
+                        {p.badge || 'Novo'}
                       </span>
                     </div>
 
@@ -2933,14 +2969,17 @@ export default function LandingPage() {
                       <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
 
                       <div className="mt-auto flex items-center justify-between gap-3">
-                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {p.price}</p>
+                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          R$ {p.price}
+                          {p.oldPrice && <span className={`ml-2 text-[12px] font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {p.oldPrice}</span>}
+                        </p>
                         <button
-                          onClick={(e) => { e.stopPropagation(); goPersonalize(p); }}
+                          onClick={(e) => { e.stopPropagation(); if (p.combo) addToCart(p); else goPersonalize(p); }}
                           className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
                             isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
                           }`}
                         >
-                          Personalizar <ChevronRight size={13} />
+                          {p.combo ? 'Quero o combo' : 'Personalizar'} <ChevronRight size={13} />
                         </button>
                       </div>
                     </div>
@@ -3010,10 +3049,33 @@ export default function LandingPage() {
                   <div className="max-w-4xl mx-auto px-6 -mt-20 relative z-10 pb-20">
                     <span className="eyebrow mb-3 block" style={{ color: selectedProduct.color }}>{selectedProduct.tag}</span>
                     <h2 className="h1-apple mb-4">{selectedProduct.name}</h2>
-                    <p className="text-3xl font-bold mb-8">R$ {selectedProduct.price}</p>
+                    <p className="text-3xl font-bold mb-8">
+                      R$ {selectedProduct.price}
+                      {selectedProduct.oldPrice && (
+                        <>
+                          <span className={`ml-3 text-lg font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {selectedProduct.oldPrice}</span>
+                          <span className="ml-3 align-middle text-xs font-bold px-2.5 py-1 rounded-full bg-[#ff2d55] text-white">Economize R$ {selectedProduct.oldPrice - selectedProduct.price}</span>
+                        </>
+                      )}
+                    </p>
                     <p className={`text-xl ${isDark ? 'text-gray-400' : 'text-gray-500'} mb-8 leading-relaxed max-w-2xl`}>{selectedProduct.longDesc}</p>
 
+                    {/* Itens do combo */}
+                    {selectedProduct.combo && (
+                      <div className="mb-10">
+                        <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>O que vem no combo</p>
+                        <div className="flex flex-wrap gap-3">
+                          {selectedProduct.comboItems?.map((it, idx) => (
+                            <span key={it} className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs font-bold ${isDark ? 'border-white/15 text-gray-200' : 'border-gray-200 text-gray-800'}`}>
+                              {idx === 0 ? <CreditCard size={16} /> : idx === 1 ? <TagIcon size={16} /> : <Watch size={16} />} {it}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Format picker */}
+                    {!selectedProduct.combo && (
                     <div className="mb-10">
                       <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Escolha o formato</p>
                       <div className="flex flex-wrap gap-3">
@@ -3033,6 +3095,7 @@ export default function LandingPage() {
                         })}
                       </div>
                     </div>
+                    )}
 
                     <div className="grid sm:grid-cols-2 gap-4 mb-12">
                       {selectedProduct.specs.map(s => (
@@ -3043,6 +3106,7 @@ export default function LandingPage() {
                       ))}
                     </div>
 
+                    {!selectedProduct.combo && (
                     <div className={`mb-10 p-6 rounded-2xl border flex flex-col sm:flex-row sm:items-center gap-4 justify-between ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
                       <div>
                         <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Quer deixar do seu jeito?</p>
@@ -3055,6 +3119,7 @@ export default function LandingPage() {
                         <Palette size={16} /> Personalizar produto
                       </button>
                     </div>
+                    )}
 
                     <div className="flex flex-wrap gap-3">
                       <button
