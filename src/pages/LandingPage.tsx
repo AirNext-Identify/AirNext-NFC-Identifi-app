@@ -7,7 +7,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
 import { isVideoUrl } from '../lib/media';
-import { HUB_GOOGLE_ART, CUSTOM_PLATE_ART, COMBO_ART } from '../lib/productArt';
+import { CUSTOM_PLATE_ART } from '../lib/productArt';
+import { COMBO_KIT_IMG, GOOGLE_PRODUCT_GALLERY } from '../lib/productImages';
+import GooglePlaquesSection from '../components/landing/GooglePlaquesSection';
+import CustomSitesSection from '../components/landing/CustomSitesSection';
 import {
   ChevronDown, ChevronRight, ShoppingBag, Nfc, QrCode,
   Shield, ArrowUp, Check, ArrowRight, ArrowLeft,
@@ -201,6 +204,43 @@ interface Product {
   badge?: string;      // selo do card (padrão: "Novo")
   combo?: boolean;     // kit com vários produtos — sem escolha de formato/personalizador
   comboItems?: string[]; // itens incluídos no combo
+  gallery?: string[];  // várias fotos (card em rotação + slider no modal)
+}
+
+// Formata preço em reais: inteiros sem centavos (89), quebrados com vírgula (219,90)
+const fmtPrice = (n: number) => {
+  const v = Math.round(n * 100) / 100;
+  return Number.isInteger(v) ? String(v) : v.toFixed(2).replace('.', ',');
+};
+
+// Cards com várias fotos: troca suave a cada poucos segundos
+function ProductImageCycle({ images, alt }: { images: string[]; alt: string }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (images.length < 2) return;
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const t = setInterval(() => setI(v => (v + 1) % images.length), 3200);
+    return () => clearInterval(t);
+  }, [images.length]);
+  return (
+    <>
+      {images.map((src, idx) => (
+        <img
+          key={src}
+          src={src}
+          alt={idx === i ? alt : ''}
+          loading={idx === 0 ? 'eager' : 'lazy'}
+          decoding="async"
+          className={`absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-all duration-700 ease-out ${idx === i ? 'opacity-100' : 'opacity-0'}`}
+        />
+      ))}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+        {images.map((_, idx) => (
+          <span key={idx} className={`h-1.5 rounded-full transition-all ${idx === i ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`} />
+        ))}
+      </div>
+    </>
+  );
 }
 
 const PRODUCTS: Product[] = [
@@ -261,15 +301,15 @@ const PRODUCTS: Product[] = [
     specs: ['Instruções de comunicação', 'Chip NFC', 'QR Code Estático + Dinâmico','Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
   },
   {
-    id: 'combo', name: 'Combo AirNext Completo', tag: 'Kit · Economize', price: 199, oldPrice: 257, badge: 'Combo',
+    id: 'combo', name: 'Combo AirNext Completo', tag: 'Kit · Economize', price: 219.9, oldPrice: 257, badge: 'Combo',
     desc: 'Tag + Card Pro + Pulseira NFC juntos por um preço especial.',
     longDesc: 'O kit completo AirNext: o Card Pro para o seu networking, a Tag para chaves, mochila ou bagagem e a Pulseira NFC para ter sua identidade sempre à mão. Três produtos com a mesma identidade digital por um valor muito mais leve do que comprar separado.',
-    img: COMBO_ART,
+    img: COMBO_KIT_IMG,
     color: '#ff2d55', icon: <Gift size={22} />,
     formats: ['cartao', 'tag', 'pulseira'],
     combo: true,
     comboItems: ['AirNext Card Pro', 'AirNext Tag', 'Pulseira NFC AirNext'],
-    specs: ['Card Pro + Tag + Pulseira NFC', 'Um único perfil digital para os três', 'Economia de R$ 58 no kit', 'Chip NFC + QR Code em todas as peças', 'Personalização pelo WhatsApp após o pedido'],
+    specs: ['Card Pro + Tag + Pulseira NFC', 'Um único perfil digital para os três', 'Economia de R$ 37,10 no kit', 'Chip NFC + QR Code em todas as peças', 'Personalização pelo WhatsApp após o pedido'],
   },
   {
     id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 69,
@@ -312,7 +352,8 @@ const PRODUCTS: Product[] = [
     id: 'hubgoogle', name: 'AirNext Hub Google Avaliação', tag: 'Google Avaliações', price: 79,
     desc: 'Plaquinha NFC que leva o cliente direto para avaliar seu negócio no Google.',
     longDesc: 'Um toque e o cliente cai direto na tela de avaliação do seu negócio no Google — sem buscar, sem digitar. Mais avaliações 5 estrelas, melhor posição no Google Maps e mais clientes chegando. Perfeita para balcões, mesas, recepções e caixas.',
-    img: HUB_GOOGLE_ART,
+    img: GOOGLE_PRODUCT_GALLERY[0],
+    gallery: GOOGLE_PRODUCT_GALLERY,
     color: '#4285f4', icon: <Star size={22} />,
     formats: ['placa', 'display'],
     specs: ['Link direto para avaliação no Google', 'Chip NFC + QR Code de backup', 'Acrílico premium resistente', 'Sem app e sem mensalidade', 'Aumenta suas avaliações e sua reputação'],
@@ -1976,7 +2017,7 @@ export default function LandingPage() {
     );
   };
 
-  const cartSubtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const cartSubtotal = cart.reduce((acc, item) => acc + Math.round(item.product.price * item.quantity * 100) / 100, 0);
 
   const goPersonalize = (product: Product, formatId?: string) => {
     setConfiguratorPreset({ lineId: product.id, formatId: formatId || product.formats[0], nonce: Date.now() });
@@ -2002,9 +2043,9 @@ export default function LandingPage() {
       '',
     ];
     cart.forEach(item => {
-      lines.push(`• ${item.product.name} (${item.formatLabel}) — ${item.quantity}x — R$ ${item.product.price * item.quantity}`);
+      lines.push(`• ${item.product.name} (${item.formatLabel}) — ${item.quantity}x — R$ ${fmtPrice(item.product.price * item.quantity)}`);
     });
-    lines.push('', `Subtotal: R$ ${cartSubtotal}`);
+    lines.push('', `Subtotal: R$ ${fmtPrice(cartSubtotal)}`);
     lines.push('', '— Dados de contato —');
     lines.push(`Nome: ${checkoutInfo.nome || 'não informado'}`);
     lines.push(`Telefone: ${checkoutInfo.telefone || 'não informado'}`);
@@ -2426,12 +2467,12 @@ export default function LandingPage() {
                       {cart.map(item => (
                         <div key={item.key} className="flex justify-between">
                           <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>{item.quantity}x {item.product.name} ({item.formatLabel})</span>
-                          <span className="font-bold">R$ {item.product.price * item.quantity}</span>
+                          <span className="font-bold">R$ {fmtPrice(item.product.price * item.quantity)}</span>
                         </div>
                       ))}
                       <div className={`flex justify-between pt-2 mt-1 border-t font-bold ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                         <span>Subtotal</span>
-                        <span>R$ {cartSubtotal}</span>
+                        <span>R$ {fmtPrice(cartSubtotal)}</span>
                       </div>
                     </div>
 
@@ -2483,7 +2524,7 @@ export default function LandingPage() {
                                 <Plus size={10} />
                               </button>
                             </div>
-                            <span className="text-sm font-bold">R$ {item.product.price * item.quantity}</span>
+                            <span className="text-sm font-bold">R$ {fmtPrice(item.product.price * item.quantity)}</span>
                           </div>
                           <button
                             onClick={() => goPersonalize(item.product, item.formatId)}
@@ -2502,7 +2543,7 @@ export default function LandingPage() {
                   <div className={`pt-4 border-t ${isDark ? 'border-white/10' : 'border-gray-100'} space-y-4`}>
                     <div className="flex justify-between text-sm font-bold">
                       <span>Subtotal</span>
-                      <span>R$ {cartSubtotal}</span>
+                      <span>R$ {fmtPrice(cartSubtotal)}</span>
                     </div>
                     <div className={`p-4 rounded-2xl border flex gap-3 ${isDark ? 'bg-blue-900/20 border-blue-900/50 text-blue-200/80' : 'bg-blue-50 border-blue-100 text-blue-800'}`}>
                       <Zap size={18} className={`${isDark ? 'text-blue-400' : 'text-blue-600'} flex-shrink-0`} />
@@ -2942,7 +2983,9 @@ export default function LandingPage() {
                     className="group cursor-pointer h-[420px] flex flex-col"
                   >
                     <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      {imagesLoading ? (
+                      {p.gallery ? (
+                        <ProductImageCycle images={p.gallery} alt={p.name} />
+                      ) : imagesLoading ? (
                         <div className="w-full h-full bg-white/5 animate-pulse" />
                       ) : (
                         <img src={resolveImg(`row2-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
@@ -2970,8 +3013,8 @@ export default function LandingPage() {
 
                       <div className="mt-auto flex items-center justify-between gap-3">
                         <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                          R$ {p.price}
-                          {p.oldPrice && <span className={`ml-2 text-[12px] font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {p.oldPrice}</span>}
+                          R$ {fmtPrice(p.price)}
+                          {p.oldPrice && <span className={`ml-2 text-[12px] font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {fmtPrice(p.oldPrice)}</span>}
                         </p>
                         <button
                           onClick={(e) => { e.stopPropagation(); if (p.combo) addToCart(p); else goPersonalize(p); }}
@@ -3019,6 +3062,16 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* --- Plaquinhas de avaliação Google (em alta) --- */}
+        <GooglePlaquesSection
+          isDark={isDark}
+          whatsapp={AIRNEXT_WHATSAPP}
+          onBuy={() => { const hub = PRODUCTS.find(x => x.id === 'hubgoogle'); if (hub) setSelectedProduct(hub); }}
+        />
+
+        {/* --- Sites personalizados --- */}
+        <CustomSitesSection whatsapp={AIRNEXT_WHATSAPP} />
+
         <AnimatePresence>
             {selectedProduct && (
               <motion.div
@@ -3037,10 +3090,20 @@ export default function LandingPage() {
                     <X size={20} />
                   </button>
 
-                  <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">
-                    <img src={resolveImg(`modal-${selectedProduct.id}`, selectedProduct.img)} alt={selectedProduct.name} className="w-full h-full object-cover" />
-                    <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#050505]' : 'from-white'} via-transparent to-transparent`} />
-                    <div className="absolute top-6 left-6 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/45 backdrop-blur-sm text-white">
+                  <div className={`w-full h-[50vh] md:h-[60vh] relative overflow-hidden ${selectedProduct.combo ? 'bg-white' : selectedProduct.gallery ? 'bg-[#ededed]' : ''}`}>
+                    {selectedProduct.gallery ? (
+                      <Swiper modules={[Pagination]} pagination={{ clickable: true }} className="w-full h-full">
+                        {selectedProduct.gallery.map(src => (
+                          <SwiperSlide key={src}>
+                            <img src={src} alt={selectedProduct.name} className="w-full h-full object-contain" />
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    ) : (
+                      <img src={resolveImg(`modal-${selectedProduct.id}`, selectedProduct.img)} alt={selectedProduct.name} className={`w-full h-full ${selectedProduct.combo ? 'object-contain' : 'object-cover'}`} />
+                    )}
+                    <div className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#050505]' : 'from-white'} via-transparent to-transparent`} />
+                    <div className="pointer-events-none absolute top-6 left-6 z-10 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/45 backdrop-blur-sm text-white">
                       <Nfc size={13} />
                       <span style={{ fontFamily: "'Lobster', cursive" }} className="text-xs tracking-wide leading-none translate-y-[1px]">AirNext</span>
                     </div>
@@ -3050,11 +3113,11 @@ export default function LandingPage() {
                     <span className="eyebrow mb-3 block" style={{ color: selectedProduct.color }}>{selectedProduct.tag}</span>
                     <h2 className="h1-apple mb-4">{selectedProduct.name}</h2>
                     <p className="text-3xl font-bold mb-8">
-                      R$ {selectedProduct.price}
+                      R$ {fmtPrice(selectedProduct.price)}
                       {selectedProduct.oldPrice && (
                         <>
-                          <span className={`ml-3 text-lg font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {selectedProduct.oldPrice}</span>
-                          <span className="ml-3 align-middle text-xs font-bold px-2.5 py-1 rounded-full bg-[#ff2d55] text-white">Economize R$ {selectedProduct.oldPrice - selectedProduct.price}</span>
+                          <span className={`ml-3 text-lg font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {fmtPrice(selectedProduct.oldPrice)}</span>
+                          <span className="ml-3 align-middle text-xs font-bold px-2.5 py-1 rounded-full bg-[#ff2d55] text-white">Economize R$ {fmtPrice(selectedProduct.oldPrice - selectedProduct.price)}</span>
                         </>
                       )}
                     </p>
