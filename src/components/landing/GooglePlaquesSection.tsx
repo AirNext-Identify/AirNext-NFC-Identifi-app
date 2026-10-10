@@ -22,7 +22,7 @@ export default function GooglePlaquesSection({ isDark, whatsapp, onBuy }: Props)
   return (
     <section
       id="plaquinhas-google"
-      className={`py-20 md:py-28 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}
+      className={`py-20 md:py-28 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-white text-gray-900'}`}
     >
       <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         {/* Texto */}
@@ -38,7 +38,7 @@ export default function GooglePlaquesSection({ isDark, whatsapp, onBuy }: Props)
           <div className="grid sm:grid-cols-2 gap-5 mb-10">
             {BENEFITS.map(({ icon: Icon, title, text }) => (
               <div key={title} className="flex gap-3.5">
-                <span className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-white/10 text-[#8ab4f8]' : 'bg-white text-[#4285f4] shadow-sm'}`}>
+                <span className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-white/10 text-[#8ab4f8]' : 'bg-[#f5f5f7] text-[#4285f4]'}`}>
                   <Icon size={19} />
                 </span>
                 <div>
@@ -60,7 +60,7 @@ export default function GooglePlaquesSection({ isDark, whatsapp, onBuy }: Props)
               href={`https://wa.me/${whatsapp}?text=${msg}`}
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-bold border transition ${isDark ? 'border-white/20 hover:bg-white/10' : 'border-gray-300 hover:bg-white'}`}
+              className={`inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-bold border transition ${isDark ? 'border-white/20 hover:bg-white/10' : 'border-gray-300 hover:bg-gray-50'}`}
             >
               <MessageCircle size={16} /> Falar no WhatsApp
             </a>

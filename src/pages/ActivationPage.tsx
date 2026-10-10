@@ -2,12 +2,15 @@ import { useState } from 'react';
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, Category, ProfileTheme } from '../contexts/AuthContext';
-import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X, QrCode } from 'lucide-react';
+import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X, QrCode, Nfc, AlertTriangle } from 'lucide-react';
 import Logo from '../components/Logo';
 import { ConsentModal } from '../components/legal/ConsentModal';
 import { hasCurrentRequiredConsents } from '../lib/consents';
 import { QrScanner } from '../components/QrScanner';
 import { extractActivationCode } from '../lib/qrScanner';
+import { supabase } from '../lib/supabase';
+import { isWebNFCSupported } from '../lib/nfc';
+import { linkChipToProduct, readChipUuid, type ChipLinkResult } from '../lib/chipLink';
 
 const CATS:{id:Category;label:string;desc:string;icon:React.ElementType;color:string}[]=[
   {id:'PERSONAL',label:'Pessoa',desc:'Compartilhamento pessoal',icon:UserCheck,color:'from-blue-500 to-cyan-400'},
@@ -60,12 +63,16 @@ export default function ActivationPage() {
   };
 
   // Main flow: code → category → step1 → step2 → step3 → theme → done
-  const [phase, setPhase] = useState<'code'|'category'|'wizard'|'done'>('code');
+  const [phase, setPhase] = useState<'code'|'chip'|'category'|'wizard'|'done'>('code');
   const [wizStep, setWizStep] = useState(1); // 1-5
   const [code, setCode] = useState(formatActivationCode(paramCode || ''));
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [activated, setActivated] = useState<{id:string}|null>(null);
+  const [activated, setActivated] = useState<{id:string; nfc_uuid?:string}|null>(null);
+  // Vínculo do chip NFC da placa (o QR e o chip pertencem ao MESMO produto)
+  const [chipLinked, setChipLinked] = useState(false);
+  const [chipBusy, setChipBusy] = useState(false);
+  const [chipMsg, setChipMsg] = useState<{type:'ok'|'warn'|'err'; text:string}|null>(null);
   const [category, setCategory] = useState<Category>('PERSONAL');
   const [slug, setSlug] = useState('');
   const [theme, setTheme] = useState<ProfileTheme>('moderno');
@@ -82,7 +89,7 @@ export default function ActivationPage() {
 // setCode() (ex.: acabou de ser lido pela câmera) sem esperar o próximo
 // render — sem isso, ativar logo após escanear usaria o `code` antigo
 // (stale state), já que setState é assíncrono.
-const runActivate = async (codeOverride?: string) => {
+const runActivate = async (codeOverride?: string, viaChip = false) => {
   setBusy(true);
   setError('');
 
@@ -96,12 +103,18 @@ const runActivate = async (codeOverride?: string) => {
     return;
   }
 
-  setActivated({ id: res.product.id });
-  setPhase('category');
+  setActivated({ id: res.product.id, nfc_uuid: res.product.nfc_uuid });
+
+  // Ativou pelo chip, ou o chip já saiu gravado de fábrica → já está vinculado.
+  // Caso contrário (ex.: placa liberada só com QR), oferece vincular o chip agora.
+  const alreadyLinked = viaChip || !!res.product.programmed_at || !res.product.nfc_uuid;
+  setChipLinked(alreadyLinked);
+  setChipMsg(null);
+  setPhase(alreadyLinked ? 'category' : 'chip');
   setBusy(false);
 };
 
-const handleActivate = async (codeOverride?: string) => {
+const handleActivate = async (codeOverride?: string, viaChip = false) => {
   if (!user?.id) {
     setError('Faça login para ativar o produto.');
     return;
@@ -115,7 +128,7 @@ const handleActivate = async (codeOverride?: string) => {
     setConsentModalOpen(true);
     return;
   }
-  await runActivate(codeOverride);
+  await runActivate(codeOverride, viaChip);
 };
 
 const handleConsentAccepted = async () => {
@@ -140,6 +153,51 @@ const handleQrDetected = (rawValue: string) => {
   const formatted = formatActivationCode(extracted);
   setCode(formatted);
   handleActivate(formatted);
+};
+
+// Ativar tocando a placa: lê o chip, descobre o produto pelo uuid gravado e
+// dispara a MESMA ativação do código/QR (um único motor, um único status).
+const handleChipActivate = async () => {
+  setError('');
+  setBusy(true);
+  try {
+    const { uuid } = await readChipUuid();
+    if (!uuid) {
+      setBusy(false);
+      setError('Chip lido, mas não reconhecido como um chip AirNext.');
+      return;
+    }
+    const { data } = await supabase.from('products').select('code').eq('nfc_uuid', uuid).maybeSingle();
+    if (!data?.code) {
+      setBusy(false);
+      setError('Não encontramos nenhum produto para este chip.');
+      return;
+    }
+    setCode(formatActivationCode(data.code));
+    setBusy(false);
+    await handleActivate(data.code, true);
+  } catch {
+    setBusy(false);
+    setError('Não foi possível ler o chip. Aproxime a placa do celular e tente novamente.');
+  }
+};
+
+const handleLinkChip = async () => {
+  if (!activated?.nfc_uuid || !user) return;
+  setChipBusy(true);
+  setChipMsg(null);
+  const r: ChipLinkResult = await linkChipToProduct({ id: activated.id, nfc_uuid: activated.nfc_uuid }, { id: user.id, name: user.name });
+  setChipBusy(false);
+  if (r.status === 'linked' || r.status === 'already') {
+    setChipLinked(true);
+    setChipMsg({ type: 'ok', text: r.status === 'linked' ? 'Chip gravado e vinculado a este produto!' : 'Este chip já pertence a este produto — tudo certo!' });
+  } else if (r.status === 'other-product') {
+    setChipMsg({ type: 'err', text: 'Este chip já está vinculado a OUTRO produto AirNext. Use o chip que acompanha esta placa.' });
+  } else if (r.status === 'unsupported') {
+    setChipMsg({ type: 'warn', text: 'Este navegador não permite gravar NFC. Abra no Chrome para Android, ou continue: se a placa já veio com chip, ele funciona normalmente.' });
+  } else {
+    setChipMsg({ type: 'err', text: r.message });
+  }
 };
 
 const handleFinish = async () => {
@@ -261,6 +319,48 @@ setPhase('done');
                 <QrCode className="h-4 w-4" />Ativar com QR Code (câmera)
               </button>
               <p className="text-center text-[11px] text-zinc-500 mt-3">Aponte a câmera para o QR Code impresso na placa</p>
+
+              {/* Ativação pelo chip NFC: toca a placa e ativa o mesmo produto
+                  (QR e chip são o mesmo produto — uma única ativação). */}
+              {isWebNFCSupported() && (
+                <button onClick={handleChipActivate} disabled={busy}
+                  className="w-full mt-3 flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm">
+                  <Nfc className="h-4 w-4" />Ativar tocando a placa (chip NFC)
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* ═══ PHASE: CHIP (vincular o chip NFC da placa) ═══ */}
+          {phase === 'chip' && (
+            <div className="p-8 text-center">
+              <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/20 mb-4"><CheckCircle className="h-7 w-7 text-emerald-400" /></div>
+              <h2 className="text-xl font-bold text-white">QR Code ativado!</h2>
+              <p className="mt-1.5 text-sm text-zinc-300">Agora vincule o chip NFC da mesma placa para que o toque também abra o seu perfil.</p>
+
+              <div className="my-5 flex items-center justify-center gap-3 text-[11px] font-semibold">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300"><QrCode className="h-3.5 w-3.5" />QR Code ativo</span>
+                <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${chipLinked ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/10 text-zinc-300'}`}><Nfc className="h-3.5 w-3.5" />{chipLinked ? 'Chip vinculado' : 'Chip pendente'}</span>
+              </div>
+
+              {chipMsg && (
+                <div className={`rounded-xl p-3 text-sm mb-4 text-left flex gap-2 items-start border ${chipMsg.type === 'ok' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' : chipMsg.type === 'warn' ? 'bg-amber-500/10 border-amber-500/20 text-amber-300' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+                  {chipMsg.type === 'ok' ? <CheckCircle className="h-4 w-4 mt-0.5 shrink-0" /> : <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />}
+                  <span>{chipMsg.text}</span>
+                </div>
+              )}
+
+              {!chipLinked && (
+                <button onClick={handleLinkChip} disabled={chipBusy}
+                  className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 text-sm shadow-lg shadow-[#2563EB]/30" style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}>
+                  {chipBusy ? <><Loader2 className="h-4 w-4 animate-spin" />Aproxime a placa e mantenha encostada...</> : <><Nfc className="h-4 w-4" />Vincular chip NFC</>}
+                </button>
+              )}
+              <button onClick={() => setPhase('category')}
+                className={`w-full mt-3 flex items-center justify-center gap-2 font-semibold py-3 rounded-xl text-sm transition-all ${chipLinked ? 'text-white shadow-lg shadow-[#2563EB]/30' : 'text-zinc-300 border border-white/10 hover:bg-white/5'}`}
+                style={chipLinked ? { background: 'linear-gradient(135deg, #2563EB, #3B82F6)' } : undefined}>
+                {chipLinked ? <>Continuar<ArrowRight className="h-4 w-4" /></> : 'Pular por enquanto'}
+              </button>
             </div>
           )}
 
@@ -270,6 +370,11 @@ setPhase('done');
               <div className="text-center mb-6">
                 <h2 className="text-xl font-bold text-white">Escolha a categoria</h2>
                 <p className="mt-1 text-sm text-zinc-300">O que deseja compartilhar com este produto?</p>
+                {chipLinked && (
+                  <span className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 text-[11px] font-semibold">
+                    <CheckCircle className="h-3.5 w-3.5" />QR Code e chip NFC ativados
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-2.5">
                 {CATS.map(c => (

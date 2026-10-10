@@ -7,8 +7,9 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
 import { isVideoUrl } from '../lib/media';
-import { CUSTOM_PLATE_ART } from '../lib/productArt';
-import { COMBO_KIT_IMG, GOOGLE_PRODUCT_GALLERY } from '../lib/productImages';
+import { COMBO_KIT_IMG, GOOGLE_PRODUCT_GALLERY, PERSONALIZADO_GALLERY } from '../lib/productImages';
+import { fmtPrice, priceLabel } from '../lib/price';
+import ProductCard from '../components/landing/ProductCard';
 import GooglePlaquesSection from '../components/landing/GooglePlaquesSection';
 import CustomSitesSection from '../components/landing/CustomSitesSection';
 import {
@@ -207,42 +208,6 @@ interface Product {
   gallery?: string[];  // várias fotos (card em rotação + slider no modal)
 }
 
-// Formata preço em reais: inteiros sem centavos (89), quebrados com vírgula (219,90)
-const fmtPrice = (n: number) => {
-  const v = Math.round(n * 100) / 100;
-  return Number.isInteger(v) ? String(v) : v.toFixed(2).replace('.', ',');
-};
-
-// Cards com várias fotos: troca suave a cada poucos segundos
-function ProductImageCycle({ images, alt }: { images: string[]; alt: string }) {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    if (images.length < 2) return;
-    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const t = setInterval(() => setI(v => (v + 1) % images.length), 3200);
-    return () => clearInterval(t);
-  }, [images.length]);
-  return (
-    <>
-      {images.map((src, idx) => (
-        <img
-          key={src}
-          src={src}
-          alt={idx === i ? alt : ''}
-          loading={idx === 0 ? 'eager' : 'lazy'}
-          decoding="async"
-          className={`absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-all duration-700 ease-out ${idx === i ? 'opacity-100' : 'opacity-0'}`}
-        />
-      ))}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-        {images.map((_, idx) => (
-          <span key={idx} className={`h-1.5 rounded-full transition-all ${idx === i ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`} />
-        ))}
-      </div>
-    </>
-  );
-}
-
 const PRODUCTS: Product[] = [
   {
     id: 'pro', name: 'AirNext Pro', tag: 'Profissionais', price: 89,
@@ -312,6 +277,35 @@ const PRODUCTS: Product[] = [
     specs: ['Card Pro + Tag + Pulseira NFC', 'Um único perfil digital para os três', 'Economia de R$ 37,10 no kit', 'Chip NFC + QR Code em todas as peças', 'Personalização pelo WhatsApp após o pedido'],
   },
   {
+    id: 'hubgoogle', name: 'AirNext Hub Google Avaliação', tag: 'Google Avaliações', price: 79, badge: 'Em alta',
+    desc: 'Plaquinha NFC que leva o cliente direto para avaliar seu negócio no Google.',
+    longDesc: 'Um toque e o cliente cai direto na tela de avaliação do seu negócio no Google — sem buscar, sem digitar. Mais avaliações 5 estrelas, melhor posição no Google Maps e mais clientes chegando. Perfeita para balcões, mesas, recepções e caixas.',
+    img: GOOGLE_PRODUCT_GALLERY[0],
+    gallery: GOOGLE_PRODUCT_GALLERY,
+    color: '#4285f4', icon: <Star size={22} />,
+    formats: ['placa', 'display'],
+    specs: ['Link direto para avaliação no Google', 'Chip NFC + QR Code de backup', 'Acrílico premium resistente', 'Sem app e sem mensalidade', 'Aumenta suas avaliações e sua reputação'],
+  },
+  {
+    id: 'service', name: 'AirNext Service', tag: 'Estabelecimentos', price: 129, badge: 'Novo',
+    desc: 'Placa NFC inteligente para hotéis, restaurantes, clínicas, salões, lojas e qualquer negócio.',
+    longDesc: 'Com um simples toque, o cliente acessa Wi-Fi, cardápio, serviços, avaliações, localização, regras, contatos e promoções — tudo atualizado em tempo real, sem precisar imprimir materiais. Ideal para hotéis e pousadas, restaurantes e cafés, clínicas, salões, academias, lojas e prestadores de serviço.',
+    img: 'https://files.catbox.moe/cuol4c.jpeg',
+    color: '#00c2a8', icon: <Store size={22} />,
+    formats: ['placa', 'cartao', 'display'],
+    specs: ['Wi-Fi, cardápio e catálogo de serviços', 'Solicitação de atendimento e reservas', 'Avaliações e feedback dos clientes', 'Localização, horários e redes sociais', 'Para hotéis, restaurantes, clínicas, lojas e mais'],
+  },
+  {
+    id: 'personalizado', name: 'Personalizado AirNext', tag: 'Sob medida', price: 99,
+    desc: 'Placa NFC 100% personalizada com a sua marca, cores e o destino que você quiser.',
+    longDesc: 'Crie a sua própria placa AirNext: logo, cores, textos e o link que abre ao toque — Instagram, cardápio, WhatsApp, site, Pix ou qualquer página. Produzida sob medida com acabamento premium e a identidade visual do seu negócio.',
+    img: PERSONALIZADO_GALLERY[0],
+    gallery: PERSONALIZADO_GALLERY,
+    color: '#5e17eb', icon: <Palette size={22} />,
+    formats: ['placa', 'display', 'cartao', 'tag', 'chaveiro'],
+    specs: ['Logo, cores e textos da sua marca', 'Link de destino à sua escolha', 'Chip NFC + QR Code personalizado', 'Aprovação de arte pelo WhatsApp', 'Acabamento premium'],
+  },
+  {
     id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 69,
     desc: 'Tag NFC universal para bagagens, mochilas, chaves e objetos do dia a dia.',
     longDesc: 'Compacta e resistente, a AirNext Tag identifica qualquer objeto — malas, mochilas, bicicletas, notebooks e muito mais. Quem encontrar aproxima o celular e acessa seus dados de contato na hora, sem precisar instalar nenhum aplicativo.',
@@ -329,7 +323,6 @@ const PRODUCTS: Product[] = [
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo', 'cracha'],
     specs: ['Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC + QR Code', 'Dashboard de gestão'],
   },
-  
   {
     id: 'evento', name: 'AirNext Evento', tag: 'Eventos', price: 0,
     desc: 'Crachás inteligentes para congressos, feiras e eventos.',
@@ -338,34 +331,6 @@ const PRODUCTS: Product[] = [
     color: '#ff2d55', icon: <Ticket size={22} />,
     formats: ['cracha', 'display', 'cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
     specs: [ 'Programação e mapa do evento',  'Acesso por NFC + QR Code', 'Perfil digital personalizado', 'Networking sem troca de papel', 'PVC Premium Matte'],
-  },
-  {
-    id: 'service', name: 'AirNext Service', tag: 'Estabelecimentos', price: 129,
-    desc: 'Placa NFC inteligente para hotéis, restaurantes, clínicas, salões, lojas e qualquer negócio.',
-    longDesc: 'Com um simples toque, o cliente acessa Wi-Fi, cardápio, serviços, avaliações, localização, regras, contatos e promoções — tudo atualizado em tempo real, sem precisar imprimir materiais. Ideal para hotéis e pousadas, restaurantes e cafés, clínicas, salões, academias, lojas e prestadores de serviço.',
-    img: 'https://files.catbox.moe/cuol4c.jpeg',
-    color: '#00c2a8', icon: <Store size={22} />,
-    formats: ['placa', 'cartao', 'display'],
-    specs: ['Wi-Fi, cardápio e catálogo de serviços', 'Solicitação de atendimento e reservas', 'Avaliações e feedback dos clientes', 'Localização, horários e redes sociais', 'Para hotéis, restaurantes, clínicas, lojas e mais'],
-  },
-  {
-    id: 'hubgoogle', name: 'AirNext Hub Google Avaliação', tag: 'Google Avaliações', price: 79,
-    desc: 'Plaquinha NFC que leva o cliente direto para avaliar seu negócio no Google.',
-    longDesc: 'Um toque e o cliente cai direto na tela de avaliação do seu negócio no Google — sem buscar, sem digitar. Mais avaliações 5 estrelas, melhor posição no Google Maps e mais clientes chegando. Perfeita para balcões, mesas, recepções e caixas.',
-    img: GOOGLE_PRODUCT_GALLERY[0],
-    gallery: GOOGLE_PRODUCT_GALLERY,
-    color: '#4285f4', icon: <Star size={22} />,
-    formats: ['placa', 'display'],
-    specs: ['Link direto para avaliação no Google', 'Chip NFC + QR Code de backup', 'Acrílico premium resistente', 'Sem app e sem mensalidade', 'Aumenta suas avaliações e sua reputação'],
-  },
-  {
-    id: 'personalizado', name: 'Personalizado AirNext', tag: 'Sob medida', price: 99,
-    desc: 'Placa NFC 100% personalizada com a sua marca, cores e o destino que você quiser.',
-    longDesc: 'Crie a sua própria placa AirNext: logo, cores, textos e o link que abre ao toque — Instagram, cardápio, WhatsApp, site, Pix ou qualquer página. Produzida sob medida com acabamento premium e a identidade visual do seu negócio.',
-    img: CUSTOM_PLATE_ART,
-    color: '#5e17eb', icon: <Palette size={22} />,
-    formats: ['placa', 'display', 'cartao', 'tag', 'chaveiro'],
-    specs: ['Logo, cores e textos da sua marca', 'Link de destino à sua escolha', 'Chip NFC + QR Code personalizado', 'Aprovação de arte pelo WhatsApp', 'Acabamento premium'],
   },
 ];
 
@@ -2870,7 +2835,7 @@ export default function LandingPage() {
         </section>
 
         {/* --- Products Section --- */}
-        <section id="produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
+        <section id="produtos" className={`pt-20 md:pt-28 pb-4 md:pb-6 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
            <div className="text-center mb-14">
               <p className="eyebrow text-[#0071e3] mb-3">Feito para o seu estilo</p>
@@ -2895,52 +2860,16 @@ export default function LandingPage() {
               className="pb-10"
             >
               {shopProducts.map(p => (
-                <SwiperSlide key={p.id}>
-                  <motion.div
-                    whileHover={{ y: -6 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    onClick={() => setSelectedProduct(p)}
-                    className="group cursor-pointer h-[420px] flex flex-col"
-                  >
-                    {/* Imagem — grande, sem selos ou ruído visual, foco total no produto */}
-                    <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      {imagesLoading ? (
-                        <div className="w-full h-full bg-white/5 animate-pulse" />
-                      ) : (
-                        <img src={resolveImg(`shop-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
-                      )}
-
-                      {/* Botão de sacola — sempre visível (antes só aparecia no hover) */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addToCart(p); }}
-                        aria-label={`Adicionar ${p.name} à sacola`}
-                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition ${
-                          isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
-                        }`}
-                      >
-                        <ShoppingBag size={15} />
-                      </button>
-                    </div>
-
-                    {/* Texto — hierarquia limpa, uma linha por informação, sem excesso de badges */}
-                    <div className="flex flex-col flex-1">
-                      <span className={`text-[11px] font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
-                      <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
-                      <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
-
-                      <div className="mt-auto flex items-center justify-between gap-3">
-                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {p.price}</p>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); goPersonalize(p); }}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
-                            isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
-                          }`}
-                        >
-                          Personalizar <ChevronRight size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
+                <SwiperSlide key={p.id} className="!h-auto">
+                  <ProductCard
+                    product={p}
+                    isDark={isDark}
+                    imgSrc={resolveImg(`shop-${p.id}`, p.img)}
+                    imgLoading={imagesLoading}
+                    onOpen={() => setSelectedProduct(p)}
+                    onAdd={() => addToCart(p)}
+                    onPersonalize={() => goPersonalize(p)}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -2958,9 +2887,13 @@ export default function LandingPage() {
         </section>
 
         {/* --- Second Products Row: new AirNext lines (Combo, Tag, Corporate, Evento, Service, Google Hub, Personalizado) --- */}
-        <section id="mais-produtos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
+        <section id="mais-produtos" className={`pt-14 md:pt-20 pb-20 md:pb-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
-            
+            <div className="text-center mb-14">
+              <p className="eyebrow text-[#0071e3] mb-3">Mais linhas AirNext</p>
+              <h2 className="h2-apple">Para negócios, eventos e muito mais</h2>
+              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Combos, placas de avaliação, soluções para empresas e estabelecimentos — a mesma tecnologia, do jeito que o seu negócio precisa.</p>
+            </div>
 
             <Swiper
               modules={[Pagination]}
@@ -2975,58 +2908,16 @@ export default function LandingPage() {
               className="pb-10"
             >
               {row2Products.map(p => (
-                <SwiperSlide key={p.id}>
-                  <motion.div
-                    whileHover={{ y: -6 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    onClick={() => setSelectedProduct(p)}
-                    className="group cursor-pointer h-[420px] flex flex-col"
-                  >
-                    <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      {p.gallery ? (
-                        <ProductImageCycle images={p.gallery} alt={p.name} />
-                      ) : imagesLoading ? (
-                        <div className="w-full h-full bg-white/5 animate-pulse" />
-                      ) : (
-                        <img src={resolveImg(`row2-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
-                      )}
-
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addToCart(p); }}
-                        aria-label={`Adicionar ${p.name} à sacola`}
-                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition ${
-                          isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
-                        }`}
-                      >
-                        <ShoppingBag size={15} />
-                      </button>
-
-                      <span className={`absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-1 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/90 text-white'}`}>
-                        {p.badge || 'Novo'}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col flex-1">
-                      <span className={`text-[11px] font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
-                      <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
-                      <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
-
-                      <div className="mt-auto flex items-center justify-between gap-3">
-                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                          R$ {fmtPrice(p.price)}
-                          {p.oldPrice && <span className={`ml-2 text-[12px] font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {fmtPrice(p.oldPrice)}</span>}
-                        </p>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); if (p.combo) addToCart(p); else goPersonalize(p); }}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
-                            isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
-                          }`}
-                        >
-                          {p.combo ? 'Quero o combo' : 'Personalizar'} <ChevronRight size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
+                <SwiperSlide key={p.id} className="!h-auto">
+                  <ProductCard
+                    product={p}
+                    isDark={isDark}
+                    imgSrc={resolveImg(`row2-${p.id}`, p.img)}
+                    imgLoading={imagesLoading}
+                    onOpen={() => setSelectedProduct(p)}
+                    onAdd={() => addToCart(p)}
+                    onPersonalize={() => goPersonalize(p)}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -3113,7 +3004,7 @@ export default function LandingPage() {
                     <span className="eyebrow mb-3 block" style={{ color: selectedProduct.color }}>{selectedProduct.tag}</span>
                     <h2 className="h1-apple mb-4">{selectedProduct.name}</h2>
                     <p className="text-3xl font-bold mb-8">
-                      R$ {fmtPrice(selectedProduct.price)}
+                      {priceLabel(selectedProduct.price)}
                       {selectedProduct.oldPrice && (
                         <>
                           <span className={`ml-3 text-lg font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {fmtPrice(selectedProduct.oldPrice)}</span>

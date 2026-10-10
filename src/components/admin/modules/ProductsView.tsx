@@ -332,7 +332,12 @@ function ProductActionsMenu({
               precisa passar pelo Programador NFC, só precisa chegar no mesmo
               status final 'Disponível' que a gravação do chip produziria. */}
           {product.status === 'Não programado' && onActivateQr && (
-            <ActionItem icon={QrCode} label="Disponibilizar via QR" onClick={() => { onActivateQr(product.id); closeMenu(); }} />
+            <ActionItem icon={QrCode} label="Liberar só com QR (sem chip)" onClick={() => {
+              // Placas com chip devem passar pelo Programador NFC. Se liberar só com QR,
+              // o cliente vincula o chip na própria ativação (ver ActivationPage).
+              if (window.confirm('Liberar SEM gravar o chip? O QR Code funcionará e o cliente poderá vincular o chip na ativação. Para placas com chip, o recomendado é gravar pelo Programador NFC.')) onActivateQr(product.id);
+              closeMenu();
+            }} />
           )}
           <ActionItem icon={QrCode} label="Ver QR Code" onClick={() => { onShowQr(product); closeMenu(); }} />
           <ActionItem icon={Copy} label="Duplicar" onClick={() => { onDuplicate(product.id); closeMenu(); }} />

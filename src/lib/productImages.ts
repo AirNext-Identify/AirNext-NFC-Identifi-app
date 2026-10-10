@@ -20,3 +20,8 @@ export const GOOGLE_SHOWCASE = [
   { src: googlePretoMesa, alt: 'Plaquinha preta de avaliação Google sobre a mesa de vidro', label: 'Preta · mesa' },
   { src: googleBrancaMesa, alt: 'Plaquinha branca de avaliação Google sobre a mesa de vidro', label: 'Branca · mesa' },
 ];
+
+// Fotos do produto "Personalizado AirNext": placa/suporte e cartão com a marca do cliente
+import personalizadoStand from '../assets/products/personalizado-stand.webp';
+import personalizadoCard from '../assets/products/personalizado-card.webp';
+export const PERSONALIZADO_GALLERY = [personalizadoStand, personalizadoCard];
