@@ -1,7 +1,7 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import { Star, Nfc, QrCode, Zap, ArrowRight, MessageCircle } from 'lucide-react';
-import { GOOGLE_SHOWCASE } from '../../lib/productImages';
+import { GOOGLE_SHOWCASE } from '../../config/product-images';
 
 interface Props {
   isDark: boolean;

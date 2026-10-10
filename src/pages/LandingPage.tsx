@@ -7,7 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
 import { isVideoUrl } from '../lib/media';
-import { COMBO_KIT_IMG, GOOGLE_PRODUCT_GALLERY, PERSONALIZADO_GALLERY } from '../lib/productImages';
+import { PRODUCT_IMAGES } from '../config/product-images';
 import { fmtPrice, priceLabel } from '../lib/price';
 import ProductCard from '../components/landing/ProductCard';
 import ProductHero from '../components/landing/ProductHero';
@@ -214,7 +214,7 @@ const PRODUCTS: Product[] = [
     id: 'pro', name: 'AirNext Pro', tag: 'Profissionais', price: 89,
     desc: 'Perfil digital para profissionais, autônomos e empreendedores.',
     longDesc: 'Compartilhe seu perfil completo — LinkedIn, portfólio, WhatsApp, Instagram e vCard — com uma simples aproximação. Ideal para quem vive de networking e quer causar impacto em reuniões e eventos.',
-    img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: PRODUCT_IMAGES.pro.main,
     color: '#0071e3', icon: <Briefcase size={22} />,
     formats: ['cartao'], // todas as categorias disponíveis
     specs: ['Chip NFC', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Edição ilimitada do perfil'],
@@ -225,7 +225,7 @@ const PRODUCTS: Product[] = [
     id: 'stand', name: 'AirNext Stand', tag: 'Estabelecimentos', price: 129,
     desc: 'Centralizador de informações para estabelecimentos.',
     longDesc: 'Recepções, restaurantes e lojas concentram cardápio digital, Wi-Fi, avaliações e formas de pagamento em um único toque. Design minimalista com base antiderrapante para o balcão.',
-    img: 'https://images.pexels.com/photos/5239822/pexels-photo-5239822.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: PRODUCT_IMAGES.stand.main,
     color: '#34c759', icon: <Building2 size={22} />,
     formats: ['display','placa'], // todas as categorias disponíveis
     specs: ['Base Acrílico Premium', 'Chip NFC', 'QR Code Estático + Dinâmico', 'Dashboard de analytics', 'Personalização com logo'],
@@ -234,7 +234,7 @@ const PRODUCTS: Product[] = [
     id: 'pet', name: 'AirNext Pet', tag: 'Pets', price: 69,
     desc: 'Identificação inteligente para pets.',
     longDesc: 'Se o seu pet se perder, qualquer pessoa pode ler a tag com o celular e ver contatos de emergência, informações de saúde e veterinário. Sem mensalidade, sem bateria.',
-    img: 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: PRODUCT_IMAGES.pet.main,
     color: '#ff9500', icon: <PawPrint size={22} />,
     formats: [ 'tag', 'chaveiro'], // todas as categorias disponíveis
     specs: ['Acabamento em Resina', 'Chip NFC', 'QR Code Estático + Dinâmico','IP68 · Submersível', 'Argola', 'Dados veterinários e +'],
@@ -243,7 +243,7 @@ const PRODUCTS: Product[] = [
     id: 'kids', name: 'AirNext Kids', tag: 'Crianças', price: 99,
     desc: 'Identificação digital para crianças.',
     longDesc: 'Segurança para crianças em parques, shoppings e eventos. Dados dos pais e contatos de emergência acessíveis por qualquer celular com um simples toque — sem apps.',
-    img: 'https://images.pexels.com/photos/5275817/pexels-photo-5275817.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: PRODUCT_IMAGES.kids.main,
     color: '#af52de', icon: <Baby size={22} />,
     formats: [ 'pulseira'], // todas as categorias disponíveis
     specs: ['Silicone Hipoalergênico', 'Chip NFC', 'Nome e foto de identificação', 'Resistente à água', 'Contato dos responsáveis'],
@@ -252,7 +252,7 @@ const PRODUCTS: Product[] = [
     id: 'senior', name: 'AirNext Senior', tag: 'Idosos', price: 99,
     desc: 'Identificação para idosos.',
     longDesc: 'Tecnologia acessível para idosos. Compartilhe endereço, contato de familiares, plano de saúde e dados médicos essenciais sem precisar de smartphone ou aplicativos.',
-    img: 'https://images.pexels.com/photos/7394608/pexels-photo-7394608.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: PRODUCT_IMAGES.senior.main,
     color: '#ff3b30', icon: <Heart size={22} />,
     formats: [ 'pulseira'], // todas as categorias disponíveis
     specs: ['Dados do plano de saúde','Chip NFC', 'QR Code Estático + Dinâmico', 'Medicações em uso', 'Contato do médico', 'Endereço residencial', 'Leitura sem aplicativo'],
@@ -261,7 +261,7 @@ const PRODUCTS: Product[] = [
     id: 'tea', name: 'AirNext TEA', tag: 'Espectro Autista', price: 99,
     desc: 'Identificação para pessoas com Transtorno do Espectro Autista.',
     longDesc: 'Contém instruções de comunicação, sensibilidades sensoriais, contatos de emergência e dados médicos vitais para auxiliar pessoas no espectro autista em situações de crise.',
-    img: 'https://images.pexels.com/photos/8944295/pexels-photo-8944295.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: PRODUCT_IMAGES.tea.main,
     color: '#00d2ff', icon: <Puzzle size={22} />,
     formats: ['pulseira', 'cracha'], // todas as categorias disponíveis
     specs: ['Instruções de comunicação', 'Chip NFC', 'QR Code Estático + Dinâmico','Sensibilidades sensoriais', 'Contato do cuidador', 'Dados médicos de emergência'],
@@ -270,7 +270,7 @@ const PRODUCTS: Product[] = [
     id: 'combo', name: 'Combo AirNext Completo', tag: 'Kit · Economize', price: 219.9, oldPrice: 257, badge: 'Combo',
     desc: 'Tag + Card Pro + Pulseira NFC juntos por um preço especial.',
     longDesc: 'O kit completo AirNext: o Card Pro para o seu networking, a Tag para chaves, mochila ou bagagem e a Pulseira NFC para ter sua identidade sempre à mão. Três produtos com a mesma identidade digital por um valor muito mais leve do que comprar separado.',
-    img: COMBO_KIT_IMG,
+    img: PRODUCT_IMAGES.combo.main,
     color: '#ff2d55', icon: <Gift size={22} />,
     formats: ['cartao', 'tag', 'pulseira'],
     combo: true,
@@ -281,8 +281,8 @@ const PRODUCTS: Product[] = [
     id: 'hubgoogle', name: 'AirNext Hub Google Avaliação', tag: 'Google Avaliações', price: 79, badge: 'Em alta',
     desc: 'Plaquinha NFC que leva o cliente direto para avaliar seu negócio no Google.',
     longDesc: 'Um toque e o cliente cai direto na tela de avaliação do seu negócio no Google — sem buscar, sem digitar. Mais avaliações 5 estrelas, melhor posição no Google Maps e mais clientes chegando. Perfeita para balcões, mesas, recepções e caixas.',
-    img: GOOGLE_PRODUCT_GALLERY[0],
-    gallery: GOOGLE_PRODUCT_GALLERY,
+    img: PRODUCT_IMAGES.hubgoogle.main,
+    gallery: PRODUCT_IMAGES.hubgoogle.gallery,
     color: '#4285f4', icon: <Star size={22} />,
     formats: ['placa', 'display'],
     specs: ['Link direto para avaliação no Google', 'Chip NFC + QR Code de backup', 'Acrílico premium resistente', 'Sem app e sem mensalidade', 'Aumenta suas avaliações e sua reputação'],
@@ -291,7 +291,7 @@ const PRODUCTS: Product[] = [
     id: 'service', name: 'AirNext Service', tag: 'Estabelecimentos', price: 129, badge: 'Novo',
     desc: 'Placa NFC inteligente para hotéis, restaurantes, clínicas, salões, lojas e qualquer negócio.',
     longDesc: 'Com um simples toque, o cliente acessa Wi-Fi, cardápio, serviços, avaliações, localização, regras, contatos e promoções — tudo atualizado em tempo real, sem precisar imprimir materiais. Ideal para hotéis e pousadas, restaurantes e cafés, clínicas, salões, academias, lojas e prestadores de serviço.',
-    img: 'https://files.catbox.moe/cuol4c.jpeg',
+    img: PRODUCT_IMAGES.service.main,
     color: '#00c2a8', icon: <Store size={22} />,
     formats: ['placa', 'cartao', 'display'],
     specs: ['Wi-Fi, cardápio e catálogo de serviços', 'Solicitação de atendimento e reservas', 'Avaliações e feedback dos clientes', 'Localização, horários e redes sociais', 'Para hotéis, restaurantes, clínicas, lojas e mais'],
@@ -300,8 +300,8 @@ const PRODUCTS: Product[] = [
     id: 'personalizado', name: 'Personalizado AirNext', tag: 'Sob medida', price: 99,
     desc: 'Placa NFC 100% personalizada com a sua marca, cores e o destino que você quiser.',
     longDesc: 'Crie a sua própria placa AirNext: logo, cores, textos e o link que abre ao toque — Instagram, cardápio, WhatsApp, site, Pix ou qualquer página. Produzida sob medida com acabamento premium e a identidade visual do seu negócio.',
-    img: PERSONALIZADO_GALLERY[0],
-    gallery: PERSONALIZADO_GALLERY,
+    img: PRODUCT_IMAGES.personalizado.main,
+    gallery: PRODUCT_IMAGES.personalizado.gallery,
     color: '#5e17eb', icon: <Palette size={22} />,
     formats: ['placa', 'display', 'cartao', 'tag', 'chaveiro'],
     specs: ['Logo, cores e textos da sua marca', 'Link de destino à sua escolha', 'Chip NFC + QR Code personalizado', 'Aprovação de arte pelo WhatsApp', 'Acabamento premium'],
@@ -310,7 +310,7 @@ const PRODUCTS: Product[] = [
     id: 'tag', name: 'AirNext Tag', tag: 'Multiuso', price: 69,
     desc: 'Tag NFC universal para bagagens, mochilas, chaves e objetos do dia a dia.',
     longDesc: 'Compacta e resistente, a AirNext Tag identifica qualquer objeto — malas, mochilas, bicicletas, notebooks e muito mais. Quem encontrar aproxima o celular e acessa seus dados de contato na hora, sem precisar instalar nenhum aplicativo.',
-    img: 'https://files.catbox.moe/ucabuc.png',
+    img: PRODUCT_IMAGES.tag.main,
     color: '#eab308', icon: <TagIcon size={22} />,
     formats: [ 'tag' ],
     specs: ['Base Acrílico Premium','Acabamento em Resina','Chip NFC', 'QR Code de backup', 'Resistente à água e riscos', 'Fácil de fixar em qualquer objeto', 'Ideal para bagagens, celulares e inúmeras possibilidades de uso no dia a dia.'],
@@ -319,7 +319,7 @@ const PRODUCTS: Product[] = [
     id: 'corporate', name: 'AirNext Corporate', tag: 'Empresas', price: 99,
     desc: 'Crachás e cartões NFC inteligentes para equipes e colaboradores.',
     longDesc: 'Emita identidade digital para toda a equipe: crachá com NFC, perfil corporativo e dados de contato centralizados — tudo com a marca da sua empresa.',
-    img: 'https://files.catbox.moe/m8gpmb.png',
+    img: PRODUCT_IMAGES.corporate.main,
     color: '#5e17eb', icon: <Users size={22} />,
     formats: ['cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo', 'cracha'],
     specs: ['Emissão em lote para equipes', 'Perfil corporativo com marca própria', 'Chip NFC + QR Code', 'Dashboard de gestão'],
@@ -328,7 +328,7 @@ const PRODUCTS: Product[] = [
     id: 'evento', name: 'AirNext Evento', tag: 'Eventos', price: 0,
     desc: 'Crachás inteligentes para congressos, feiras e eventos.',
     longDesc: 'Participantes trocam contato, acessam a programação com um toque. Ideal para congressos, feiras e eventos corporativos que querem reduzir a fricção.',
-    img: 'https://files.catbox.moe/bp85o5.png',
+    img: PRODUCT_IMAGES.evento.main,
     color: '#ff2d55', icon: <Ticket size={22} />,
     formats: ['cracha', 'display', 'cartao', 'tag', 'chaveiro', 'pulseira', 'adesivo'],
     specs: [ 'Programação e mapa do evento',  'Acesso por NFC + QR Code', 'Perfil digital personalizado', 'Networking sem troca de papel', 'PVC Premium Matte'],
@@ -2850,12 +2850,13 @@ export default function LandingPage() {
             {/* Carrossel de produtos */}
             <Swiper
               modules={[Pagination]}
-              spaceBetween={12}
-              slidesPerView={2.6}
+              spaceBetween={14}
+              slidesPerView={2.15}
               pagination={{ clickable: true }}
               breakpoints={{
-                480: { slidesPerView: 3.4 },
-                640: { slidesPerView: 4.3, spaceBetween: 16 },
+                480: { slidesPerView: 2.8 },
+                640: { slidesPerView: 3.4, spaceBetween: 16 },
+                768: { slidesPerView: 4, spaceBetween: 18 },
                 1024: { slidesPerView: 4, spaceBetween: 20 }
               }}
               className="pb-10"
@@ -2898,12 +2899,13 @@ export default function LandingPage() {
 
             <Swiper
               modules={[Pagination]}
-              spaceBetween={12}
-              slidesPerView={2.6}
+              spaceBetween={14}
+              slidesPerView={2.15}
               pagination={{ clickable: true }}
               breakpoints={{
-                480: { slidesPerView: 3.4 },
-                640: { slidesPerView: 4.3, spaceBetween: 16 },
+                480: { slidesPerView: 2.8 },
+                640: { slidesPerView: 3.4, spaceBetween: 16 },
+                768: { slidesPerView: 4, spaceBetween: 18 },
                 1024: { slidesPerView: 4, spaceBetween: 20 }
               }}
               className="pb-10"
