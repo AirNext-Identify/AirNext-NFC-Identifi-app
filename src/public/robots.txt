@@ -1,0 +1,19 @@
+# AirNext — https://airnext-xi.vercel.app
+User-agent: *
+Allow: /
+Allow: /u/
+Allow: /p/
+Allow: /politica-de-privacidade
+Allow: /termos-de-uso
+Allow: /politica-de-cookies
+
+# Áreas privadas / app
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /ativar
+Disallow: /onboarding
+Disallow: /painel-imagens
+
+Sitemap: https://airnext-xi.vercel.app/sitemap.xml
