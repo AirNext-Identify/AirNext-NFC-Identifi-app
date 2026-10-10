@@ -10,6 +10,7 @@ import { isVideoUrl } from '../lib/media';
 import { COMBO_KIT_IMG, GOOGLE_PRODUCT_GALLERY, PERSONALIZADO_GALLERY } from '../lib/productImages';
 import { fmtPrice, priceLabel } from '../lib/price';
 import ProductCard from '../components/landing/ProductCard';
+import ProductHero from '../components/landing/ProductHero';
 import GooglePlaquesSection from '../components/landing/GooglePlaquesSection';
 import CustomSitesSection from '../components/landing/CustomSitesSection';
 import {
@@ -2981,24 +2982,24 @@ export default function LandingPage() {
                     <X size={20} />
                   </button>
 
-                  <div className={`w-full h-[50vh] md:h-[60vh] relative overflow-hidden ${selectedProduct.combo ? 'bg-white' : selectedProduct.gallery ? 'bg-[#ededed]' : ''}`}>
-                    {selectedProduct.gallery ? (
-                      <Swiper modules={[Pagination]} pagination={{ clickable: true }} className="w-full h-full">
-                        {selectedProduct.gallery.map(src => (
-                          <SwiperSlide key={src}>
-                            <img src={src} alt={selectedProduct.name} className="w-full h-full object-contain" />
-                          </SwiperSlide>
-                        ))}
-                      </Swiper>
-                    ) : (
-                      <img src={resolveImg(`modal-${selectedProduct.id}`, selectedProduct.img)} alt={selectedProduct.name} className={`w-full h-full ${selectedProduct.combo ? 'object-contain' : 'object-cover'}`} />
-                    )}
-                    <div className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#050505]' : 'from-white'} via-transparent to-transparent`} />
-                    <div className="pointer-events-none absolute top-6 left-6 z-10 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/45 backdrop-blur-sm text-white">
-                      <Nfc size={13} />
-                      <span style={{ fontFamily: "'Lobster', cursive" }} className="text-xs tracking-wide leading-none translate-y-[1px]">AirNext</span>
+                  {selectedProduct.gallery || selectedProduct.combo ? (
+                    <ProductHero
+                      key={selectedProduct.id}
+                      images={selectedProduct.gallery ?? [selectedProduct.img]}
+                      name={selectedProduct.name}
+                      isDark={isDark}
+                      accent={selectedProduct.color}
+                    />
+                  ) : (
+                    <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">
+                      <img src={resolveImg(`modal-${selectedProduct.id}`, selectedProduct.img)} alt={selectedProduct.name} className="w-full h-full object-cover" />
+                      <div className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#050505]' : 'from-white'} via-transparent to-transparent`} />
+                      <div className="pointer-events-none absolute top-6 left-6 z-10 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/45 backdrop-blur-sm text-white">
+                        <Nfc size={13} />
+                        <span style={{ fontFamily: "'Lobster', cursive" }} className="text-xs tracking-wide leading-none translate-y-[1px]">AirNext</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="max-w-4xl mx-auto px-6 -mt-20 relative z-10 pb-20">
                     <span className="eyebrow mb-3 block" style={{ color: selectedProduct.color }}>{selectedProduct.tag}</span>
