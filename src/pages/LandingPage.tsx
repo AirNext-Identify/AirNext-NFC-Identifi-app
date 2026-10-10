@@ -2850,12 +2850,12 @@ export default function LandingPage() {
             {/* Carrossel de produtos */}
             <Swiper
               modules={[Pagination]}
-              spaceBetween={10}
-              slidesPerView={3.4}
+              spaceBetween={12}
+              slidesPerView={2.6}
               pagination={{ clickable: true }}
               breakpoints={{
-                480: { slidesPerView: 4.3 },
-                640: { slidesPerView: 5.2, spaceBetween: 14 },
+                480: { slidesPerView: 3.4 },
+                640: { slidesPerView: 4.3, spaceBetween: 16 },
                 1024: { slidesPerView: 4, spaceBetween: 20 }
               }}
               className="pb-10"
@@ -2898,12 +2898,12 @@ export default function LandingPage() {
 
             <Swiper
               modules={[Pagination]}
-              spaceBetween={10}
-              slidesPerView={3.4}
+              spaceBetween={12}
+              slidesPerView={2.6}
               pagination={{ clickable: true }}
               breakpoints={{
-                480: { slidesPerView: 4.3 },
-                640: { slidesPerView: 5.2, spaceBetween: 14 },
+                480: { slidesPerView: 3.4 },
+                640: { slidesPerView: 4.3, spaceBetween: 16 },
                 1024: { slidesPerView: 4, spaceBetween: 20 }
               }}
               className="pb-10"
@@ -2915,6 +2915,7 @@ export default function LandingPage() {
                     isDark={isDark}
                     imgSrc={resolveImg(`row2-${p.id}`, p.img)}
                     imgLoading={imagesLoading}
+                    badgeLabel="Novo"
                     onOpen={() => setSelectedProduct(p)}
                     onAdd={() => addToCart(p)}
                     onPersonalize={() => goPersonalize(p)}
