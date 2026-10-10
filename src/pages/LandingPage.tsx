@@ -10,6 +10,7 @@ import { isVideoUrl } from '../lib/media';
 import { COMBO_KIT_IMG, GOOGLE_PRODUCT_GALLERY, PERSONALIZADO_GALLERY } from '../lib/productImages';
 import { fmtPrice, priceLabel } from '../lib/price';
 import ProductHero from '../components/landing/ProductHero';
+import ProductCard from '../components/landing/ProductCard';
 import GooglePlaquesSection from '../components/landing/GooglePlaquesSection';
 import CustomSitesSection from '../components/landing/CustomSitesSection';
 import {
@@ -2849,63 +2850,27 @@ export default function LandingPage() {
             {/* Carrossel de produtos */}
             <Swiper
               modules={[Pagination]}
-              spaceBetween={12}
-              slidesPerView={2.15}
+              spaceBetween={10}
+              slidesPerView={3.15}
               pagination={{ clickable: true }}
               breakpoints={{
-                640: { slidesPerView: 2, spaceBetween: 20 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
+                640: { slidesPerView: 4.2, spaceBetween: 14 },
                 1024: { slidesPerView: 4, spaceBetween: 20 }
               }}
               className="pb-10"
             >
               {shopProducts.map(p => (
                 <SwiperSlide key={p.id}>
-                  <motion.div
-                    whileHover={{ y: -6 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    onClick={() => setSelectedProduct(p)}
-                    className="group cursor-pointer h-[420px] flex flex-col"
-                  >
-                    {/* Imagem — grande, sem selos ou ruído visual, foco total no produto */}
-                    <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      {imagesLoading ? (
-                        <div className="w-full h-full bg-white/5 animate-pulse" />
-                      ) : (
-                        <img src={resolveImg(`shop-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
-                      )}
-
-                      {/* Botão de sacola — sempre visível (antes só aparecia no hover) */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addToCart(p); }}
-                        aria-label={`Adicionar ${p.name} à sacola`}
-                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition ${
-                          isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
-                        }`}
-                      >
-                        <ShoppingBag size={15} />
-                      </button>
-                    </div>
-
-                    {/* Texto — hierarquia limpa, uma linha por informação, sem excesso de badges */}
-                    <div className="flex flex-col flex-1">
-                      <span className={`text-[11px] font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
-                      <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
-                      <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
-
-                      <div className="mt-auto flex items-center justify-between gap-3">
-                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {p.price}</p>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); goPersonalize(p); }}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
-                            isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
-                          }`}
-                        >
-                          Personalizar <ChevronRight size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <ProductCard
+                    product={p}
+                    isDark={isDark}
+                    imgSrc={resolveImg(`shop-${p.id}`, p.img)}
+                    imgLoading={imagesLoading}
+                    
+                    onOpen={() => setSelectedProduct(p)}
+                    onAdd={() => addToCart(p)}
+                    onPersonalize={() => goPersonalize(p)}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -2929,64 +2894,27 @@ export default function LandingPage() {
 
             <Swiper
               modules={[Pagination]}
-              spaceBetween={12}
-              slidesPerView={2.15}
+              spaceBetween={10}
+              slidesPerView={3.15}
               pagination={{ clickable: true }}
               breakpoints={{
-                640: { slidesPerView: 2, spaceBetween: 20 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
+                640: { slidesPerView: 4.2, spaceBetween: 14 },
                 1024: { slidesPerView: 4, spaceBetween: 20 }
               }}
               className="pb-10"
             >
               {row2Products.map(p => (
                 <SwiperSlide key={p.id}>
-                  <motion.div
-                    whileHover={{ y: -6 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    onClick={() => setSelectedProduct(p)}
-                    className="group cursor-pointer h-[420px] flex flex-col"
-                  >
-                    <div className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ${isDark ? 'bg-[#111]' : 'bg-white'}`}>
-                      {imagesLoading ? (
-                        <div className="w-full h-full bg-white/5 animate-pulse" />
-                      ) : (
-                        <img src={resolveImg(`row2-${p.id}`, p.img)} alt={p.name} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
-                      )}
-
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addToCart(p); }}
-                        aria-label={`Adicionar ${p.name} à sacola`}
-                        className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition ${
-                          isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
-                        }`}
-                      >
-                        <ShoppingBag size={15} />
-                      </button>
-
-                      <span className={`absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-1 rounded-full ${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/90 text-white'}`}>
-                        Novo
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col flex-1">
-                      <span className={`text-[11px] font-medium mb-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
-                      <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
-                      <p className={`text-[13px] ${isDark ? 'text-gray-500' : 'text-gray-500'} leading-relaxed mb-4 line-clamp-1`}>{p.desc}</p>
-
-                      <div className="mt-auto flex items-center justify-between gap-3">
-                        <p className={`text-[15px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>R$ {fmtPrice(p.price)}</p>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); if (p.combo) addToCart(p); else goPersonalize(p); }}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold transition-colors ${
-                            isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
-                          }`}
-                        >
-                          {p.combo ? 'Quero o combo' : 'Personalizar'} <ChevronRight size={13} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <ProductCard
+                    product={p}
+                    isDark={isDark}
+                    imgSrc={resolveImg(`row2-${p.id}`, p.img)}
+                    imgLoading={imagesLoading}
+                    badge
+                    onOpen={() => setSelectedProduct(p)}
+                    onAdd={() => addToCart(p)}
+                    onPersonalize={() => goPersonalize(p)}
+                  />
                 </SwiperSlide>
               ))}
             </Swiper>
