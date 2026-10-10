@@ -2850,13 +2850,13 @@ export default function LandingPage() {
             {/* Carrossel de produtos */}
             <Swiper
               modules={[Pagination]}
-              spaceBetween={20}
-              slidesPerView={1}
+              spaceBetween={10}
+              slidesPerView={3.4}
               pagination={{ clickable: true }}
               breakpoints={{
-                640: { slidesPerView: 2 },
-                768: { slidesPerView: 3 },
-                1024: { slidesPerView: 4 }
+                480: { slidesPerView: 4.3 },
+                640: { slidesPerView: 5.2, spaceBetween: 14 },
+                1024: { slidesPerView: 4, spaceBetween: 20 }
               }}
               className="pb-10"
             >
@@ -2898,13 +2898,13 @@ export default function LandingPage() {
 
             <Swiper
               modules={[Pagination]}
-              spaceBetween={20}
-              slidesPerView={1}
+              spaceBetween={10}
+              slidesPerView={3.4}
               pagination={{ clickable: true }}
               breakpoints={{
-                640: { slidesPerView: 2 },
-                768: { slidesPerView: 3 },
-                1024: { slidesPerView: 4 }
+                480: { slidesPerView: 4.3 },
+                640: { slidesPerView: 5.2, spaceBetween: 14 },
+                1024: { slidesPerView: 4, spaceBetween: 20 }
               }}
               className="pb-10"
             >

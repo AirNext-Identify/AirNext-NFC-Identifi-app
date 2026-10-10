@@ -71,11 +71,11 @@ export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, on
       role="button"
       tabIndex={0}
       aria-label={`Ver detalhes de ${p.name}`}
-      className="group cursor-pointer h-full flex flex-col outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3] focus-visible:ring-offset-4 rounded-[28px] focus-visible:ring-offset-transparent"
+      className="group cursor-pointer h-full flex flex-col outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3] focus-visible:ring-offset-4 rounded-[18px] sm:rounded-[22px] lg:rounded-[28px] focus-visible:ring-offset-transparent"
     >
       {/* Imagem */}
       <div
-        className={`aspect-square rounded-[28px] overflow-hidden mb-5 relative ring-1 transition-shadow duration-500 ${
+        className={`aspect-square rounded-[18px] sm:rounded-[22px] lg:rounded-[28px] overflow-hidden mb-2.5 lg:mb-5 relative ring-1 transition-shadow duration-500 ${
           isDark
             ? 'bg-[#111] ring-white/5 group-hover:shadow-2xl group-hover:shadow-black/70'
             : 'bg-white ring-black/[0.05] group-hover:shadow-2xl group-hover:shadow-black/10'
@@ -96,7 +96,7 @@ export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, on
         )}
 
         {p.badge && (
-          <span className="absolute top-3.5 left-3.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-gray-900/90 text-white backdrop-blur-md">
+          <span className="hidden sm:block absolute top-2.5 left-2.5 lg:top-3.5 lg:left-3.5 text-[9px] lg:text-[10px] font-bold px-2 lg:px-2.5 py-0.5 lg:py-1 rounded-full bg-gray-900/90 text-white backdrop-blur-md">
             {p.badge}
           </span>
         )}
@@ -104,30 +104,30 @@ export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, on
         <button
           onClick={(e) => { e.stopPropagation(); onAdd(); }}
           aria-label={`Adicionar ${p.name} à sacola`}
-          className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-md transition active:scale-90 hover:scale-110 ${
+          className={`absolute top-2 right-2 w-7 h-7 lg:top-3.5 lg:right-3.5 lg:w-9 lg:h-9 rounded-full flex items-center justify-center backdrop-blur-md transition active:scale-90 hover:scale-110 ${
             isDark ? 'bg-black/50 text-white hover:bg-black/70' : 'bg-white/90 text-gray-900 hover:bg-white shadow-md'
           }`}
         >
-          <ShoppingBag size={15} />
+          <ShoppingBag className="w-3.5 h-3.5 lg:w-[15px] lg:h-[15px]" />
         </button>
       </div>
 
       {/* Texto */}
       <div className="flex flex-col flex-1">
-        <span className={`text-[11px] font-medium mb-1 truncate ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
-        <h3 className={`text-[17px] font-semibold mb-1.5 leading-snug tracking-tight line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
-        <p className="text-[13px] text-gray-500 leading-relaxed mb-4 line-clamp-2">{p.desc}</p>
+        <span className={`hidden lg:block text-[11px] font-medium mb-1 truncate ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
+        <h3 className={`text-[12px] sm:text-[13px] lg:text-[17px] font-semibold mb-1 lg:mb-1.5 leading-tight lg:leading-snug tracking-tight line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
+        <p className="hidden lg:block text-[13px] text-gray-500 leading-relaxed mb-4 line-clamp-2">{p.desc}</p>
 
         <div className="mt-auto flex items-center justify-between gap-3">
-          <p className={`text-[15px] font-semibold whitespace-nowrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`text-[12.5px] sm:text-[14px] lg:text-[15px] font-semibold whitespace-nowrap ${isDark ? 'text-white' : 'text-gray-900'}`}>
             {priceLabel(p.price)}
             {p.oldPrice ? (
-              <span className={`ml-2 text-[12px] font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {fmtPrice(p.oldPrice)}</span>
+              <span className={`hidden lg:inline ml-2 text-[12px] font-medium line-through ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>R$ {fmtPrice(p.oldPrice)}</span>
             ) : null}
           </p>
           <button
             onClick={(e) => { e.stopPropagation(); if (p.combo) onAdd(); else onPersonalize(); }}
-            className={`inline-flex items-center gap-1 text-[12px] font-semibold whitespace-nowrap transition-colors ${
+            className={`hidden lg:inline-flex items-center gap-1 text-[12px] font-semibold whitespace-nowrap transition-colors ${
               isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
             }`}
           >
