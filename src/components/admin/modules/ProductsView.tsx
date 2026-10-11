@@ -396,18 +396,20 @@ function RenewModal({ isOpen, product, onClose, onRenew }: { isOpen: boolean; pr
 }
 
 /**
- * QR Code permanente do produto — aponta para `${appUrl}/a/{código}`, a
- * mesma URL pública que o NfcRedirect já resolve (ver NfcRedirect.tsx e
- * App.tsx, rota "/a/:code"). Pode ser gerado e baixado ANTES de qualquer
- * ativação: o código já existe desde a criação do produto/lote, então essa
- * imagem é exatamente o que vai impresso na placa/adesivo físico.
+ * QR Code permanente do produto — aponta para `${appUrl}/n/{uuid}?s=qr`, o ID
+ * PÚBLICO do produto (o mesmo do chip NFC). O código de ativação (AIR-XXXXXXXX)
+ * NÃO vai dentro do QR: assim ele não aparece na tela de quem escaneia. O
+ * NfcRedirect resolve o produto pelo uuid (ver NfcRedirect.tsx, rota "/n/:uuid").
+ * Pode ser gerado e baixado ANTES de qualquer ativação: o uuid existe desde a
+ * criação do produto/lote. QRs antigos (/a/{código}) continuam funcionando.
  */
 function QrModal({ product, appUrl, onClose }: { product: Product | null; appUrl?: string; onClose: () => void }) {
   const [node, setNode] = useState<HTMLDivElement | null>(null);
   if (!product) return null;
 
   const baseUrl = (appUrl || window.location.origin).replace(/\/$/, '');
-  const activationUrl = `${baseUrl}/a/${product.activationCode}`;
+  // Sem o código de ativação na URL. Fallback para o formato antigo só se o produto não tiver uuid.
+  const activationUrl = product.uuid ? `${baseUrl}/n/${product.uuid}?s=qr` : `${baseUrl}/a/${product.activationCode}`;
 
   const copyUrl = async () => {
     try {
@@ -453,7 +455,7 @@ function QrModal({ product, appUrl, onClose }: { product: Product | null; appUrl
       isOpen
       onClose={onClose}
       title={`QR Code — ${product.activationCode}`}
-      description="Este QR pode ser impresso na placa/adesivo antes mesmo de o produto ser vendido. O código é permanente: o cliente só precisa escanear, criar conta (ou entrar) e vincular ao perfil — o QR físico nunca muda."
+      description="Este QR pode ser impresso na placa/adesivo antes mesmo de o produto ser vendido. Ele não contém o código de ativação: o cliente escaneia, cria conta (ou entra) e vincula ao perfil — o QR físico nunca muda."
       maxWidth="max-w-md"
     >
       <div className="flex flex-col items-center gap-4">

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { Loader2, PackageSearch, Lock, Clock, Zap } from "lucide-react";
+import { getPendingActivationCode, setPendingActivationCode } from "../lib/pendingActivation";
 
 type ProductStatus = "DISPONIVEL" | "ATIVO" | "BLOQUEADO" | "EXPIRADO" | "NAO_PROGRAMADO" | "CANCELADO";
 
@@ -27,9 +28,11 @@ export default function NfcRedirect() {
   // acesso "link" nas Estatísticas.
   const { uuid, code } = useParams<{ uuid?: string; code?: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [state, setState] = useState<NfcState>({ kind: "loading" });
 
-  const source: "nfc" | "qr" = uuid ? "nfc" : "qr";
+  // /n/:uuid?s=qr → QR impresso (ID público, sem o código de ativação); /n/:uuid → chip NFC.
+  const source: "nfc" | "qr" = uuid ? (searchParams.get("s") === "qr" ? "qr" : "nfc") : "qr";
   const lookupValue = uuid || code;
 
   useEffect(() => {
@@ -37,7 +40,10 @@ export default function NfcRedirect() {
 
     async function lookup() {
       if (!lookupValue) {
-        if (!cancelled) setState({ kind: "not_found" });
+        // Rota "/a" (sem código na URL): usada depois que o código foi guardado
+        // com segurança e removido do endereço. Mostra o estado "disponível".
+        const pending = getPendingActivationCode();
+        if (!cancelled) setState(pending ? { kind: "available", code: pending } : { kind: "not_found" });
         return;
       }
 
@@ -92,7 +98,11 @@ export default function NfcRedirect() {
         // o botão "Ativar agora" leve o cliente direto de volta para o
         // código certo depois do login — sem isso ele precisaria digitar o
         // código manualmente de novo em /ativar (ver App.tsx "next=").
+        // O código NÃO fica na barra de endereço: guardamos localmente e
+        // trocamos a URL para "/a" (sem o código) logo após ler o produto.
+        setPendingActivationCode(data.code);
         setState({ kind: "available", code: data.code });
+        navigate("/a", { replace: true });
         return;
       }
 
@@ -160,7 +170,7 @@ export default function NfcRedirect() {
               Ative seu produto AirNext para criar o seu perfil digital.
             </p>
             <Link
-              to={`/login?next=${encodeURIComponent(`/ativar/${state.code}`)}`}
+              to={`/login?next=${encodeURIComponent("/ativar")}`}
               className="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-5 rounded-xl transition-colors text-sm"
             >
               Ativar agora

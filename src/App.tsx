@@ -160,6 +160,7 @@ export default function App() {
 
               {/* Código de ativação */}
               <Route path="/a/:code" element={<NfcRedirect />} />
+              <Route path="/a" element={<NfcRedirect />} />
 
               {/* Perfil público */}
               <Route path="/u/:slug" element={<PublicProfile />} />

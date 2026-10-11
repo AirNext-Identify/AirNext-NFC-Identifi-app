@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, Category, ProfileTheme } from '../contexts/AuthContext';
@@ -9,8 +9,9 @@ import { hasCurrentRequiredConsents } from '../lib/consents';
 import { QrScanner } from '../components/QrScanner';
 import { extractActivationCode } from '../lib/qrScanner';
 import { supabase } from '../lib/supabase';
+import { getPendingActivationCode, setPendingActivationCode, clearPendingActivationCode } from '../lib/pendingActivation';
 import { isWebNFCSupported } from '../lib/nfc';
-import { linkChipToProduct, readChipUuid, type ChipLinkResult } from '../lib/chipLink';
+import { linkChipToProduct, readChipUuid, extractNfcUuid, type ChipLinkResult } from '../lib/chipLink';
 
 const CATS:{id:Category;label:string;desc:string;icon:React.ElementType;color:string}[]=[
   {id:'PERSONAL',label:'Pessoa',desc:'Compartilhamento pessoal',icon:UserCheck,color:'from-blue-500 to-cyan-400'},
@@ -65,7 +66,14 @@ export default function ActivationPage() {
   // Main flow: code → category → step1 → step2 → step3 → theme → done
   const [phase, setPhase] = useState<'code'|'chip'|'category'|'wizard'|'done'>('code');
   const [wizStep, setWizStep] = useState(1); // 1-5
-  const [code, setCode] = useState(formatActivationCode(paramCode || ''));
+  // O código vem do link antigo (/ativar/:code), do código guardado após ler o
+  // QR/chip, ou é digitado. Ele não deve permanecer na barra de endereço.
+  const [code, setCode] = useState(formatActivationCode(paramCode || getPendingActivationCode() || ''));
+  useEffect(() => {
+    if (!paramCode) return;
+    setPendingActivationCode(paramCode);
+    nav('/ativar', { replace: true });
+  }, [paramCode, nav]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [activated, setActivated] = useState<{id:string; nfc_uuid?:string}|null>(null);
@@ -103,6 +111,7 @@ const runActivate = async (codeOverride?: string, viaChip = false) => {
     return;
   }
 
+  clearPendingActivationCode();
   setActivated({ id: res.product.id, nfc_uuid: res.product.nfc_uuid });
 
   // Ativou pelo chip, ou o chip já saiu gravado de fábrica → já está vinculado.
@@ -143,9 +152,19 @@ const handleConsentAccepted = async () => {
 // extrai o código AIR-XXXXXXXX de dentro da URL do QR (ou do texto puro),
 // preenche o campo como se o cliente tivesse digitado, e já dispara a
 // MESMA ativação usada no fluxo manual/NFC — nenhum motor novo.
-const handleQrDetected = (rawValue: string) => {
+const handleQrDetected = async (rawValue: string) => {
   setScannerOpen(false);
-  const extracted = extractActivationCode(rawValue);
+  let extracted = extractActivationCode(rawValue);
+
+  // QR novo: aponta para o ID público (/n/{uuid}) e não contém o código.
+  // Descobrimos o produto pelo uuid e ativamos pelo mesmo motor de sempre.
+  if (!extracted) {
+    const uuid = extractNfcUuid(rawValue);
+    if (uuid) {
+      const { data } = await supabase.from('products').select('code').eq('nfc_uuid', uuid).maybeSingle();
+      extracted = data?.code ? String(data.code).toUpperCase() : null;
+    }
+  }
   if (!extracted) {
     setError('QR Code lido, mas não reconhecido como um código AirNext válido.');
     return;
