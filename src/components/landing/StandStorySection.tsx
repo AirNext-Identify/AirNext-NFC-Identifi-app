@@ -157,17 +157,21 @@ function StandHero() {
   );
 }
 
-/* ───────────────────────── Seção 2 — Storytelling com imagem fixa ───────────────────────── */
+/* ───────────────────────── Seção 2 — Storytelling ─────────────────────────
+ * Desktop: foto fixa à direita que troca a cada capítulo, enquanto o texto rola.
+ * Mobile: cada capítulo traz a própria foto acima do texto (nada fica escondido
+ * atrás de elementos fixos em telas estreitas).
+ */
 function StandChapters() {
   const [active, setActive] = useState(0);
 
   return (
-    <section className="relative bg-[#050505] text-white py-16 md:py-28">
-      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-8 lg:gap-20">
-        {/* Imagem fixa que troca a cada capítulo */}
-        <div className="lg:order-2">
-          <div className="sticky top-20 lg:top-28 z-10">
-            <div className="relative aspect-[4/3] lg:aspect-square rounded-[28px] lg:rounded-[40px] overflow-hidden ring-1 ring-white/10 bg-[#111] shadow-2xl shadow-black/60">
+    <section className="relative bg-[#050505] text-white py-14 md:py-28">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 grid lg:grid-cols-2 gap-8 lg:gap-20">
+        {/* Foto fixa (somente desktop) */}
+        <div className="hidden lg:block lg:order-2">
+          <div className="sticky top-28">
+            <div className="relative aspect-square rounded-[40px] overflow-hidden ring-1 ring-white/10 bg-[#111] shadow-2xl shadow-black/60">
               <AnimatePresence mode="wait">
                 <motion.img
                   key={active}
@@ -191,17 +195,30 @@ function StandChapters() {
         </div>
 
         {/* Capítulos */}
-        <div className="lg:order-1">
+        <div className="lg:order-1 space-y-16 lg:space-y-0">
           {CHAPTERS.map((c, i) => (
             <motion.article
               key={c.n}
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
               onViewportEnter={() => setActive(i)}
-              viewport={{ margin: '-45% 0px -45% 0px' }}
-              className="min-h-[55vh] lg:min-h-[85vh] flex flex-col justify-center py-10"
+              viewport={{ amount: 0.35, margin: '0px 0px -10% 0px' }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="lg:min-h-[85vh] flex flex-col justify-center lg:py-10"
             >
-              <p className="text-sm font-semibold text-[#4285f4] mb-3 tabular-nums">{c.n}</p>
-              <p className="eyebrow text-gray-400 mb-4">{c.eyebrow}</p>
-              <h3 className="text-[clamp(1.8rem,3.6vw,3rem)] font-bold tracking-[-0.03em] leading-[1.08] mb-5">{c.title}</h3>
+              {/* Foto do capítulo (somente mobile/tablet) */}
+              <div className="lg:hidden mb-6 aspect-[4/3] sm:aspect-[16/10] rounded-[24px] overflow-hidden ring-1 ring-white/10 bg-[#111] shadow-xl shadow-black/50">
+                <img
+                  src={c.img}
+                  alt={c.alt}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <p className="text-sm font-semibold text-[#4285f4] mb-2 tabular-nums">{c.n}</p>
+              <p className="eyebrow text-gray-400 mb-3">{c.eyebrow}</p>
+              <h3 className="text-[clamp(1.6rem,6.4vw,3rem)] lg:text-[clamp(1.8rem,3.6vw,3rem)] font-bold tracking-[-0.03em] leading-[1.08] mb-4">{c.title}</h3>
               <p className="text-base md:text-lg text-gray-400 leading-relaxed max-w-xl">{c.text}</p>
             </motion.article>
           ))}

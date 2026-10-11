@@ -79,6 +79,11 @@
   }
   * { box-sizing: border-box; }
   body { font-family: var(--font-sans); overflow-x: hidden; }
+  /* `clip` evita scroll lateral SEM criar um contêiner de rolagem — necessário para
+     position: sticky (efeitos de scroll) funcionar no Safari/Chrome mobile. */
+  @supports (overflow: clip) {
+    html, body { overflow-x: clip; }
+  }
   ::-webkit-scrollbar { width: 0px; height: 0px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 100px; }
