@@ -18,6 +18,8 @@ export interface ImageSlot {
    *  para saber se deve mostrar preview de foto ou de vídeo, e qual tipo de
    *  arquivo aceitar no upload. */
   type?: 'image' | 'video';
+  /** Slot que aceita foto OU vídeo (o Admin de Mídia detecta pelo arquivo/URL). */
+  flexibleMedia?: boolean;
 }
 
 // Nome amigável + foto padrão (a que já estava no código) de cada linha de produto.

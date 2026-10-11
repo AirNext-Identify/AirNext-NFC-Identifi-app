@@ -164,7 +164,7 @@ function ProductModal({ p, onClose }: { p: Product; onClose: () => void }) {
           <div className="flex-1" />
           {p.slug && (
             <button
-              onClick={() => window.open(`/u/${p.slug}`, '_blank')}
+              onClick={() => window.open(`/u/${p.slug}`, '_blank', 'noopener,noreferrer')}
               className="px-3.5 py-2 rounded-full glass text-zinc-400 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-all"
             >
               <Eye className="h-3.5 w-3.5" /> Ver
@@ -348,7 +348,7 @@ export default function DashboardHome() {
             {(products || []).filter(p => p.status === 'ATIVO').map(p => (
               <button
                 key={p.id}
-                onClick={() => p.slug ? window.open(`/u/${p.slug}`, '_blank') : setSelected(p)}
+                onClick={() => p.slug ? window.open(`/u/${p.slug}`, '_blank', 'noopener,noreferrer') : setSelected(p)}
                 className="group shrink-0 snap-center w-[150px] sm:w-[170px] text-left"
                 title={p.slug ? 'Abrir perfil público em uma nova aba' : 'Ver produto'}
               >

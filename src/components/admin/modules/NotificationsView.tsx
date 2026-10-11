@@ -94,10 +94,10 @@ export function NotificationsView({ notifications, customers, products, onUpdate
                     <button onClick={() => onResend(n.title, n.message, n.channel, n.customerId, n.productId)} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="Reenviar">
                       <RefreshCw className="h-4 w-4" />
                     </button>
-                    <button onClick={() => window.open(`mailto:${customer?.email}`, '_blank')} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="Email">
+                    <button onClick={() => window.open(`mailto:${customer?.email}`, '_blank', 'noopener,noreferrer')} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="Email">
                       <Mail className="h-4 w-4" />
                     </button>
-                    <button onClick={() => window.open(`https://wa.me/${customer?.phone.replace(/\D/g, '')}`, '_blank')} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="WhatsApp">
+                    <button onClick={() => window.open(`https://wa.me/${customer?.phone.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer')} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="WhatsApp">
                       <MessageCircle className="h-4 w-4" />
                     </button>
                     <button onClick={() => onUpdate(n.id, { status: 'Resolvido', resolvedAt: new Date().toISOString() })} className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" title="Marcar resolvido">

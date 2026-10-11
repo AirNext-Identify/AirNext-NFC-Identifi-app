@@ -296,7 +296,7 @@ export default function MyProfile() {
           </div>
           <button
             type="button"
-            onClick={() => { if (product.slug) window.open(`/u/${product.slug}`, '_blank'); }}
+            onClick={() => { if (product.slug) window.open(`/u/${product.slug}`, '_blank', 'noopener,noreferrer'); }}
             title={product.slug ? 'Abrir perfil público em uma nova aba' : undefined}
             className={`w-full text-left rounded-[3rem] transition-all duration-500 ${product.slug ? 'cursor-pointer hover:scale-[1.015] active:scale-[0.99]' : 'cursor-default'} ${justSynced ? 'ring-4 ring-emerald-400/50' : 'ring-0 ring-transparent'}`}
           >

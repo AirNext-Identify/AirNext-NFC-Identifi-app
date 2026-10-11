@@ -1,27 +1,34 @@
 // Fotos reais dos produtos (otimizadas em WebP, 1200px). O Vite empacota e
 // gera hash de cache automaticamente a partir destes imports.
+// ÚNICA fonte das imagens da landing — não duplique estes imports em outros arquivos.
 import comboKit from '../assets/products/combo-kit.webp';
 import googlePretoParede from '../assets/products/google-preto-parede.webp';
 import googleBrancaParede from '../assets/products/google-branca-parede.webp';
-import googleSuporte from '../assets/products/google-suporte.webp';
 import googlePretoMesa from '../assets/products/google-preto-mesa.webp';
 import googleBrancaMesa from '../assets/products/google-branca-mesa.webp';
+import googleSuporte from '../assets/products/google-suporte.webp';
+import standPosto from '../assets/products/stand-posto.webp';
+import standGoogleNfc from '../assets/products/stand-google-nfc.webp';
 
 export const COMBO_KIT_IMG = comboKit;
 
-// 3 imagens exibidas no card/modal do produto "Hub Google Avaliação"
-export const GOOGLE_PRODUCT_GALLERY = [googlePretoParede, googleSuporte, googleBrancaMesa];
+// Fotos avulsas usadas na narrativa da seção "AirNext Stand".
+export const STAND_POSTO_IMG = standPosto;
+export const STAND_GOOGLE_NFC_IMG = standGoogleNfc;
+export const STAND_SUPORTE_IMG = googleSuporte;
 
-// 5 imagens do slider da seção "Plaquinhas Google"
+// Seção HUB (produto "AirNext Hub Google Avaliação"): somente plaquinhas de parede e mesa.
+export const HUB_GALLERY = [googlePretoParede, googleBrancaParede, googleBrancaMesa, googlePretoMesa];
+
+// Seção STAND (produto "AirNext Stand"): as duas fotos de stand de balcão.
+export const STAND_GALLERY = [standPosto, standGoogleNfc];
+
+// Seção "Plaquinhas de avaliação Google": todas as plaquinhas com o símbolo do Google.
 export const GOOGLE_SHOWCASE = [
   { src: googlePretoParede, alt: 'Plaquinha preta de avaliação Google fixada na parede de um restaurante', label: 'Preta · parede' },
-  { src: googleBrancaParede, alt: 'Plaquinha branca de avaliação Google com QR Code e NFC na entrada de um café', label: 'Branca · parede' },
-  { src: googleSuporte, alt: 'Plaquinha de avaliação Google com suporte de balcão', label: 'Branca · balcão com suporte' },
-  { src: googlePretoMesa, alt: 'Plaquinha preta de avaliação Google sobre a mesa de vidro', label: 'Preta · mesa' },
+  { src: googleBrancaParede, alt: 'Plaquinha branca de avaliação Google com QR Code e NFC na parede de um café', label: 'Branca · parede' },
   { src: googleBrancaMesa, alt: 'Plaquinha branca de avaliação Google sobre a mesa de vidro', label: 'Branca · mesa' },
+  { src: googlePretoMesa, alt: 'Plaquinha preta de avaliação Google sobre a mesa de vidro', label: 'Preta · mesa' },
+  { src: googleSuporte, alt: 'Plaquinha de avaliação Google com suporte de balcão', label: 'Branca · balcão com suporte' },
+  { src: standGoogleNfc, alt: 'Stand NFC preto e branco com avaliação Google e QR Code sobre uma mesa de madeira', label: 'Stand NFC · mesa' },
 ];
-
-// Fotos do produto "Personalizado AirNext": placa/suporte e cartão com a marca do cliente
-import personalizadoStand from '../assets/products/personalizado-stand.webp';
-import personalizadoCard from '../assets/products/personalizado-card.webp';
-export const PERSONALIZADO_GALLERY = [personalizadoStand, personalizadoCard];

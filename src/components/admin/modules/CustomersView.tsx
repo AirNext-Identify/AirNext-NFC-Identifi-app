@@ -339,8 +339,8 @@ function CustomerActionsMenu({
         <div className="absolute right-0 top-full z-10 mt-1 w-48 rounded-xl border border-zinc-800 bg-zinc-950 py-1 shadow-2xl">
           <ActionItem icon={Eye} label="Ver detalhes" onClick={() => { onView(customer.id); closeMenu(); }} />
           <ActionItem icon={Edit3} label="Editar" onClick={() => { onView(customer.id); closeMenu(); }} />
-          <ActionItem icon={Mail} label="Enviar email" onClick={() => window.open(`mailto:${customer.email}`, '_blank')} />
-          <ActionItem icon={MessageCircle} label="WhatsApp" onClick={() => window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}`, '_blank')} />
+          <ActionItem icon={Mail} label="Enviar email" onClick={() => window.open(`mailto:${customer.email}`, '_blank', 'noopener,noreferrer')} />
+          <ActionItem icon={MessageCircle} label="WhatsApp" onClick={() => window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer')} />
           <ActionItem icon={Bell} label="Enviar notificação" onClick={() => { onNotify(customer); closeMenu(); }} />
           <div className="my-1 border-t border-zinc-800" />
           {customer.status === 'Ativo' ? (

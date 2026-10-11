@@ -2498,7 +2498,7 @@ export default function Perfil() {
           {/* Quick actions */}
           <div className="flex gap-2">
             <button
-              onClick={() => product.slug && window.open(`/u/${product.slug}`, '_blank')}
+              onClick={() => product.slug && window.open(`/u/${product.slug}`, '_blank', 'noopener,noreferrer')}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 border border-white/8 text-xs text-zinc-500 hover:text-white hover:bg-white/10 transition-all"
             >
               <Eye className="h-3.5 w-3.5" /> Ver público

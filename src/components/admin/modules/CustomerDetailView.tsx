@@ -141,10 +141,10 @@ export function CustomerDetailView({
           <button onClick={() => onNotify(customer)} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Notificar">
             <Bell className="h-4 w-4" /> <span className="hidden sm:inline">Notificar</span>
           </button>
-          <button onClick={() => window.open(`mailto:${customer.email}`, '_blank')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Email">
+          <button onClick={() => window.open(`mailto:${customer.email}`, '_blank', 'noopener,noreferrer')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="Email">
             <Mail className="h-4 w-4" /> <span className="hidden sm:inline">Email</span>
           </button>
-          <button onClick={() => window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}`, '_blank')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="WhatsApp">
+          <button onClick={() => window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer')} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-2.5 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100 sm:px-4" title="WhatsApp">
             <MessageCircle className="h-4 w-4" /> <span className="hidden sm:inline">WhatsApp</span>
           </button>
           {customer.status === 'Ativo' ? (

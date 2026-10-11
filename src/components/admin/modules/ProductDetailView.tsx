@@ -141,7 +141,7 @@ export function ProductDetailView({
               <span className="text-sm text-zinc-400">Operador</span>
               <span className="text-sm text-zinc-200">{product.programmedBy || '—'}</span>
             </div>
-            <a href={product.nfcUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300">
+            <a href={/^https?:\/\//i.test(product.nfcUrl ?? '') ? product.nfcUrl : undefined} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300">
               <Cpu className="h-4 w-4" /> {product.nfcUrl}
               <ExternalLink className="h-3 w-3" />
             </a>
