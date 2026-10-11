@@ -81,56 +81,77 @@ const INTEGRATIONS = [
   { icon: Wallet, name: 'Pix', text: 'Dados de pagamento sempre à mão.', color: '#32ade6' },
 ];
 
-/* ───────────────────────── Seção 1 — Hero com scroll (estilo Tesla/Apple) ───────────────────────── */
+/* ───────────────────────── Seção 1 — Hero com scroll (estilo Tesla/Apple) ─────────────────────────
+ * Layout em 3 áreas que nunca se sobrepõem:
+ *   [ título ⇄ frase ]  → mesma área; o título some e a frase entra no lugar
+ *   [ foto ]            → tamanho calculado pela altura/largura da tela (cabe em qualquer celular)
+ *   [ seta de rolagem ]
+ */
 function StandHero() {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
 
-  const imgScale = useTransform(scrollYProgress, [0, 0.6], [0.78, 1]);
-  const imgY = useTransform(scrollYProgress, [0, 0.6], ['14%', '0%']);
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0.0]);
-  const titleY = useTransform(scrollYProgress, [0, 0.35], ['0%', '-18%']);
-  const captionOpacity = useTransform(scrollYProgress, [0.55, 0.85], [0, 1]);
-  const captionY = useTransform(scrollYProgress, [0.55, 0.85], ['24px', '0px']);
+  const imgScale = useTransform(scrollYProgress, [0, 0.5], [0.82, 1]);
+  const titleOpacity = useTransform(scrollYProgress, [0.12, 0.38], [1, 0]);
+  const titleY = useTransform(scrollYProgress, [0.12, 0.38], ['0px', '-24px']);
+  const captionOpacity = useTransform(scrollYProgress, [0.42, 0.66], [0, 1]);
+  const captionY = useTransform(scrollYProgress, [0.42, 0.66], ['24px', '0px']);
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+
+  // Movimento reduzido: sem efeito de rolagem, tudo visível em coluna.
+  const textCell = reduce ? 'flex flex-col items-center gap-5' : 'grid place-items-center';
+  const stack = reduce ? '' : '[grid-area:1/1]';
 
   return (
-    <div id="stand" ref={ref} className="relative h-[230vh] bg-black text-white">
-      <div className="sticky top-0 h-screen overflow-hidden flex flex-col items-center justify-center px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(66,133,244,0.22),transparent_60%)] pointer-events-none" />
+    <div
+      id="stand"
+      ref={ref}
+      className={`relative bg-black text-white ${reduce ? '' : 'h-[230vh] [@supports(height:100svh)]:h-[230svh]'}`}
+    >
+      <div
+        className={`${reduce ? 'min-h-[100svh] py-24' : 'sticky top-0 h-screen [@supports(height:100svh)]:h-[100svh] pt-[72px] pb-5'} overflow-hidden flex flex-col items-center px-5 sm:px-6`}
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(66,133,244,0.22),transparent_62%)] pointer-events-none" />
 
-        <motion.div
-          style={reduce ? undefined : { opacity: titleOpacity, y: titleY }}
-          className="relative z-10 text-center max-w-4xl"
-        >
-          <p className="eyebrow text-[#8ab4f8] mb-4">AirNext Stand</p>
-          <h2 className="text-[clamp(2.4rem,7vw,5.5rem)] font-bold tracking-[-0.035em] leading-[1.02]">
-            O seu balcão<br />agora conversa<br />com o cliente.
-          </h2>
-        </motion.div>
+        {/* Área do texto: título e frase dividem o mesmo espaço */}
+        <div className={`relative z-10 w-full max-w-4xl text-center shrink-0 ${textCell}`}>
+          <motion.div style={reduce ? undefined : { opacity: titleOpacity, y: titleY }} className={stack}>
+            <p className="eyebrow text-[#8ab4f8] mb-3 sm:mb-4">AirNext Stand</p>
+            <h2 className="text-[clamp(1.9rem,8.2vw,4.75rem)] font-bold tracking-[-0.035em] leading-[1.04]">
+              O seu balcão<br />agora conversa<br />com o cliente.
+            </h2>
+          </motion.div>
 
-        <motion.div
-          style={reduce ? undefined : { scale: imgScale, y: imgY }}
-          className="relative z-0 mt-6 w-[min(78vw,520px)] aspect-square rounded-[36px] overflow-hidden shadow-[0_40px_120px_-20px_rgba(66,133,244,0.45)] ring-1 ring-white/10"
-        >
-          <img
-            src={STAND_GOOGLE_NFC_IMG}
-            alt="AirNext Stand com NFC, QR Code e avaliação Google sobre uma mesa"
-            decoding="async"
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-
-        <motion.p
-          style={reduce ? undefined : { opacity: captionOpacity, y: captionY }}
-          className="absolute bottom-14 md:bottom-16 left-0 right-0 px-6 text-center text-base md:text-xl text-gray-300 max-w-2xl mx-auto"
-        >
-          Wi-Fi, cardápio, avaliações no Google, Instagram e WhatsApp.<br className="hidden sm:block" /> Tudo em um único toque.
-        </motion.p>
-
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-gray-500 animate-bounce" aria-hidden="true">
-          <ChevronDown size={22} />
+          <motion.p
+            style={reduce ? undefined : { opacity: captionOpacity, y: captionY }}
+            className={`${stack} text-[clamp(1.05rem,4.4vw,1.75rem)] leading-snug font-medium text-gray-200 max-w-[22ch] sm:max-w-2xl mx-auto`}
+          >
+            Wi-Fi, cardápio, avaliações no Google, Instagram e WhatsApp.
+            <span className="block mt-1 text-white font-semibold">Tudo em um único toque.</span>
+          </motion.p>
         </div>
+
+        {/* Área da foto: lado = menor entre 82% da largura, 46% da altura e 500px */}
+        <div className="relative z-0 flex-1 min-h-0 w-full flex items-center justify-center py-3 sm:py-5">
+          <motion.div
+            style={reduce ? undefined : { scale: imgScale }}
+            className="aspect-square w-[min(82vw,500px)] [@supports(height:100svh)]:w-[min(82vw,46svh,500px)] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-[0_40px_120px_-20px_rgba(66,133,244,0.45)] ring-1 ring-white/10 will-change-transform"
+          >
+            <img
+              src={STAND_GOOGLE_NFC_IMG}
+              alt="AirNext Stand com NFC, QR Code e avaliação Google sobre uma mesa"
+              decoding="async"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+        </div>
+
+        {!reduce && (
+          <motion.div style={{ opacity: hintOpacity }} className="shrink-0 h-6 text-gray-500 animate-bounce" aria-hidden="true">
+            <ChevronDown size={22} />
+          </motion.div>
+        )}
       </div>
     </div>
   );
