@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import {
   ArrowRight, BarChart3, Camera, Check, ChevronDown, Globe, MapPin, MessageCircle,
   Nfc, Palette, QrCode, Star, UtensilsCrossed, Wallet, Wifi, X,
@@ -92,31 +92,41 @@ function StandHero() {
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
 
-  const imgScale = useTransform(scrollYProgress, [0, 0.5], [0.82, 1]);
-  const titleOpacity = useTransform(scrollYProgress, [0.12, 0.38], [1, 0]);
-  const titleY = useTransform(scrollYProgress, [0.12, 0.38], ['0px', '-24px']);
-  const captionOpacity = useTransform(scrollYProgress, [0.42, 0.66], [0, 1]);
-  const captionY = useTransform(scrollYProgress, [0.42, 0.66], ['24px', '0px']);
-  const hintOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+  // Fase 0 = título · Fase 1 = frase. Troca por estado (nunca os dois ao mesmo tempo).
+  const [phase, setPhase] = useState(0);
+  useMotionValueEvent(scrollYProgress, 'change', (v) => setPhase(v > 0.28 ? 1 : 0));
+  useEffect(() => { setPhase(scrollYProgress.get() > 0.28 ? 1 : 0); }, [scrollYProgress]);
+
+  const imgScale = useTransform(scrollYProgress, [0, 0.3], [0.84, 1]);
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
 
   // Movimento reduzido: sem efeito de rolagem, tudo visível em coluna.
   const textCell = reduce ? 'flex flex-col items-center gap-5' : 'grid place-items-center';
   const stack = reduce ? '' : '[grid-area:1/1]';
+  const showTitle = reduce || phase === 0;
+  const showCaption = reduce || phase === 1;
 
   return (
     <div
       id="stand"
       ref={ref}
-      className={`relative bg-black text-white ${reduce ? '' : 'h-[230vh] [@supports(height:100svh)]:h-[230svh]'}`}
+      className={`relative bg-black text-white ${reduce ? '' : 'h-[220vh] [@supports(height:100svh)]:h-[220svh]'}`}
     >
+      {/* pt-28 (112px) deixa o texto livre do menu flutuante no topo */}
       <div
-        className={`${reduce ? 'min-h-[100svh] py-24' : 'sticky top-0 h-screen [@supports(height:100svh)]:h-[100svh] pt-[72px] pb-5'} overflow-hidden flex flex-col items-center px-5 sm:px-6`}
+        className={`${reduce ? 'min-h-[100svh] py-28' : 'sticky top-0 h-screen [@supports(height:100svh)]:h-[100svh] pt-28 pb-5'} overflow-hidden flex flex-col items-center px-5 sm:px-6`}
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(66,133,244,0.22),transparent_62%)] pointer-events-none" />
 
-        {/* Área do texto: título e frase dividem o mesmo espaço */}
+        {/* Área do texto: título e frase dividem o mesmo espaço (altura fixa, sem "pulos") */}
         <div className={`relative z-10 w-full max-w-4xl text-center shrink-0 ${textCell}`}>
-          <motion.div style={reduce ? undefined : { opacity: titleOpacity, y: titleY }} className={stack}>
+          <motion.div
+            initial={false}
+            animate={reduce ? undefined : { opacity: showTitle ? 1 : 0, y: showTitle ? 0 : -16 }}
+            transition={{ duration: 0.3, ease: 'easeOut', delay: showTitle ? 0.15 : 0 }}
+            aria-hidden={!showTitle}
+            className={stack}
+          >
             <p className="eyebrow text-[#8ab4f8] mb-3 sm:mb-4">AirNext Stand</p>
             <h2 className="text-[clamp(1.9rem,8.2vw,4.75rem)] font-bold tracking-[-0.035em] leading-[1.04]">
               O seu balcão<br />agora conversa<br />com o cliente.
@@ -124,19 +134,22 @@ function StandHero() {
           </motion.div>
 
           <motion.p
-            style={reduce ? undefined : { opacity: captionOpacity, y: captionY }}
-            className={`${stack} text-[clamp(1.05rem,4.4vw,1.75rem)] leading-snug font-medium text-gray-200 max-w-[22ch] sm:max-w-2xl mx-auto`}
+            initial={false}
+            animate={reduce ? undefined : { opacity: showCaption ? 1 : 0, y: showCaption ? 0 : 16 }}
+            transition={{ duration: 0.3, ease: 'easeOut', delay: showCaption ? 0.15 : 0 }}
+            aria-hidden={!showCaption}
+            className={`${stack} text-[clamp(1.05rem,4.6vw,1.75rem)] leading-snug font-medium text-gray-200 max-w-[28ch] sm:max-w-2xl mx-auto`}
           >
             Wi-Fi, cardápio, avaliações no Google, Instagram e WhatsApp.
-            <span className="block mt-1 text-white font-semibold">Tudo em um único toque.</span>
+            <span className="block mt-2 text-white font-semibold">Tudo em um único toque.</span>
           </motion.p>
         </div>
 
-        {/* Área da foto: lado = menor entre 82% da largura, 46% da altura e 500px */}
+        {/* Área da foto: lado = menor entre 82% da largura, 44% da altura e 500px */}
         <div className="relative z-0 flex-1 min-h-0 w-full flex items-center justify-center py-3 sm:py-5">
           <motion.div
             style={reduce ? undefined : { scale: imgScale }}
-            className="aspect-square w-[min(82vw,500px)] [@supports(height:100svh)]:w-[min(82vw,46svh,500px)] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-[0_40px_120px_-20px_rgba(66,133,244,0.45)] ring-1 ring-white/10 will-change-transform"
+            className="aspect-square w-[min(82vw,500px)] [@supports(height:100svh)]:w-[min(82vw,44svh,500px)] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-[0_40px_120px_-20px_rgba(66,133,244,0.45)] ring-1 ring-white/10 will-change-transform"
           >
             <img
               src={STAND_GOOGLE_NFC_IMG}
