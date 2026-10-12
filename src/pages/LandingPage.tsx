@@ -14,6 +14,7 @@ import ProductHero from '../components/landing/ProductHero';
 import GooglePlaquesSection from '../components/landing/GooglePlaquesSection';
 import CustomSitesSection from '../components/landing/CustomSitesSection';
 import StandStorySection from '../components/landing/StandStorySection';
+import PetStorySection from '../components/landing/PetStorySection';
 import {
   ChevronDown, ChevronRight, ShoppingBag, Nfc, QrCode,
   Shield, ArrowUp, Check, ArrowRight, ArrowLeft,
@@ -2960,6 +2961,13 @@ export default function LandingPage() {
         <StandStorySection
           whatsapp={AIRNEXT_WHATSAPP}
           onBuy={() => { const st = PRODUCTS.find(x => x.id === 'stand'); if (st) setSelectedProduct(st); }}
+        />
+
+        {/* --- AirNext Pet: coleira inteligente, identificação digital e Modo SOS --- */}
+        <PetStorySection
+          whatsapp={AIRNEXT_WHATSAPP}
+          image={PRODUCTS.find(x => x.id === 'pet')?.img ?? ''}
+          onBuy={() => { const pt = PRODUCTS.find(x => x.id === 'pet'); if (pt) setSelectedProduct(pt); }}
         />
 
         {/* --- Sites personalizados --- */}
