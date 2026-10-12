@@ -6,6 +6,7 @@ import googlePretoParede from '../assets/products/google-preto-parede.webp';
 import googleBrancaParede from '../assets/products/google-branca-parede.webp';
 import googlePretoMesa from '../assets/products/google-preto-mesa.webp';
 import googleBrancaMesa from '../assets/products/google-branca-mesa.webp';
+import googleBrancaBalcao from '../assets/products/google-branca-balcao.webp';
 import googleSuporte from '../assets/products/google-suporte.webp';
 import standPosto from '../assets/products/stand-posto.webp';
 import standGoogleNfc from '../assets/products/stand-google-nfc.webp';
@@ -26,7 +27,7 @@ export const STAND_GALLERY = [standPosto, standGoogleNfc];
 // Seção "Plaquinhas de avaliação Google": todas as plaquinhas com o símbolo do Google.
 export const GOOGLE_SHOWCASE = [
   { src: googlePretoParede, alt: 'Plaquinha preta de avaliação Google fixada na parede de um restaurante', label: 'Preta · parede' },
-  { src: googleBrancaParede, alt: 'Plaquinha branca de avaliação Google com QR Code e NFC na parede de um café', label: 'Branca · parede' },
+  { src: googleBrancaBalcao, alt: 'Stand branco de avaliação Google com QR Code e NFC sobre o balcão de uma cafeteria', label: 'Branca · balcão' },
   { src: googleBrancaMesa, alt: 'Plaquinha branca de avaliação Google sobre a mesa de vidro', label: 'Branca · mesa' },
   { src: googlePretoMesa, alt: 'Plaquinha preta de avaliação Google sobre a mesa de vidro', label: 'Preta · mesa' },
   { src: googleSuporte, alt: 'Plaquinha de avaliação Google com suporte de balcão', label: 'Branca · balcão com suporte' },

@@ -27,7 +27,7 @@ const CHAPTERS = [
     title: 'Cada cliente satisfeito vira uma estrela.',
     text: 'Um toque e o cliente cai direto na tela de avaliação do seu negócio no Google — sem buscar, sem digitar. Mais avaliações fortalecem a sua reputação justamente na hora em que o cliente está mais feliz.',
     img: STAND_GOOGLE_NFC_IMG,
-    alt: 'AirNext Stand com NFC, QR Code e avaliação Google sobre uma mesa de madeira',
+    alt: 'AirNext Stand com NFC, QR Code e avaliação Google sobre o balcão de uma loja de conveniência de madeira',
   },
   {
     n: '03',
@@ -153,7 +153,7 @@ function StandHero() {
           >
             <img
               src={STAND_GOOGLE_NFC_IMG}
-              alt="AirNext Stand com NFC, QR Code e avaliação Google sobre uma mesa"
+              alt="AirNext Stand com NFC, QR Code e avaliação Google sobre o balcão de uma loja de conveniência"
               decoding="async"
               className="w-full h-full object-cover"
             />
