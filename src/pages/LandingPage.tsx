@@ -1698,7 +1698,24 @@ function WhatsAppButton() {
 
 export default function LandingPage() {
   const { resolve: resolveImg, loading: imagesLoading } = useSiteImages();
-  const [isDark, setIsDark] = useState(false); // Tema claro por padrão, alternável para o escuro
+  // Começa no modo escuro (preto). Se o visitante alternar o tema, a escolha é lembrada.
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    try { return localStorage.getItem('airnext-landing-theme') !== 'light'; } catch { return true; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('airnext-landing-theme', isDark ? 'dark' : 'light'); } catch { /* ignore */ }
+    // Fundo da página e barra do navegador acompanham o tema (evita flash branco nas bordas/overscroll).
+    const root = document.documentElement;
+    const prevBg = root.style.backgroundColor;
+    root.style.backgroundColor = isDark ? '#000000' : '';
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const prevMeta = meta?.getAttribute('content') ?? null;
+    meta?.setAttribute('content', isDark ? '#000000' : (prevMeta ?? '#ffffff'));
+    return () => {
+      root.style.backgroundColor = prevBg;
+      if (meta && prevMeta !== null) meta.setAttribute('content', prevMeta);
+    };
+  }, [isDark]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'form' | 'sent'>('cart');
