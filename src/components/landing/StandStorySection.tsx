@@ -4,7 +4,7 @@ import {
   ArrowRight, BarChart3, Camera, Check, ChevronDown, Globe, MapPin, MessageCircle,
   Nfc, Palette, QrCode, Star, UtensilsCrossed, Wallet, Wifi, X,
 } from 'lucide-react';
-import { STAND_GOOGLE_NFC_IMG, STAND_POSTO_IMG, STAND_SUPORTE_IMG } from '../../lib/productImages';
+import { STAND_GOOGLE_NFC_IMG, STAND_POSTO_IMG, STAND_BALCAO_IMG } from '../../lib/productImages';
 
 interface Props {
   whatsapp: string;
@@ -34,8 +34,8 @@ const CHAPTERS = [
     eyebrow: 'Uma inovação que integra',
     title: 'NFC e QR Code. Um só destino, sempre atualizado.',
     text: 'O chip NFC e o QR Code apontam para o mesmo perfil digital. Mudou o cardápio, a promoção ou o link? Você atualiza uma vez, sem reimprimir nada — e acompanha os acessos pelo painel de analytics.',
-    img: STAND_SUPORTE_IMG,
-    alt: 'Stand de balcão com QR Code e NFC para avaliação no Google',
+    img: STAND_BALCAO_IMG,
+    alt: 'Stand branco de balcão com QR Code e NFC para avaliação no Google',
   },
   {
     n: '04',
