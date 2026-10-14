@@ -2,10 +2,10 @@
  * SEO, compartilhamento e Google Preferred Sources — AirNext
  */
 
-/** Domínio de produção (Vercel). Override via VITE_SITE_URL. */
+/** Domínio de produção. Override via VITE_SITE_URL. */
 export const SITE_URL = (
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SITE_URL) ||
-  'https://airnext-xi.vercel.app'
+  'https://airnext.com.br'
 ).replace(/\/$/, '');
 
 /**

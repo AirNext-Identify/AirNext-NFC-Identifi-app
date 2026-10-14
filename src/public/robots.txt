@@ -1,4 +1,4 @@
-# AirNext — https://airnext-xi.vercel.app
+# AirNext — https://airnext.com.br
 User-agent: *
 Allow: /
 Allow: /u/
@@ -16,4 +16,4 @@ Disallow: /ativar
 Disallow: /onboarding
 Disallow: /painel-imagens
 
-Sitemap: https://airnext-xi.vercel.app/sitemap.xml
+Sitemap: https://airnext.com.br/sitemap.xml

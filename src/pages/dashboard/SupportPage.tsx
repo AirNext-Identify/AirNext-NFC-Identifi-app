@@ -22,7 +22,7 @@ const FAQ = [
   { q: 'O que é o Modo SOS?', a: 'O Modo SOS exibe informações de emergência no topo do perfil. Disponível para os tipos Pet, Kids, Senior e TEA. Ative na etapa "Modo SOS" do editor.', icon: AlertTriangle },
   { q: 'Como renovar minha assinatura?', a: 'Quando faltar menos de 30 dias, aparecerá um botão "Renovar" no dashboard. Clique e siga o processo de pagamento.', icon: CreditCard },
   { q: 'Posso ter mais de um perfil?', a: 'Sim! Cada produto NFC = 1 perfil. Para criar outro, basta comprar um novo produto e ativar com um novo código.', icon: UserCheck },
-  { q: 'Como compartilhar meu perfil?', a: 'Copie o link (airnext.com/u/seu-codigo) ou use o botão de compartilhamento no dashboard. Também pode enviar o QR Code.', icon: ExternalLink },
+  { q: 'Como compartilhar meu perfil?', a: 'Copie o link (airnext.com.br/u/seu-codigo) ou use o botão de compartilhamento no dashboard. Também pode enviar o QR Code.', icon: ExternalLink },
   { q: 'Por que meu perfil não está salvando?', a: 'Verifique sua conexão com a internet. Após editar, clique em "Salvar" ou use o botão na última etapa "Publicar". O indicador "Salvo ✓" confirma o salvamento.', icon: Settings },
 ];
 

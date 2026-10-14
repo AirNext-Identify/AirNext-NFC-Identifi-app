@@ -143,7 +143,7 @@ export default function Onboarding() {
           <div className="space-y-4">
             <h2 className="text-white font-semibold">Seu link (slug)</h2>
             <div className="flex items-center gap-2">
-              <span className="text-zinc-600 text-sm shrink-0">airnext.com/u/</span>
+              <span className="text-zinc-600 text-sm shrink-0">airnext.com.br/u/</span>
               <input
                 className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 placeholder="seu-nome"

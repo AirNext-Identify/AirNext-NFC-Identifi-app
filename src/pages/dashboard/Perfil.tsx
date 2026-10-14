@@ -2276,7 +2276,7 @@ export default function Perfil() {
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">URL Pública</p>
           <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2.5 border border-white/5">
             <Globe className="h-3.5 w-3.5 text-zinc-600 shrink-0" />
-            <span className="text-xs text-blue-400 font-mono flex-1 truncate">airnext.com/u/{product.slug || '...'}</span>
+            <span className="text-xs text-blue-400 font-mono flex-1 truncate">airnext.com.br/u/{product.slug || '...'}</span>
             <button
               onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/u/${product.slug}`); toast.show('Link copiado!', 'success'); }}
               className="text-[10px] text-zinc-500 hover:text-white transition-colors font-bold shrink-0"

@@ -161,7 +161,7 @@ const handleQrDetected = async (rawValue: string) => {
   if (!extracted) {
     const uuid = extractNfcUuid(rawValue);
     if (uuid) {
-      const { data } = await supabase.from('products').select('code').eq('nfc_uuid', uuid).maybeSingle();
+      const { data } = await supabase.rpc('resolve_product', { p_uuid: uuid });
       extracted = data?.code ? String(data.code).toUpperCase() : null;
     }
   }
@@ -186,7 +186,7 @@ const handleChipActivate = async () => {
       setError('Chip lido, mas não reconhecido como um chip AirNext.');
       return;
     }
-    const { data } = await supabase.from('products').select('code').eq('nfc_uuid', uuid).maybeSingle();
+    const { data } = await supabase.rpc('resolve_product', { p_uuid: uuid });
     if (!data?.code) {
       setBusy(false);
       setError('Não encontramos nenhum produto para este chip.');
@@ -446,7 +446,7 @@ setPhase('done');
                     <div>
                       <label className="block text-[11px] font-medium text-zinc-300 mb-1">Endereço do perfil</label>
                       <div className="flex items-center gap-1">
-                        <span className="text-zinc-300 text-xs shrink-0">airnext.com/u/</span>
+                        <span className="text-zinc-300 text-xs shrink-0">airnext.com.br/u/</span>
                         <input className={inp} style={inpStyle} placeholder="joao-silva" value={slug} onChange={e=>setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,''))} />
                       </div>
                     </div>
@@ -549,14 +549,14 @@ setPhase('done');
               {/* Profile URL card */}
               <div className="glass rounded-2xl p-4 space-y-1">
                 <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Link do seu perfil</p>
-                <p className="font-mono text-blue-400 text-sm font-bold">airnext.com/u/{slug}</p>
+                <p className="font-mono text-blue-400 text-sm font-bold">airnext.com.br/u/{slug}</p>
               </div>
 
               {/* Inline preview */}
               <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-950 max-h-72 overflow-y-auto hide-scrollbar text-left">
                 <div className="absolute top-0 inset-x-0 h-6 bg-zinc-800 flex items-center gap-1.5 px-3 z-10 shrink-0">
                   <div className="h-2 w-2 rounded-full bg-red-500/60"/><div className="h-2 w-2 rounded-full bg-amber-500/60"/><div className="h-2 w-2 rounded-full bg-emerald-500/60"/>
-                  <span className="text-[9px] text-zinc-500 ml-1 truncate">airnext.com/u/{slug}</span>
+                  <span className="text-[9px] text-zinc-500 ml-1 truncate">airnext.com.br/u/{slug}</span>
                 </div>
                 <iframe src={`/u/${slug}`} className="w-full h-72 border-none mt-6 block" title="Pré-visualização" />
               </div>

@@ -598,19 +598,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
     const cleanCode = code.trim().replace(/\s+/g, '').toUpperCase();
-    const { data, error } = await supabase.from('products').select('*').eq('code', cleanCode);
-    const product = data?.[0];
-    if (error || !product) return { ok: false, error: 'Código inválido ou não encontrado' };
-    if (product.status !== 'DISPONIVEL') {
-      if (product.user_id === user.id) return { ok: false, error: 'Este produto já está ativado na sua conta' };
-      return { ok: false, error: 'Código já utilizado' };
+    // Ativação ATÔMICA no banco (activate_product): confere código + status
+    // DISPONIVEL + sem dono e grava num único comando. O cliente não tem mais
+    // permissão de UPDATE direto para "pegar" produtos (ver sql/02_travar.sql).
+    const { data, error } = await supabase.rpc('activate_product', { p_code: cleanCode });
+    if (error) return { ok: false, error: error.message };
+    if (!data?.ok) {
+      const reasons: Record<string, string> = {
+        not_found: 'Código inválido ou não encontrado',
+        already_yours: 'Este produto já está ativado na sua conta',
+        unavailable: 'Código já utilizado',
+        not_authenticated: 'Usuário não autenticado',
+      };
+      return { ok: false, error: reasons[data?.reason as string] || 'Não foi possível ativar o produto' };
     }
-    const { error: updateError } = await supabase.from('products').update({
-      user_id: user.id, status: 'ATIVO', activated_at: new Date().toISOString(),
-    }).eq('id', product.id);
-    if (updateError) return { ok: false, error: updateError.message };
     await loadUserData(user.id);
-    return { ok: true, product };
+    return { ok: true, product: data.product };
   }, [user, loadUserData]);
 
   const setupProfile = useCallback(async (data: any) => {

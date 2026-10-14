@@ -346,7 +346,7 @@ function Preview({ form, order, hidden, theme, initials, slug }: any) {
         <div className="w-full mt-8"><div className="bg-[#25D366] rounded-2xl py-4 flex items-center justify-center gap-2"><BrandIcon name="whatsapp" className="w-5 h-5 fill-white" /><span className="text-xs font-bold text-white">WhatsApp</span></div></div>
       )}
 
-      <div className="mt-10 mb-6 bg-white p-2.5 rounded-2xl shadow-xl"><QRCodeSVG value={`airnext.com/u/${slug || '...'}`} size={90} /></div>
+      <div className="mt-10 mb-6 bg-white p-2.5 rounded-2xl shadow-xl"><QRCodeSVG value={`airnext.com.br/u/${slug || '...'}`} size={90} /></div>
       <div className="flex items-center gap-1.5 opacity-20"><Sparkles className="h-3 w-3" /><p className="text-[8px] font-bold uppercase tracking-[.3em]">Ao Vivo</p></div>
     </div>
   );

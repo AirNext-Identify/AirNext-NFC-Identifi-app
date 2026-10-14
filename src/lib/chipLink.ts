@@ -36,7 +36,7 @@ export async function getChipBaseUrl(): Promise<string> {
   const env = (import.meta as any).env?.VITE_PUBLIC_APP_URL;
   if (env) return String(env).replace(/\/$/, '');
   if (typeof window !== 'undefined' && !window.location.origin.includes('localhost')) return window.location.origin;
-  return 'https://airnext-xi.vercel.app';
+  return 'https://airnext.com.br';
 }
 
 /** Lê o chip e devolve o uuid do produto a que ele pertence (ou null se vazio/estranho). */

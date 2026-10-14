@@ -52,14 +52,15 @@ export default function NfcRedirect() {
       // permanente que também é impresso como QR Code na placa — ambos os
       // meios resolvem para a MESMA linha de products, pelo mesmo motor de
       // ativação (ver ActivationPage/AuthContext.activateProduct).
-      const query = supabase
-        .from("products")
-        .select("code, slug, status, nfc_uuid, expires_at");
-
-      const { data, error } = await (uuid
-        ? query.eq("nfc_uuid", uuid)
-        : query.eq("code", code)
-      ).maybeSingle();
+      // Resolução via função no banco (resolve_product): devolve só o
+      // necessário e o `code` apenas se o produto estiver DISPONIVEL. A
+      // tabela products não é mais legível por anônimos para isso — ninguém
+      // consegue LISTAR produtos disponíveis, só resolver um por vez a partir
+      // do uuid/código que tem em mãos (QR/chip). Ver sql/02_travar.sql.
+      const { data, error } = await supabase.rpc(
+        "resolve_product",
+        uuid ? { p_uuid: uuid } : { p_code: code }
+      );
 
       if (cancelled) return;
 

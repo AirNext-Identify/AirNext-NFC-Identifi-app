@@ -84,7 +84,7 @@ function envOrFallbackUrl(): string {
   if (typeof window !== 'undefined' && window.location?.origin && !window.location.origin.includes('localhost')) {
     return window.location.origin;
   }
-  return 'https://airnext-xi.vercel.app';
+  return 'https://airnext.com.br';
 }
 
 /** DB (NAO_PROGRAMADO/DISPONIVEL/ATIVO/EXPIRADO/BLOQUEADO/CANCELADO) → rótulo da UI do painel. */

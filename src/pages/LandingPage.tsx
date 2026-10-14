@@ -234,7 +234,7 @@ const PRODUCTS: Product[] = [
     specs: ['Base Acrílico Premium', 'Chip NFC', 'QR Code Estático + Dinâmico', 'Avaliações no Google com um toque', 'Dashboard de analytics', 'Personalização com logo'],
   },
   {
-    id: 'pet', name: 'AirNext Pet', tag: 'Pets', price: 69.9,
+    id: 'pet', name: 'AirNext Pet', tag: 'Pets', price: 79.9,
     desc: 'Identificação inteligente para pets.',
     longDesc: 'Se o seu pet se perder, qualquer pessoa pode ler a tag com o celular e ver contatos de emergência, informações de saúde e veterinário. Sem mensalidade, sem bateria.',
     img: 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',

@@ -137,7 +137,7 @@ function MiniPreview({ p }: { p: any }) {
           </div>
         )}
         <div className="mt-2 bg-white p-0.5 rounded" style={{ borderRadius: `${borderRadius / 2}px` }}>
-          <QRCodeSVG value={`airnext.com/u/${p.slug || 'preview'}`} size={24} />
+          <QRCodeSVG value={`airnext.com.br/u/${p.slug || 'preview'}`} size={24} />
         </div>
         <p className="text-[5px] opacity-20 mt-1 tracking-[.2em] font-bold uppercase">AirNext</p>
       </div>

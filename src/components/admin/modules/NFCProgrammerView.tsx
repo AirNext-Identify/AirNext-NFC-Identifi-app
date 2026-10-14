@@ -708,7 +708,7 @@ function UrlEditorModal({
             <input
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder="https://airnext-xi.vercel.app"
+              placeholder="https://airnext.com.br"
               className="w-full rounded-xl border border-zinc-800 bg-zinc-950 py-2.5 pl-9 pr-3 text-sm text-zinc-100 outline-none focus:border-indigo-500"
             />
           </div>
