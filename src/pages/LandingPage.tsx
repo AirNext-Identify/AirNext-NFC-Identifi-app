@@ -31,11 +31,9 @@ import {
   Square,
   Circle,
   RectangleHorizontal,
-  Monitor,
-  Clipboard,
   ChevronUp,
-  Phone, Wifi, AlertTriangle, Menu, Sparkle,
-  Ticket, Gem, EyeOff, Link2, Store, Gift,
+  Phone, Wifi, AlertTriangle, Sparkle,
+  Ticket, EyeOff, Link2, Store, Gift,
   IdCard,
 } from 'lucide-react';
 type CP = React.CSSProperties & Record<string, string>;
@@ -471,16 +469,6 @@ const CANVAS_DIMS: Record<string, { w: number; h: number; radius: number; circle
   adesivo: { w: 1040, h: 1040, radius: 520, circle: true },
   cracha: { w: 1120, h: 1800, radius: 90 },
 };
-const FORMAT_ORDER = [
-  'cartao',
-  'placa',
-  'display',
-  'tag',
-  'chaveiro',
-  'pulseira',
-  'adesivo',
-  'cracha',
-];
 // Tag e Adesivo aceitam um "corte" físico escolhido pelo cliente
 // (quadrado, redondo ou retangular) — isso muda as dimensões do canvas final.
 function getCanvasDims(formatId: string, shape?: ShapeOption): { w: number; h: number; radius: number; circle?: boolean } {
@@ -499,7 +487,7 @@ function drawNfcGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, scale
   ctx.translate(x, y);
   ctx.strokeStyle = 'rgba(255,255,255,0.92)';
   ctx.lineCap = 'round';
-  [0.55, 0.95, 1.35].forEach((r, i) => {
+  [0.55, 0.95, 1.35].forEach((r) => {
     ctx.beginPath();
     ctx.lineWidth = scale * 0.16;
     ctx.arc(0, 0, r * scale, -0.95, -0.15);
@@ -563,8 +551,8 @@ async function renderSideToCanvas(
   side: SideState,
   formatId: string,
   color: string,
-  lineName: string,
-  formatLabel: string,
+  _lineName: string,
+  _formatLabel: string,
   previewWidthPx: number,
   shape?: ShapeOption
 ): Promise<string> {
@@ -890,17 +878,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
     setIsOpen(true);
   };
 
-  const deleteProject = (id: number) => {
-    const updated = savedProjects.filter(p => p.id !== id);
-    setSavedProjects(updated);
-    try {
-      localStorage.setItem(CUSTOM_PROJECTS_KEY, JSON.stringify(updated));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Gera um número de pedido curto e legível a partir do timestamp.
+    // Gera um número de pedido curto e legível a partir do timestamp.
   const genOrderNumber = () => `AN-${Date.now().toString().slice(-6)}`;
 
   const handleSendWhatsApp = async () => {
@@ -1727,9 +1705,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [email, setEmail] = useState('');
   const [b2bStatus, setB2bStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
-  const [sent, setSent] = useState(false);
   const [activeEveryone, setActiveEveryone] = useState(0);
   const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
   const [cookieSettingsOpen, setCookieSettingsOpen] = useState(false);
@@ -1796,7 +1772,7 @@ export default function LandingPage() {
   const [activeUseCase, setActiveUseCase] = useState(0);
 
   // Products section — filter by physical format/category, makes the section functional
-  const [productFormatFilter, setProductFormatFilter] = useState<string>('todos');
+  const [productFormatFilter] = useState<string>('todos');
   const mainLineProducts = PRODUCTS.filter(p => ORIGINAL_LINE_IDS.includes(p.id));
   const shopProducts = productFormatFilter === 'todos'
     ? mainLineProducts
@@ -3896,8 +3872,12 @@ export default function LandingPage() {
               </p>
               <div className="flex items-center gap-4">
                 <div className="flex gap-2">
-                  {[Camera, MessageCircle, AtSign, Globe].map((Icon, i) => (
-                    <a key={i} href="#" className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                  {[
+                    { Icon: MessageCircle, href: 'https://wa.me/5547996287761', label: 'WhatsApp', external: true },
+                    { Icon: AtSign, href: 'mailto:airnext.oficial@gmail.com', label: 'E-mail', external: false },
+                    { Icon: Globe, href: 'https://airnext.com.br', label: 'Site AirNext', external: false },
+                  ].map(({ Icon, href, label, external }) => (
+                    <a key={label} href={href} aria-label={label} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                       isDark 
                         ? 'bg-white/5 border border-white/10 text-gray-400 hover:border-green-400 hover:text-green-400' 
                         : 'bg-white border border-gray-200 text-gray-400 hover:border-green-400 hover:text-green-600'
@@ -3915,19 +3895,29 @@ export default function LandingPage() {
               </div>
             </div>
             {[
-              { title: 'Produtos', items: ['Cartão Pro', 'Pet Tag', 'Pulseira', 'Hub Desk', 'Anel Inteligente', 'Adesivo NFC'] },
-              { title: 'Empresa', items: ['Quem Somos', 'Sustentabilidade', 'Segurança', 'Carreiras'] },
-              { title: 'Suporte', items: ['Manuais', 'FAQ', 'Contato', 'WhatsApp'] },
+              { title: 'Produtos', items: [
+                { label: 'Cartão Pro', href: '#produtos' }, { label: 'Pet Tag', href: '#coleira-pet' },
+                { label: 'Pulseira', href: '#produtos' }, { label: 'Hub Desk', href: '#mais-produtos' },
+                { label: 'Anel Inteligente', href: '#mais-produtos' }, { label: 'Adesivo NFC', href: '#produtos' },
+              ] },
+              { title: 'Empresa', items: [
+                { label: 'Quem Somos', href: '#quem-somos' }, { label: 'Sustentabilidade', href: '#sustentabilidade' },
+                { label: 'Segurança', href: '#seguranca' }, { label: 'Carreiras', href: 'mailto:airnext.oficial@gmail.com?subject=Carreiras' },
+              ] },
+              { title: 'Suporte', items: [
+                { label: 'Manuais', href: '#ajuda' }, { label: 'FAQ', href: '#faq' },
+                { label: 'Contato', href: 'https://wa.me/5547996287761' }, { label: 'WhatsApp', href: 'https://wa.me/5547996287761' },
+              ] },
             ].map(col => (
               <div key={col.title}>
                 <h4 className={`font-bold text-sm mb-6 tracking-wide uppercase text-xs ${isDark ? 'text-white' : 'text-gray-800'}`}>{col.title}</h4>
                 <ul className="space-y-3 text-sm">
                   {col.items.map(item => (
-                    <li key={item}>
-                      <a href="#" className={`hover:translate-x-1 transition-all inline-block ${
+                    <li key={item.label}>
+                      <a href={item.href} {...(item.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={`hover:translate-x-1 transition-all inline-block ${
                         isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-500 hover:text-green-700'
                       }`}>
-                        {item}
+                        {item.label}
                       </a>
                     </li>
                   ))}

@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { getPublicProfile, recordVisit } from '../lib/publicApi';
 
 import {
@@ -16,7 +16,6 @@ import {
   Phone,
   Heart,
   ExternalLink,
-  Download,
   QrCode,
   ChevronLeft,
   ChevronRight,
@@ -49,16 +48,13 @@ import {
   BadgeAlert,
   Sparkles,
   Clock,
-  CreditCard,
   CalendarClock,
-  Radio,
   Megaphone,
   Newspaper,
   Flame,
   ArrowUpRight
 } from 'lucide-react';
 
-const DAY_LABELS_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const DAY_LABELS_FULL = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
   pix: 'Pix',
@@ -99,7 +95,7 @@ import { useToast } from '../components/Toast';
 import { Modal } from '../components/Modal';
 import { useState, useEffect, useRef } from 'react';
 import { Seo } from '../components/Seo';
-import { absoluteUrl, SITE_NAME } from '../config/seo';
+import { SITE_NAME } from '../config/seo';
 import { getLayoutClasses, ProfileLayout } from '../lib/layout';
 import { getFontOption, loadGoogleFont } from '../lib/fonts';
 import { PUZZLE_PATTERN_BG } from '../lib/patterns';
@@ -249,7 +245,6 @@ function LoadingScreen() {
 export default function PublicProfile() {
   const { slug } = useParams<{ slug: string }>();
   const toast = useToast();
-  const navigate = useNavigate();
 
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);

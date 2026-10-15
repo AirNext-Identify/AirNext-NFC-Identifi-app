@@ -63,7 +63,6 @@ export function ProductImageCycle({ images, alt }: { images: string[]; alt: stri
  * de hover e hierarquia tipográfica.
  */
 export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, badgeLabel, onOpen, onAdd, onPersonalize }: Props) {
-  const onRequest = p.price === 0;
   return (
     <motion.article
       whileHover={{ y: -6 }}

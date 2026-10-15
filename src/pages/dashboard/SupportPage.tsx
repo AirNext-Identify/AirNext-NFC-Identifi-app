@@ -4,7 +4,7 @@ import { useToast } from '../../components/Toast';
 import { 
   Search, MessageCircle, ChevronDown, ChevronUp, ExternalLink, 
   HelpCircle, Zap, Key, Settings, CreditCard, Shield, Wifi,
-  AlertTriangle, Lightbulb, Trash2, X, CheckCircle2, Loader2,
+  AlertTriangle, Lightbulb, Trash2, X, Loader2,
   ArrowLeft, Send
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

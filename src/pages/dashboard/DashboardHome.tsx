@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useAuth, Product } from '../../contexts/AuthContext';
 import {
-  Plus,
   CreditCard,
   Watch,
   KeyRound,
@@ -10,18 +9,11 @@ import {
   Zap,
   Eye,
   Edit,
-  Share2,
   BarChart3,
   Bell,
-  Activity,
   X,
   Copy,
-  Download,
   ArrowRight,
-  Globe,
-  EyeOff,
-  Sparkles,
-  QrCode,
   ExternalLink,
   TrendingUp,
   Users,
@@ -149,7 +141,6 @@ function MiniPreview({ p }: { p: any }) {
 function ProductModal({ p, onClose }: { p: Product; onClose: () => void }) {
   const nav = useNavigate();
   const toast = useToast();
-  const d = (p as any).profileData || {};
   const status = STATUS_LABEL[p.status || ''] || { label: p.status || '—', color: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20' };
 
   return (
@@ -293,8 +284,6 @@ function ProductCard({ p, onClick }: { p: Product; onClick: () => void }) {
 /* ─── MAIN ──────────────────────────────────────────────── */
 export default function DashboardHome() {
   const { user, products, visits } = useAuth();
-  const nav = useNavigate();
-  const toast = useToast();
   const [selected, setSelected] = useState<Product | null>(null);
 
   const activeProducts = (products || []).filter(p => p.status === 'ATIVO');

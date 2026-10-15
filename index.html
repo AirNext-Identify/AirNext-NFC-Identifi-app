@@ -1,349 +1,59 @@
-```html
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
-    <!-- =========================================================
-         CORE / DOCUMENT
-    ========================================================== -->
-
     <meta charset="UTF-8" />
-
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    />
-
-    <meta http-equiv="content-language" content="pt-BR" />
-
-    <title>
-      AirNext — Cartões NFC, Perfis Digitais e Soluções Inteligentes
-    </title>
-
-    <meta
-      name="description"
-      content="AirNext é uma plataforma de soluções digitais conectadas por NFC e QR Code. Crie perfis digitais, cartões, tags e experiências inteligentes para pessoas, pets, crianças e negócios."
-    />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>AirNext — Cartões NFC e Perfis Digitais</title>
+    <meta name="description" content="AirNext transforma cartões, tags e pulseiras NFC em perfis digitais inteligentes. Compartilhe contatos, pet, kids, TEA e negócios com um toque." />
+    <meta name="keywords" content="AirNext, cartão NFC, cartão digital, tag NFC, QR Code, perfil digital, networking, pet perdido, pulseira NFC" />
     <meta name="author" content="AirNext" />
-    <meta name="publisher" content="AirNext" />
-    <meta name="application-name" content="AirNext" />
-
-    <!-- Controle de indexação -->
-    <meta
-      name="robots"
-      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-    />
-
-    <meta
-      name="googlebot"
-      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-    />
-
-    <meta
-      name="bingbot"
-      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-    />
-
-    <!-- Identidade visual -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#05070f" />
     <meta name="color-scheme" content="dark light" />
-
-    <!-- URL oficial -->
     <link rel="canonical" href="https://airnext.com.br/" />
 
-    <!-- =========================================================
-         LANGUAGE / HREFLANG
-    ========================================================== -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
 
-    <link
-      rel="alternate"
-      hreflang="pt-BR"
-      href="https://airnext.com.br/"
-    />
-
-    <link
-      rel="alternate"
-      hreflang="x-default"
-      href="https://airnext.com.br/"
-    />
-
-    <!-- =========================================================
-         FAVICON / APP ICONS
-    ========================================================== -->
-
-    <link rel="icon" href="/favicon.png" type="image/png" />
-
-    <link
-      rel="apple-touch-icon"
-      href="/favicon.png"
-    />
-
-    <!-- =========================================================
-         PERFORMANCE
-    ========================================================== -->
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      rel="preconnect"
-      href="https://fonts.gstatic.com"
-      crossorigin
-    />
-
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lobster&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- =========================================================
-         OPEN GRAPH
-    ========================================================== -->
-
+    <!-- Open Graph — preview ao compartilhar -->
     <meta property="og:site_name" content="AirNext" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AirNext — Cartões NFC e Perfis Digitais" />
+    <meta property="og:description" content="AirNext transforma cartões, tags e pulseiras NFC em perfis digitais inteligentes. Um toque para conectar." />
+    <meta property="og:url" content="https://airnext.com.br/" />
+    <meta property="og:image" content="https://airnext.com.br/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AirNext — conectando o físico ao digital" />
 
-    <meta
-      property="og:title"
-      content="AirNext — Cartões NFC e Perfis Digitais Inteligentes"
-    />
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AirNext — Cartões NFC e Perfis Digitais" />
+    <meta name="twitter:description" content="Perfis digitais NFC com design premium. Compartilhe com um toque." />
+    <meta name="twitter:image" content="https://airnext.com.br/og-image.png" />
 
-    <meta
-      property="og:description"
-      content="Conecte o mundo físico ao digital com cartões NFC, tags, pulseiras, QR Codes e perfis digitais inteligentes."
-    />
+    <!-- Preferências / i18n -->
+    <meta http-equiv="content-language" content="pt-BR" />
+    <link rel="alternate" hrefLang="pt-BR" href="https://airnext.com.br/" />
+    <link rel="alternate" hrefLang="x-default" href="https://airnext.com.br/" />
 
-    <meta
-      property="og:type"
-      content="website"
-    />
-
-    <meta
-      property="og:locale"
-      content="pt_BR"
-    />
-
-    <meta
-      property="og:url"
-      content="https://airnext.com.br/"
-    />
-
-    <meta
-      property="og:image"
-      content="https://airnext.com.br/og-image.png"
-    />
-
-    <meta
-      property="og:image:secure_url"
-      content="https://airnext.com.br/og-image.png"
-    />
-
-    <meta
-      property="og:image:type"
-      content="image/png"
-    />
-
-    <meta
-      property="og:image:width"
-      content="1200"
-    />
-
-    <meta
-      property="og:image:height"
-      content="630"
-    />
-
-    <meta
-      property="og:image:alt"
-      content="AirNext — tecnologia NFC e perfis digitais inteligentes"
-    />
-
-    <!-- =========================================================
-         X / TWITTER
-    ========================================================== -->
-
-    <meta
-      name="twitter:card"
-      content="summary_large_image"
-    />
-
-    <meta
-      name="twitter:title"
-      content="AirNext — Cartões NFC e Perfis Digitais"
-    />
-
-    <meta
-      name="twitter:description"
-      content="Soluções digitais conectadas por NFC e QR Code para pessoas, pets, crianças e negócios."
-    />
-
-    <meta
-      name="twitter:image"
-      content="https://airnext.com.br/og-image.png"
-    />
-
-    <meta
-      name="twitter:image:alt"
-      content="AirNext — conectando o físico ao digital"
-    />
-
-    <!-- =========================================================
-         STRUCTURED DATA
-         ORGANIZATION
-    ========================================================== -->
-
+    <!-- JSON-LD Organization -->
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "@id": "https://airnext.com.br/#organization",
-
-        "name": "AirNext",
-
-        "url": "https://airnext.com.br/",
-
-        "logo": {
-          "@type": "ImageObject",
-          "@id": "https://airnext.com.br/#logo",
-          "url": "https://airnext.com.br/favicon.png"
-        },
-
-        "image": {
-          "@id": "https://airnext.com.br/#logo"
-        },
-
-        "email": "airnext.oficial@gmail.com",
-
-        "description": "A AirNext desenvolve soluções digitais conectadas por NFC, QR Code e perfis digitais para pessoas, pets, crianças e negócios.",
-
-        "brand": {
-          "@type": "Brand",
-          "name": "AirNext"
-        },
-
-        "knowsAbout": [
-          "NFC",
-          "QR Code",
-          "Cartão NFC",
-          "Cartão digital",
-          "Perfil digital",
-          "Tag NFC",
-          "Pulseira NFC",
-          "Identificação digital",
-          "Networking digital",
-          "Avaliações Google"
-        ]
-      }
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AirNext",
+      "url": "https://airnext.com.br",
+      "logo": "https://airnext.com.br/favicon.png",
+      "email": "airnext.oficial@gmail.com",
+      "description": "Cartões, tags e pulseiras NFC com perfis digitais inteligentes."
+    }
     </script>
-
-    <!-- =========================================================
-         WEBSITE ENTITY
-    ========================================================== -->
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-
-        "@id": "https://airnext.com.br/#website",
-
-        "url": "https://airnext.com.br/",
-
-        "name": "AirNext",
-
-        "alternateName": [
-          "AirNext Brasil",
-          "Air Next"
-        ],
-
-        "description": "Plataforma de soluções digitais inteligentes conectadas por NFC e QR Code.",
-
-        "publisher": {
-          "@id": "https://airnext.com.br/#organization"
-        },
-
-        "inLanguage": "pt-BR"
-      }
-    </script>
-
-    <!-- =========================================================
-         HOMEPAGE ENTITY
-    ========================================================== -->
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-
-        "@id": "https://airnext.com.br/#webpage",
-
-        "url": "https://airnext.com.br/",
-
-        "name": "AirNext — Cartões NFC, Perfis Digitais e Soluções Inteligentes",
-
-        "description": "Conheça a AirNext e suas soluções digitais conectadas por NFC e QR Code.",
-
-        "isPartOf": {
-          "@id": "https://airnext.com.br/#website"
-        },
-
-        "about": {
-          "@id": "https://airnext.com.br/#organization"
-        },
-
-        "inLanguage": "pt-BR",
-
-        "primaryImageOfPage": {
-          "@type": "ImageObject",
-          "url": "https://airnext.com.br/og-image.png",
-          "width": 1200,
-          "height": 630
-        }
-      }
-    </script>
-
-    <!-- =========================================================
-         SOFTWARE / SAAS
-    ========================================================== -->
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-
-        "name": "AirNext",
-
-        "applicationCategory": "BusinessApplication",
-
-        "applicationSubCategory": "Digital Identity Platform",
-
-        "operatingSystem": "Web",
-
-        "url": "https://airnext.com.br/",
-
-        "description": "Plataforma web da AirNext para criação e gerenciamento de perfis digitais conectados a produtos NFC e QR Code.",
-
-        "softwareVersion": "Web",
-
-        "publisher": {
-          "@id": "https://airnext.com.br/#organization"
-        },
-
-        "offers": {
-          "@type": "Offer",
-          "url": "https://airnext.com.br/",
-          "priceCurrency": "BRL",
-          "availability": "https://schema.org/InStock"
-        }
-      }
-    </script>
-
   </head>
-
   <body>
     <div id="root"></div>
-
-    <script
-      type="module"
-      src="/src/main.tsx"
-    ></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-```

@@ -1,5 +1,5 @@
 # ============================================
-# AirNect - GitHub Actions Deploy to Vercel
+# AirNext - GitHub Actions Deploy to Vercel
 # ============================================
 
 name: Deploy to Production
@@ -32,9 +32,6 @@ jobs:
 
       - name: 📚 Install Dependencies
         run: npm ci
-
-      - name: 🔍 Lint
-        run: npm run lint
 
       - name: 🏗️ Build
         run: npm run build

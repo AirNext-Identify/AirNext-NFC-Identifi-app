@@ -22,8 +22,6 @@ import {
   Eye,
   EyeOff,
   Phone,
-  Mail,
-  MapPin,
   Wifi,
   ArrowLeft,
   Sparkles,
@@ -37,17 +35,13 @@ import {
   MessageCircle,
   Wallet,
   Star,
-  Building2,
   Quote,
   Puzzle,
   Clock,
   CreditCard,
-  CalendarClock,
   Signal,
   Megaphone,
-  Newspaper,
-  ArrowUpRight,
-  Flame
+  Newspaper
 , PawPrint } from 'lucide-react';
 
 import { useToast } from '../../components/Toast';
@@ -722,7 +716,7 @@ const textareaCls = `${inputCls} resize-none min-h-[110px] leading-relaxed`;
    Wrapper visual usado para transformar blocos soltos de campos
    em cartões elegantes, com cabeçalho de ícone + título/descrição,
    inspirado no padrão Apple/Stripe de "grouped settings cards". */
-function SectionCard({
+export function SectionCard({
   title, description, icon: Icon, tone = 'neutral', children,
 }: { title?: string; description?: string; icon?: any; tone?: 'neutral' | 'blue' | 'emerald' | 'violet' | 'amber' | 'sky' | 'pink' | 'red'; children: React.ReactNode }) {
   const tones: Record<string, { ring: string; bg: string; icon: string }> = {
@@ -860,7 +854,7 @@ export default function Perfil() {
   const [sosMode, setSosMode] = useState(false);
   const [verified, setVerified] = useState(false);
   const [wallpaperTab, setWallpaperTab] = useState<'gradient' | 'solid' | 'imagem'>('gradient');
-  const [textColor, setTextColor] = useState('');
+  const [, setTextColor] = useState('');
   const [nameColor, setNameColor] = useState('');
   const [bioColor, setBioColor] = useState('');
   const [mainTextColor, setMainTextColor] = useState('');
@@ -998,7 +992,7 @@ export default function Perfil() {
 
   const atracoes: { id: string; titulo: string; subtitulo?: string; imagem?: string; link?: string; tag?: string }[] = Array.isArray(form.atracoes) ? form.atracoes : [];
   const atracoesScrollRef = useRef<HTMLDivElement>(null);
-  const scrollCarouselToEnd = (ref: React.RefObject<HTMLDivElement>) => {
+  const scrollCarouselToEnd = (ref: React.RefObject<HTMLDivElement | null>) => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const el = ref.current;

@@ -7,7 +7,7 @@ import NotificationCenter from './NotificationCenter';
 import { useToast } from './Toast';
 
 export default function DashboardLayout() {
- const { user, logout, products, notifications, loading } = useAuth();
+ const { user, logout, notifications, loading } = useAuth();
   const loc = useLocation();
   const nav = useNavigate();
   const toast = useToast();

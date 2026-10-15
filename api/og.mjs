@@ -17,7 +17,7 @@
 // normais nunca caem aqui — o vercel.json só manda o bot para esta rota;
 // o navegador comum continua indo direto para a SPA de sempre.
 
-const SITE_URL = (process.env.VITE_SITE_URL || 'https://airnext-xi.vercel.app').replace(/\/$/, '');
+const SITE_URL = (process.env.VITE_SITE_URL || 'https://airnext.com.br').replace(/\/$/, '');
 const SITE_NAME = 'AirNext';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 const DEFAULT_DESCRIPTION =
