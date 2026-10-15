@@ -3896,8 +3896,8 @@ export default function LandingPage() {
             </div>
             {[
               { title: 'Produtos', items: [
-                { label: 'Cartão Pro', href: '#produtos' }, { label: 'Pet Tag', href: '#coleira-pet' },
-                { label: 'Pulseira', href: '#produtos' }, { label: 'Hub Desk', href: '#mais-produtos' },
+                { label: 'Cartão NFC', href: '/cartao-nfc/' }, { label: 'Tag NFC Pet', href: '/tag-nfc-pet/' },
+                { label: 'Pulseira NFC', href: '/pulseira-nfc/' }, { label: 'Placa Google', href: '/placa-google-avaliacao-nfc/' },
                 { label: 'Anel Inteligente', href: '#mais-produtos' }, { label: 'Adesivo NFC', href: '#produtos' },
               ] },
               { title: 'Empresa', items: [
@@ -3905,7 +3905,7 @@ export default function LandingPage() {
                 { label: 'Segurança', href: '#seguranca' }, { label: 'Carreiras', href: 'mailto:airnext.oficial@gmail.com?subject=Carreiras' },
               ] },
               { title: 'Suporte', items: [
-                { label: 'Manuais', href: '#ajuda' }, { label: 'FAQ', href: '#faq' },
+                { label: 'Manuais', href: '#ajuda' }, { label: 'Como funciona o NFC', href: '/blog/como-funciona-cartao-nfc/' }, { label: 'FAQ', href: '#faq' },
                 { label: 'Contato', href: 'https://wa.me/5547996287761' }, { label: 'WhatsApp', href: 'https://wa.me/5547996287761' },
               ] },
             ].map(col => (
