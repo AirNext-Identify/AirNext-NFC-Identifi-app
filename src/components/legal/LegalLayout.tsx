@@ -1,4 +1,3 @@
-import { PreferredSourcesCTA } from '../PreferredSourcesCTA';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, Menu, X } from 'lucide-react';
@@ -204,9 +203,6 @@ export function LegalLayout({
           <p className="mt-10 text-xs text-zinc-400">
             © {new Date().getFullYear()} {LEGAL_CONFIG.legalName}. Todos os direitos reservados.
           </p>
-        </div>
-              <div className="max-w-3xl mx-auto px-6 pb-8">
-          <PreferredSourcesCTA variant="banner" dark={false} />
         </div>
       </footer>
     </div>

@@ -3,7 +3,6 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
 import Logo from '../components/Logo';
-import { PreferredSourcesCTA } from '../components/PreferredSourcesCTA';
 import GoogleButton from '../components/auth/GoogleButton';
 
 export default function LoginPage() {
@@ -115,7 +114,6 @@ export default function LoginPage() {
             <Link to="/termos-de-uso" className="hover:text-zinc-300">Termos</Link>
             <Link to="/politica-de-cookies" className="hover:text-zinc-300">Cookies</Link>
           </span>
-          <PreferredSourcesCTA variant="link" className="mt-1" />
         </p>
       </div>
     </div>

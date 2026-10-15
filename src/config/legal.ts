@@ -9,7 +9,7 @@ export const LEGAL_CONFIG = {
   cnpj: '',
   address: '',
   privacyEmail: 'airnext.oficial@gmail.com',
-  supportEmail: 'airnext.oficial@gmail.com',
+  supportEmail: 'contato@airnext.com.br',
   dataControllerName: 'Pedro Veloso',
   tagline: 'Conectando o físico ao digital.',
   privacyHeadline: 'Privacidade, do seu jeito.',

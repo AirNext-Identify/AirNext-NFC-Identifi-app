@@ -14,18 +14,6 @@ export const SITE_URL = (
  */
 export const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-/**
- * Deeplink oficial: abre o Google Source Preferences com a AirNext pré-preenchida.
- * Usuários que adicionam o site passam a ver conteúdo AirNext com badge
- * "preferred" em Top Stories, AI Mode e AI Overviews.
- */
-export const GOOGLE_PREFERRED_SOURCES_URL =
-  `https://google.com/preferences/source?q=${encodeURIComponent(SITE_URL)}`;
-
-/** Alternativa só com o host (também aceita pelo tool do Google) */
-export const GOOGLE_PREFERRED_SOURCES_URL_HOST =
-  `https://google.com/preferences/source?q=${encodeURIComponent(SITE_HOST)}`;
-
 export const SITE_NAME = 'AirNext';
 export const SITE_TAGLINE = 'Conectando o físico ao digital';
 export const SITE_DESCRIPTION =

@@ -179,7 +179,7 @@ export default function SupportTutorialsPage() {
         <div className="mt-16 text-center">
           <p className="text-sm text-gray-500 mb-4">Ainda precisa de ajuda?</p>
           <a
-            href="mailto:airnext.oficial@gmail.com"
+            href="mailto:contato@airnext.com.br"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition"
           >
             Falar com o suporte

@@ -4,6 +4,8 @@ import path from 'node:path';
 
 const SITE = 'https://airnext.com.br';
 const WA = 'https://wa.me/5547996287761';
+const IG = 'https://www.instagram.com/airnext.com.br/';
+const EMAIL = 'contato@airnext.com.br';
 const LOCAL = ''; // Ex.: 'Itajaí, SC' — se preenchido, aparece nas páginas de produto.
 const OUT = path.resolve('dist');
 
@@ -15,7 +17,7 @@ const PAGES = [
       ['Para quem é', 'Profissionais liberais, vendedores, clínicas, lojas e quem faz networking. Um único cartão substitui pilhas de cartões de papel e nunca fica desatualizado.']],
     faq: [['O cartão NFC precisa de aplicativo?', 'Não. O visitante só aproxima o celular ou escaneia o QR Code, e o perfil abre no navegador.'], ['Posso mudar meus dados depois?', 'Sim. O perfil é editável a qualquer momento pelo painel, e o cartão continua o mesmo.']],
     links: ['tag-nfc-pet', 'blog/como-funciona-cartao-nfc'] },
-  { slug: 'tag-nfc-pet', title: 'Tag NFC para Pet: coleira que ajuda a encontrar seu animal | AirNext',
+  { slug: 'tag-nfc-pet', title: 'Pet NFC AirNext: tag NFC para pet na coleira | AirNext',
     desc: 'Tag NFC para pet AirNext: quem encontrar seu animal aproxima o celular e vê seu contato na hora. Sem bateria e sem aplicativo.',
     h1: 'Tag NFC para pet: seu animal de volta para casa', kind: 'Produto',
     body: [['Como ajuda a achar seu pet', 'A tag fica na coleira. Quem encontra o animal aproxima o celular (ou escaneia o QR Code) e vê o perfil do pet com seus contatos, para avisar você rapidamente.'],
@@ -50,6 +52,26 @@ const PAGES = [
       ['QR Code', 'Funciona em qualquer celular com câmera e pode ser impresso em qualquer lugar, mas exige abrir a câmera e enquadrar o código.'],
       ['Por que os dois', 'Os produtos AirNext trazem chip NFC e QR Code juntos: quem tem NFC encosta, e quem não tem escaneia. O destino é o mesmo perfil digital.']],
     links: ['cartao-nfc', 'blog/como-funciona-cartao-nfc'] },
+  { slug: 'coleira-inteligente-airnext', title: 'Coleira Inteligente AirNext: coleira com tag NFC para pet',
+    desc: 'Coleira inteligente AirNext com tag NFC e QR Code: quem encontrar seu pet aproxima o celular e vê seus contatos, sem bateria e sem aplicativo.',
+    h1: 'Coleira inteligente AirNext para o seu pet', kind: 'Produto',
+    body: [['O que é a coleira inteligente', 'É a coleira do seu pet com uma tag NFC e QR Code ligada a um perfil digital. Quem encontra o animal aproxima o celular e abre seus contatos para avisar você.'],
+      ['Por que escolher a AirNext', 'A tag não usa bateria, funciona em celulares com NFC ou câmera e o perfil pode ser atualizado a qualquer momento, sem trocar a coleira.']],
+    faq: [['Como funciona a coleira inteligente AirNext?', 'Uma tag NFC com QR Code abre o perfil do pet quando alguém aproxima o celular ou escaneia o código.'], ['Precisa carregar a coleira?', 'Não. O chip NFC é passivo e não usa bateria.']],
+    links: ['tag-nfc-pet', 'stand-nfc-airnext'] },
+  { slug: 'stand-nfc-airnext', title: 'Stand AirNext: stand NFC com QR Code para balcão e mesa',
+    desc: 'Stand AirNext com NFC e QR Code: exponha seu perfil, contato ou página de avaliação e deixe o cliente acessar com um toque.',
+    h1: 'Stand AirNext: seu perfil digital sempre à vista', kind: 'Produto',
+    body: [['Para que serve o stand', 'O stand fica no balcão ou na mesa com chip NFC e QR Code. O cliente aproxima o celular e abre seu perfil, WhatsApp, redes sociais ou a página que você definir.'],
+      ['Onde usar', 'Lojas, clínicas, restaurantes, salões e eventos, em qualquer lugar onde você queira ser encontrado com um toque.']],
+    faq: [['O stand AirNext tem NFC e QR Code?', 'Sim. Os produtos AirNext trazem chip NFC e QR Code juntos.'], ['Posso mudar o destino depois?', 'Sim. O perfil é editável pelo painel, e o stand continua o mesmo.']],
+    links: ['placa-google-avaliacao-nfc', 'cartao-nfc'] },
+  { slug: 'sobre-a-airnext', title: 'AirNext: o que é, produtos e contato',
+    desc: 'AirNext cria cartões, coleira inteligente, pet NFC, stand, pulseiras e placas NFC com QR Code ligados a perfis digitais. Conheça e fale com a gente.',
+    h1: 'AirNext: conectando o físico ao digital', kind: 'Guia',
+    body: [['Quem é a AirNext', 'A AirNext transforma objetos do dia a dia em perfis digitais com NFC e QR Code: cartões de visita, coleira inteligente para pets, stand, pulseiras e placas de avaliação.'],
+      ['Contato', `Fale pelo WhatsApp, por e-mail em ${EMAIL} ou pelo Instagram @airnext.com.br.`]],
+    links: ['cartao-nfc', 'coleira-inteligente-airnext'] },
 ];
 const T = Object.fromEntries(PAGES.map(p => [p.slug, p.h1]));
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
@@ -65,14 +87,14 @@ function render(p) {
   return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(p.title)}</title><meta name="description" content="${esc(p.desc)}"><link rel="canonical" href="${url}"><meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="article"><meta property="og:site_name" content="AirNext"><meta property="og:locale" content="pt_BR"><meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${SITE}/og-image.png">
-<meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/favicon.png"><style>${css}</style>
+<meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png"><link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><style>${css}</style>
 <script type="application/ld+json">${JSON.stringify(ld)}</script></head><body>
 <header><a href="/">AirNext</a></header><main><h1>${esc(p.h1)}</h1><p>${esc(p.desc)}</p>
 ${p.body.map(([h, t]) => `<h2>${esc(h)}</h2><p>${esc(t)}</p>`).join('\n')}
 ${p.faq ? '<h2>Perguntas frequentes</h2>' + p.faq.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('') : ''}
 ${loc}<a class="cta" href="${WA}">Falar no WhatsApp</a><a class="cta alt" href="/#produtos">Ver produtos</a>
 <h2>Leia também</h2><ul>${p.links.map(l => `<li><a href="/${l}/">${esc(T[l])}</a></li>`).join('')}</ul></main>
-<footer>© AirNext — Cartões, tags e pulseiras NFC com perfis digitais. <a href="/">Página inicial</a></footer></body></html>`;
+<footer>© AirNext — Cartões, coleira inteligente, pet NFC, stand e pulseiras NFC. <a href="/">Página inicial</a> · <a href="mailto:${EMAIL}">${EMAIL}</a> · <a href="${IG}">Instagram @airnext.com.br</a></footer></body></html>`;
 }
 
 for (const p of PAGES) {

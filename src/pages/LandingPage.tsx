@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PreferredSourcesCTA } from '../components/PreferredSourcesCTA';
 import { AIRNEXT_FAQ, AIRNEXT_DEFINITION, AIRNEXT_HOW_IT_WORKS } from '../config/aiContent';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
@@ -3874,7 +3873,8 @@ export default function LandingPage() {
                 <div className="flex gap-2">
                   {[
                     { Icon: MessageCircle, href: 'https://wa.me/5547996287761', label: 'WhatsApp', external: true },
-                    { Icon: AtSign, href: 'mailto:airnext.oficial@gmail.com', label: 'E-mail', external: false },
+                    { Icon: Camera, href: 'https://www.instagram.com/airnext.com.br/', label: 'Instagram', external: true },
+                    { Icon: AtSign, href: 'mailto:contato@airnext.com.br', label: 'E-mail', external: false },
                     { Icon: Globe, href: 'https://airnext.com.br', label: 'Site AirNext', external: false },
                   ].map(({ Icon, href, label, external }) => (
                     <a key={label} href={href} aria-label={label} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
@@ -3896,17 +3896,19 @@ export default function LandingPage() {
             </div>
             {[
               { title: 'Produtos', items: [
-                { label: 'Cartão NFC', href: '/cartao-nfc/' }, { label: 'Tag NFC Pet', href: '/tag-nfc-pet/' },
+                { label: 'Cartão NFC', href: '/cartao-nfc/' }, { label: 'Coleira Inteligente', href: '/coleira-inteligente-airnext/' },
+                { label: 'Pet NFC', href: '/tag-nfc-pet/' }, { label: 'Stand AirNext', href: '/stand-nfc-airnext/' },
                 { label: 'Pulseira NFC', href: '/pulseira-nfc/' }, { label: 'Placa Google', href: '/placa-google-avaliacao-nfc/' },
-                { label: 'Anel Inteligente', href: '#mais-produtos' }, { label: 'Adesivo NFC', href: '#produtos' },
               ] },
               { title: 'Empresa', items: [
                 { label: 'Quem Somos', href: '#quem-somos' }, { label: 'Sustentabilidade', href: '#sustentabilidade' },
-                { label: 'Segurança', href: '#seguranca' }, { label: 'Carreiras', href: 'mailto:airnext.oficial@gmail.com?subject=Carreiras' },
+                { label: 'Segurança', href: '#seguranca' }, { label: 'Sobre a AirNext', href: '/sobre-a-airnext/' }, { label: 'Carreiras', href: 'mailto:contato@airnext.com.br?subject=Carreiras' },
               ] },
               { title: 'Suporte', items: [
                 { label: 'Manuais', href: '#ajuda' }, { label: 'Como funciona o NFC', href: '/blog/como-funciona-cartao-nfc/' }, { label: 'FAQ', href: '#faq' },
                 { label: 'Contato', href: 'https://wa.me/5547996287761' }, { label: 'WhatsApp', href: 'https://wa.me/5547996287761' },
+                { label: 'contato@airnext.com.br', href: 'mailto:contato@airnext.com.br' },
+                { label: 'Instagram @airnext.com.br', href: 'https://www.instagram.com/airnext.com.br/' },
               ] },
             ].map(col => (
               <div key={col.title}>
@@ -3951,9 +3953,6 @@ export default function LandingPage() {
           <div className={`border-t pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] ${
             isDark ? 'border-gray-800 text-gray-500' : 'border-gray-200 text-gray-400'
           }`}>
-            <div className="mb-6 flex justify-center sm:justify-start">
-              <PreferredSourcesCTA variant="banner" dark={isDark} className="w-full max-w-xl" />
-            </div>
             <p>© 2026 AirNext Tecnologia LTDA. Todos os direitos reservados.</p>
             <div className="flex flex-wrap justify-center gap-6">
               <a href="/politica-de-privacidade" className={`hover:text-green-500 transition`}>Privacidade</a>
