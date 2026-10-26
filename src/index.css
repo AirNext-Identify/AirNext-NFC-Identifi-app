@@ -532,3 +532,48 @@ input:-webkit-autofill:active {
     transition: none;
   }
 }
+
+/*
+ * Conteúdo pré-renderizado (SEO): o build gera HTML estático dentro de #root
+ * para os buscadores. Ele é útil para robôs, mas aparecia como texto solto na
+ * tela preta durante o carregamento. Fica invisível até o React montar
+ * (main.tsx adiciona a classe `app-ready` ao <html>). Continua no DOM, então
+ * a indexação não é afetada.
+ */
+html:not(.app-ready) #root {
+  visibility: hidden;
+}
+html:not(.app-ready) body {
+  background-color: #09090b;
+}
+
+/* Desempenho no celular: seções longas só renderizam perto da tela */
+@media (max-width: 1023px) {
+  #galeria, #feedbacks, #seguranca, #sustentabilidade, #para-todos, #quem-somos, #b2b, #ajuda, #funcionalidades, #dispositivos {
+    content-visibility: auto; contain-intrinsic-size: auto 900px;
+  }
+}
+
+/* ─── Temas de card do perfil público (lib/cardThemes.ts) ─────────────────── */
+.pp-theme-neon .pp-social-chip {
+  border: 1px solid color-mix(in srgb, var(--pp-accent) 60%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--pp-accent) 40%, transparent);
+}
+.pp-theme-outline .pp-social-chip {
+  background: transparent !important;
+  border: 1.5px solid var(--pp-accent);
+}
+.pp-theme-gradient .pp-social-chip {
+  background: color-mix(in srgb, var(--pp-accent) 20%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--pp-accent) 35%, transparent);
+}
+.pp-theme-frosted .pp-social-chip {
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.pp-theme-aurora .pp-social-chip {
+  border: 1px solid color-mix(in srgb, var(--pp-accent2) 50%, transparent);
+}
+.pp-theme-minimal .pp-social-chip { box-shadow: none; }
+.pp-theme-solid .pp-social-chip { border: 1px solid rgba(128, 128, 128, 0.15); }

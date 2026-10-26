@@ -94,6 +94,10 @@ export interface ProfileData {
   __wallpaper?: string;
   __linkStyle?: string;
   __verified?: boolean;
+  /** Ramo de atividade do Business (id em config/businessSegments.ts). Ausente em perfis antigos. */
+  __segment?: string;
+  /** Texto livre digitado quando __segment === 'outro'. */
+  __segmentOutro?: string;
   __sosMode?: boolean;
   /** @deprecated use __nameColor / __bioColor / __mainTextColor */
   __textColor?: string;
@@ -115,6 +119,10 @@ export interface ProfileData {
     observacoes?: string;
   };
   __layout?: 'center' | 'left' | 'right' | 'split';
+  /** Tema do "material" do card (vidro, neon, aurora…). Ver lib/cardThemes.ts. */
+  __cardTheme?: 'glass' | 'frosted' | 'solid' | 'outline' | 'gradient' | 'neon' | 'aurora' | 'minimal';
+  /** Links livres (Profissional e Business): título + URL + emoji opcional. Ver lib/freeLinks.ts. */
+  linksLivres?: { id: string; titulo: string; url: string; icone?: string; destaque?: boolean }[];
   __fontFamily?: string;
   __wifiSsid?: string;
   __wifiPassword?: string;
@@ -153,6 +161,10 @@ export interface Product {
   stats?: ProductStats;
   visibility?: 'public' | 'private' | 'hidden';
   loteName?: string;
+  /** Linha do produto, definida no banco: 'GOOGLE' só redireciona p/ avaliações (sem perfil). */
+  productLine?: 'STANDARD' | 'GOOGLE';
+  /** Destino do QR (somente linha GOOGLE): link de avaliações do Google. */
+  redirectUrl?: string | null;
   mediaCarousel?: { id: string; type: 'image' | 'video'; url: string; caption?: string }[];
   mediaCarousel2?: { id: string; type: 'image' | 'video'; url: string; caption?: string }[];
 }

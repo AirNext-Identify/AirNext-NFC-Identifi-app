@@ -17,6 +17,7 @@ import {
   type ConsentStatus,
 } from '../lib/consents';
 import { mapProduct } from '../lib/mapProduct';
+import { GOOGLE_URL_HELP, isValidGoogleReviewUrl, normalizeGoogleReviewUrl } from '../lib/googleReview';
 import { getPublicProfile, recordVisit } from '../lib/publicApi';
 import { generateActivationCode } from '../lib/adminUtils';
 import type { Product } from '../types/product';
@@ -71,6 +72,8 @@ interface Ctx {
   user: User | null;
   products: Product[];
   allProducts: Product[];
+  /** Plaquinhas AirNext Google do usuário (não têm perfil; só redirecionam p/ avaliações). */
+  googleProducts: Product[];
   visits: Visit[];
   notifications: AppNotification[];
   unreadCount: number;
@@ -92,7 +95,14 @@ interface Ctx {
   loginWithGoogle: () => Promise<any>;
   logout: () => Promise<void>;
 
-  activateProduct: (code: string) => Promise<{ ok: boolean; product?: any; error?: string }>;
+  /**
+   * Ativa por código. O TIPO do produto vem do banco: se o código for da linha
+   * AirNext Google, a ativação exige `redirectUrl` (link de avaliações) e o
+   * retorno traz `needsGoogleUrl: true` enquanto ele não for informado/válido.
+   */
+  activateProduct: (code: string, redirectUrl?: string) => Promise<{ ok: boolean; product?: any; error?: string; needsGoogleUrl?: boolean }>;
+  /** Troca o destino do QR de uma plaquinha Google (sem reimprimir). */
+  updateGoogleRedirect: (productId: string, url: string) => Promise<{ ok: boolean; error?: string }>;
   setupProfile: (data: any) => Promise<{ ok: boolean; error?: any }>;
 
   updateProfile: (productId: string, data: any) => Promise<{ ok: boolean; error?: any }>;
@@ -214,6 +224,7 @@ function clearTabSessionNotified() {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [googleProducts, setGoogleProducts] = useState<Product[]>([]);
   const [visits, setVisits] = useState<Visit[]>([]);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -320,7 +331,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     clearTabSessionNotified();
-    setUser(null); setAllProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
+    setUser(null); setAllProducts([]); setGoogleProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
     setAdminUsers([]); setAdminProducts([]); setFeedbacks([]); setAdminDataLoaded(false);
     setConsentStatus({ ...EMPTY_CONSENT_STATUS, loading: false });
   }, []);
@@ -361,17 +372,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadUserData = useCallback(async (userId: string) => {
-    const { data: prods, error: prodErr } = await supabase
+    const BASE_COLS = 'id, code, user_id, status, activated_at, expires_at, created_at, category, slug, theme, visibility, lote_name, product_type, profile_data, media_carousel, stats';
+    let { data: prods, error: prodErr } = await supabase
       .from('products')
-      .select('id, code, user_id, status, activated_at, expires_at, created_at, category, slug, theme, visibility, lote_name, product_type, profile_data, media_carousel, stats')
+      .select(`${BASE_COLS}, product_line, redirect_url`)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
+    if (prodErr) {
+      // Banco ainda sem a migração sql/10_airnext_google.sql (colunas product_line /
+      // redirect_url ausentes): não derruba o dashboard, carrega como antes.
+      const legacy = await supabase
+        .from('products')
+        .select(BASE_COLS)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      prods = legacy.data as any;
+      prodErr = legacy.error;
+    }
 
     const dismissed = readDismissedIds(userId);
     const adminNotifs = await loadAdminNotifications(userId);
 
     if (prodErr || !prods) {
-      setAllProducts([]); setHasProfile(false); setVisits([]);
+      setAllProducts([]); setGoogleProducts([]); setHasProfile(false); setVisits([]);
       const merged = [...readStoredLoginNotifs(userId), ...adminNotifs]
         .filter(n => !dismissed.has(n.id))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -380,7 +403,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const mapped = prods.map(mapProduct);
-    setAllProducts(mapped);
+    // Plaquinhas AirNext Google não têm perfil/categoria: ficam fora de `products`
+    // (perfis, estatísticas, editor) e vão para `googleProducts`.
+    setAllProducts(mapped.filter(p => p.productLine !== 'GOOGLE'));
+    setGoogleProducts(mapped.filter(p => p.productLine === 'GOOGLE'));
     setHasProfile(mapped.length > 0);
 
     if (!prods.length) {
@@ -587,7 +613,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAdminProducts(prev => prev.map(p => p.id === productId ? { ...p, status: 'BLOQUEADO' } : p));
   }, []);
 
-  const activateProduct = useCallback(async (code: string) => {
+  const activateProduct = useCallback(async (code: string, redirectUrl?: string) => {
     if (!user) return { ok: false, error: 'Usuário não autenticado' };
     // Defesa em profundidade: não ativa produto sem consentimento da versão atual.
     const consentsOk = await hasCurrentRequiredConsents(user.id);
@@ -601,19 +627,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Ativação ATÔMICA no banco (activate_product): confere código + status
     // DISPONIVEL + sem dono e grava num único comando. O cliente não tem mais
     // permissão de UPDATE direto para "pegar" produtos (ver sql/02_travar.sql).
-    const { data, error } = await supabase.rpc('activate_product', { p_code: cleanCode });
+    const { data, error } = await supabase.rpc('activate_product', {
+      p_code: cleanCode,
+      p_redirect_url: redirectUrl ? normalizeGoogleReviewUrl(redirectUrl) : null,
+    });
     if (error) return { ok: false, error: error.message };
     if (!data?.ok) {
+      // O banco identificou que o código é da linha AirNext Google: a ativação
+      // só conclui com o link de avaliações (o cliente não escolhe o tipo).
+      if (data?.reason === 'google_url_required') return { ok: false, needsGoogleUrl: true };
+      if (data?.reason === 'google_url_invalid') {
+        return { ok: false, needsGoogleUrl: true, error: 'Esse não parece um link de avaliações do Google. ' + GOOGLE_URL_HELP };
+      }
       const reasons: Record<string, string> = {
         not_found: 'Código inválido ou não encontrado',
         already_yours: 'Este produto já está ativado na sua conta',
-        unavailable: 'Código já utilizado',
+        unavailable: 'Este código já foi ativado em outra conta',
+        not_ready: 'Este produto ainda não foi liberado para ativação. Fale com o suporte AirNext.',
+        blocked: 'Este produto está bloqueado. Fale com o suporte AirNext.',
+        cancelled: 'Este produto foi cancelado. Fale com o suporte AirNext.',
+        expired: 'Este produto está expirado. Fale com o suporte AirNext.',
         not_authenticated: 'Usuário não autenticado',
       };
       return { ok: false, error: reasons[data?.reason as string] || 'Não foi possível ativar o produto' };
     }
     await loadUserData(user.id);
     return { ok: true, product: data.product };
+  }, [user, loadUserData]);
+
+  const updateGoogleRedirect = useCallback(async (productId: string, url: string) => {
+    if (!user) return { ok: false, error: 'Usuário não autenticado' };
+    const clean = normalizeGoogleReviewUrl(url);
+    if (!isValidGoogleReviewUrl(clean)) return { ok: false, error: GOOGLE_URL_HELP };
+    const { data, error } = await supabase.rpc('set_google_redirect', { p_product_id: productId, p_url: clean });
+    if (error) return { ok: false, error: error.message };
+    if (!data?.ok) {
+      const reasons: Record<string, string> = {
+        invalid_url: GOOGLE_URL_HELP,
+        forbidden: 'Você não tem permissão para alterar esta plaquinha.',
+        inactive: 'Esta plaquinha está bloqueada. Fale com o suporte AirNext.',
+        not_activated: 'Esta plaquinha ainda não foi ativada.',
+        not_google: 'Este produto não é uma plaquinha AirNext Google.',
+        not_found: 'Plaquinha não encontrada.',
+      };
+      return { ok: false, error: reasons[data?.reason as string] || 'Não foi possível salvar o link.' };
+    }
+    await loadUserData(user.id);
+    return { ok: true };
   }, [user, loadUserData]);
 
   const setupProfile = useCallback(async (data: any) => {
@@ -843,7 +903,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!session?.user) {
-        setUser(null); setAllProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
+        setUser(null); setAllProducts([]); setGoogleProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
         setAdminUsers([]); setAdminProducts([]); setFeedbacks([]); setAdminDataLoaded(false);
         setConsentStatus({ ...EMPTY_CONSENT_STATUS, loading: false });
         setLoading(false);
@@ -868,7 +928,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (reason) {
           await supabase.auth.signOut();
           clearTabSessionNotified();
-          setUser(null); setAllProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
+          setUser(null); setAllProducts([]); setGoogleProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
           setAdminUsers([]); setAdminProducts([]); setFeedbacks([]); setAdminDataLoaded(false);
           setBlockedReason(reason);
           setLoading(false);
@@ -985,19 +1045,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const value = useMemo<Ctx>(() => ({
-    user, products: allProducts, allProducts, visits, notifications, unreadCount,
+    user, products: allProducts, allProducts, googleProducts, visits, notifications, unreadCount,
     loading, hasProfile, adminUsers, adminProducts, feedbacks, adminDataLoaded,
     blockedReason, clearBlockedReason,
     consentStatus, refreshConsents,
-    login, register, loginWithGoogle, logout, activateProduct, setupProfile,
+    login, register, loginWithGoogle, logout, activateProduct, updateGoogleRedirect, setupProfile,
     updateProfile, updateTheme, updateVisibility, getPublicProfile, loadProducts, loadAdminData,
     markNotificationsRead, deleteNotification, clearAllNotifications, requestAccountDeletion, recordVisit,
     adminCreateBatch, adminBlockProduct,
   }), [
-    user, allProducts, visits, notifications, unreadCount, loading, hasProfile,
+    user, allProducts, googleProducts, visits, notifications, unreadCount, loading, hasProfile,
     adminUsers, adminProducts, feedbacks, adminDataLoaded, blockedReason, clearBlockedReason,
     consentStatus, refreshConsents,
-    login, register, loginWithGoogle, logout, activateProduct, setupProfile, updateProfile,
+    login, register, loginWithGoogle, logout, activateProduct, updateGoogleRedirect, setupProfile, updateProfile,
     updateTheme, updateVisibility, loadProducts, loadAdminData,
     markNotificationsRead, deleteNotification, clearAllNotifications, requestAccountDeletion,
     adminCreateBatch, adminBlockProduct,

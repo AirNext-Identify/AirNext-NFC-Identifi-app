@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   MoreHorizontal,
   Eye,
@@ -15,7 +16,7 @@ import {
 } from 'lucide-react';
 import { SearchBar } from '@/components/admin/ui/SearchBar';
 import { Badge } from '@/components/admin/ui/Badge';
-import { Modal } from '@/components/admin/ui/Modal';
+import { DeleteCustomerModal } from '@/components/admin/modules/DeleteCustomerModal';
 import { EmptyState } from '@/components/admin/ui/EmptyState';
 import { cn, exportCSV, formatDate, getInitials } from '@/lib/adminUtils';
 import type { Customer, CustomerStatus } from '@/types/admin';
@@ -24,7 +25,7 @@ interface CustomersViewProps {
   customers: Customer[];
   onView: (id: string) => void;
   onChangeStatus: (id: string, status: CustomerStatus) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, opts: { deleteProducts: boolean }) => Promise<boolean> | boolean;
   onNotify: (customer: Customer) => void;
 }
 
@@ -259,19 +260,7 @@ export function CustomersView({ customers, onView, onChangeStatus, onDelete, onN
         </div>
       )}
 
-      <Modal isOpen={!!deleteModal} onClose={() => setDeleteModal(null)} title="Excluir cliente">
-        {deleteModal && (
-          <div className="space-y-4">
-            <p className="text-sm text-zinc-400">
-              Tem certeza que deseja excluir <strong className="text-zinc-200">{deleteModal.name}</strong>? Esta ação não pode ser desfeita.
-            </p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setDeleteModal(null)} className="rounded-xl px-4 py-2 text-sm font-medium text-zinc-400 hover:bg-zinc-800">Cancelar</button>
-              <button onClick={() => { onDelete(deleteModal.id); setDeleteModal(null); }} className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600">Excluir</button>
-            </div>
-          </div>
-        )}
-      </Modal>
+      <DeleteCustomerModal customer={deleteModal} onClose={() => setDeleteModal(null)} onConfirm={onDelete} />
     </div>
   );
 }
@@ -327,36 +316,71 @@ function CustomerActionsMenu({
   onDeleteRequest: (customer: Customer) => void;
   closeMenu: () => void;
 }) {
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  // O menu é desenhado num portal com position:fixed. Dentro da tabela ele era
+  // cortado pelo overflow (as últimas linhas ficavam sem a opção "Excluir").
+  useLayoutEffect(() => {
+    if (!isOpen || !btnRef.current) return;
+    const place = () => {
+      const r = btnRef.current!.getBoundingClientRect();
+      const menuW = 192;
+      const menuH = 360;
+      const left = Math.max(8, Math.min(window.innerWidth - menuW - 8, r.right - menuW));
+      const openUp = r.bottom + menuH > window.innerHeight && r.top > menuH;
+      const top = openUp ? Math.max(8, r.top - menuH - 4) : Math.min(r.bottom + 4, Math.max(8, window.innerHeight - menuH - 8));
+      setPos({ top, left });
+    };
+    place();
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', closeMenu, true);
+    return () => {
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', closeMenu, true);
+    };
+  }, [isOpen, closeMenu]);
+
   return (
     <div className="relative inline-block">
       <button
+        ref={btnRef}
         onClick={onToggle}
         className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+        aria-label="Ações"
       >
         <MoreHorizontal className="h-4 w-4" />
       </button>
-      {isOpen && (
-        <div className="absolute right-0 top-full z-10 mt-1 w-48 rounded-xl border border-zinc-800 bg-zinc-950 py-1 shadow-2xl">
-          <ActionItem icon={Eye} label="Ver detalhes" onClick={() => { onView(customer.id); closeMenu(); }} />
-          <ActionItem icon={Edit3} label="Editar" onClick={() => { onView(customer.id); closeMenu(); }} />
-          <ActionItem icon={Mail} label="Enviar email" onClick={() => window.open(`mailto:${customer.email}`, '_blank', 'noopener,noreferrer')} />
-          <ActionItem icon={MessageCircle} label="WhatsApp" onClick={() => window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer')} />
-          <ActionItem icon={Bell} label="Enviar notificação" onClick={() => { onNotify(customer); closeMenu(); }} />
-          <div className="my-1 border-t border-zinc-800" />
-          {customer.status === 'Ativo' ? (
-            <ActionItem icon={Lock} label="Bloquear" onClick={() => { onChangeStatus(customer.id, 'Bloqueado'); closeMenu(); }} />
-          ) : (
-            <ActionItem icon={Unlock} label="Desbloquear" onClick={() => { onChangeStatus(customer.id, 'Ativo'); closeMenu(); }} />
-          )}
-          {customer.status === 'Suspenso' ? (
-            <ActionItem icon={PlayCircle} label="Reativar" onClick={() => { onChangeStatus(customer.id, 'Ativo'); closeMenu(); }} />
-          ) : (
-            <ActionItem icon={PauseCircle} label="Suspender" onClick={() => { onChangeStatus(customer.id, 'Suspenso'); closeMenu(); }} />
-          )}
-          <div className="my-1 border-t border-zinc-800" />
-          <ActionItem icon={Trash2} label="Excluir" danger onClick={() => { onDeleteRequest(customer); closeMenu(); }} />
-        </div>
-      )}
+      {isOpen && pos &&
+        createPortal(
+          <>
+            <div className="fixed inset-0 z-[70]" onClick={closeMenu} />
+            <div
+              style={{ top: pos.top, left: pos.left }}
+              className="fixed z-[71] max-h-[calc(100vh-16px)] w-48 overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-950 py-1 text-left shadow-2xl"
+            >
+              <ActionItem icon={Eye} label="Ver detalhes" onClick={() => { onView(customer.id); closeMenu(); }} />
+              <ActionItem icon={Edit3} label="Editar" onClick={() => { onView(customer.id); closeMenu(); }} />
+              <ActionItem icon={Mail} label="Enviar email" onClick={() => { window.open(`mailto:${customer.email}`, '_blank', 'noopener,noreferrer'); closeMenu(); }} />
+              <ActionItem icon={MessageCircle} label="WhatsApp" onClick={() => { window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer'); closeMenu(); }} />
+              <ActionItem icon={Bell} label="Enviar notificação" onClick={() => { onNotify(customer); closeMenu(); }} />
+              <div className="my-1 border-t border-zinc-800" />
+              {customer.status === 'Ativo' ? (
+                <ActionItem icon={Lock} label="Bloquear" onClick={() => { onChangeStatus(customer.id, 'Bloqueado'); closeMenu(); }} />
+              ) : (
+                <ActionItem icon={Unlock} label="Desbloquear" onClick={() => { onChangeStatus(customer.id, 'Ativo'); closeMenu(); }} />
+              )}
+              {customer.status === 'Suspenso' ? (
+                <ActionItem icon={PlayCircle} label="Reativar" onClick={() => { onChangeStatus(customer.id, 'Ativo'); closeMenu(); }} />
+              ) : (
+                <ActionItem icon={PauseCircle} label="Suspender" onClick={() => { onChangeStatus(customer.id, 'Suspenso'); closeMenu(); }} />
+              )}
+              <div className="my-1 border-t border-zinc-800" />
+              <ActionItem icon={Trash2} label="Excluir" danger onClick={() => { onDeleteRequest(customer); closeMenu(); }} />
+            </div>
+          </>,
+          document.body
+        )}
     </div>
   );
 }

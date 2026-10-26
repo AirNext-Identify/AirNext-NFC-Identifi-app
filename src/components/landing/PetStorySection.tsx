@@ -18,7 +18,7 @@ type Variant = 'profile' | 'sos' | 'health' | 'scan';
 
 function PhoneFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative w-[216px] h-[388px] lg:w-[250px] lg:h-[450px] rounded-[34px] border-[6px] border-zinc-800 bg-zinc-950 overflow-hidden shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] ring-1 ring-white/10">
+    <div className="relative w-[216px] h-[388px] lg:w-[250px] lg:h-[450px] rounded-[34px] border-[6px] border-zinc-800 bg-zinc-950 overflow-hidden shadow-md ring-1 ring-white/10">
       <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-16 h-4 rounded-full bg-black z-20" />
       <div className="absolute inset-0 pt-7">{children}</div>
     </div>
@@ -55,7 +55,7 @@ function PhoneMock({ variant }: { variant: Variant }) {
       <PhoneFrame>
         <div className="h-full flex flex-col items-center justify-center gap-5 px-5 text-center">
           <div className="relative w-28 h-28 flex items-center justify-center">
-            <span className="absolute inset-0 rounded-full border border-[#ff9500]/40 animate-ping" style={{ animationDuration: '2.4s' }} />
+            <span className="absolute inset-0 rounded-full border border-[#ff9500]/40" style={{ animationDuration: '2.4s' }} />
             <span className="absolute inset-3 rounded-full border border-[#ff9500]/50" />
             <span className="w-16 h-16 rounded-full flex items-center justify-center text-black" style={{ background: ORANGE }}><PawPrint size={28} /></span>
           </div>
@@ -69,10 +69,10 @@ function PhoneMock({ variant }: { variant: Variant }) {
   if (variant === 'sos') {
     return (
       <PhoneFrame>
-        <div className="mx-3 rounded-2xl p-3 bg-gradient-to-br from-red-600 to-red-800 shadow-lg shadow-red-900/50">
+        <div className="mx-3 rounded-2xl p-3 bg-red-600 shadow-lg shadow-red-900/50">
           <div className="flex items-center gap-2.5">
             <span className="relative w-9 h-9 rounded-full bg-white/15 ring-1 ring-white/30 flex items-center justify-center text-white">
-              <span className="absolute inset-0 rounded-full bg-white/30 animate-ping" style={{ animationDuration: '1.8s' }} />
+              <span className="absolute inset-0 rounded-full bg-white/30" style={{ animationDuration: '1.8s' }} />
               <AlertTriangle size={17} className="relative" />
             </span>
             <div>
@@ -222,7 +222,7 @@ function PetHero({ image }: { image: string }) {
         <div className="relative z-0 flex-1 min-h-0 w-full flex items-center justify-center py-3 sm:py-5">
           <motion.div
             style={reduce ? undefined : { scale: imgScale }}
-            className="relative aspect-square w-[min(82vw,500px)] [@supports(height:100svh)]:w-[min(82vw,44svh,500px)] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-[0_40px_120px_-20px_rgba(255,149,0,0.4)] ring-1 ring-white/10 will-change-transform"
+            className="relative aspect-square w-[min(82vw,500px)] [@supports(height:100svh)]:w-[min(82vw,44svh,500px)] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-md ring-1 ring-white/10 will-change-transform"
           >
             <img src={image} alt="Pet com a coleira inteligente AirNext Pet" decoding="async" className="w-full h-full object-cover" />
             <span className="absolute left-3 bottom-3 inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur px-3 py-1.5 text-[11px] font-semibold text-white ring-1 ring-white/15">
@@ -232,7 +232,7 @@ function PetHero({ image }: { image: string }) {
         </div>
 
         {!reduce && (
-          <motion.div style={{ opacity: hintOpacity }} className="shrink-0 h-6 text-gray-500 animate-bounce" aria-hidden="true">
+          <motion.div style={{ opacity: hintOpacity }} className="shrink-0 h-6 text-gray-500" aria-hidden="true">
             <ChevronDown size={22} />
           </motion.div>
         )}
@@ -244,7 +244,7 @@ function PetHero({ image }: { image: string }) {
 /* ───────────────────────── Seção 2 — Capítulos ───────────────────────── */
 function PetChapters() {
   const [active, setActive] = useState(0);
-  const card = 'relative rounded-[28px] lg:rounded-[40px] overflow-hidden ring-1 ring-white/10 bg-gradient-to-br from-[#1a1206] via-[#0c0a08] to-[#120a0a] flex items-center justify-center';
+  const card = 'relative rounded-[28px] lg:rounded-[40px] overflow-hidden ring-1 ring-white/10 bg-[#1a1206] flex items-center justify-center';
 
   return (
     <section className="relative bg-[#050505] text-white py-14 md:py-28">
@@ -400,7 +400,7 @@ function PetHow({ whatsapp, onBuy }: Omit<Props, 'image'>) {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="rounded-[28px] p-7 md:p-9 bg-gradient-to-br from-[#2a1700] to-[#120b05] border border-[#ff9500]/30 shadow-[0_0_80px_-30px_rgba(255,149,0,0.55)]"
+            className="rounded-[28px] p-7 md:p-9 bg-[#2a1700] border border-[#ff9500]/30 shadow-md"
           >
             <p className="text-xs font-bold tracking-[0.2em] uppercase mb-6" style={{ color: ORANGE }}>Coleira inteligente AirNext Pet</p>
             <ul className="space-y-4">
@@ -414,8 +414,8 @@ function PetHow({ whatsapp, onBuy }: Omit<Props, 'image'>) {
           </motion.div>
         </div>
 
-        <div className="rounded-[36px] p-8 md:p-14 text-center bg-gradient-to-br from-[#2a1700] via-[#0a0a0f] to-[#1a0a0a] border border-white/10 relative overflow-hidden">
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-[#ff9500]/20 blur-[110px] pointer-events-none" />
+        <div className="rounded-[36px] p-8 md:p-14 text-center bg-[#2a1700] border border-white/10 relative overflow-hidden">
+          
           <div className="relative">
             <div className="flex items-center justify-center gap-3 mb-5" style={{ color: ORANGE }} aria-hidden="true">
               <Nfc size={22} /><QrCode size={22} /><Droplets size={22} />

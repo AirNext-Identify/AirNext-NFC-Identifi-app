@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { Loader2, PackageSearch, Lock, Clock, Zap } from "lucide-react";
-import { getPendingActivationCode, setPendingActivationCode } from "../lib/pendingActivation";
+import { getPendingActivationCode, getPendingActivationLine, setPendingActivationCode } from "../lib/pendingActivation";
+import { isValidGoogleReviewUrl } from "../lib/googleReview";
 
 type ProductStatus = "DISPONIVEL" | "ATIVO" | "BLOQUEADO" | "EXPIRADO" | "NAO_PROGRAMADO" | "CANCELADO";
 
@@ -13,6 +14,7 @@ type NfcState =
   | { kind: "blocked" }
   | { kind: "expired" }
   | { kind: "cancelled" }
+  | { kind: "google_pending" }
   | { kind: "redirecting" };
 
 // Tela pública exibida para /n/:uuid. NUNCA envolvida por Protected/AuthGuard —
@@ -30,6 +32,8 @@ export default function NfcRedirect() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [state, setState] = useState<NfcState>({ kind: "loading" });
+  // Plaquinha AirNext Google: não tem perfil, só redireciona para as avaliações.
+  const [googleLine, setGoogleLine] = useState(false);
 
   // /n/:uuid?s=qr → QR impresso (ID público, sem o código de ativação); /n/:uuid → chip NFC.
   const source: "nfc" | "qr" = uuid ? (searchParams.get("s") === "qr" ? "qr" : "nfc") : "qr";
@@ -43,7 +47,10 @@ export default function NfcRedirect() {
         // Rota "/a" (sem código na URL): usada depois que o código foi guardado
         // com segurança e removido do endereço. Mostra o estado "disponível".
         const pending = getPendingActivationCode();
-        if (!cancelled) setState(pending ? { kind: "available", code: pending } : { kind: "not_found" });
+        if (!cancelled) {
+          setGoogleLine(getPendingActivationLine() === "GOOGLE");
+          setState(pending ? { kind: "available", code: pending } : { kind: "not_found" });
+        }
         return;
       }
 
@@ -70,6 +77,36 @@ export default function NfcRedirect() {
       }
 
       const status = data.status as ProductStatus;
+
+      // Linha do produto vem do BANCO (nunca do cliente). AirNext Google:
+      // o QR é permanente e leva direto ao link de avaliações cadastrado.
+      const isGoogle = data.product_line === "GOOGLE";
+      setGoogleLine(isGoogle);
+      if (isGoogle && status === "ATIVO") {
+        // Revalida no cliente (defesa em profundidade): o banco já só aceita
+        // links do Google, mas nunca redirecionamos para um destino inesperado.
+        if (isValidGoogleReviewUrl(data.redirect_url)) {
+          setState({ kind: "redirecting" });
+          // Conta o escaneamento (QR ou NFC) sem atrasar o cliente: espera no máximo ~0,7 s.
+          // A contagem é opcional — nunca impede a abertura da avaliação.
+          try {
+            await Promise.race([
+              supabase.rpc(
+                "track_google_scan",
+                uuid ? { p_uuid: uuid, p_source: source } : { p_code: code, p_source: source }
+              ),
+              new Promise((resolve) => setTimeout(resolve, 700)),
+            ]);
+          } catch {
+            /* ignora */
+          }
+          if (cancelled) return;
+          window.location.replace(data.redirect_url);
+        } else {
+          setState({ kind: "google_pending" });
+        }
+        return;
+      }
 
       // A coluna `status` não vira 'EXPIRADO' sozinha quando a validade
       // vence — isso antes só era calculado visualmente no painel admin,
@@ -101,7 +138,7 @@ export default function NfcRedirect() {
         // código manualmente de novo em /ativar (ver App.tsx "next=").
         // O código NÃO fica na barra de endereço: guardamos localmente e
         // trocamos a URL para "/a" (sem o código) logo após ler o produto.
-        setPendingActivationCode(data.code);
+        setPendingActivationCode(data.code, isGoogle ? "GOOGLE" : undefined);
         setState({ kind: "available", code: data.code });
         navigate("/a", { replace: true });
         return;
@@ -147,7 +184,7 @@ export default function NfcRedirect() {
         {(state.kind === "loading" || state.kind === "redirecting") && (
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-400" />
-            <p className="text-sm text-zinc-500">Abrindo perfil...</p>
+            <p className="text-sm text-zinc-500">{googleLine ? "Abrindo avaliações..." : "Abrindo perfil..."}</p>
           </div>
         )}
 
@@ -168,7 +205,9 @@ export default function NfcRedirect() {
               Este produto ainda não foi ativado.
             </h1>
             <p className="text-sm text-zinc-500">
-              Ative seu produto AirNext para criar o seu perfil digital.
+              {googleLine
+                ? "Ative sua plaquinha AirNext Google para começar a receber avaliações dos seus clientes."
+                : "Ative seu produto AirNext para criar o seu perfil digital."}
             </p>
             <Link
               to={`/login?next=${encodeURIComponent("/ativar")}`}
@@ -176,6 +215,16 @@ export default function NfcRedirect() {
             >
               Ativar agora
             </Link>
+          </div>
+        )}
+
+        {state.kind === "google_pending" && (
+          <div className="glass rounded-2xl p-8 space-y-3">
+            <PackageSearch className="h-10 w-10 text-zinc-500 mx-auto" />
+            <h1 className="text-lg font-bold text-white">Avaliações indisponíveis no momento.</h1>
+            <p className="text-sm text-zinc-500">
+              O link de avaliações desta plaquinha ainda não foi configurado.
+            </p>
           </div>
         )}
 

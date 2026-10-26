@@ -18,7 +18,8 @@ import {
  * localStorage — assim aparecem pra qualquer visitante, em qualquer servidor
  * onde o site for publicado (veja src/lib/siteMedia.ts e supabase/site_images.sql).
  */
-export function useSiteImages() {
+export function useSiteImages(options: { realtime?: boolean } = {}) {
+  const realtime = options.realtime === true;
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const mounted = useRef(true);
@@ -39,8 +40,14 @@ export function useSiteImages() {
   // Mantém sincronizado em tempo real — se alguém trocar uma imagem no admin
   // (em outra aba, outro navegador ou outro servidor), quem já está com o
   // site aberto recebe a atualização sozinho, sem precisar recarregar.
+  // Só o painel de imagens precisa disso. No site público o WebSocket só gerava erro no console
+  // (e custo de conexão) para o visitante, que já recebe as imagens atuais ao abrir a página.
   useEffect(() => {
-    const channel = supabase
+    if (!realtime) return;
+    // Conexão em tempo real só depois do carregamento inicial (não compete com o primeiro desenho da tela).
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    const timer = window.setTimeout(() => {
+    channel = supabase
       .channel('site_images_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'site_images' }, (payload) => {
         setOverrides((prev) => {
@@ -55,11 +62,13 @@ export function useSiteImages() {
         });
       })
       .subscribe();
+    }, 4000);
 
     return () => {
-      supabase.removeChannel(channel);
+      window.clearTimeout(timer);
+      if (channel) supabase.removeChannel(channel);
     };
-  }, []);
+  }, [realtime]);
 
   const setImage = useCallback(async (id: string, url: string) => {
     // Atualiza a tela na hora (otimista) e só depois confirma no servidor.

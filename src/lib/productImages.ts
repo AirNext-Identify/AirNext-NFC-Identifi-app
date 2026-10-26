@@ -9,6 +9,9 @@ import googleBrancaMesa from '../assets/products/google-branca-mesa.webp';
 import googleBrancaBalcao from '../assets/products/google-branca-balcao.webp';
 import standPosto from '../assets/products/stand-posto.webp';
 import standGoogleNfc from '../assets/products/stand-google-nfc.webp';
+import petThor from '../assets/airnext/pet-thor.webp';
+import petTagAnuncio from '../assets/airnext/pet-tag-anuncio.webp';
+import nfcTagToque from '../assets/airnext/nfc-tag-toque.webp';
 
 export const COMBO_KIT_IMG = comboKit;
 
@@ -31,3 +34,10 @@ export const GOOGLE_SHOWCASE = [
   { src: googlePretoMesa, alt: 'Plaquinha preta de avaliação Google sobre a mesa de vidro', label: 'Preta · mesa' },
   { src: standGoogleNfc, alt: 'Stand NFC preto e branco com avaliação Google e QR Code sobre uma mesa de madeira', label: 'Stand NFC · mesa' },
 ];
+
+// Artes oficiais AirNext (campanha). Usadas no hero, no produto Pet e no Pro.
+export const PET_THOR_IMG = petThor;            // 4:5 — cachorro Thor com a tag + perfil no celular
+export const PET_TAG_AD_IMG = petTagAnuncio;    // 4:5 — anúncio "Seu pet sempre protegido"
+export const NFC_TAG_IMG = nfcTagToque;         // 1:1 — tag NFC "Seu mundo, com um toque"
+export const PET_GALLERY = [petThor, petTagAnuncio];
+export const PRO_GALLERY = [nfcTagToque];

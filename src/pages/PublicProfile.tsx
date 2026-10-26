@@ -16,6 +16,7 @@ import {
   Phone,
   Heart,
   ExternalLink,
+  Link2,
   QrCode,
   ChevronLeft,
   ChevronRight,
@@ -96,7 +97,11 @@ import { Modal } from '../components/Modal';
 import { useState, useEffect, useRef } from 'react';
 import { Seo } from '../components/Seo';
 import { SITE_NAME } from '../config/seo';
+import { getSegment, getSegmentPreset, getSegmentDisplayName, suggestBlockOrder } from '../config/businessSegments';
 import { getLayoutClasses, ProfileLayout } from '../lib/layout';
+import { profilePreview, profileInvite } from '../config/shareText';
+import { cardThemeClass, getCardThemeStyle } from '../lib/cardThemes';
+import { visibleFreeLinks, FREE_LINK_CATEGORIES } from '../lib/freeLinks';
 import { getFontOption, loadGoogleFont } from '../lib/fonts';
 import { PUZZLE_PATTERN_BG } from '../lib/patterns';
 import { isLightBackground, getDefaultBackground } from '../lib/background';
@@ -513,8 +518,9 @@ export default function PublicProfile() {
   const share = async () => {
     trackClick('share');
     try {
-      if (navigator.share) await navigator.share({ title: name, url: window.location.href });
-      else { await navigator.clipboard.writeText(window.location.href); toast.show('Link copiado!', 'success'); }
+      const text = profileInvite({ cat, name });
+      if (navigator.share) await navigator.share({ title: profileSeoTitle, text, url: window.location.href });
+      else { await navigator.clipboard.writeText(`${profileInvite({ cat, name })} ${window.location.href}`); toast.show('Link copiado!', 'success'); }
     } catch {}
   };
 
@@ -589,8 +595,14 @@ export default function PublicProfile() {
   const hasCover = !!d.capa;
 
   const depoimentosList = Array.isArray(d.depoimentos) ? d.depoimentos : [];
-  const defaultBlockOrder = ['midia', 'petStats', 'businessStats', 'atracoes', 'promocoes', 'social', 'contato', 'maisInfo', 'sobreEmpresa', 'catalogo', 'avaliacaoGoogle', 'noticias', 'depoimentos', 'contatoForm', 'wifi', 'horarios', 'pagamento', 'apoioTEA', 'pix'];
-  const blockOrder: string[] = Array.isArray(d.__blockOrder) && d.__blockOrder.length ? d.__blockOrder : defaultBlockOrder;
+  const defaultBlockOrder = ['midia', 'petStats', 'businessStats', 'atracoes', 'promocoes', 'social', 'linksLivres', 'contato', 'maisInfo', 'segmentoInfo', 'sobreEmpresa', 'catalogo', 'avaliacaoGoogle', 'noticias', 'depoimentos', 'contatoForm', 'wifi', 'horarios', 'pagamento', 'apoioTEA', 'pix'];
+  // Ramo do Business (perfis antigos não têm __segment e seguem o visual padrão).
+  const segment = cat === 'BUSINESS' ? getSegment(d.__segment) : undefined;
+  const segmentPreset = getSegmentPreset(segment);
+  const segmentName = getSegmentDisplayName(segment, d.__segmentOutro);
+  const SegmentIcon = segment?.icon;
+  // Ordem salva pelo dono vence sempre; sem ordem própria, usa a sugerida para o ramo.
+  const blockOrder: string[] = Array.isArray(d.__blockOrder) && d.__blockOrder.length ? d.__blockOrder : suggestBlockOrder(segment, defaultBlockOrder);
   const hiddenBlockIds: string[] = Array.isArray(d.__hiddenBlocks) ? d.__hiddenBlocks : [];
 
   const mediaBlock = carouselItems.length > 0 ? (
@@ -715,6 +727,35 @@ export default function PublicProfile() {
           ))}
         </div>
       )}
+    </div>
+  ) : null;
+
+  const freeLinks = FREE_LINK_CATEGORIES.includes(cat) ? visibleFreeLinks(d.linksLivres) : [];
+  const linksLivresBlock = freeLinks.length > 0 ? (
+    <div className="px-5 py-5" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.11)' }}>
+      <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-4`} style={labelStyle}>Links</p>
+      <div className="space-y-2.5">
+        {freeLinks.map(l => (
+          <a
+            key={l.id}
+            href={l.href}
+            target={l.href.startsWith('http') ? '_blank' : undefined}
+            rel="noopener noreferrer"
+            onClick={() => trackClick(`link_livre:${l.titulo.slice(0, 40)}`)}
+            className={`pp-social-chip ${l.destaque ? 'pp-btn-shine' : ''} flex items-center gap-3.5 px-4 min-h-[52px] py-3 transition-all active:scale-[0.98] hover:opacity-90 ${buttonStyle}`}
+            style={{
+              backgroundColor: l.destaque ? buttonColor : (appsColor ? `${appsColor}26` : (isLightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.07)')),
+              borderRadius: customBr,
+            }}
+          >
+            <span className="w-6 text-center text-lg leading-none shrink-0" aria-hidden>
+              {l.icone?.trim() ? l.icone.trim().slice(0, 4) : <Link2 className={`h-5 w-5 mx-auto ${l.destaque ? 'text-white' : th.muted}`} />}
+            </span>
+            <span className={`text-sm font-semibold flex-1 min-w-0 truncate ${l.destaque ? 'text-white' : th.text}`}>{l.titulo}</span>
+            <ExternalLink className={`h-3.5 w-3.5 shrink-0 ${l.destaque ? 'text-white/80' : th.muted}`} />
+          </a>
+        ))}
+      </div>
     </div>
   ) : null;
 
@@ -1245,8 +1286,8 @@ export default function PublicProfile() {
           <ShoppingBag className="h-4 w-4 text-white" />
         </div>
         <div className="flex-1 text-left">
-          <p className="text-sm font-bold text-white">Ver Catálogo</p>
-          <p className="text-[11px] text-white/70">Produtos e serviços</p>
+          <p className="text-sm font-bold text-white">{segmentPreset.catalogTitle}</p>
+          <p className="text-[11px] text-white/70">{segmentPreset.catalogSubtitle}</p>
         </div>
         <ExternalLink className="h-4 w-4 text-white/80 shrink-0" />
       </a>
@@ -1563,7 +1604,7 @@ export default function PublicProfile() {
     <div className="py-5 relative group/atr" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
       <div className="flex items-center gap-2 mb-4 px-5 md:px-8 lg:px-10">
         <Flame className="h-4 w-4" style={{ color: primaryColor }} />
-        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>Destaques</p>
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>{segmentPreset.highlightsTitle}</p>
       </div>
       <div ref={atrRef} className="flex gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-5 md:px-8 lg:px-10 pb-1">
         {atracoesList.map((a: any) => {
@@ -1636,7 +1677,7 @@ export default function PublicProfile() {
     <div className="py-5 relative group/promo" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
       <div className="flex items-center gap-2 mb-4 px-5 md:px-8 lg:px-10">
         <Megaphone className="h-4 w-4" style={{ color: primaryColor }} />
-        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>Promoções</p>
+        <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>{segmentPreset.promotionsTitle}</p>
       </div>
       <div ref={promoRef} className="flex gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar px-5 md:px-8 lg:px-10 pb-1">
         {promocoesList.map((p: any) => (
@@ -1877,13 +1918,42 @@ export default function PublicProfile() {
     </div>
   ) : null;
 
+  // Detalhes do ramo: só campos de texto que o dono preencheu. Não existe nada aqui sem dado.
+  const segmentRows = segment ? segmentPreset.fields.filter(f => d[f.key] && !hidden.includes(f.key)) : [];
+  const segmentoInfoBlock = (segment && segmentRows.length > 0) ? (
+    <div className="px-5 py-5 md:px-8 lg:px-10" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
+      <div className="flex items-center gap-2 mb-3">
+        {SegmentIcon && <SegmentIcon className="h-4 w-4" style={{ color: primaryColor }} aria-hidden />}
+        <h2 className={`text-[10px] font-bold uppercase tracking-widest ${th.muted}`} style={labelStyle}>{segmentPreset.detailsTitle}</h2>
+      </div>
+      <dl className="grid gap-3 sm:grid-cols-2">
+        {segmentRows.map(f => (
+          <div
+            key={f.key}
+            className="p-4"
+            style={{
+              backgroundColor: isLightTheme ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.06)',
+              borderRadius: customBr,
+              border: isLightTheme ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(255,255,255,0.08)',
+            }}
+          >
+            <dt className={`text-[10px] font-bold uppercase tracking-wider ${th.muted}`} style={labelStyle}>{f.label}</dt>
+            <dd className={`text-sm font-semibold ${th.text} leading-relaxed mt-1 whitespace-pre-line`} style={mainTextStyle}>{String(d[f.key])}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  ) : null;
+
   const BLOCK_MAP: Record<string, any> = {
+    segmentoInfo: segmentoInfoBlock,
     midia: mediaBlock,
     petStats: petStatsBlock,
     businessStats: businessStatsBlock,
     atracoes: atracoesBlock,
     promocoes: promocoesBlock,
     social: socialBlock,
+    linksLivres: linksLivresBlock,
     contato: contatoBlock,
     maisInfo: maisInfoBlock,
     sobreEmpresa: sobreEmpresaBlock,
@@ -1900,11 +1970,10 @@ export default function PublicProfile() {
   };
   const orderedBlockIds = [...new Set([...blockOrder, ...defaultBlockOrder])].filter(id => !hiddenBlockIds.includes(id));
 
-  const profileSeoTitle = name ? `${name} · ${SITE_NAME}` : `Perfil · ${SITE_NAME}`;
-  const profileSeoDesc =
-    (bio && String(bio).slice(0, 160)) ||
-    (d.descricao && String(d.descricao).slice(0, 160)) ||
-    `Perfil digital ${cat} na ${SITE_NAME} — contatos e informações em um toque.`;
+  // Prévia própria de cada perfil (diferente da do site): título e descrição por categoria.
+  const profilePrev = profilePreview({ cat, name, cargo, bio: bio || d.descricao, segment: segmentName || undefined });
+  const profileSeoTitle = profilePrev.title;
+  const profileSeoDesc = profilePrev.description;
   const profileSeoImage = d.foto || d.capa || undefined;
 
   return (
@@ -2025,7 +2094,13 @@ export default function PublicProfile() {
       } sm:pt-0 pt-4 fade-up`}>
 
         {/* ── PROFILE HEADER ── */}
-        <div className="overflow-hidden shadow-2xl" style={{ borderRadius: `${borderRadius + 6}px` }}>
+        <div
+          className={`overflow-hidden shadow-2xl ${cardThemeClass(d.__cardTheme)}`}
+          style={{
+            borderRadius: `${borderRadius + 6}px`,
+            ...getCardThemeStyle(d.__cardTheme, { primary: primaryColor, secondary: secondaryColor, light: isLightTheme }),
+          }}
+        >
 
           {/* Cover Image — o editor (Perfil.tsx) já corta a foto em 3:1 no
               upload (aspect: 3, "Formato largo · 1200×400px"). O container
@@ -2112,6 +2187,15 @@ export default function PublicProfile() {
             {cargo && (
               <p className="text-sm sm:text-[15px] font-semibold mt-1.5 tracking-wide" style={{ color: primaryColor }}>{cargo}</p>
             )}
+            {segmentName && (
+              <p
+                className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide"
+                style={{ color: primaryColor, backgroundColor: `${primaryColor}1f`, border: `1px solid ${primaryColor}33` }}
+              >
+                {SegmentIcon && <SegmentIcon className="h-3 w-3" aria-hidden />}
+                {segmentName}
+              </p>
+            )}
             {d.nomeEmpresa && cat !== 'BUSINESS' && (
               <p className={`text-sm ${th.muted} mt-1`} style={bioStyle}>{d.nomeEmpresa}</p>
             )}
@@ -2139,6 +2223,23 @@ export default function PublicProfile() {
               </button>
             </div>
           </div>
+
+          {/* ── AGENDAMENTO / RESERVA — usa o campo linkAgendamento do editor (antes salvo e nunca exibido) ── */}
+          {cat === 'BUSINESS' && d.linkAgendamento && !hidden.includes('linkAgendamento') && (
+            <div className="px-6 pb-6" style={{ backgroundColor: cardAlpha, backdropFilter: 'blur(24px)' }}>
+              <a
+                href={String(d.linkAgendamento).startsWith('http') ? d.linkAgendamento : `https://${d.linkAgendamento}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackClick('agendamento')}
+                className={`pp-btn-shine w-full flex items-center justify-center gap-2 min-h-[48px] px-4 py-3 text-sm font-bold text-white transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${buttonStyle}`}
+                style={{ backgroundColor: buttonColor, borderRadius: customBr }}
+              >
+                <CalendarClock className="h-4 w-4" aria-hidden /> {segmentPreset.bookingCta}
+                <ExternalLink className="h-3.5 w-3.5 opacity-80" aria-hidden />
+              </a>
+            </div>
+          )}
 
           {/* ── BLOCOS REORDENÁVEIS (definidos pelo usuário no Estúdio de Perfil) ── */}
           {orderedBlockIds.map(id => (

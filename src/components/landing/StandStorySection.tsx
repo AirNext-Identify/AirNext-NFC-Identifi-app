@@ -149,7 +149,7 @@ function StandHero() {
         <div className="relative z-0 flex-1 min-h-0 w-full flex items-center justify-center py-3 sm:py-5">
           <motion.div
             style={reduce ? undefined : { scale: imgScale }}
-            className="aspect-square w-[min(82vw,500px)] [@supports(height:100svh)]:w-[min(82vw,44svh,500px)] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-[0_40px_120px_-20px_rgba(66,133,244,0.45)] ring-1 ring-white/10 will-change-transform"
+            className="aspect-square w-[min(82vw,500px)] [@supports(height:100svh)]:w-[min(82vw,44svh,500px)] rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-md ring-1 ring-white/10 will-change-transform"
           >
             <img
               src={STAND_GOOGLE_NFC_IMG}
@@ -161,7 +161,7 @@ function StandHero() {
         </div>
 
         {!reduce && (
-          <motion.div style={{ opacity: hintOpacity }} className="shrink-0 h-6 text-gray-500 animate-bounce" aria-hidden="true">
+          <motion.div style={{ opacity: hintOpacity }} className="shrink-0 h-6 text-gray-500" aria-hidden="true">
             <ChevronDown size={22} />
           </motion.div>
         )}
@@ -245,7 +245,7 @@ function StandChapters() {
 function StandChange() {
   return (
     <section className="relative bg-black text-white py-20 md:py-32 overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70vw] h-72 bg-[#4285f4]/10 blur-[120px] pointer-events-none" />
+      
       <div className="relative max-w-6xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
@@ -282,7 +282,7 @@ function StandChange() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="rounded-[28px] p-7 md:p-9 bg-gradient-to-br from-[#0b1a33] to-[#0a0f1c] border border-[#4285f4]/30 shadow-[0_0_80px_-30px_rgba(66,133,244,0.6)]"
+            className="rounded-[28px] p-7 md:p-9 bg-[#0b1a33] border border-[#4285f4]/30 shadow-md"
           >
             <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#8ab4f8] mb-6">Com o AirNext Stand</p>
             <ul className="space-y-4">
@@ -361,8 +361,8 @@ function StandIntegrations({ whatsapp, onBuy }: Props) {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 mt-14 md:mt-20">
-        <div className="rounded-[36px] p-8 md:p-14 text-center bg-gradient-to-br from-[#0b1a33] via-[#0a0a0f] to-[#14102b] border border-white/10 relative overflow-hidden">
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-[#4285f4]/20 blur-[110px] pointer-events-none" />
+        <div className="rounded-[36px] p-8 md:p-14 text-center bg-[#0b1a33] border border-white/10 relative overflow-hidden">
+          
           <div className="relative">
             <div className="flex items-center justify-center gap-3 text-[#8ab4f8] mb-5" aria-hidden="true">
               <Nfc size={22} /><QrCode size={22} /><Palette size={22} />

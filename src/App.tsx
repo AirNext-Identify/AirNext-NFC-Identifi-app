@@ -5,13 +5,17 @@ import { ToastProvider } from './components/Toast';
 import SmartProtected from './routes/SmartProtected';
 import { ConsentGate } from './components/legal/ConsentGate';
 import { SeoManager } from './components/Seo';
+import ScrollManager from './components/ScrollManager';
+import { FeedbackProvider } from './components/feedback';
 
 
-import DashboardLayout from './components/DashboardLayout';
-import AdminLayout from './components/AdminLayout';
+import LandingPage from './pages/LandingPage';
 
-const LandingPage = lazy(() => import('./pages/LandingPage'));
+// Layouts do painel só carregam quando alguém entra no painel (fora do caminho da landing).
+const DashboardLayout = lazy(() => import('./components/DashboardLayout'));
+const AdminLayout = lazy(() => import('./components/AdminLayout'));
 const ImageAdmin = lazy(() => import('./pages/ImageAdmin'));
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const NfcRedirect = lazy(() => import('./pages/NfcRedirect'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
@@ -20,6 +24,7 @@ const PublicProfile = lazy(() => import('./pages/PublicProfile'));
 
 const DashboardHome = lazy(() => import('./pages/dashboard/DashboardHome'));
 const MyProducts = lazy(() => import('./pages/dashboard/MyProducts'));
+const GoogleProducts = lazy(() => import('./pages/dashboard/GoogleProducts'));
 const Statistics = lazy(() => import('./pages/dashboard/Statistics'));
 const SupportPage = lazy(() => import('./pages/dashboard/SupportPage'));
 const Perfil = lazy(() => import('./pages/dashboard/Perfil'));
@@ -32,6 +37,7 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsOfUsePage = lazy(() => import('./pages/TermsOfUsePage'));
 const CookiesPolicyPage = lazy(() => import('./pages/CookiesPolicyPage'));
+const SupportTutorialsPage = lazy(() => import('./pages/SupportTutorialsPage'));
 
 function LoadingScreen() {
   return (
@@ -100,6 +106,7 @@ function AuthenticatedRoutes() {
       <Route path="/dashboard" element={<Protected><DashboardLayout /></Protected>}>
         <Route index element={<DashboardHome />} />
         <Route path="produtos" element={<MyProducts />} />
+        <Route path="google" element={<GoogleProducts />} />
         <Route path="perfil/:productId" element={<Perfil />} />
         <Route path="estatisticas" element={<Statistics />} />
         <Route path="suporte" element={<SupportPage />} />
@@ -128,17 +135,25 @@ export default function App() {
     <ToastProvider>
       <Router>
       <SeoManager />
+      <ScrollManager />
         <AuthProvider>
+         <FeedbackProvider>
           <Suspense fallback={<LoadingScreen />}>
             <Routes>
 
               {/* Landing page institucional (site AirNect) */}
               <Route path="/" element={<LandingPage />} />
 
+              {/* Página "Saiba mais" de cada produto */}
+              <Route path="/produto/:id" element={<ProductDetailPage />} />
+
               {/* Documentos legais (públicos, design premium) */}
               <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
               <Route path="/termos-de-uso" element={<TermsOfUsePage />} />
               <Route path="/politica-de-cookies" element={<CookiesPolicyPage />} />
+
+              {/* Suporte e tutoriais (público, indexável) */}
+              <Route path="/suporte" element={<SupportTutorialsPage />} />
 
               {/* Painel de imagens do site — agora exige login real de ADMIN
                   (Supabase Auth + is_admin() no banco), não mais uma senha
@@ -171,6 +186,7 @@ export default function App() {
 
             </Routes>
           </Suspense>
+         </FeedbackProvider>
         </AuthProvider>
       </Router>
     </ToastProvider>

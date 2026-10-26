@@ -1,3 +1,5 @@
+import { ACTIVATION_CODE_PREFIXES } from './googleReview';
+
 /**
  * Leitura de QR Code pela câmera do dispositivo, usando a Barcode Detection
  * API nativa do navegador (https://wicg.github.io/shape-detection-api/).
@@ -48,6 +50,8 @@ export function createQrDetector(): BarcodeDetectorLike | null {
  * puro, caso algum QR tenha sido gerado apenas com o código em si.
  */
 export function extractActivationCode(rawValue: string): string | null {
-  const match = rawValue.match(/AIR-[A-Z0-9]{8}/i);
+  // Prefixos conhecidos (AIR padrão, ANG AirNext Google...). Lista fechada para
+  // não confundir trechos de URL como "ver-12345678" com um código.
+  const match = rawValue.match(new RegExp(`(?:${ACTIVATION_CODE_PREFIXES.join('|')})-[A-Z0-9]{8}`, 'i'));
   return match ? match[0].toUpperCase() : null;
 }

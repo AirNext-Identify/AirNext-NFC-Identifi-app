@@ -1,22 +1,32 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef, lazy } from 'react';
+import LazyOnView from '../components/landing/LazyOnView';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { AIRNEXT_FAQ, AIRNEXT_DEFINITION, AIRNEXT_HOW_IT_WORKS } from '../config/aiContent';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
 import { isVideoUrl } from '../lib/media';
-import { COMBO_KIT_IMG, HUB_GALLERY, STAND_GALLERY } from '../lib/productImages';
+import { COMBO_KIT_IMG, HUB_GALLERY, STAND_GALLERY, PET_GALLERY, PET_THOR_IMG, NFC_TAG_IMG } from '../lib/productImages';
 import { fmtPrice, priceLabel } from '../lib/price';
 import ProductCard from '../components/landing/ProductCard';
 import ProductHero from '../components/landing/ProductHero';
-import GooglePlaquesSection from '../components/landing/GooglePlaquesSection';
-import CustomSitesSection from '../components/landing/CustomSitesSection';
-import StandStorySection from '../components/landing/StandStorySection';
-import PetStorySection from '../components/landing/PetStorySection';
+import HeroShowcase from '../components/landing/HeroShowcase';
+import { productImage } from '../lib/productShowcase';
+import { saveOrder } from '../lib/orders';
+import { usePublicFeedbacks } from '../hooks/usePublicFeedbacks';
+import SplashScreen from '../components/splash/SplashScreen';
+import { useFeedback, useFeedbackTheme, FeedbackLink, GOOGLE_REVIEW_URL } from '../components/feedback';
+const ProductShowcase = lazy(() => import('../components/landing/ProductShowcase'));
+const GooglePlaquesSection = lazy(() => import('../components/landing/GooglePlaquesSection'));
+const CustomSitesSection = lazy(() => import('../components/landing/CustomSitesSection'));
+const StandStorySection = lazy(() => import('../components/landing/StandStorySection'));
+const PetStorySection = lazy(() => import('../components/landing/PetStorySection'));
+const TagShowcaseSection = lazy(() => import('../components/landing/TagShowcaseSection'));
 import {
   ChevronDown, ChevronRight, ShoppingBag, Nfc, QrCode,
-  Shield, ArrowUp, Check, ArrowRight, ArrowLeft,
+  Shield, Check, ArrowRight, ArrowLeft,
   Globe, MessageCircle, Camera, AtSign, Zap,
   Smartphone, Users, Send, X, Play,
   Leaf, Recycle, TreePine, Droplets, Heart,
@@ -72,6 +82,89 @@ interface CartItem {
 }
 
 // --- Reusable Swipe Indicator ---
+/** Mídia do lightbox: carrega na hora (sem lazy), mostra um indicador e cai para a imagem padrão se a trocada falhar. */
+function DemoLightboxMedia({ src, fallback, alt }: { src: string; fallback: string; alt: string }) {
+  const [current, setCurrent] = useState(src);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => { setCurrent(src); setLoaded(false); }, [src]);
+
+  if (isVideoUrl(current)) {
+    return <video src={current} className="absolute inset-0 w-full h-full object-cover" autoPlay loop controls playsInline />;
+  }
+  return (
+    <>
+      {!loaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/5">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+        </div>
+      )}
+      <img
+        key={current}
+        ref={(el) => { if (el && el.complete && el.naturalWidth > 0) setLoaded(true); }}
+        src={current}
+        alt={alt}
+        loading="eager"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => { if (current !== fallback) setCurrent(fallback); else setLoaded(true); }}
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </>
+  );
+}
+
+/** Lightbox da seção "Veja o AirNext em ação". Vai para o <body> (portal) para nunca ficar preso atrás de outra seção. */
+function DemoLightbox({ product, resolveImg, onClose }: { product: Product | null; resolveImg: (id: string, fallback: string) => string; onClose: () => void }) {
+  useEffect(() => {
+    if (!product) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [product, onClose]);
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(
+    <AnimatePresence>
+      {product && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-label={product.name}
+          className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6"
+        >
+          <button onClick={onClose} aria-label="Fechar" className="fixed top-6 right-6 z-[310] w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center transition text-white">
+            <X size={20} />
+          </button>
+          <motion.div
+            initial={{ scale: 0.92, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.92, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-2xl aspect-[4/5] sm:aspect-video max-h-[85dvh] rounded-[28px] overflow-hidden bg-zinc-900 shadow-2xl"
+          >
+            <DemoLightboxMedia src={resolveImg(`demo-${product.id}`, product.img)} fallback={product.img} alt={product.name} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/10 pointer-events-none" />
+            <div className="absolute bottom-0 inset-x-0 p-6 flex items-center gap-3 pointer-events-none">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${product.color}30`, color: product.color }}>
+                {product.icon}
+              </div>
+              <div>
+                <p className="text-white font-bold text-lg leading-tight">{product.name}</p>
+                <p className="text-white/70 text-xs mt-0.5">{product.desc}</p>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body,
+  );
+}
+
 function SwipeIndicator({ isDark }: { isDark: boolean }) {
   return (
     <div className={`flex items-center justify-center gap-2.5 mt-2 py-4 text-xs font-semibold select-none ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -105,15 +198,25 @@ function Logo({ dark = false, size = 'md' }: { dark?: boolean; size?: 'sm' | 'md
   );
 }
 
+// --- Ícone "dois tracinhos" do menu (estilo apple.com) ---
+function MenuLines({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+      <path d="M2.5 6h13" />
+      <path d="M2.5 12h13" />
+    </svg>
+  );
+}
+
 // --- AirNext product lines & physical formats ---
-interface AirNextFormat {
+export interface AirNextFormat {
   id: string;
   label: string;
   icon: React.ReactNode;
   shapeClass: string; // aspect + rounding for the live preview
 }
 
-const FORMATS: AirNextFormat[] = [
+export const FORMATS: AirNextFormat[] = [
   {
     id: 'cartao',
     label: 'Cartão',
@@ -189,7 +292,7 @@ const SHAPES: ShapeOption[] = [
   { id: 'retangular', label: 'Retangular', icon: <RectangleHorizontal size={15} />, shapeClass: 'aspect-[3/4] rounded-[26px]', dims: { radius: 40, wRatio: 3, hRatio: 4 } },
 ];
 
-interface Product {
+export interface Product {
   id: string;
   name: string;
   tag: string;
@@ -208,12 +311,12 @@ interface Product {
   gallery?: string[];  // várias fotos (card em rotação + slider no modal)
 }
 
-const PRODUCTS: Product[] = [
+export const PRODUCTS: Product[] = [
   {
     id: 'pro', name: 'AirNext Pro', tag: 'Profissionais', price: 89.9,
     desc: 'Perfil digital para profissionais, autônomos e empreendedores.',
     longDesc: 'Compartilhe seu perfil completo — LinkedIn, portfólio, WhatsApp, Instagram e vCard — com uma simples aproximação. Ideal para quem vive de networking e quer causar impacto em reuniões e eventos.',
-    img: 'https://images.pexels.com/photos/9122014/pexels-photo-9122014.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: NFC_TAG_IMG,
     color: '#0071e3', icon: <Briefcase size={22} />,
     formats: ['cartao'], // todas as categorias disponíveis
     specs: ['Chip NFC', 'QR Code Dinâmico', 'PVC Premium Matte', 'IP65 · À Prova d\'Água', 'Edição ilimitada do perfil'],
@@ -234,7 +337,8 @@ const PRODUCTS: Product[] = [
     id: 'pet', name: 'AirNext Pet', tag: 'Pets', price: 79.9,
     desc: 'Identificação inteligente para pets.',
     longDesc: 'Se o seu pet se perder, qualquer pessoa pode ler a tag com o celular e ver contatos de emergência, informações de saúde e veterinário. Sem mensalidade, sem bateria.',
-    img: 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200',
+    img: PET_THOR_IMG,
+    gallery: PET_GALLERY,
     color: '#ff9500', icon: <PawPrint size={22} />,
     formats: [ 'tag', 'chaveiro'], // todas as categorias disponíveis
     specs: ['Acabamento em Resina', 'Chip NFC', 'QR Code Estático + Dinâmico','IP68 · Submersível', 'Argola', 'Dados veterinários e +'],
@@ -328,7 +432,7 @@ const PRODUCTS: Product[] = [
 // IDs das 6 linhas originais — usados para manter a vitrine principal e o
 // carrossel "Veja o AirNext em ação" exatamente como eram, mesmo com os
 // novos produtos acima presentes no mesmo array PRODUCTS.
-const ORIGINAL_LINE_IDS = ['pro', 'stand', 'pet', 'kids', 'senior', 'tea'];
+export const ORIGINAL_LINE_IDS = ['pro', 'stand', 'pet', 'kids', 'senior', 'tea'];
 
 // Curated colour palette offered in the customizer — kept separate from each
 // line's default brand colour so a client can pick *any* card colour freely.
@@ -659,6 +763,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const feedback = useFeedback();
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [lockAspect, setLockAspect] = useState(true);
@@ -897,8 +1002,8 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
       // opcionais, QR opcional) mais número do pedido e data/hora.
       const summary =
         `Olá! Finalizei a personalização do meu projeto AirNext e quero enviar para produção:\n\n` +
-        `🧾 Pedido: ${orderNumber}\n` +
-        `📅 Data/Hora: ${dataHora}\n\n` +
+        `*Pedido:* ${orderNumber}\n` +
+        `*Data/Hora:* ${dataHora}\n\n` +
         `• Linha: ${selectedLine.name}\n` +
         `• Formato: ${selectedFormat.label}${isShapeable ? ` (corte ${shape.label.toLowerCase()})` : ''}\n` +
         `• Cor: ${color}\n` +
@@ -907,6 +1012,14 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
         `• Texto (verso): ${sides.back.text || 'não informado (opcional)'}\n` +
         `• QR Code (verso): ${sides.back.showQr ? 'Sim, incluir' : 'Não incluir'}\n\n` +
         `Seguem as imagens de frente e verso do projeto completo.`;
+
+      void saveOrder({
+        orderNumber,
+        source: 'personalizador',
+        items: [{ name: `${selectedLine.name} personalizado`, format: selectedFormat.label, qty: 1, price: 0 }],
+        subtotal: 0,
+        notes: summary,
+      });
 
       const frontFile = await dataUrlToFile(frontDataUrl, `airnext-${orderNumber}-frente.png`);
       const backFile = await dataUrlToFile(backDataUrl, `airnext-${orderNumber}-verso.png`);
@@ -925,6 +1038,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
         )}`;
         window.open(waUrl, '_blank', 'noopener,noreferrer');
       }
+      feedback.prompt('design_sent', { delay: 2500 });
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
         console.error('Erro ao preparar envio:', err);
@@ -962,7 +1076,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
         onWheel={isActive ? onImageWheel : undefined}
       >
         {s.image ? (
-          <img
+          <img loading="lazy" decoding="async"
             src={s.image}
             alt={`Personalização — ${sideKey === 'front' ? 'frente' : 'verso'}`}
             draggable={false}
@@ -1088,7 +1202,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
                       className={`flex-shrink-0 w-28 rounded-2xl border overflow-hidden text-left transition hover:-translate-y-0.5 ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'}`}
                     >
                       <div className="relative h-16" style={{ background: `linear-gradient(135deg, ${p.color}, ${p.color}cc)` }}>
-                        {p.sides.front.image && <img src={p.sides.front.image} alt={p.lineName} className="absolute inset-0 w-full h-full object-cover opacity-90" />}
+                        {p.sides.front.image && <img loading="lazy" decoding="async" src={p.sides.front.image} alt={p.lineName} className="absolute inset-0 w-full h-full object-cover opacity-90" />}
                       </div>
                       <div className="p-2">
                         <p className={`text-[10px] font-bold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.lineName}</p>
@@ -1133,7 +1247,11 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
         </div>
       </div>
 
-      {/* ---------------- Configurador em tela cheia (wizard guiado por etapas) ---------------- */}
+      {/* ---------------- Configurador em tela cheia (wizard guiado por etapas) ----------------
+          Renderizado no <body> (portal): assim nenhuma seção da página (transform, overflow,
+          content-visibility…) consegue prender ou sobrepor o configurador, e ele fica acima da
+          barra de navegação e do aviso de cookies. */}
+      {typeof document !== 'undefined' && createPortal(
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -1141,7 +1259,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className={`fixed inset-0 z-[200] flex flex-col ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-white text-gray-900'}`}
+            className={`fixed inset-0 z-[300] h-[100dvh] overflow-hidden flex flex-col ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-white text-gray-900'}`}
           >
             {/* Top bar — fechar + progresso das etapas, como num configurador Apple/Nike */}
             <div className={`flex-shrink-0 border-b ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
@@ -1434,7 +1552,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
 
                                 <div className="flex items-center gap-3">
                                   <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}><ZoomIn size={13} /> Zoom</span>
-                                  <input
+                                  <input aria-label="Largura da imagem no cartão"
                                     type="range"
                                     min={0.2}
                                     max={4}
@@ -1452,7 +1570,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
                                 {!lockAspect && (
                                   <div className="flex items-center gap-3">
                                     <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Altura</span>
-                                    <input
+                                    <input aria-label="Altura da imagem no cartão"
                                       type="range"
                                       min={0.2}
                                       max={4}
@@ -1472,7 +1590,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
 
                                 <div className="flex items-center gap-3">
                                   <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}><RotateCw size={13} /> Girar</span>
-                                  <input
+                                  <input aria-label="Rotação da imagem no cartão"
                                     type="range"
                                     min={-180}
                                     max={180}
@@ -1510,7 +1628,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
                               Nome ou texto do {activeSide === 'front' ? 'frente' : 'verso'}
                               <span className={`normal-case font-medium tracking-normal ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>(opcional)</span>
                             </p>
-                            <input
+                            <input aria-label="Texto exibido no cartão"
                               type="text"
                               maxLength={28}
                               placeholder={activeSide === 'front' ? 'Ex: João Silva, ou Nome do seu Pet — pode deixar em branco' : 'Ex: Telefone, endereço ou instrução — pode deixar em branco'}
@@ -1542,7 +1660,7 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
                                 </span>
                               </span>
                               <span className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition ${current.showQr ? 'bg-[#0071e3]' : isDark ? 'bg-white/15' : 'bg-gray-300'}`}>
-                                <input
+                                <input aria-label="Mostrar QR Code no cartão"
                                   type="checkbox"
                                   checked={current.showQr}
                                   onChange={(e) => updateSide({ showQr: e.target.checked })}
@@ -1658,20 +1776,25 @@ function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body,
+      )}
     </section>
   );
 }
 
-function WhatsAppButton() {
-  return (
-    <a href="https://wa.me/5547996287761" target="_blank" rel="noopener noreferrer" 
-       className="fixed bottom-8 left-8 z-[100] bg-[#25D366] text-white p-4 rounded-full shadow-xl hover:scale-110 transition-transform hover:shadow-2xl flex items-center justify-center"
-       aria-label="Fale conosco no WhatsApp">
-      <MessageCircle size={28} />
-    </a>
-  );
-}
+// Depoimentos de exemplo exibidos enquanto nenhum feedback estiver PUBLICADO no Admin → Feedbacks.
+const FALLBACK_TESTIMONIALS = [
+  { name: 'Marina Costa', role: 'Arquiteta', text: 'Em feiras de arquitetura o cartão AirNext me salvou. As pessoas chegam em casa com meu portfólio salvo no celular. Nunca mais imprimi cartão de papel.', avatar: 'MC', photo: 'https://i.pravatar.cc/120?img=5', rating: 5 },
+  { name: 'Rafael Andrade', role: 'Restaurante', text: 'Colocamos as tags NFC nas mesas e os pedidos pelo cardápio digital aumentaram 34% no primeiro mês. Os clientes adoram a experiência.', avatar: 'RA', photo: 'https://i.pravatar.cc/120?img=11', rating: 5 },
+  { name: 'Carla Menezes', role: 'Veterinária', text: 'Indico para todos os tutores. A tag pet é genial — se o animal fugir, qualquer um acessa os dados. Já ajudou 3 pets perdidos a voltarem para casa.', avatar: 'CM', photo: 'https://i.pravatar.cc/120?img=9', rating: 5 },
+  { name: 'Lucas Pereira', role: 'Eventos', text: 'Usamos pulseiras em um festival com 3 mil pessoas. O check-in foi 3x mais rápido e os convidados amaram trocar contatos na hora.', avatar: 'LP', photo: 'https://i.pravatar.cc/120?img=13', rating: 5 },
+  { name: 'Juliana Lima', role: 'Marketing', text: 'Economizamos uma fortuna com cartões impressos. A experiência premium do AirNext impressiona os clientes na primeira reunião.', avatar: 'JL', photo: 'https://i.pravatar.cc/120?img=20', rating: 5 },
+  { name: 'Pedro Souza', role: 'Designer', text: 'Zero fricção. Aproximo o celular do cliente e já compartilho portfólio, Instagram e LinkedIn. Networking evoluído.', avatar: 'PS', photo: 'https://i.pravatar.cc/120?img=15', rating: 5 },
+  { name: 'Amanda Rocha', role: 'Médica Pediatra', text: 'Comprei as pulseiras kids para meus filhos e recomendo demais. Em parques me sinto muito mais segura sabendo que qualquer pessoa consegue me ligar.', avatar: 'AR', photo: 'https://i.pravatar.cc/120?img=32', rating: 5 },
+  { name: 'Thiago Menezes', role: 'CEO Startup', text: 'Equipamos toda a equipe com AirNext Card Pro e a troca de informações em eventos de tecnologia ficou muito mais profissional.', avatar: 'TM', photo: 'https://i.pravatar.cc/120?img=33', rating: 5 },
+  { name: 'Fernanda Azevedo', role: 'Tutora de PET', text: 'A tag pet salvou meu cachorro quando ele fugiu no Ano Novo. Quem achou ligou na hora! Produto essencial.', avatar: 'FA', photo: 'https://i.pravatar.cc/120?img=45', rating: 5 },
+];
 
 export default function LandingPage() {
   const { resolve: resolveImg, loading: imagesLoading } = useSiteImages();
@@ -1693,6 +1816,8 @@ export default function LandingPage() {
       if (meta && prevMeta !== null) meta.setAttribute('content', prevMeta);
     };
   }, [isDark]);
+  useFeedbackTheme(isDark);
+  const feedback = useFeedback();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'form' | 'sent'>('cart');
@@ -1702,6 +1827,25 @@ export default function LandingPage() {
   const [configuratorPreset, setConfiguratorPreset] = useState<{ lineId: string; formatId: string; nonce: number } | null>(null);
   const [treeCount, setTreeCount] = useState(10);
   const [scrolled, setScrolled] = useState(false);
+  // Posição vertical da navbar no mobile: começa logo abaixo da faixa de aviso e
+  // "gruda" no topo (top: 0) quando a faixa sai da tela — igual ao apple.com.
+  const [navTop, setNavTop] = useState(0);
+
+  // Feedbacks publicados no Admin (com os depoimentos de exemplo como reserva)
+  const { feedbacks: pubFeedbacks, settings: fbSettings } = usePublicFeedbacks();
+  const testimonialsList = useMemo(() => {
+    if (!pubFeedbacks.length) return FALLBACK_TESTIMONIALS;
+    return pubFeedbacks.map(f => ({
+      name: f.name || 'Cliente AirNext',
+      role: f.role || '',
+      text: f.comment || '',
+      avatar: (f.name || 'AN').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase(),
+      photo: f.photo_url || '',
+      rating: f.rating,
+    }));
+  }, [pubFeedbacks]);
+  const fbAvg = pubFeedbacks.length ? pubFeedbacks.reduce((a, f) => a + f.rating, 0) / pubFeedbacks.length : 0;
+
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [b2bStatus, setB2bStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
@@ -1730,6 +1874,7 @@ export default function LandingPage() {
     if (!anyOverlayOpen) return;
 
     const scrollY = window.scrollY;
+    const startPath = window.location.pathname;
     const body = document.body;
     const prev = {
       position: body.style.position,
@@ -1762,7 +1907,12 @@ export default function LandingPage() {
       body.style.right = prev.right;
       body.style.width = prev.width;
       body.style.overflow = prev.overflow;
-      window.scrollTo(0, scrollY);
+      // Instantâneo: com scroll-behavior:smooth no <html> o scrollTo animava a página de 0 até aqui
+      // ("o site subindo") e brigava com a rolagem até a seção escolhida no menu. E se o menu levou a
+      // outra página (login etc.), não devolvemos o scroll da página antiga para a nova.
+      if (window.location.pathname === startPath) {
+        window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' as ScrollBehavior });
+      }
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [anyOverlayOpen]);
@@ -1784,7 +1934,12 @@ export default function LandingPage() {
 
   useEffect(() => {
     const h = () => {
+      // Menu/sacola/busca abertos: o <body> está travado e window.scrollY vira 0 — ignorar,
+      // senão a barra de navegação e o progresso "pulam" enquanto o menu está aberto.
+      if (document.body.style.position === 'fixed') return;
       setScrolled(window.scrollY > 30);
+      const annH = document.getElementById('announce-bar')?.offsetHeight ?? 0;
+      setNavTop(Math.max(0, annH - window.scrollY));
       const doc = document.documentElement;
       const scrollTop = doc.scrollTop || document.body.scrollTop;
       const scrollHeight = (doc.scrollHeight || document.body.scrollHeight) - doc.clientHeight;
@@ -1922,6 +2077,22 @@ export default function LandingPage() {
     }
   };
 
+  // Ir para uma seção a partir do menu mobile. Com o menu aberto o <body> fica travado
+  // (position: fixed); se deixássemos o link nativo agir, o scroll seria restaurado logo depois
+  // e a página não andava. Então fechamos o menu e só rolamos depois do destravamento.
+  const goToSection = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    setMobileOpen(false);
+    // Dois quadros + folga: o React precisa destravar o <body> e devolver o scroll antes de rolarmos.
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => window.setTimeout(() => {
+      const el = document.getElementById(href.replace('#', ''));
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        try { window.history.replaceState(window.history.state, '', href); } catch { /* ignore */ }
+      }
+    }, 60)));
+  };
+
   const links = [
     { label: 'Produtos', href: '#produtos' },
     { label: 'Funcionalidades', href: '#funcionalidades' },
@@ -1981,35 +2152,65 @@ export default function LandingPage() {
     });
   };
 
-  const buildOrderWhatsAppMessage = () => {
+  const buildOrderWhatsAppMessage = (orderNumber: string) => {
     const now = new Date();
-    const orderNumber = `AN-${now.getTime().toString().slice(-6)}`;
     const dataHora = now.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
     const totalItens = cart.reduce((acc, item) => acc + item.quantity, 0);
 
     const lines = [
       'Olá! Gostaria de finalizar o pedido completo abaixo:',
       '',
-      `🧾 Pedido: ${orderNumber}`,
-      `📅 Data/Hora: ${dataHora}`,
-      `📦 Itens: ${totalItens}`,
+      `*Pedido:* ${orderNumber}`,
+      `*Data/Hora:* ${dataHora}`,
+      `*Itens:* ${totalItens}`,
       '',
     ];
     cart.forEach(item => {
       lines.push(`• ${item.product.name} (${item.formatLabel}) — ${item.quantity}x — R$ ${fmtPrice(item.product.price * item.quantity)}`);
     });
     lines.push('', `Subtotal: R$ ${fmtPrice(cartSubtotal)}`);
-    lines.push('', '— Dados de contato —');
+    lines.push('', '*Dados de contato*');
     lines.push(`Nome: ${checkoutInfo.nome || 'não informado'}`);
     lines.push(`Telefone: ${checkoutInfo.telefone || 'não informado'}`);
     if (checkoutInfo.obs) lines.push(`Observações: ${checkoutInfo.obs}`);
     return lines.join('\n');
   };
 
+  // Vindo da página "Saiba mais" (/produto/:id): ?comprar=ID adiciona à sacola e ?personalizar=ID abre o personalizador.
+  const location = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const buyId = params.get('comprar');
+    const customId = params.get('personalizar');
+    if (!buyId && !customId) return;
+    navigate({ pathname: '/', search: '' }, { replace: true });
+    if (buyId) {
+      const prod = PRODUCTS.find(x => x.id === buyId);
+      if (prod) { if (prod.price > 0) addToCart(prod); else setSelectedProduct(prod); }
+    } else if (customId) {
+      const prod = PRODUCTS.find(x => x.id === customId);
+      if (prod) goPersonalize(prod);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
   const handleFinalizeOrder = () => {
-    const msg = encodeURIComponent(buildOrderWhatsAppMessage());
+    const orderNumber = `AN-${Date.now().toString().slice(-6)}`;
+    // Registra o pedido no painel admin (aviso em tempo real). Nunca bloqueia o envio pelo WhatsApp.
+    void saveOrder({
+      orderNumber,
+      source: 'sacola',
+      items: cart.map(item => ({ name: item.product.name, format: item.formatLabel, qty: item.quantity, price: item.product.price })),
+      subtotal: cartSubtotal,
+      customerName: checkoutInfo.nome,
+      customerPhone: checkoutInfo.telefone,
+      notes: checkoutInfo.obs,
+    });
+    const msg = encodeURIComponent(buildOrderWhatsAppMessage(orderNumber));
     window.open(`https://wa.me/${AIRNEXT_WHATSAPP}?text=${msg}`, '_blank', 'noopener,noreferrer');
     setCheckoutStep('sent');
+    feedback.prompt('order_sent', { delay: 2500 });
   };
 
   const everyoneData = [
@@ -2060,14 +2261,14 @@ export default function LandingPage() {
       desc: 'Compartilhe seu portfólio, LinkedIn, e-mail e contato direto para a agenda do cliente.',
       screen: {
         bg: 'linear-gradient(135deg, #0f172a, #1e293b)',
-        avatarBg: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+        avatarBg: 'linear-gradient(135deg, #3b82f6, #22c55e)',
         photo: 'https://marketplace.canva.com/R2ujw/MAG5zbR2ujw/1/tl/canva-retrato-de-uma-mulher-elegante-com-blusa-de-gola-alta-preta-MAG5zbR2ujw.jpg',
         title: 'Ana Souza',
         subtitle: 'Product Designer · São Paulo',
         items: [
           { label: 'WhatsApp', val: '(11) 98765-4321', color: 'bg-green-500/20 text-green-300', icon: <Phone size={14} /> },
           { label: 'LinkedIn', val: 'linkedin.com/in/anasouza', color: 'bg-blue-500/20 text-blue-300', icon: <Globe size={14} /> },
-          { label: 'Instagram', val: '@ana.design', color: 'bg-pink-500/20 text-pink-300', icon: <Camera size={14} /> }
+          { label: 'Instagram', val: '@ana.design', color: 'bg-emerald-500/20 text-emerald-300', icon: <Camera size={14} /> }
         ],
         btn: 'Adicionar aos Contatos'
       }
@@ -2143,6 +2344,9 @@ export default function LandingPage() {
   return (
     <div className={`min-h-screen transition-colors duration-500 antialiased ${isDark ? 'bg-[#050505] text-white' : 'bg-[#fbfbfd] text-gray-900'}`}>
 
+      {/* Abertura: logo AirNext com anel circular e saída em círculo (1x por sessão) */}
+      <SplashScreen />
+
       {/* Fonte da marca — usada no "AirNext" gravado em cada peça personalizada */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -2153,12 +2357,12 @@ export default function LandingPage() {
       <style>{`
         .swiper { padding-bottom: 8px !important; }
         .swiper-pagination { position: static !important; margin-top: 22px; display: flex !important; align-items: center; justify-content: center; gap: 6px; }
-        .swiper-pagination-bullet { width: 5px; height: 5px; margin: 0 !important; background: ${isDark ? 'rgba(255,255,255,0.25)' : 'rgba(17,17,17,0.18)'}; opacity: 1; border-radius: 9999px; transition: all .25s ease; }
-        .swiper-pagination-bullet-active { width: 18px; border-radius: 9999px; background: ${isDark ? '#ffffff' : '#111111'}; }
+        .swiper-pagination-bullet { width: 5px; height: 5px; margin: 0 !important; background: rgba(128,128,136,0.45); opacity: 1; border-radius: 9999px; transition: all .25s ease; }
+        .swiper-pagination-bullet-active { width: 18px; border-radius: 9999px; background: #0071e3; }
       `}</style>
       
       {/* Upper Announcement Bar */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-[#0a1128] via-[#0071e3] to-[#5e17eb] text-white text-center py-2.5 px-4 text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-2">
+      <div id="announce-bar" className="relative overflow-hidden bg-[#0a1128] text-white text-center py-2.5 px-4 text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-2">
         <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.18),transparent)] bg-[length:200%_100%] animate-[shine_5s_linear_infinite]" />
         <Sparkle size={13} className="relative shrink-0" />
         <span className="relative">Frete grátis para todo o Brasil em compras acima de R$150 · Parcele em até 12x</span>
@@ -2166,19 +2370,25 @@ export default function LandingPage() {
       </div>
 
       {/* --- Scroll-driven Progress bar --- */}
-      <div className="fixed top-0 left-0 h-[3px] z-[60] rounded-r-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-[width] duration-150 ease-out" style={{ width: `${scrollProgress}%` }} />
+      <div className="fixed top-0 left-0 h-[3px] z-[60] rounded-r-full bg-blue-500 transition-[width] duration-150 ease-out" style={{ width: `${scrollProgress}%` }} />
 
-      {/* --- Navbar --- */}
-      <nav className={`fixed top-12 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl transition-all duration-500 group/nav ${
-        scrolled
-          ? `${isDark ? 'bg-[#0a0a0a]/80 border-white/10' : 'bg-white/80 border-gray-200/70'} backdrop-blur-2xl rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] border`
-          : `${isDark ? 'bg-white/[0.04] border-white/10' : 'bg-white/50 border-gray-200/40'} backdrop-blur-md rounded-full border`
-      }`}>
-        {/* Subtle animated gradient ring on hover — a small "alive" touch instead of a static bar */}
-        <div className="pointer-events-none absolute -inset-px rounded-full opacity-0 group-hover/nav:opacity-100 transition-opacity duration-700 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-purple-500/0 blur-sm" />
-
-        <div className="relative px-5 sm:px-6 h-16 flex items-center justify-between gap-4">
-          <Logo size="md" dark={isDark} />
+      {/* --- Navbar ---
+          Mobile (< md): barra compacta, fixa no topo, escura e translúcida (estilo apple.com) com 4 ações:
+          busca · sacola · login · menu (dois tracinhos). O alternador de tema fica dentro do menu.
+          Desktop (>= md): mantém a barra flutuante arredondada original. */}
+      <nav
+        style={{ ['--nav-top' as string]: `${navTop}px` }}
+        className={`fixed z-50 inset-x-0 top-[var(--nav-top)] md:top-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[95%] md:max-w-7xl transition-[background-color,box-shadow,border-color] duration-300 group/nav
+          bg-black/90 backdrop-blur-xl border-b border-white/10 pt-[env(safe-area-inset-top)] md:pt-0 md:border-b-0 md:rounded-full md:border ${
+          scrolled
+            ? `${isDark ? 'md:bg-[#0a0a0a]/80 md:border-white/10' : 'md:bg-white/80 md:border-gray-200/70'} md:backdrop-blur-2xl md:shadow-md`
+            : `${isDark ? 'md:bg-white/[0.04] md:border-white/10' : 'md:bg-white/50 md:border-gray-200/40'} md:backdrop-blur-md`
+        }`}
+      >
+        <div className="relative px-4 md:px-6 h-12 md:h-16 flex items-center justify-between gap-3 md:gap-4">
+          {/* Logo: no mobile a barra é sempre escura, então o "Air" fica branco */}
+          <span className="md:hidden"><Logo size="sm" dark /></span>
+          <span className="hidden md:block"><Logo size="md" dark={isDark} /></span>
 
           {/* Center nav links with animated underline on hover */}
           <div className="hidden xl:flex items-center gap-1">
@@ -2186,6 +2396,7 @@ export default function LandingPage() {
               <a
                 key={l.label}
                 href={l.href}
+                onClick={(e) => goToSection(e, l.href)}
                 className={`relative px-3.5 py-2 text-[12.5px] font-semibold tracking-tight rounded-full transition-colors ${
                   isDark ? 'text-gray-400 hover:text-white hover:bg-white/[0.06]' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-900/[0.04]'
                 }`}
@@ -2195,11 +2406,11 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            {/* Dark / Light Mode Toggle Button — sempre visível, em qualquer tamanho de tela */}
+          <div className="flex items-center gap-0.5 md:gap-2 flex-shrink-0">
+            {/* Tema claro/escuro — só no desktop (no mobile fica dentro do menu) */}
             <button
               onClick={() => setIsDark(!isDark)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border transition-all flex-shrink-0 ${
+              className={`hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border transition-all flex-shrink-0 ${
                 isDark ? 'bg-white/[0.06] border-white/10 text-yellow-300 hover:bg-white/10' : 'bg-gray-900/[0.04] border-gray-200 text-gray-700 hover:bg-gray-900/[0.08]'
               }`}
               aria-label="Alternar tema"
@@ -2207,37 +2418,37 @@ export default function LandingPage() {
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
 
-            {/* Search Trigger */}
-            <button onClick={() => setSearchOpen(true)} className={`flex-shrink-0 p-2.5 rounded-full transition-all ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-900/[0.06] text-gray-700'}`} aria-label="Buscar">
-              <Search size={17} />
+            {/* Busca */}
+            <button onClick={() => setSearchOpen(true)} className={`flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`} aria-label="Buscar">
+              <Search size={18} />
             </button>
 
-            {/* Cart Trigger */}
-            <button onClick={() => setCartOpen(true)} className={`relative flex-shrink-0 p-2.5 rounded-full transition-all ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-900/[0.06] text-gray-700'}`} aria-label="Carrinho">
-              <ShoppingBag size={17} />
+            {/* Sacola */}
+            <button onClick={() => setCartOpen(true)} className={`relative flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`} aria-label="Sacola">
+              <ShoppingBag size={18} />
               {cart.length > 0 && (
-                <span className="absolute top-0.5 right-0.5 bg-[#0071e3] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-1 bg-[#0071e3] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {cart.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               )}
             </button>
 
-            {/* Login -> rota interna do app (dashboard). Ícone sempre visível, ao lado da sacola, igual tema/busca/carrinho. */}
+            {/* Login */}
             <Link
               to="/login"
               title="Login"
               aria-label="Login"
-              className={`flex-shrink-0 p-2.5 rounded-full transition-all ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-900/[0.06] text-gray-700'}`}
+              className={`flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`}
             >
-              <UserRound size={17} />
+              <UserRound size={18} />
             </Link>
 
             {/* Divider */}
-            <div className={`hidden sm:block w-px h-6 mx-0.5 flex-shrink-0 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />
+            <div className={`hidden md:block w-px h-6 mx-0.5 flex-shrink-0 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />
 
-            {/* Mobile Menu Trigger */}
-            <button onClick={() => setMobileOpen(true)} className={`xl:hidden w-10 h-10 rounded-full flex items-center justify-center transition-all ${isDark ? 'bg-white/[0.08] text-white hover:bg-white/[0.14]' : 'bg-gray-900/[0.06] text-gray-900 hover:bg-gray-900/[0.1]'}`} aria-label="Abrir menu">
-              <ChevronDown size={20} />
+            {/* Menu (dois tracinhos) */}
+            <button onClick={() => setMobileOpen(true)} className={`xl:hidden flex-shrink-0 p-2.5 md:w-10 md:h-10 md:p-0 rounded-full flex items-center justify-center transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:bg-white/[0.08] md:text-white md:hover:bg-white/[0.14]' : 'md:bg-gray-900/[0.06] md:text-gray-900 md:hover:bg-gray-900/[0.1]'}`} aria-label="Abrir menu">
+              <MenuLines size={18} />
             </button>
           </div>
         </div>
@@ -2295,13 +2506,13 @@ export default function LandingPage() {
 
               <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto px-2 no-scrollbar">
                 {links.map(l => (
-                  <a key={l.label} href={l.href} onClick={() => setMobileOpen(false)} className={`text-lg font-semibold py-3 border-b ${isDark ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'} flex items-center justify-between`}>
+                  <a key={l.label} href={l.href} onClick={(e) => goToSection(e, l.href)} className={`text-lg font-semibold py-3 border-b ${isDark ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'} flex items-center justify-between`}>
                     {l.label} <ChevronRight size={18} className={isDark ? 'text-gray-500' : 'text-gray-400'} />
                   </a>
                 ))}
               </div>
               <div className="px-2 flex flex-col gap-3">
-                <a href="#produtos" onClick={() => setMobileOpen(false)} className={`mt-6 w-full py-4 rounded-full text-center font-semibold flex items-center justify-center gap-2 ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                <a href="#produtos" onClick={(e) => goToSection(e, '#produtos')} className={`mt-6 w-full py-4 rounded-full text-center font-semibold flex items-center justify-center gap-2 ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}>
                   <ShoppingBag size={16} /> Comprar Agora
                 </a>
                 <Link
@@ -2327,7 +2538,7 @@ export default function LandingPage() {
               <div className={`flex items-center justify-between pb-6 border-b ${isDark ? 'border-white/10' : 'border-gray-200'} mb-8`}>
                 <div className="flex items-center gap-3 w-full max-w-lg">
                   <Search size={20} className={isDark ? 'text-gray-500' : 'text-gray-400'} />
-                  <input
+                  <input aria-label="Buscar produtos"
                     autoFocus
                     type="text"
                     placeholder="O que você está procurando?"
@@ -2346,7 +2557,7 @@ export default function LandingPage() {
                   {filteredProducts.length > 0 ? (
                     filteredProducts.map(p => (
                       <div key={p.id} onClick={() => { setSelectedProduct(p); setSearchOpen(false); }} className={`${isDark ? 'bg-[#121212] border-white/5' : 'bg-gray-50 border-gray-100'} border rounded-3xl p-4 cursor-pointer hover:shadow-lg transition`}>
-                        <img src={resolveImg(`search-${p.id}`, p.img)} alt={p.name} className="w-full aspect-[4/3] rounded-2xl object-cover mb-4" />
+                        <img loading="lazy" decoding="async" src={resolveImg(`search-${p.id}`, p.img)} alt={p.name} className="w-full aspect-[4/3] rounded-2xl object-cover mb-4" />
                         <h4 className="font-bold text-sm">{p.name}</h4>
                         <p className="text-xs text-gray-400 mt-1">{p.desc}</p>
                       </div>
@@ -2392,10 +2603,10 @@ export default function LandingPage() {
 
               {cart.length === 0 ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-                  <ShoppingBag size={48} className="text-gray-600 mb-4 animate-bounce" />
+                  <ShoppingBag size={48} className="text-gray-600 mb-4" />
                   <p className="text-base font-semibold mb-1">Sua sacola está vazia</p>
                   <p className="text-xs text-gray-500 mb-6">Explore nossos produtos premium e adicione itens inovadores.</p>
-                  <button onClick={() => { setCartOpen(false); window.location.hash = '#produtos'; }} className={`px-6 py-2.5 rounded-full text-xs font-bold transition ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}>
+                  <button onClick={() => { setCartOpen(false); window.setTimeout(() => document.getElementById('produtos')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className={`px-6 py-2.5 rounded-full text-xs font-bold transition ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}>
                     Ver Coleção
                   </button>
                 </div>
@@ -2406,6 +2617,20 @@ export default function LandingPage() {
                   </div>
                   <p className="text-base font-semibold mb-1">Pedido enviado para o WhatsApp!</p>
                   <p className="text-xs text-gray-500 mb-6">Nossa equipe vai confirmar os detalhes e o prazo de produção com você por lá.</p>
+                  <div className={`w-full max-w-xs mb-6 rounded-2xl border p-3.5 flex items-center justify-between gap-3 text-left ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold">Gostou da experiência?</p>
+                      <p className="text-[11px] text-gray-500">Leva 10 segundos.</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-full text-[11px] font-semibold text-white bg-[#0071e3] hover:bg-[#0077ed] transition">
+                        Google
+                      </a>
+                      <FeedbackLink source="sacola · pedido enviado" className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition ${isDark ? 'bg-white/10 hover:bg-white/15' : 'bg-black/5 hover:bg-black/10'}`}>
+                        Feedback
+                      </FeedbackLink>
+                    </div>
+                  </div>
                   <button
                     onClick={() => { setCart([]); setCheckoutStep('cart'); setCheckoutInfo({ nome: '', telefone: '', obs: '' }); setCartOpen(false); }}
                     className={`px-6 py-2.5 rounded-full text-xs font-bold transition ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}
@@ -2429,19 +2654,19 @@ export default function LandingPage() {
                       </div>
                     </div>
 
-                    <input
+                    <input aria-label="Seu nome"
                       type="text" placeholder="Seu nome"
                       value={checkoutInfo.nome}
                       onChange={(e) => setCheckoutInfo(c => ({ ...c, nome: e.target.value }))}
                       className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${isDark ? 'bg-[#050505] border-white/10 text-white placeholder:text-gray-500' : 'bg-white border-gray-200 placeholder:text-gray-400'}`}
                     />
-                    <input
+                    <input aria-label="Seu telefone ou WhatsApp"
                       type="tel" placeholder="Seu telefone / WhatsApp"
                       value={checkoutInfo.telefone}
                       onChange={(e) => setCheckoutInfo(c => ({ ...c, telefone: e.target.value }))}
                       className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${isDark ? 'bg-[#050505] border-white/10 text-white placeholder:text-gray-500' : 'bg-white border-gray-200 placeholder:text-gray-400'}`}
                     />
-                    <textarea
+                    <textarea aria-label="Observações do pedido (opcional)"
                       rows={2} placeholder="Observações (opcional)"
                       value={checkoutInfo.obs}
                       onChange={(e) => setCheckoutInfo(c => ({ ...c, obs: e.target.value }))}
@@ -2463,7 +2688,7 @@ export default function LandingPage() {
                   <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
                     {cart.map(item => (
                       <div key={item.key} className={`flex gap-4 p-3 rounded-2xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
-                        <img src={resolveImg(`cart-${item.product.id}`, item.product.img)} alt={item.product.name} className="w-16 h-16 rounded-xl object-cover" />
+                        <img loading="lazy" decoding="async" src={resolveImg(`cart-${item.product.id}`, item.product.img)} alt={item.product.name} className="w-16 h-16 rounded-xl object-cover" />
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-sm truncate">{item.product.name}</h4>
                           <p className="text-xs text-gray-400 mb-2">Formato: {item.formatLabel}</p>
@@ -2517,19 +2742,19 @@ export default function LandingPage() {
 
       <main>
         {/* --- Hero --- */}
-        <section id="top" className={`relative pt-32 md:pt-40 pb-12 md:pb-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#050505]' : 'bg-[#fbfbfd]'}`}>
+        <section id="top" className={`relative pt-24 md:pt-40 pb-12 md:pb-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#050505]' : 'bg-[#fbfbfd]'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .8 }}>
+              <motion.div initial={false} animate={{ opacity: 1, y: 0 }}>
                 <p className="eyebrow text-[#0071e3] mb-4 flex items-center justify-center gap-2">
                   <Nfc size={12} /> NFC + QR Code · Tecnologia Premium
                 </p>
-                <h1 className={`h1-apple mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Aproxime-se<br />do futuro.</h1>
+                <h1 className={`h1-apple mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Aproxime. Conecte.<br />Impressione.</h1>
                 <p className={`text-xl md:text-2xl ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-3xl mx-auto mb-4 font-medium leading-relaxed`}>
                   AirNext simplifica conexões. Um toque para compartilhar,<br className="hidden md:block" /> um gesto para impactar.
                 </p>
                 <p className={`ai-definition text-sm md:text-base ${isDark ? 'text-gray-500' : 'text-gray-500'} max-w-2xl mx-auto mb-10 leading-relaxed`}>
-                  Cartões, tags e pulseiras NFC com perfil digital editável — sem app, com QR Code e controle total dos seus dados.
+                  Cartões, tags e pulseiras NFC com perfil digital sempre atualizado. Aproxime o celular ou escaneie o QR Code e pronto: sem app, sem fio, sem complicação.
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                   <a href="#produtos" className={`group px-8 py-3.5 rounded-full flex items-center gap-3 transition-all shadow-xl text-[15px] font-semibold ${
@@ -2549,118 +2774,31 @@ export default function LandingPage() {
               </motion.div>
             </div>
 
-            {/* Floating Products */}
-            <div className="relative h-[520px] md:h-[600px] max-w-6xl mx-auto">
-              {/* AirNext Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 60 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: .3, duration: .9 }}
-                className="absolute left-[2%] md:left-[8%] top-[5%] w-[260px] md:w-[360px] float-anim"
-                style={{ '--r': '-8deg' } as CP}
-              >
-                <div className="rounded-[24px] p-6 md:p-8 text-white shadow-2xl shadow-blue-900/30 relative overflow-hidden"
-                  style={{ background: 'linear-gradient(145deg, #0a1f3d, #06101f)' }}>
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/15 rounded-full blur-3xl" />
-                  <div className="relative z-10 flex items-center justify-between mb-12 md:mb-20">
-                    <Logo dark size="sm" />
-                    <div className="nfc-pulse relative w-10 h-10 rounded-full flex items-center justify-center bg-white/5 backdrop-blur">
-                      <Nfc size={14} className="text-blue-300" />
-                    </div>
-                  </div>
-                  <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex gap-1">
-                      <div className="w-8 h-5 rounded" style={{ background: 'linear-gradient(135deg, #d4af37, #ffd700)' }} />
-                    </div>
-                    <p className="text-[10px] tracking-[.3em] text-blue-200/70 font-medium">TAP TO CONNECT</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Phone */}
-              <motion.div
-                initial={{ opacity: 0, y: 80 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: .5, duration: .9 }}
-                className="absolute right-[2%] md:right-[10%] top-0 w-[200px] md:w-[260px] float-anim float-delay-1"
-                style={{ '--r': '5deg' } as CP}
-              >
-                <div className="rounded-[40px] p-[8px] shadow-2xl shadow-black/30" style={{ background: 'linear-gradient(160deg, #1c1c1e, #000)' }}>
-                  <div className="rounded-[32px] overflow-hidden bg-gradient-to-b from-[#0b1326] to-[#050810] text-white">
-                    <div className="relative pt-8 pb-6 px-5 text-center">
-                      <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-full" />
-                      <Logo dark size="sm" />
-                      <p className="text-[8px] tracking-[.3em] text-slate-500 mt-1 mb-4">TECNOLOGIA AO TOQUE</p>
-                      <div className="w-16 h-16 rounded-full mx-auto mb-3 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl ring-2 ring-blue-400/30">
-                        A
-                      </div>
-                      <p className="text-[11px] font-semibold">Ana Souza</p>
-                      <p className="text-[9px] text-slate-400 mb-4">Designer de Produto</p>
-                      <div className="space-y-1.5 text-left">
-                        {[
-                          { icon: <MessageCircle size={10} className="text-green-400" />, label: 'WhatsApp' },
-                          { icon: <Camera size={10} className="text-pink-400" />, label: 'Instagram' },
-                          { icon: <Globe size={10} className="text-blue-400" />, label: 'Portfólio' },
-                        ].map(item => (
-                          <div key={item.label} className="flex items-center gap-2 bg-white/5 rounded-lg px-2.5 py-1.5 text-[9px]">
-                            {item.icon} {item.label}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Pet Tag */}
-              <motion.div
-                initial={{ opacity: 0, scale: .8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: .7, duration: .9 }}
-                className="absolute left-1/2 -translate-x-1/2 bottom-[5%] md:bottom-[8%] float-anim float-delay-2"
-                style={{ '--r': '0deg' } as CP}
-              >
-                <div className="w-36 h-36 md:w-44 md:h-44 rounded-full flex items-center justify-center shadow-2xl shadow-black/20 relative"
-                  style={{ background: 'radial-gradient(circle at 30% 30%, #2a2a2e, #0a0a0f)' }}>
-                  <div className="absolute inset-3 rounded-full border border-white/10" />
-                  <div className="text-center relative z-10">
-                    <div className="mb-1">
-                      <Heart size={28} className="text-rose-300 mx-auto" fill="#f43f5e44" />
-                    </div>
-                    <p className="text-[9px] tracking-[.2em] text-blue-300 font-bold">PET TAG</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* QR desk tag */}
-              <motion.div
-                initial={{ opacity: 0, x: -40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: .9, duration: .8 }}
-                className="absolute left-[5%] bottom-[20%] md:bottom-[25%] float-anim float-delay-3"
-                style={{ '--r': '6deg' } as CP}
-              >
-                <div className="w-28 h-20 md:w-36 md:h-24 rounded-2xl bg-gradient-to-br from-gray-800 to-black flex items-center justify-center text-white shadow-xl">
-                  <div className="text-center">
-                    <QrCode size={22} className="mx-auto mb-1" />
-                    <p className="text-[7px] tracking-[.2em] text-blue-300 font-semibold">MENU</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Wristband */}
-              <motion.div
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1, duration: .8 }}
-                className="absolute right-[5%] bottom-[25%] md:bottom-[30%] float-anim"
-                style={{ '--r': '-4deg' } as CP}
-              >
-                
-              </motion.div>
-            </div>
+            {/* Vitrine AirNext (estilo Apple) — substitui os antigos cards flutuantes */}
+            <HeroShowcase isDark={isDark} />
           </div>
+        </section>
+
+        {/* --- Destaques: slider estilo Apple (imagem do produto + descrição + Saiba mais / Comprar) --- */}
+        <section id="destaques" className="bg-white text-[#1d1d1f] pt-14 md:pt-20 pb-8 md:pb-12">
+          <div className="max-w-[1400px] mx-auto px-5 md:px-6 mb-6 md:mb-8">
+            <h2 className="text-[28px] md:text-5xl font-bold tracking-tight leading-tight">
+              Produtos em destaque. <span className="text-[#6e6e73]">Escolha o seu.</span>
+            </h2>
+          </div>
+          <LazyOnView id="destaques-slide" minHeight={640}>
+          <ProductShowcase
+            products={['pro', 'stand', 'pet', 'kids', 'senior', 'tea', 'hubgoogle', 'combo']
+              .map(id => PRODUCTS.find(x => x.id === id)!)
+              .filter(Boolean)}
+            getImage={(sp) => productImage(sp, resolveImg, ORIGINAL_LINE_IDS.includes(sp.id))}
+            onBuy={(sp) => {
+              const prod = PRODUCTS.find(x => x.id === sp.id);
+              if (!prod) return;
+              if (prod.price > 0) addToCart(prod); else setSelectedProduct(prod);
+            }}
+          />
+          </LazyOnView>
         </section>
 
         {/* --- Video Demo Section --- */}
@@ -2724,6 +2862,7 @@ export default function LandingPage() {
         </section>
 
         {/* --- Demo Carousel: AirNext em ação por linha de produto --- */}
+        {((isDark: boolean) => (
         <section id="demos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-12">
@@ -2756,7 +2895,7 @@ export default function LandingPage() {
                     ) : demoIsVideo ? (
                       <video src={demoSrc} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" muted loop playsInline autoPlay />
                     ) : (
-                      <img src={demoSrc} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                      <img loading="lazy" decoding="async" src={demoSrc} alt={p.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/20" />
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -2778,51 +2917,12 @@ export default function LandingPage() {
           </div>
 
           {/* Lightbox — só imagem/vídeo, sem CTA de compra: esta seção é só demonstração */}
-          <AnimatePresence>
-            {demoLightbox && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setDemoLightbox(null)}
-                className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6"
-              >
-                <button onClick={() => setDemoLightbox(null)} className="fixed top-6 right-6 z-[110] w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center transition text-white">
-                  <X size={20} />
-                </button>
-                <motion.div
-                  initial={{ scale: 0.92, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.92, opacity: 0 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="relative w-full max-w-2xl aspect-[4/5] sm:aspect-video rounded-[28px] overflow-hidden shadow-2xl"
-                >
-                  {isVideoUrl(resolveImg(`demo-${demoLightbox.id}`, demoLightbox.img)) ? (
-                    <video
-                      src={resolveImg(`demo-${demoLightbox.id}`, demoLightbox.img)}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      autoPlay loop controls playsInline
-                    />
-                  ) : (
-                    <img src={resolveImg(`demo-${demoLightbox.id}`, demoLightbox.img)} alt={demoLightbox.name} className="absolute inset-0 w-full h-full object-cover" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-black/10 pointer-events-none" />
-                  <div className="absolute bottom-0 inset-x-0 p-6 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${demoLightbox.color}30`, color: demoLightbox.color }}>
-                      {demoLightbox.icon}
-                    </div>
-                    <div>
-                      <p className="text-white font-bold text-lg leading-tight">{demoLightbox.name}</p>
-                      <p className="text-white/70 text-xs mt-0.5">{demoLightbox.desc}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <DemoLightbox product={demoLightbox} resolveImg={resolveImg} onClose={() => setDemoLightbox(null)} />
         </section>
+        ))(false)}
 
         {/* --- Products Section --- */}
+        {/* --- Second Products Row: new AirNext lines (Combo, Tag, Corporate, Evento, Service, Google Hub) --- */}
         <section id="produtos" className={`pt-20 md:pt-28 pb-4 md:pb-6 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
            <div className="text-center mb-14">
@@ -2835,20 +2935,7 @@ export default function LandingPage() {
             <style>{`.airnext-filter-scroll::-webkit-scrollbar{display:none}`}</style>
       
             {/* Carrossel de produtos */}
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={12}
-              slidesPerView={2.6}
-              pagination={{ clickable: true }}
-              breakpoints={{
-                480: { slidesPerView: 3.4 },
-                640: { slidesPerView: 4.3, spaceBetween: 16 },
-                1024: { slidesPerView: 4, spaceBetween: 20 }
-              }}
-              className="pb-10"
-            >
-              {shopProducts.map(p => (
-                <SwiperSlide key={p.id} className="!h-auto">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">{shopProducts.map(p => (<div key={p.id} className="h-full">
                   <ProductCard
                     product={p}
                     isDark={isDark}
@@ -2858,10 +2945,7 @@ export default function LandingPage() {
                     onAdd={() => addToCart(p)}
                     onPersonalize={() => goPersonalize(p)}
                   />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-            <SwipeIndicator isDark={isDark} />
+                </div>))}</div>
 
             {shopProducts.length === 0 && (
               <div className={`text-center py-16 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -2883,20 +2967,7 @@ export default function LandingPage() {
               <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Combos, placas de avaliação, soluções para empresas e estabelecimentos — a mesma tecnologia, do jeito que o seu negócio precisa.</p>
             </div>
 
-            <Swiper
-              modules={[Pagination]}
-              spaceBetween={12}
-              slidesPerView={2.6}
-              pagination={{ clickable: true }}
-              breakpoints={{
-                480: { slidesPerView: 3.4 },
-                640: { slidesPerView: 4.3, spaceBetween: 16 },
-                1024: { slidesPerView: 4, spaceBetween: 20 }
-              }}
-              className="pb-10"
-            >
-              {row2Products.map(p => (
-                <SwiperSlide key={p.id} className="!h-auto">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">{row2Products.map(p => (<div key={p.id} className="h-full">
                   <ProductCard
                     product={p}
                     isDark={isDark}
@@ -2907,14 +2978,11 @@ export default function LandingPage() {
                     onAdd={() => addToCart(p)}
                     onPersonalize={() => goPersonalize(p)}
                   />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-            <SwipeIndicator isDark={isDark} />
+                </div>))}</div>
 
             {/* Personalized products promo block */}
-            <div className={`mt-10 rounded-[32px] p-8 md:p-12 border relative overflow-hidden ${isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#0a0a0a] to-purple-950/20 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'}`}>
-              <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className={`mt-10 rounded-[32px] p-8 md:p-12 border relative overflow-hidden ${isDark ? 'bg-blue-950/40 border-white/10' : 'bg-blue-50 border-blue-100/60'}`}>
+              
               <div className="relative grid md:grid-cols-3 gap-6 items-center">
                 <div className="md:col-span-2">
                   <div className="flex items-center gap-2 mb-3">
@@ -2943,27 +3011,31 @@ export default function LandingPage() {
         </section>
 
         {/* --- Plaquinhas de avaliação Google (em alta) --- */}
-        <GooglePlaquesSection
+        <LazyOnView id="plaquinhas-google"><GooglePlaquesSection
           isDark={isDark}
           whatsapp={AIRNEXT_WHATSAPP}
           onBuy={() => { const hub = PRODUCTS.find(x => x.id === 'hubgoogle'); if (hub) setSelectedProduct(hub); }}
-        />
+        /></LazyOnView>
 
         {/* --- AirNext Stand: propósito, avaliações Google e integrações --- */}
-        <StandStorySection
+        <LazyOnView id="stand"><StandStorySection
           whatsapp={AIRNEXT_WHATSAPP}
           onBuy={() => { const st = PRODUCTS.find(x => x.id === 'stand'); if (st) setSelectedProduct(st); }}
-        />
+        /></LazyOnView>
 
         {/* --- AirNext Pet: coleira inteligente, identificação digital e Modo SOS --- */}
-        <PetStorySection
+        <LazyOnView id="coleira-pet"><PetStorySection
           whatsapp={AIRNEXT_WHATSAPP}
           image={PRODUCTS.find(x => x.id === 'pet')?.img ?? ''}
           onBuy={() => { const pt = PRODUCTS.find(x => x.id === 'pet'); if (pt) setSelectedProduct(pt); }}
-        />
+        /></LazyOnView>
+
+        {/* --- AirNext Tag: demonstração interativa --- */}
+        <LazyOnView id="airnext-tag"><TagShowcaseSection whatsapp={AIRNEXT_WHATSAPP} onBuy={() => { const tg = PRODUCTS.find(x => x.id === 'tag'); if (tg) setSelectedProduct(tg); }}
+        /></LazyOnView>
 
         {/* --- Sites personalizados --- */}
-        <CustomSitesSection whatsapp={AIRNEXT_WHATSAPP} />
+        <LazyOnView id="sites-personalizados"><CustomSitesSection whatsapp={AIRNEXT_WHATSAPP} /></LazyOnView>
 
         <AnimatePresence>
             {selectedProduct && (
@@ -2992,7 +3064,7 @@ export default function LandingPage() {
                     />
                   ) : (
                     <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">
-                      <img src={resolveImg(`modal-${selectedProduct.id}`, selectedProduct.img)} alt={selectedProduct.name} className="w-full h-full object-cover" />
+                      <img loading="lazy" decoding="async" src={resolveImg(`modal-${selectedProduct.id}`, selectedProduct.img)} alt={selectedProduct.name} className="w-full h-full object-cover" />
                       <div className={`pointer-events-none absolute inset-0 bg-gradient-to-t ${isDark ? 'from-[#050505]' : 'from-white'} via-transparent to-transparent`} />
                       <div className="pointer-events-none absolute top-6 left-6 z-10 flex items-center gap-1.5 px-3 py-2 rounded-full bg-black/45 backdrop-blur-sm text-white">
                         <Nfc size={13} />
@@ -3094,15 +3166,16 @@ export default function LandingPage() {
         </AnimatePresence>
 
         {/* --- Funcionalidades AirNext: galeria horizontal com barra de scroll --- */}
-        <FuncionalidadesSection isDark={isDark} />
+        <FuncionalidadesSection isDark={false} />
 
         {/* --- NFC vs Papel: por que compartilhar contato por NFC muda tudo --- */}
         <NfcVsPaperSection isDark={isDark} />
 
         {/* --- AirNext Personalizador: interactive multi-format customizer --- */}
-        <PersonalizadorSection isDark={isDark} preset={configuratorPreset} />
+        <PersonalizadorSection isDark={false} preset={configuratorPreset} />
 
         {/* --- Momentos Reais Gallery Carousel --- */}
+        {((isDark: boolean) => (
         <section id="galeria" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'} overflow-hidden`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-14">
@@ -3167,7 +3240,7 @@ export default function LandingPage() {
                     {imagesLoading ? (
                       <div className="absolute inset-0 bg-white/5 animate-pulse" />
                     ) : (
-                      <img src={resolveImg(`moments-${item.id}`, item.img)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                      <img loading="lazy" decoding="async" src={resolveImg(`moments-${item.id}`, item.img)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -3181,6 +3254,7 @@ export default function LandingPage() {
             <SwipeIndicator isDark={isDark} />
           </div>
         </section>
+        ))(false)}
 
         {/* --- Interactive Use Cases Simulator Section --- */}
         <section id="casos-uso" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'} border-y`}>
@@ -3301,15 +3375,25 @@ export default function LandingPage() {
         <DeviceCompatibilitySection isDark={isDark} />
         
         {/* --- Quem Usa Recomenda / Feedbacks Section --- */}
+        {fbSettings?.show_section === false ? null : ((isDark: boolean) => (
         <section id="feedbacks" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-[#fbfbfd] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-14">
-              <p className="eyebrow text-[#0071e3] mb-3">Quem Usa Recomenda</p>
-              <h2 className={`h2-apple mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Feedbacks de Clientes.</h2>
-              <div className="flex items-center justify-center gap-2 mt-3">
-                {[...Array(5)].map((_, i) => <Star key={i} size={18} className="text-yellow-400" fill="#facc15" />)}
-                <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} ml-1`}>4.9/5 · 1.200+ avaliações</span>
-              </div>
+              <p className="eyebrow text-[#0071e3] mb-3">{fbSettings?.eyebrow || 'Quem Usa Recomenda'}</p>
+              <h2 className={`h2-apple mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>{fbSettings?.title || 'Feedbacks de Clientes.'}</h2>
+              {fbSettings?.subtitle && <p className={`mx-auto max-w-xl text-base ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{fbSettings.subtitle}</p>}
+              {(pubFeedbacks.length === 0 || fbSettings?.show_summary !== false) && (
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={18} className="text-yellow-400" fill={pubFeedbacks.length === 0 || i < Math.round(fbAvg) ? '#facc15' : 'transparent'} />
+                  ))}
+                  <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} ml-1`}>
+                    {pubFeedbacks.length === 0
+                      ? '4.9/5 · 1.200+ avaliações'
+                      : `${fbAvg.toFixed(1).replace('.', ',')}/5 · ${pubFeedbacks.length} avaliaç${pubFeedbacks.length === 1 ? 'ão' : 'ões'}`}
+                  </span>
+                </div>
+              )}
             </div>
 
             <Swiper
@@ -3320,17 +3404,7 @@ export default function LandingPage() {
               breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }}
               className="pb-10"
             >
-              {[
-                { name: 'Marina Costa', role: 'Arquiteta', text: 'Em feiras de arquitetura o cartão AirNext me salvou. As pessoas chegam em casa com meu portfólio salvo no celular. Nunca mais imprimi cartão de papel.', avatar: 'MC', photo: 'https://i.pravatar.cc/120?img=5', rating: 5 },
-                { name: 'Rafael Andrade', role: 'Restaurante', text: 'Colocamos as tags NFC nas mesas e os pedidos pelo cardápio digital aumentaram 34% no primeiro mês. Os clientes adoram a experiência.', avatar: 'RA', photo: 'https://i.pravatar.cc/120?img=11', rating: 5 },
-                { name: 'Carla Menezes', role: 'Veterinária', text: 'Indico para todos os tutores. A tag pet é genial — se o animal fugir, qualquer um acessa os dados. Já ajudou 3 pets perdidos a voltarem para casa.', avatar: 'CM', photo: 'https://i.pravatar.cc/120?img=9', rating: 5 },
-                { name: 'Lucas Pereira', role: 'Eventos', text: 'Usamos pulseiras em um festival com 3 mil pessoas. O check-in foi 3x mais rápido e os convidados amaram trocar contatos na hora.', avatar: 'LP', photo: 'https://i.pravatar.cc/120?img=13', rating: 5 },
-                { name: 'Juliana Lima', role: 'Marketing', text: 'Economizamos uma fortuna com cartões impressos. A experiência premium do AirNext impressiona os clientes na primeira reunião.', avatar: 'JL', photo: 'https://i.pravatar.cc/120?img=20', rating: 5 },
-                { name: 'Pedro Souza', role: 'Designer', text: 'Zero fricção. Aproximo o celular do cliente e já compartilho portfólio, Instagram e LinkedIn. Networking evoluído.', avatar: 'PS', photo: 'https://i.pravatar.cc/120?img=15', rating: 5 },
-                { name: 'Amanda Rocha', role: 'Médica Pediatra', text: 'Comprei as pulseiras kids para meus filhos e recomendo demais. Em parques me sinto muito mais segura sabendo que qualquer pessoa consegue me ligar.', avatar: 'AR', photo: 'https://i.pravatar.cc/120?img=32', rating: 5 },
-                { name: 'Thiago Menezes', role: 'CEO Startup', text: 'Equipamos toda a equipe com AirNext Card Pro e a troca de informações em eventos de tecnologia ficou muito mais profissional.', avatar: 'TM', photo: 'https://i.pravatar.cc/120?img=33', rating: 5 },
-                { name: 'Fernanda Azevedo', role: 'Tutora de PET', text: 'A tag pet salvou meu cachorro quando ele fugiu no Ano Novo. Quem achou ligou na hora! Produto essencial.', avatar: 'FA', photo: 'https://i.pravatar.cc/120?img=45', rating: 5 },
-              ].map((t, i) => (
+              {testimonialsList.map((t, i) => (
                 <SwiperSlide key={i} className="!h-auto">
                   <div className={`p-8 rounded-[28px] ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'} border h-[300px] shadow-sm flex flex-col justify-between hover:shadow-lg transition-all`}>
                     <div>
@@ -3340,7 +3414,7 @@ export default function LandingPage() {
                       <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} leading-relaxed line-clamp-5`}>"{t.text}"</p>
                     </div>
                     <div className="flex items-center gap-3 border-t pt-4 border-white/5">
-                      <div className="w-11 h-11 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0 ring-2 ring-white/10">
+                      <div className="w-11 h-11 rounded-full overflow-hidden bg-blue-500 text-white text-sm font-bold flex items-center justify-center flex-shrink-0 ring-2 ring-white/10">
                         {t.photo ? (
                           <img src={t.photo} alt={t.name} className="w-full h-full object-cover" loading="lazy" />
                         ) : t.avatar}
@@ -3355,27 +3429,40 @@ export default function LandingPage() {
               ))}
             </Swiper>
             <SwipeIndicator isDark={isDark} />
+
+            <div className="mt-6 flex flex-col items-center gap-3 text-center">
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Já usa a AirNext? Conte como foi.</p>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-semibold text-white bg-[#0071e3] hover:bg-[#0077ed] transition active:scale-[.97]">
+                  <Star size={13} fill="currentColor" /> Avaliar no Google
+                </a>
+                <FeedbackLink source="seção feedbacks" className={`px-5 py-2.5 rounded-full text-xs font-semibold transition active:scale-[.97] ${isDark ? 'bg-white/10 text-white hover:bg-white/15' : 'bg-black/5 text-gray-900 hover:bg-black/10'}`}>
+                  Deixar feedback
+                </FeedbackLink>
+              </div>
+            </div>
           </div>
         </section>
+        ))(false)}
 
         {/* --- Security Section --- */}
         <section id="seguranca" className="py-20 md:py-28 bg-[#050810] text-white relative overflow-hidden">
           <div className="absolute inset-0 grid-pattern opacity-10" />
-          <div className="absolute top-0 right-0 w-[520px] h-[520px] bg-blue-500/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[110px]" />
+          
+          
 
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             {/* Header banner */}
             <div className="text-center max-w-3xl mx-auto mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-5">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                  <span className=" absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400" />
                 </span>
                 <p className="text-[11px] font-bold tracking-wider uppercase text-blue-300">Privacidade por padrão · Segurança de nível bancário</p>
               </div>
               <h2 className="h2-apple mb-5 text-white">
-                Seus dados. Suas regras. <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Inteligência que protege.</span>
+                Seus dados. Suas regras. <span className="text-emerald-500">Inteligência que protege.</span>
               </h2>
               <p className="text-lg text-gray-400 leading-relaxed">
                 O AirNext foi construído com uma arquitetura <strong className="text-gray-200">privacy-first</strong>: criptografia de nível militar, conformidade total
@@ -3388,7 +3475,7 @@ export default function LandingPage() {
               <div className="lg:col-span-3 grid sm:grid-cols-2 gap-5">
                 {[
                   { icon: <Lock size={20} />, title: 'Criptografia ponta a ponta', desc: 'Cada chip NFC é gravado com criptografia AES-256 e chaves seguindo o padrão oficial do fórum NFC — praticamente impossível de clonar.', accent: 'from-blue-500/20 to-blue-500/5 text-blue-300' },
-                  { icon: <Eye size={20} />, title: 'Você no controle total', desc: 'Ative, edite ou oculte qualquer link do seu perfil em segundos. Nada aparece sem sua permissão explícita.', accent: 'from-purple-500/20 to-purple-500/5 text-purple-300' },
+                  { icon: <Eye size={20} />, title: 'Você no controle total', desc: 'Ative, edite ou oculte qualquer link do seu perfil em segundos. Nada aparece sem sua permissão explícita.', accent: 'from-emerald-500/20 to-emerald-500/5 text-emerald-300' },
                   { icon: <Target size={20} />, title: 'Zero rastreamento comercial', desc: 'Não vendemos, não compartilhamos e não monitoramos o comportamento de quem escaneia seu perfil. Ponto final.', accent: 'from-emerald-500/20 to-emerald-500/5 text-emerald-300' },
                   { icon: <Zap size={20} />, title: 'Monitoramento 24/7', desc: 'Infraestrutura com detecção automática de anomalias e resposta a incidentes em tempo real, todos os dias do ano.', accent: 'from-amber-500/20 to-amber-500/5 text-amber-300' },
                 ].map((s, i) => (
@@ -3408,7 +3495,7 @@ export default function LandingPage() {
 
               {/* Right: compliance seal card */}
               <div className="lg:col-span-2 bg-gradient-to-b from-white/[0.06] to-white/[0.02] rounded-[32px] border border-white/10 p-8 md:p-12 relative overflow-hidden flex flex-col">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
+                
                 <div className="relative flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-blue-500/15 flex items-center justify-center text-blue-300 flex-shrink-0">
                     <Shield size={22} />
@@ -3447,10 +3534,10 @@ export default function LandingPage() {
         </section>
 
         {/* --- Sustainability Section --- */}
-        <section id="sustentabilidade" className="py-20 md:py-28 bg-gradient-to-b from-[#0a1a0f] via-[#0d2616] to-[#0a1a0f] text-white relative overflow-hidden">
+        <section id="sustentabilidade" className="py-20 md:py-28 bg-[#0a1a0f] text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjAyIj48cGF0aCBkPSJNMzYgMzBoLTJ2LTJoMnYyem0wIDBoLTJ2LTJoMnYyem0wIDBoLTJ2LTJoMnYyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-          <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[150px] pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none" />
+          
+          
           
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="text-center mb-16">
@@ -3528,6 +3615,7 @@ export default function LandingPage() {
                     <div className="relative">
                       <input
                         type="range"
+                        aria-label="Quantidade de colaboradores na sua empresa"
                         min="1"
                         max="500"
                         step="1"
@@ -3562,6 +3650,7 @@ export default function LandingPage() {
         </section>
 
         {/* --- For Everyone --- */}
+        {((isDark: boolean) => (
         <section id="para-todos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-14">
@@ -3637,6 +3726,7 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+        ))(false)}
 
         {/* --- Quem Somos --- */}
         <section id="quem-somos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
@@ -3677,6 +3767,7 @@ export default function LandingPage() {
         </section>
 
         {/* --- B2B & Wholesale Section --- */}
+        {((isDark: boolean) => (
         <section id="b2b" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -3698,16 +3789,16 @@ export default function LandingPage() {
                 <h3 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Fale com nosso time de vendas</h3>
                 <form onSubmit={handleB2bSubmit} className="space-y-4">
                   <div>
-                    <label className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Seu nome</label>
-                    <input required name="name" type="text" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition`} />
+                    <label htmlFor="b2b-name" className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Seu nome</label>
+                    <input id="b2b-name" required name="name" type="text" autoComplete="name" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition`} />
                   </div>
                   <div>
-                    <label className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>E-mail corporativo</label>
-                    <input required name="email" type="email" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition`} />
+                    <label htmlFor="b2b-email" className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>E-mail corporativo</label>
+                    <input id="b2b-email" required name="email" type="email" autoComplete="email" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition`} />
                   </div>
                   <div>
-                    <label className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Mensagem / Tamanho do lote</label>
-                    <textarea required name="message" rows={3} placeholder="Quantos cartões ou produtos você precisa?" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none`} />
+                    <label htmlFor="b2b-message" className={`text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Mensagem / Tamanho do lote</label>
+                    <textarea id="b2b-message" required name="message" rows={3} placeholder="Quantos cartões ou produtos você precisa?" className={`w-full mt-1 px-4 py-3 ${isDark ? 'bg-[#121212] border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition resize-none`} />
                   </div>
                   <button type="submit" disabled={b2bStatus === 'sending'} className="w-full bg-[#0071e3] text-white py-4 rounded-full text-sm font-bold hover:bg-[#0077ed] transition disabled:opacity-60 disabled:cursor-not-allowed">
                     {b2bStatus === 'sending' ? 'Enviando...' : 'Enviar Proposta B2B'}
@@ -3723,6 +3814,7 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+        ))(false)}
 
         {/* --- Help & Support --- */}
         <section id="ajuda" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
@@ -3746,11 +3838,11 @@ export default function LandingPage() {
               className="pb-10"
             >
               {[
-                { icon: <BookOpen size={32} />, title: 'Manuais', desc: 'Guias passo a passo para configurar seu perfil, gravar o chip NFC e personalizar tudo.', link: 'Ver Manuais' },
-                { icon: <HelpCircle size={32} />, title: 'Central de Ajuda', desc: 'Base de conhecimento com as dúvidas mais frequentes sobre nossos produtos e serviços.', link: 'Acessar FAQ' },
-                { icon: <LifeBuoy size={32} />, title: 'Suporte ao Vivo', desc: 'Fale com nosso time técnico em tempo real pelo WhatsApp ou e-mail dedicado.', link: 'Falar Agora' },
-              ].map((s, i) => (
-                <SwiperSlide key={i} className="!h-auto">
+                { icon: <BookOpen size={32} />, title: 'Manuais', desc: 'Guias passo a passo para configurar seu perfil, gravar o chip NFC e personalizar tudo.', link: 'Ver Manuais', to: '/suporte' },
+                { icon: <HelpCircle size={32} />, title: 'Central de Ajuda', desc: 'Base de conhecimento com as dúvidas mais frequentes sobre nossos produtos e serviços.', link: 'Acessar FAQ', to: '/suporte' },
+                { icon: <LifeBuoy size={32} />, title: 'Suporte ao Vivo', desc: 'Fale com nosso time técnico em tempo real pelo WhatsApp ou e-mail dedicado.', link: 'Falar Agora', to: `https://wa.me/${AIRNEXT_WHATSAPP}` },
+              ].map((s, i) => {
+                const supportCard = (
                   <motion.div
                     whileHover={{ y: -8, scale: 1.02 }}
                     className={`p-8 rounded-[32px] ${isDark ? 'bg-[#121212] border-white/5' : 'bg-[#fbfbfd] border-gray-100'} border flex flex-col items-center text-center group cursor-pointer hover:shadow-xl transition-all h-full`}
@@ -3764,8 +3856,17 @@ export default function LandingPage() {
                       {s.link} <ArrowRight size={14} />
                     </span>
                   </motion.div>
-                </SwiperSlide>
-              ))}
+                );
+                return (
+                  <SwiperSlide key={i} className="!h-auto">
+                    {s.to.startsWith('/') ? (
+                      <Link to={s.to} aria-label={`${s.title} — ${s.link}`} className="block h-full">{supportCard}</Link>
+                    ) : (
+                      <a href={s.to} target="_blank" rel="noopener noreferrer" aria-label={`${s.title} — ${s.link} (abre em nova aba)`} className="block h-full">{supportCard}</a>
+                    )}
+                  </SwiperSlide>
+                );
+              })}
             </Swiper>
             <SwipeIndicator isDark={isDark} />
 
@@ -3821,8 +3922,8 @@ export default function LandingPage() {
         {/* --- Final CTA --- */}
         <section className="py-20 md:py-28 bg-black text-white relative overflow-hidden">
           <div className="absolute inset-0 grid-pattern opacity-20" />
-          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[150px]" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[120px]" />
+          
+          
 
           <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
             <p className="eyebrow text-blue-400 mb-4">Comece Hoje</p>
@@ -3852,8 +3953,8 @@ export default function LandingPage() {
           ? 'bg-[#030712] text-gray-400 border-gray-800' 
           : 'bg-[#f8faf8] text-gray-600 border-green-200/60'
       }`}>
-        <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-green-500/5 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[250px] h-[250px] bg-emerald-400/5 rounded-full blur-[80px] pointer-events-none" />
+        
+        
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="grid md:grid-cols-5 gap-12 mb-16">
             <div className="md:col-span-2 space-y-6">
@@ -3909,6 +4010,7 @@ export default function LandingPage() {
                 { label: 'Contato', href: 'https://wa.me/5547996287761' }, { label: 'WhatsApp', href: 'https://wa.me/5547996287761' },
                 { label: 'contato@airnext.com.br', href: 'mailto:contato@airnext.com.br' },
                 { label: 'Instagram @airnext.com.br', href: 'https://www.instagram.com/airnext.com.br/' },
+                { label: 'Avaliar a AirNext no Google', href: GOOGLE_REVIEW_URL },
               ] },
             ].map(col => (
               <div key={col.title}>
@@ -3932,7 +4034,7 @@ export default function LandingPage() {
           <div className={`border rounded-2xl p-6 mb-10 flex flex-wrap items-center justify-center gap-6 md:gap-12 text-xs transition-colors ${
             isDark 
               ? 'bg-[#0b1319] border-green-500/20 text-green-400' 
-              : 'bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 border-green-200/60 text-green-700'
+              : 'bg-green-50 border-green-200/60 text-green-700'
           }`}>
             <div className="flex items-center gap-2.5 font-semibold">
               <TreePine size={18} className="text-green-500" />
@@ -3955,17 +4057,15 @@ export default function LandingPage() {
           }`}>
             <p>© 2026 AirNext Tecnologia LTDA. Todos os direitos reservados.</p>
             <div className="flex flex-wrap justify-center gap-6">
-              <a href="/politica-de-privacidade" className={`hover:text-green-500 transition`}>Privacidade</a>
-              <a href="/termos-de-uso" className={`hover:text-green-500 transition`}>Termos de Uso</a>
-              <a href="/politica-de-cookies" className={`hover:text-green-500 transition`}>Cookies</a>
+              <Link to="/politica-de-privacidade" className={`hover:text-green-500 transition`}>Privacidade</Link>
+              <Link to="/termos-de-uso" className={`hover:text-green-500 transition`}>Termos de Uso</Link>
+              <Link to="/politica-de-cookies" className={`hover:text-green-500 transition`}>Cookies</Link>
               <button onClick={() => setCookieSettingsOpen(true)} className={`hover:text-green-500 transition`}>Configurações de Cookies</button>
             </div>
           </div>
         </div>
       </footer>
 
-      <ScrollUI isDark={isDark} />
-      <WhatsAppButton />
 
       {/* Banner de consentimento de cookies (LGPD) */}
       <AnimatePresence>
@@ -4601,7 +4701,7 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
                 : 'bg-[#f5f5f7] border-gray-200 focus-within:border-[#0071e3] focus-within:ring-2 focus-within:ring-blue-100/50'
             }`}>
               <Search size={18} className="text-gray-400 flex-shrink-0" />
-              <input
+              <input aria-label="Pesquisar dispositivo"
                 type="text"
                 placeholder='Pesquisar dispositivo... Ex: "iPhone 16" ou "Galaxy S24"'
                 value={deviceSearch}
@@ -4654,7 +4754,7 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
                               </span>
                             )}
                             {d.qr && (
-                              <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-bold ${isDark ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-50 text-purple-700'} uppercase tracking-wider`}>
+                              <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-bold ${isDark ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-50 text-emerald-700'} uppercase tracking-wider`}>
                                 <QrCode size={10} /> QR
                               </span>
                             )}
@@ -4679,9 +4779,9 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
 
         {/* Info Banner — Universal Compatibility Notice (always visible, compact) */}
         <div className={`mt-10 rounded-[28px] p-8 md:p-12 border relative overflow-hidden ${
-          isDark ? 'bg-gradient-to-br from-blue-950/40 via-[#050505] to-purple-950/30 border-white/10' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50 border-blue-100/60'
+          isDark ? 'bg-blue-950/40 border-white/10' : 'bg-blue-50 border-blue-100/60'
         }`}>
-          <div className="absolute top-0 right-0 w-60 h-60 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
+          
           <div className="relative grid md:grid-cols-3 gap-6 items-center">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-3">
@@ -4706,7 +4806,7 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
                 <p className={`text-xs mt-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Maioria dos smartphones modernos</p>
               </div>
               <div className={`flex-1 rounded-2xl p-4 text-center border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100'}`}>
-                <QrCode size={24} className="text-purple-500 mx-auto mb-2" />
+                <QrCode size={24} className="text-emerald-500 mx-auto mb-2" />
                 <p className={`text-[10px] uppercase tracking-widest font-bold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>QR Code</p>
                 <p className={`text-xs mt-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>100% de todos os celulares</p>
               </div>
@@ -4715,37 +4815,5 @@ function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
         </div>
       </div>
     </section>
-  );
-}
-
-function ScrollUI({ isDark }: { isDark: boolean }) {
-  const [showTop, setShowTop] = useState(false);
-  useEffect(() => {
-    const h = () => setShowTop(window.scrollY > 600);
-    window.addEventListener('scroll', h, { passive: true });
-    return () => window.removeEventListener('scroll', h);
-  }, []);
-
-  return (
-    <AnimatePresence>
-      {showTop && (
-        <motion.button
-          initial={{ opacity: 0, scale: .8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: .8 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: .9 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className={`fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full flex items-center justify-center border shadow-2xl transition-all ${
-            isDark 
-              ? 'bg-[#121212] border-white/20 text-white hover:border-[#0071e3] hover:bg-[#1a1a1a] shadow-black' 
-              : 'bg-white border-gray-200 text-gray-800 hover:border-[#0071e3] hover:text-[#0071e3] shadow-xl'
-          }`}
-          aria-label="Voltar ao topo"
-        >
-          <ArrowUp size={22} />
-        </motion.button>
-      )}
-    </AnimatePresence>
   );
 }

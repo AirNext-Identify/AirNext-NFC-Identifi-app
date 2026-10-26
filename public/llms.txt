@@ -1,0 +1,27 @@
+# AirNext
+
+> AirNext é uma plataforma brasileira de cartões, tags e pulseiras NFC que abrem um perfil digital personalizável com um toque no celular, sem instalar aplicativo. Todo produto também tem um QR Code de reserva, para celulares sem NFC.
+
+O site público é uma landing page em português do Brasil (pt-BR). Os preços são em reais (R$). O perfil de cada cliente é editado em um painel online; o produto físico continua o mesmo.
+
+## Site e produtos
+
+- [Página inicial](https://airnext.com.br/): visão geral da AirNext, linhas de produtos, galeria e perguntas frequentes.
+- [Produtos](https://airnext.com.br/#produtos): cartões, tags, pulseiras e kits NFC com preço e botão para personalizar.
+- [Funcionalidades](https://airnext.com.br/#funcionalidades): o que o perfil digital faz (links, contatos, WhatsApp, pet, kids, TEA, negócios).
+- [Personalizador](https://airnext.com.br/#personalizado): configurador ao vivo com linha, formato, cor e foto de frente e verso.
+- [Perguntas frequentes](https://airnext.com.br/#faq): respostas curtas sobre NFC, QR Code, compatibilidade com iPhone e Android e mensalidade.
+
+## Suporte
+
+- [Suporte e tutoriais](https://airnext.com.br/suporte): manuais passo a passo e central de ajuda.
+
+## Documentos legais
+
+- [Política de Privacidade](https://airnext.com.br/politica-de-privacidade): como os dados pessoais são tratados (LGPD).
+- [Termos de Uso](https://airnext.com.br/termos-de-uso): regras de uso da plataforma e dos produtos.
+- [Política de Cookies](https://airnext.com.br/politica-de-cookies): cookies usados no site e como gerenciar o consentimento.
+
+## Opcional
+
+- [Mapa do site](https://airnext.com.br/sitemap.xml): lista das páginas públicas para rastreadores.

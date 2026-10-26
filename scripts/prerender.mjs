@@ -76,25 +76,60 @@ const PAGES = [
 const T = Object.fromEntries(PAGES.map(p => [p.slug, p.h1]));
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
-const css = `*{box-sizing:border-box}body{margin:0;font:17px/1.7 system-ui,Segoe UI,Roboto,sans-serif;background:#05070f;color:#e5e7eb}a{color:#4ade80}header,main,footer{max-width:760px;margin:auto;padding:20px}header a{font-weight:700;text-decoration:none;font-size:20px;color:#fff}h1{font-size:2rem;line-height:1.2;color:#fff}h2{margin-top:2rem;color:#fff}.cta{display:inline-block;background:#22c55e;color:#04210f;padding:12px 22px;border-radius:999px;font-weight:700;text-decoration:none;margin:12px 12px 0 0}.cta.alt{background:transparent;border:1px solid #4ade80;color:#4ade80}footer{color:#9ca3af;font-size:14px}`;
+const IMGS = {
+  c1: ['/img/airnext-contato-1.webp', 720, 960, 'Duas pessoas trocando contato ao aproximar os celulares'],
+  c2: ['/img/airnext-contato-2.webp', 720, 960, 'Cliente aproximando o celular da tag AirNext'],
+  c3: ['/img/airnext-contato-3.webp', 720, 960, 'Celular lendo a tag NFC AirNext e abrindo o perfil digital'],
+  c4: ['/img/airnext-contato-4.webp', 720, 960, 'Perfil digital AirNext aberto no celular'],
+  google: ['/img/google-branca-parede.webp', 640, 640, 'Placa NFC AirNext para avaliações no Google'],
+  stand: ['/img/stand-posto.webp', 640, 640, 'Stand AirNext com NFC e QR Code'],
+};
+const HERO = { 'cartao-nfc': 'c1', 'pulseira-nfc': 'c3', 'placa-google-avaliacao-nfc': 'google', 'stand-nfc-airnext': 'stand', 'sobre-a-airnext': 'c3', 'blog/como-funciona-cartao-nfc': 'c2', 'blog/nfc-ou-qr-code': 'c1' };
+const THUMB = { ...HERO, 'tag-nfc-pet': 'c3', 'coleira-inteligente-airnext': 'c3' };
+const GAL = new Set(['cartao-nfc', 'pulseira-nfc', 'sobre-a-airnext', 'blog/como-funciona-cartao-nfc', 'blog/nfc-ou-qr-code']);
+const CAPS = [['c1', 'Seu contato a um toque', 'Aproxime e o perfil abre no celular.'], ['c2', 'Em qualquer lugar', 'Reuniões, eventos e balcões.'], ['c3', 'Tudo em uma tela', 'WhatsApp, e-mail, site e redes.'], ['c4', 'Sempre atualizado', 'Mude os dados quando quiser.']];
+const img = (k, attrs = '') => { const [s, w, h, a] = IMGS[k]; return `<img src="${s}" width="${w}" height="${h}" alt="${esc(a)}" ${attrs}>`; };
+
+const css = `:root{--bg:#04060d;--card:#0b1020;--line:#1b2440;--txt:#e6e9f2;--mut:#98a2bd;--blue:#3b82f6;--cy:#22d3ee}*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.7 Inter,system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt)}a{color:inherit}
+.top{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:#04060dcc;border-bottom:1px solid var(--line)}.top>div{max-width:1080px;margin:auto;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800;font-size:22px;text-decoration:none;font-style:italic}.logo b{color:var(--blue)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:999px;font-weight:700;text-decoration:none;color:#fff;background:#2563eb;transition:transform .2s}.btn:hover{transform:translateY(-2px)}.btn.alt{background:transparent;border:1px solid var(--line);box-shadow:none}.btn.sm{padding:8px 18px;font-size:14px}
+main{max-width:1080px;margin:auto;padding:0 20px}.hero{display:grid;gap:32px;padding:44px 0 16px;align-items:center}@media(min-width:860px){.hero{grid-template-columns:1.1fr .9fr;padding:72px 0 32px}}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cy);border:1px solid var(--line);padding:4px 12px;border-radius:999px}
+h1{font-size:clamp(2rem,5.4vw,3.4rem);line-height:1.08;margin:16px 0;font-weight:800;letter-spacing:-.02em}.lead{color:var(--mut);font-size:1.1rem;margin:0 0 20px}.acts{display:flex;gap:12px;flex-wrap:wrap}
+.ph img{width:100%;height:auto;display:block;border-radius:28px;border:1px solid var(--line)}.ripple{aspect-ratio:1;border-radius:28px;border:1px solid var(--line);display:grid;place-items:center;font-size:56px;font-weight:800;letter-spacing:.06em;background:#0b1020}
+.grid{display:grid;gap:16px;margin:28px 0}@media(min-width:760px){.grid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}}.card{background:#0b1020;border:1px solid var(--line);border-radius:22px;padding:24px}.card h2{margin:0 0 8px;font-size:1.2rem}.card p{margin:0;color:var(--mut)}
+h2.s{font-size:1.6rem;margin:44px 0 12px;letter-spacing:-.01em}.slides{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 0 14px;-webkit-overflow-scrolling:touch}.slide{flex:0 0 76%;max-width:330px;scroll-snap-align:center;margin:0}@media(min-width:860px){.slide{flex-basis:23%}}
+.slide img{width:100%;height:auto;display:block;border-radius:22px;border:1px solid var(--line)}.slide figcaption{color:var(--mut);font-size:.92rem;padding:10px 4px}.slide b{display:block;color:var(--txt)}
+details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px;margin:10px 0}summary{cursor:pointer;font-weight:700}details p{margin:10px 0 0;color:var(--mut)}
+.rel{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.rel a{display:block;padding:18px;border:1px solid var(--line);border-radius:18px;text-decoration:none;background:var(--card);font-weight:600}.rel img{width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:block}.rel span{display:block;color:var(--cy);font-size:14px;margin-top:6px}
+.cta{margin:48px 0;padding:36px 24px;border-radius:28px;text-align:center;background:#0b1020;border:1px solid var(--line)}.cta h2{margin:0 0 6px;font-size:1.6rem}.cta p{color:var(--mut);margin:0 0 18px}
+footer{max-width:1080px;margin:auto;padding:28px 20px 96px;color:var(--mut);font-size:14px;border-top:1px solid var(--line)}.sticky{position:fixed;left:0;right:0;bottom:0;padding:10px 16px;background:#04060dee;backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:30}.sticky .btn{width:100%}@media(min-width:860px){.sticky{display:none}}`;
 
 function render(p) {
   const url = `${SITE}/${p.slug}/`;
-  const loc = LOCAL && p.kind === 'Produto' ? `<p>Atendimento e vendas: ${esc(LOCAL)} e todo o Brasil.</p>` : '';
+  const loc = LOCAL && p.kind === 'Produto' ? `<p class="lead">Atendimento e vendas: ${esc(LOCAL)} e todo o Brasil.</p>` : '';
   const ld = [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'AirNext', item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: p.h1, item: url }] }];
   if (p.faq) ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: p.faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
-  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  const hk = HERO[p.slug];
+  const visual = hk ? `<div class="ph">${img(hk, 'fetchpriority="high"')}</div>` : '<div class="ripple" aria-hidden="true">NFC</div>';
+  const gallery = GAL.has(p.slug) ? `<h2 class="s">Veja como funciona</h2><div class="slides">${CAPS.map(([k, t, d]) => `<figure class="slide">${img(k, 'loading="lazy" decoding="async"')}<figcaption><b>${esc(t)}</b>${esc(d)}</figcaption></figure>`).join('')}</div>` : '';
+  const ogImg = hk ? SITE + IMGS[hk][0] : SITE + '/og-image.png';
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#04060d">
 <title>${esc(p.title)}</title><meta name="description" content="${esc(p.desc)}"><link rel="canonical" href="${url}"><meta name="robots" content="index, follow, max-image-preview:large">
-<meta property="og:type" content="article"><meta property="og:site_name" content="AirNext"><meta property="og:locale" content="pt_BR"><meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${SITE}/og-image.png">
+<meta property="og:type" content="article"><meta property="og:site_name" content="AirNext"><meta property="og:locale" content="pt_BR"><meta property="og:title" content="${esc(p.title)}"><meta property="og:description" content="${esc(p.desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${ogImg}">
 <meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png"><link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><style>${css}</style>
 <script type="application/ld+json">${JSON.stringify(ld)}</script></head><body>
-<header><a href="/">AirNext</a></header><main><h1>${esc(p.h1)}</h1><p>${esc(p.desc)}</p>
-${p.body.map(([h, t]) => `<h2>${esc(h)}</h2><p>${esc(t)}</p>`).join('\n')}
-${p.faq ? '<h2>Perguntas frequentes</h2>' + p.faq.map(([q, a]) => `<h3>${esc(q)}</h3><p>${esc(a)}</p>`).join('') : ''}
-${loc}<a class="cta" href="${WA}">Falar no WhatsApp</a><a class="cta alt" href="/#produtos">Ver produtos</a>
-<h2>Leia também</h2><ul>${p.links.map(l => `<li><a href="/${l}/">${esc(T[l])}</a></li>`).join('')}</ul></main>
-<footer>© AirNext — Cartões, coleira inteligente, pet NFC, stand e pulseiras NFC. <a href="/">Página inicial</a> · <a href="mailto:${EMAIL}">${EMAIL}</a> · <a href="${IG}">Instagram @airnext.com.br</a></footer></body></html>`;
+<header class="top"><div><a class="logo" href="/">Air<b>Next</b></a><a class="btn sm" href="${WA}">WhatsApp</a></div></header>
+<main><section class="hero"><div><span class="eyebrow">${esc(p.kind)}</span><h1>${esc(p.h1)}</h1><p class="lead">${esc(p.desc)}</p><div class="acts"><a class="btn" href="${WA}">Falar no WhatsApp</a><a class="btn alt" href="/#produtos">Ver produtos</a></div></div>${visual}</section>
+<div class="grid">${p.body.map(([h, t]) => `<article class="card"><h2>${esc(h)}</h2><p>${esc(t)}</p></article>`).join('')}</div>${gallery}
+${p.faq ? '<h2 class="s">Perguntas frequentes</h2>' + p.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('') : ''}
+${loc}<section class="cta"><h2>Fale com a AirNext</h2><p>Tire dúvidas e peça o seu em poucos minutos.</p><a class="btn" href="${WA}">Chamar no WhatsApp</a></section>
+<h2 class="s">Leia também</h2><div class="rel">${p.links.map(l => `<a href="/${l}/">${THUMB[l] ? img(THUMB[l], 'loading="lazy" decoding="async"') : ''}${esc(T[l])}<span>Ler agora</span></a>`).join('')}</div></main>
+<footer>© AirNext — Cartões, coleira inteligente, pet NFC, stand e pulseiras NFC. <a href="/">Página inicial</a> · <a href="mailto:${EMAIL}">${EMAIL}</a> · <a href="${IG}">Instagram @airnext.com.br</a></footer>
+<div class="sticky"><a class="btn" href="${WA}">Falar no WhatsApp</a></div></body></html>`;
 }
 
 for (const p of PAGES) {

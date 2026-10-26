@@ -1,13 +1,13 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Package, BarChart3, LogOut, Menu, Zap, HelpCircle, Bell, X, Globe } from 'lucide-react';
+import { LayoutDashboard, Package, BarChart3, LogOut, Menu, Zap, HelpCircle, Bell, X, Globe, Star } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import Logo from './Logo';
 import NotificationCenter from './NotificationCenter';
 import { useToast } from './Toast';
 
 export default function DashboardLayout() {
- const { user, logout, notifications, loading } = useAuth();
+ const { user, logout, notifications, loading, googleProducts } = useAuth();
   const loc = useLocation();
   const nav = useNavigate();
   const toast = useToast();
@@ -48,6 +48,8 @@ export default function DashboardLayout() {
   const NAV = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Perfil', href: '/dashboard/produtos', icon: Package },
+    // AirNext Google: só aparece para quem já ativou uma plaquinha de avaliações.
+    ...((googleProducts || []).length > 0 ? [{ name: 'Avaliações Google', href: '/dashboard/google', icon: Star }] : []),
     { name: 'Estatísticas', href: '/dashboard/estatisticas', icon: BarChart3 },
     { name: 'Suporte', href: '/dashboard/suporte', icon: HelpCircle },
   ];

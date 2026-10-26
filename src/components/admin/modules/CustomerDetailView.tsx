@@ -1,3 +1,4 @@
+import { DeleteCustomerModal } from '@/components/admin/modules/DeleteCustomerModal';
 import { useState } from 'react';
 import {
   ArrowLeft,
@@ -23,7 +24,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { Badge } from '@/components/admin/ui/Badge';
-import { Modal } from '@/components/admin/ui/Modal';
 import { EmptyState } from '@/components/admin/ui/EmptyState';
 import { cn, formatCurrency, formatDate, formatDateTime, getInitials, getValidityStatus } from '@/lib/adminUtils';
 import type { Customer, CustomerStatus, Product, Notification, Renewal, LogEntry, AdminVisit } from '@/types/admin';
@@ -38,7 +38,7 @@ interface CustomerDetailViewProps {
   onBack: () => void;
   onUpdate: (id: string, data: Partial<Customer>) => void;
   onChangeStatus: (id: string, status: CustomerStatus) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, opts: { deleteProducts: boolean }) => Promise<boolean> | boolean;
   onNotify: (customer: Customer) => void;
   onAddNote: (id: string, note: string) => void;
   onDeleteNotification: (id: string) => void;
@@ -425,13 +425,7 @@ export function CustomerDetailView({
         </SectionCard>
       )}
 
-      <Modal isOpen={showDelete} onClose={() => setShowDelete(false)} title="Excluir cliente">
-        <p className="text-sm text-zinc-400">Tem certeza que deseja excluir <strong className="text-zinc-200">{customer.name}</strong>?</p>
-        <div className="mt-4 flex justify-end gap-2">
-          <button onClick={() => setShowDelete(false)} className="rounded-xl px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800">Cancelar</button>
-          <button onClick={() => onDelete(customer.id)} className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600">Excluir</button>
-        </div>
-      </Modal>
+      <DeleteCustomerModal customer={showDelete ? customer : null} onClose={() => setShowDelete(false)} onConfirm={onDelete} />
     </div>
   );
 }

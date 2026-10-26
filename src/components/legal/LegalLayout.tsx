@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, ArrowUp, ChevronDown, ListTree, X } from 'lucide-react';
 import Logo from '../Logo';
 import { LEGAL_CONFIG } from '../../config/legal';
 import { cn } from '../../utils/cn';
@@ -19,6 +19,12 @@ interface LegalLayoutProps {
   children: ReactNode;
 }
 
+const OTHER_DOCS = [
+  { to: '/politica-de-privacidade', label: 'Política de Privacidade', text: 'Como protegemos seus dados, conforme a LGPD.' },
+  { to: '/termos-de-uso', label: 'Termos de Uso', text: 'Regras de uso da plataforma e dos produtos.' },
+  { to: '/politica-de-cookies', label: 'Política de Cookies', text: 'Transparência sobre cookies e tecnologias similares.' },
+];
+
 export function LegalLayout({
   title,
   subtitle,
@@ -29,6 +35,36 @@ export function LegalLayout({
 }: LegalLayoutProps) {
   const [active, setActive] = useState(sections[0]?.id || '');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [showTop, setShowTop] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Voltar: usa o histórico do app; se a pessoa chegou direto (Google), vai para a home.
+  const goBack = () => {
+    if (location.key !== 'default') navigate(-1);
+    else navigate('/');
+  };
+
+  useEffect(() => {
+    const onScroll = () => {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      setProgress(max > 0 ? Math.min(100, (h.scrollTop / max) * 100) : 0);
+      setShowTop(h.scrollTop > 700);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -61,7 +97,15 @@ export function LegalLayout({
   return (
     <div className="min-h-screen bg-[#fafafa] text-zinc-900 antialiased">
       <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-5 sm:px-8">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-3 sm:px-8">
+          <button
+            type="button"
+            onClick={goBack}
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-zinc-300 transition hover:bg-white/10 hover:text-white"
+            aria-label="Voltar"
+          >
+            <ArrowLeft className="h-4 w-4" /> <span>Voltar</span>
+          </button>
           <Link to="/" className="flex items-center gap-2 opacity-90 transition hover:opacity-100">
             <Logo size="xs" />
           </Link>
@@ -82,14 +126,16 @@ export function LegalLayout({
               Entrar
             </Link>
           </nav>
-          <button
-            type="button"
-            className="rounded-full p-2 text-zinc-300 sm:hidden"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Menu"
+          <Link
+            to="/"
+            className="rounded-full p-2 text-zinc-300 transition hover:bg-white/10 sm:hidden"
+            aria-label="Fechar e ir para o início"
           >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+            <X className="h-5 w-5" />
+          </Link>
+        </div>
+        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-transparent" aria-hidden>
+          <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-400 transition-[width] duration-150" style={{ width: `${progress}%` }} />
         </div>
       </header>
 
@@ -116,7 +162,7 @@ export function LegalLayout({
           onClick={() => setMobileOpen((v) => !v)}
           className="flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-left text-sm font-medium text-zinc-800 shadow-sm"
         >
-          <span>{activeLabel}</span>
+          <span className="flex items-center gap-2"><ListTree className="h-4 w-4 text-zinc-400" />{activeLabel}</span>
           <ChevronDown className={cn('h-4 w-4 text-zinc-400 transition', mobileOpen && 'rotate-180')} />
         </button>
         {mobileOpen && (
@@ -163,6 +209,49 @@ export function LegalLayout({
 
         <main className="min-w-0 space-y-16 sm:space-y-20">{children}</main>
       </div>
+
+      <section className="border-t border-zinc-200 bg-[#fafafa]">
+        <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-400">Outros documentos</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {OTHER_DOCS.filter((d) => d.to !== location.pathname.replace(/\/$/, '')).map((d) => (
+              <Link
+                key={d.to}
+                to={d.to}
+                className="group rounded-2xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md"
+              >
+                <p className="flex items-center justify-between text-sm font-semibold text-zinc-900">
+                  {d.label}
+                  <ArrowRight className="h-4 w-4 text-zinc-400 transition group-hover:translate-x-1 group-hover:text-zinc-900" />
+                </p>
+                <p className="mt-1 text-sm text-zinc-500">{d.text}</p>
+              </Link>
+            ))}
+            <Link
+              to="/suporte"
+              className="group rounded-2xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md"
+            >
+              <p className="flex items-center justify-between text-sm font-semibold text-zinc-900">
+                Suporte e tutoriais
+                <ArrowRight className="h-4 w-4 text-zinc-400 transition group-hover:translate-x-1 group-hover:text-zinc-900" />
+              </p>
+              <p className="mt-1 text-sm text-zinc-500">Vídeos curtos para ativar e usar seu produto.</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Voltar ao topo"
+        className={cn(
+          'fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition-all duration-300 hover:bg-zinc-700',
+          showTop ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
+        )}
+      >
+        <ArrowUp className="h-5 w-5" />
+      </button>
 
       <footer className="border-t border-zinc-200 bg-white">
         <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">

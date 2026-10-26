@@ -15,6 +15,9 @@ import {
   LogOut,
   ArrowLeftCircle,
   Image as ImageIcon,
+  ShoppingBag,
+  Star,
+  Printer,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn, getInitials } from '@/lib/adminUtils';
@@ -22,10 +25,13 @@ import type { AdminModule } from '@/types/admin';
 
 const menuItems: { id: AdminModule; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'orders', label: 'Pedidos', icon: ShoppingBag },
+  { id: 'feedbacks', label: 'Feedbacks', icon: Star },
   { id: 'customers', label: 'Clientes', icon: Users },
   { id: 'products', label: 'Produtos', icon: CreditCard },
   { id: 'lots', label: 'Lotes', icon: Boxes },
   { id: 'nfc', label: 'Programador NFC', icon: Cpu },
+  { id: 'labels', label: 'Etiquetas (QR)', icon: Printer },
   { id: 'validity', label: 'Validade', icon: CalendarClock },
   { id: 'notifications', label: 'Notificações', icon: Bell },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -41,30 +47,31 @@ interface SidebarProps {
   userName?: string;
   userEmail?: string;
   onLogout: () => void;
+  badges?: Partial<Record<AdminModule, number>>;
 }
 
-export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userName, userEmail, onLogout }: SidebarProps) {
+export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userName, userEmail, onLogout, badges }: SidebarProps) {
   return (
     <>
       <button
         onClick={onToggleMobile}
-        className="fixed left-3 top-3 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300 shadow-xl transition-colors hover:bg-zinc-800 lg:hidden"
+        className="fixed left-3 top-3 z-[60] flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300 shadow-xl transition-colors hover:bg-zinc-800 lg:hidden"
         title="Abrir menu"
       >
         {mobileOpen ? <X className="h-5 w-5 text-indigo-400" /> : <Menu className="h-5 w-5" />}
       </button>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden" onClick={onToggleMobile} />
+        <div className="fixed inset-0 z-[35] bg-black/60 backdrop-blur-sm lg:hidden" onClick={onToggleMobile} />
       )}
 
       <aside
         className={cn(
-          'fixed left-0 top-0 z-30 h-full w-64 transform border-r border-zinc-800 bg-zinc-950 transition-transform duration-300 lg:translate-x-0',
+          'fixed left-0 top-0 z-40 flex h-[100dvh] w-64 transform flex-col border-r border-zinc-800 bg-zinc-950 transition-transform duration-300 lg:z-30 lg:translate-x-0',
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <div className="flex h-16 items-center gap-3 border-b border-zinc-900 px-6">
+        <div className="flex h-16 shrink-0 items-center gap-3 border-b border-zinc-900 px-6">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-md shadow-indigo-500/20">
             <Sliders className="h-5 w-5 text-white" />
           </div>
@@ -74,7 +81,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userNa
           </div>
         </div>
 
-        <nav className="space-y-1 p-4 pb-40">
+        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain p-4 [scrollbar-width:thin] [scrollbar-color:#3f3f46_transparent]">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = active === item.id;
@@ -83,7 +90,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userNa
                 key={item.id}
                 onClick={() => {
                   onNavigate(item.id);
-                  onToggleMobile();
+                  if (mobileOpen) onToggleMobile();
                 }}
                 className={cn(
                   'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
@@ -94,6 +101,11 @@ export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userNa
               >
                 <Icon className={cn('h-4.5 w-4.5', isActive ? 'text-indigo-400' : 'text-zinc-500')} />
                 {item.label}
+                {!!badges?.[item.id] && (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1.5 text-[11px] font-bold text-white animate-pulse">
+                    {badges[item.id]}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -110,6 +122,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userNa
 
           <Link
             to="/dashboard"
+            onClick={() => mobileOpen && onToggleMobile()}
             className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-500 transition-all hover:bg-zinc-900/50 hover:text-zinc-200"
           >
             <ArrowLeftCircle className="h-4.5 w-4.5 text-zinc-500" />
@@ -117,7 +130,7 @@ export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userNa
           </Link>
         </nav>
 
-        <div className="absolute bottom-0 left-0 w-full border-t border-zinc-900 p-4">
+        <div className="shrink-0 border-t border-zinc-900 p-4">
           <div className="flex items-center gap-3 rounded-xl bg-zinc-900/50 px-3 py-2.5">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-xs font-semibold text-indigo-400">
               {getInitials(userName || 'Admin AirNext')}

@@ -28,6 +28,8 @@ import {
   Check,
   Lock,
   GripVertical,
+  ChevronUp,
+  ChevronDown,
   LayoutGrid,
   Trash2,
   Info,
@@ -42,13 +44,17 @@ import {
   Signal,
   Megaphone,
   Newspaper
-, PawPrint } from 'lucide-react';
+, PawPrint, Plus } from 'lucide-react';
 
 import { useToast } from '../../components/Toast';
+import { SegmentPicker } from '../../components/business/SegmentPicker';
+import { getSegment, getSegmentPreset, getSegmentDisplayName, suggestBlockOrder } from '../../config/businessSegments';
 import { BrandIcon } from '../../components/Icons';
 import { QRCodeSVG } from 'qrcode.react';
 import ImageUploadEditor from '../../components/upload/ImageUploadEditor';
 import { LAYOUT_OPTIONS, ProfileLayout } from '../../lib/layout';
+import { CARD_THEMES, CardTheme, isCardTheme, cardThemeClass, getCardThemeStyle } from '../../lib/cardThemes';
+import { FreeLink, FREE_LINK_CATEGORIES, MAX_FREE_LINKS, newFreeLink, visibleFreeLinks } from '../../lib/freeLinks';
 import { FONT_OPTIONS, loadGoogleFont, getFontOption } from '../../lib/fonts';
 import { GRADIENT_OPTIONS as GRADIENTS, SOLID_COLOR_OPTIONS as SOLID_COLORS, isLightBackground, getDefaultBackground } from '../../lib/background';
 
@@ -285,6 +291,7 @@ const BLOCK_DEFS: BlockDef[] = [
   { id: 'midia', label: 'Galeria de Mídia', icon: ImageIcon },
   { id: 'petStats', label: 'Resumo do Pet', icon: PawPrint, catFilter: c => c === 'PET' },
   { id: 'social', label: 'Redes & Contato', icon: Link2 },
+  { id: 'linksLivres', label: 'Links livres', icon: Link2, catFilter: c => FREE_LINK_CATEGORIES.includes(c) },
   { id: 'contato', label: 'Informações de Contato', icon: Phone },
   { id: 'maisInfo', label: 'Mais Informações', icon: Info },
   { id: 'sobreEmpresa', label: 'Sobre a Empresa', icon: ShoppingBag, catFilter: c => c === 'BUSINESS' },
@@ -292,6 +299,7 @@ const BLOCK_DEFS: BlockDef[] = [
   { id: 'promocoes', label: 'Promoções', icon: Megaphone, catFilter: c => c === 'BUSINESS' },
   { id: 'noticias', label: 'Novidades', icon: Newspaper, catFilter: c => c === 'BUSINESS' },
   { id: 'catalogo', label: 'Catálogo', icon: ShoppingBag, catFilter: c => c === 'BUSINESS' },
+  { id: 'segmentoInfo', label: 'Detalhes do ramo', icon: Info, catFilter: c => c === 'BUSINESS' },
   { id: 'avaliacaoGoogle', label: 'Avaliação Google', icon: Star, catFilter: c => c === 'BUSINESS' },
   { id: 'depoimentos', label: 'Depoimentos', icon: MessageCircle, catFilter: c => HAS_TESTIMONIALS.includes(c) },
   { id: 'wifi', label: 'Wi-Fi', icon: Wifi, catFilter: c => c === 'BUSINESS' },
@@ -307,7 +315,7 @@ function PhonePreview({
   form, mediaItems, mediaItems2, depoimentos, atracoes, promocoes, noticias, wifiSsid, pixQrImage,
   blockOrder, hiddenBlocks, primaryColor, secondaryColor, borderRadius, buttonStyle,
   wallpaper, nameColor, bioColor, buttonColor, appsColor, fontFamily, linkStyle,
-  verified, sosMode, cat,
+  verified, sosMode, cat, cardTheme,
 }: any) {
   const wallpaperValue: string = wallpaper || '';
   const isImageWallpaper = wallpaperValue.startsWith('http') || wallpaperValue.startsWith('data:');
@@ -371,6 +379,11 @@ function PhonePreview({
             {cargo || (cat === 'PET' ? [form.raca, form.idade].filter(Boolean).join(' · ') : form.grauSuporte)}
           </p>
         )}
+        {cat === 'BUSINESS' && getSegmentDisplayName(getSegment(form.__segment), form.__segmentOutro) && (
+          <p className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-full text-[7px] font-bold" style={{ color: primaryColor || '#3b82f6', backgroundColor: `${primaryColor || '#3b82f6'}22` }}>
+            {getSegmentDisplayName(getSegment(form.__segment), form.__segmentOutro)}
+          </p>
+        )}
         {bio && <p className={`text-[8px] mt-1 line-clamp-2 px-2 ${t.sub}`} style={bioStyle}>{bio}</p>}
       </div>
 
@@ -379,7 +392,13 @@ function PhonePreview({
           WhatsApp fixos: reordenar blocos, ocultar seções, preencher
           Wi-Fi/Pix/Depoimentos/Catálogo/Sobre a Empresa não refletia aqui.
           Agora ela usa o MESMO blockOrder/hiddenBlocks do editor. */}
-      <div className="w-full flex flex-col gap-3 px-4 pb-6">
+      <div
+        className={`flex flex-col gap-3 px-3 pt-4 pb-6 mx-2 w-[calc(100%-1rem)] ${cardThemeClass(cardTheme)}`}
+        style={{
+          borderRadius: `${(borderRadius || 16) + 4}px`,
+          ...getCardThemeStyle(cardTheme, { primary: primaryColor || '#3b82f6', secondary: secondaryColor || '#8b5cf6', light: isLight }),
+        }}
+      >
         {(() => {
           const cardBgSoft = isLight ? 'rgba(0,0,0,0.035)' : 'rgba(255,255,255,0.045)';
           const galeria2 = Array.isArray(mediaItems2) ? mediaItems2.filter((m: any) => m?.url) : [];
@@ -409,6 +428,22 @@ function PhonePreview({
                 >
                   <BrandIcon name={s} className="w-3 h-3" />
                   {linkStyle === 'list' && <span className="text-[7px] font-bold capitalize truncate">{s}</span>}
+                </div>
+              ))}
+            </div>
+          ) : null;
+
+          const freeLinksPrev = FREE_LINK_CATEGORIES.includes(cat) ? visibleFreeLinks(form.linksLivres) : [];
+          const linksLivresBlock = freeLinksPrev.length > 0 ? (
+            <div className="space-y-1">
+              {freeLinksPrev.slice(0, 5).map(l => (
+                <div
+                  key={l.id}
+                  className="pp-social-chip flex items-center gap-2 px-2 py-1.5"
+                  style={{ backgroundColor: l.destaque ? (buttonColor || primaryColor || '#3b82f6') : (appsColor ? `${appsColor}26` : cardBg), borderRadius: br }}
+                >
+                  <span className="text-[8px]">{l.icone?.trim() || '🔗'}</span>
+                  <span className={`text-[7px] font-bold truncate ${l.destaque ? 'text-white' : ''}`}>{l.titulo}</span>
                 </div>
               ))}
             </div>
@@ -654,10 +689,29 @@ function PhonePreview({
             </div>
           ) : null;
 
+          const segPreview = cat === 'BUSINESS' ? getSegment(form.__segment) : undefined;
+          const segPresetPreview = getSegmentPreset(segPreview);
+          const segRows = segPreview ? segPresetPreview.fields.filter(f => form[f.key]) : [];
+          const segmentoInfoBlock = segRows.length > 0 ? (
+            <div className="space-y-1">
+              <p className={`text-[6px] font-bold uppercase tracking-widest ${t.sub}`}>{segPresetPreview.detailsTitle}</p>
+              <div className="space-y-1">
+                {segRows.map(f => (
+                  <div key={f.key} className="flex flex-col gap-0.5 px-2 py-1.5" style={{ backgroundColor: cardBgSoft, borderRadius: br }}>
+                    <span className="text-[6px] font-bold uppercase tracking-wide" style={{ color: primaryColor || '#3b82f6' }}>{f.label}</span>
+                    <span className="text-[7px] font-semibold line-clamp-2 leading-snug">{String(form[f.key])}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null;
+
           const BLOCK_MAP: Record<string, any> = {
+            segmentoInfo: segmentoInfoBlock,
             midia: midiaBlock,
             petStats: petStatsBlock,
             social: socialBlock,
+            linksLivres: linksLivresBlock,
             contato: contatoBlock,
             maisInfo: maisInfoBlock,
             sobreEmpresa: sobreEmpresaBlock,
@@ -871,6 +925,7 @@ export default function Perfil() {
   const [vcardEndereco, setVcardEndereco] = useState('');
   const [vcardObservacoes, setVcardObservacoes] = useState('');
   const [layout, setLayout] = useState<ProfileLayout>('center');
+  const [cardTheme, setCardTheme] = useState<CardTheme>('glass');
   const [fontFamily, setFontFamily] = useState('inter');
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPassword, setWifiPassword] = useState('');
@@ -884,6 +939,8 @@ export default function Perfil() {
   const [blockOrder, setBlockOrder] = useState<string[]>(DEFAULT_BLOCK_ORDER);
   const [hiddenBlocks, setHiddenBlocks] = useState<string[]>([]);
   const [hiddenFields, setHiddenFields] = useState<string[]>([]);
+  const [segmentOpen, setSegmentOpen] = useState(false);
+  const [segmentOrderApplied, setSegmentOrderApplied] = useState(false);
 
   // Pré-carrega todas as fontes do catálogo (usadas nos botões do seletor
   // de Fonte, na aba Visual) para que cada opção já mostre sua própria
@@ -915,6 +972,7 @@ export default function Perfil() {
       setVcardEndereco(data.__vcard?.endereco || '');
       setVcardObservacoes(data.__vcard?.observacoes || '');
       setLayout((data.__layout as ProfileLayout) || 'center');
+      setCardTheme(isCardTheme(data.__cardTheme) ? data.__cardTheme : 'glass');
       setFontFamily(data.__fontFamily || 'inter');
       setWifiSsid(data.__wifiSsid || '');
       setWifiPassword(data.__wifiPassword || '');
@@ -945,7 +1003,10 @@ export default function Perfil() {
       const allowedIds = BLOCK_DEFS.filter(b => !b.catFilter || b.catFilter(cat0)).map(b => b.id);
       const savedOrder: string[] = Array.isArray(data.__blockOrder) ? data.__blockOrder.filter((id: string) => allowedIds.includes(id)) : [];
       const missing = allowedIds.filter(id => !savedOrder.includes(id));
-      setBlockOrder([...savedOrder, ...missing]);
+      // Perfil sem ordem própria e com ramo definido começa pela ordem sugerida do ramo;
+      // quem já personalizou a ordem mantém exatamente a que salvou.
+      const seg0 = cat0 === 'BUSINESS' ? getSegment(data.__segment) : undefined;
+      setBlockOrder(savedOrder.length ? [...savedOrder, ...missing] : suggestBlockOrder(seg0, allowedIds));
       setHiddenBlocks(Array.isArray(data.__hiddenBlocks) ? data.__hiddenBlocks : []);
       setHiddenFields(Array.isArray(data.__hiddenFields) ? data.__hiddenFields : []);
     }
@@ -963,7 +1024,14 @@ export default function Perfil() {
   const cat = product.category || 'PERSONAL';
   const catLabel = { PERSONAL: 'Personal', BUSINESS: 'Business', PET: 'Pet', KIDS: 'Kids', SENIOR: 'Senior', TEA: 'TEA' }[cat] || cat;
   const visibility = product.visibility || 'public';
-  const fields = FIELDS[cat] || FIELDS.PERSONAL;
+  const segment = cat === 'BUSINESS' ? getSegment(form.__segment) : undefined;
+  const segmentPreset = getSegmentPreset(segment);
+  const baseFields = FIELDS[cat] || FIELDS.PERSONAL;
+  // Só troca o texto dos rótulos (catálogo e agendamento) conforme o ramo; as chaves salvas não mudam.
+  const fields = cat === 'BUSINESS'
+    ? baseFields.map(f => f.key === 'catalogo' ? { ...f, label: segmentPreset.catalogFieldLabel }
+      : f.key === 'linkAgendamento' ? { ...f, label: segmentPreset.bookingFieldLabel } : f)
+    : baseFields;
   const hasSOS = HAS_SOS.includes(cat);
   const hasTestimonials = HAS_TESTIMONIALS.includes(cat);
   const activeSteps = STEPS.filter(s => (s.id !== 'sos' || hasSOS) && (s.id !== 'depoimentos' || hasTestimonials) && (s.id !== 'novidades' || cat === 'BUSINESS'));
@@ -982,6 +1050,15 @@ export default function Perfil() {
       return next;
     });
   };
+  const moveBlock = (id: string, dir: -1 | 1) =>
+    setBlockOrder(prev => {
+      const i = prev.indexOf(id);
+      const j = i + dir;
+      if (i === -1 || j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
   const toggleBlockHidden = (id: string) => setHiddenBlocks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const toggleFieldHidden = (key: string) => setHiddenFields(prev => prev.includes(key) ? prev.filter(x => x !== key) : [...prev, key]);
 
@@ -1003,6 +1080,20 @@ export default function Perfil() {
   const addAtracao = () => { setField('atracoes', [...atracoes, { id: `atr${Date.now()}`, titulo: '', subtitulo: '', imagem: '', link: '', tag: '' }]); scrollCarouselToEnd(atracoesScrollRef); };
   const updateAtracao = (id: string, patch: any) => setField('atracoes', atracoes.map(a => a.id === id ? { ...a, ...patch } : a));
   const removeAtracao = (id: string) => setField('atracoes', atracoes.filter(a => a.id !== id));
+
+  // Links livres (Profissional / Business)
+  const linksLivres: FreeLink[] = Array.isArray(form.linksLivres) ? form.linksLivres : [];
+  const addFreeLink = () => { if (linksLivres.length < MAX_FREE_LINKS) setField('linksLivres', [...linksLivres, newFreeLink()]); };
+  const updateFreeLink = (id: string, patch: Partial<FreeLink>) => setField('linksLivres', linksLivres.map(l => l.id === id ? { ...l, ...patch } : l));
+  const removeFreeLink = (id: string) => setField('linksLivres', linksLivres.filter(l => l.id !== id));
+  const moveFreeLink = (id: string, dir: -1 | 1) => {
+    const i = linksLivres.findIndex(l => l.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= linksLivres.length) return;
+    const next = [...linksLivres];
+    [next[i], next[j]] = [next[j], next[i]];
+    setField('linksLivres', next);
+  };
 
   const promocoes: { id: string; titulo: string; descricao?: string; imagem?: string; precoDe?: string; precoPor?: string; validade?: string; link?: string; tag?: string }[] = Array.isArray(form.promocoes) ? form.promocoes : [];
   const promocoesScrollRef = useRef<HTMLDivElement>(null);
@@ -1046,6 +1137,7 @@ export default function Perfil() {
         observacoes: vcardObservacoes,
       },
       __layout: layout,
+      __cardTheme: cardTheme,
       __fontFamily: fontFamily,
       __wifiSsid: wifiSsid,
       __wifiPassword: wifiPassword,
@@ -1236,6 +1328,69 @@ export default function Perfil() {
               : 'Preencha os dados que aparecerão no perfil.'}
           </p>
         </div>
+        {cat === 'BUSINESS' && (
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/[0.08] to-amber-500/[0.02] border border-amber-500/20 space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-white mb-0.5">Ramo de atividade</p>
+                <p className="text-[11px] text-zinc-400">
+                  {segment
+                    ? <>Seu perfil está adaptado para <strong className="text-zinc-200">{getSegmentDisplayName(segment, form.__segmentOutro) || segment.label}</strong>.</>
+                    : 'Escolha o ramo do negócio para adaptar títulos, ordem e campos do perfil.'}
+                </p>
+              </div>
+              {segment && (
+                <button
+                  type="button"
+                  onClick={() => setSegmentOpen(o => !o)}
+                  aria-expanded={segmentOpen}
+                  className="shrink-0 min-h-[44px] px-3 rounded-xl border border-white/10 bg-white/[0.04] text-[11px] font-bold text-zinc-200 hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
+                >
+                  {segmentOpen ? 'Fechar' : 'Alterar'}
+                </button>
+              )}
+            </div>
+            {(segmentOpen || !segment) && (
+              <SegmentPicker
+                value={form.__segment}
+                otherText={form.__segmentOutro}
+                onChange={id => { setField('__segment', id); setSegmentOrderApplied(false); setSegmentOpen(id === 'outro'); }}
+                onOtherTextChange={t => setField('__segmentOutro', t)}
+              />
+            )}
+            {segment && segmentPreset.blockPriority.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setBlockOrder(prev => suggestBlockOrder(segment, prev)); setSegmentOrderApplied(true); }}
+                  className="min-h-[44px] px-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-[11px] font-bold text-amber-200 hover:bg-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60A5FA]"
+                >
+                  Aplicar ordem sugerida para o ramo
+                </button>
+                {segmentOrderApplied && (
+                  <span role="status" className="text-[11px] text-emerald-300">Ordem aplicada. Ajuste em “Organizar” e salve.</span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {cat === 'BUSINESS' && segment && segmentPreset.fields.length > 0 && (
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-sky-500/[0.07] to-sky-500/[0.02] border border-sky-500/15 space-y-3">
+            <div>
+              <p className="text-xs font-bold text-white mb-0.5">{segmentPreset.detailsTitle}</p>
+              <p className="text-[11px] text-zinc-500">Campos opcionais específicos de {getSegmentDisplayName(segment, form.__segmentOutro) || segment.label.toLowerCase()}. Aparecem no perfil só quando preenchidos.</p>
+            </div>
+            {segmentPreset.fields.map(f => (
+              <FormField key={f.key} label={f.label}>
+                {f.type === 'textarea'
+                  ? <textarea value={form[f.key] || ''} onChange={e => setField(f.key, e.target.value)} placeholder={f.placeholder} className={textareaCls} rows={3} />
+                  : <input value={form[f.key] || ''} onChange={e => setField(f.key, e.target.value)} placeholder={f.placeholder} className={inputCls} />}
+              </FormField>
+            ))}
+          </div>
+        )}
+
         {groups ? groups.map(g => {
           const groupFields = fields.filter(f => g.keys.includes(f.key));
           if (groupFields.length === 0) return null;
@@ -1432,6 +1587,37 @@ export default function Perfil() {
           <p className="text-xs font-bold text-white mb-0.5">🎨 Aparência</p>
           <p className="text-[11px] text-zinc-500">Toque em cada seção para abrir e personalizar. Fica mais compacto e fácil de navegar.</p>
         </div>
+
+        {/* Tema do card */}
+        <CollapsibleSection
+          title="Tema do Card"
+          subtitle={CARD_THEMES.find(t => t.id === cardTheme)?.label || 'Vidro'}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            {CARD_THEMES.map(t => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setCardTheme(t.id)}
+                className={`p-2.5 rounded-2xl border-2 text-left transition-all ${cardTheme === t.id ? 'border-blue-500 bg-blue-500/10' : 'border-white/8 bg-white/[0.02] hover:border-white/20'}`}
+              >
+                <div
+                  className="h-10 w-full rounded-xl mb-2"
+                  style={{
+                    ...getCardThemeStyle(t.id, { primary: primaryColor || '#3b82f6', secondary: secondaryColor || '#8b5cf6', light: false }),
+                    ...(t.id === 'glass' ? { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } : {}),
+                    ...(t.id === 'minimal' ? { background: 'transparent' } : {}),
+                    ...(t.id === 'outline' ? { background: 'transparent' } : {}),
+                    ...(t.id === 'frosted' ? { background: 'rgba(255,255,255,0.14)' } : {}),
+                  }}
+                />
+                <p className="text-xs font-bold text-white">{t.label}</p>
+                <p className="text-[10px] text-zinc-500 mt-0.5 leading-snug">{t.desc}</p>
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-zinc-600 mt-2">Muda o material do card do seu perfil (moldura, brilho e botões). As cores vêm da sua paleta.</p>
+        </CollapsibleSection>
 
         {/* Fonte */}
         <CollapsibleSection
@@ -1702,6 +1888,72 @@ export default function Perfil() {
             </div>
           </FormField>
         ))}
+        {FREE_LINK_CATEGORIES.includes(cat) && (
+          <div className="pt-2 space-y-3">
+            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-violet-500/[0.09] to-violet-500/[0.02] border border-violet-500/20">
+              <p className="text-xs font-bold text-white mb-0.5">✨ Links livres</p>
+              <p className="text-[11px] text-zinc-500">
+                Adicione quantos links quiser (até {MAX_FREE_LINKS}): agenda, portfólio, loja, cardápio, grupo, PDF, e-mail… Escolha o título, um emoji e, se quiser, destaque como botão cheio.
+              </p>
+            </div>
+
+            {linksLivres.map((l, i) => (
+              <div key={l.id} className="p-3 rounded-2xl bg-white/[0.03] border border-white/8 space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={l.icone || ''}
+                    onChange={e => updateFreeLink(l.id, { icone: e.target.value })}
+                    placeholder="🔗"
+                    maxLength={4}
+                    aria-label="Emoji do link"
+                    className={`${inputCls} !w-14 !px-0 text-center shrink-0`}
+                  />
+                  <input
+                    type="text"
+                    value={l.titulo}
+                    onChange={e => updateFreeLink(l.id, { titulo: e.target.value })}
+                    placeholder="Título (ex.: Agende uma conversa)"
+                    maxLength={60}
+                    className={inputCls}
+                  />
+                </div>
+                <input
+                  type="text"
+                  inputMode="url"
+                  value={l.url}
+                  onChange={e => updateFreeLink(l.id, { url: e.target.value })}
+                  placeholder="https://… ou e-mail ou telefone"
+                  className={inputCls}
+                />
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => updateFreeLink(l.id, { destaque: !l.destaque })}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${l.destaque ? 'bg-blue-600 border-blue-500 text-white' : 'border-white/10 text-zinc-400 hover:text-white'}`}
+                  >
+                    {l.destaque ? '★ Botão em destaque' : '☆ Destacar'}
+                  </button>
+                  <div className="flex items-center gap-1">
+                    <button type="button" onClick={() => moveFreeLink(l.id, -1)} disabled={i === 0} aria-label="Subir" className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 disabled:opacity-30"><ChevronUp className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => moveFreeLink(l.id, 1)} disabled={i === linksLivres.length - 1} aria-label="Descer" className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 disabled:opacity-30"><ChevronDown className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => removeFreeLink(l.id)} aria-label="Remover link" className="p-2 rounded-lg text-red-400 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addFreeLink}
+              disabled={linksLivres.length >= MAX_FREE_LINKS}
+              className="w-full py-3.5 rounded-2xl border-2 border-dashed border-white/10 hover:border-violet-500/40 bg-white/[0.02] text-sm font-bold text-zinc-500 hover:text-white transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+            >
+              <Plus className="h-4 w-4" /> Adicionar link
+            </button>
+          </div>
+        )}
+
         {cat === 'PET' && (
           <FormField label="WhatsApp Tutor">
             <div className="relative">
@@ -2133,7 +2385,15 @@ export default function Perfil() {
                 <Icon className="h-4 w-4 text-zinc-400" />
               </div>
               <span className="text-sm font-bold text-white flex-1 min-w-0 truncate">{def.label}</span>
-              <button onClick={() => toggleBlockHidden(id)} className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${isHidden ? 'bg-zinc-700' : 'bg-blue-500'}`}>
+              <div className="flex shrink-0">
+                <button type="button" onClick={() => moveBlock(id, -1)} aria-label={`Mover ${def.label} para cima`} className="h-11 w-9 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60A5FA]">
+                  <ChevronUp className="h-4 w-4" />
+                </button>
+                <button type="button" onClick={() => moveBlock(id, 1)} aria-label={`Mover ${def.label} para baixo`} className="h-11 w-9 flex items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60A5FA]">
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </div>
+              <button role="switch" aria-checked={!isHidden} aria-label={`Mostrar ${def.label} no perfil`} onClick={() => toggleBlockHidden(id)} className={`relative w-11 h-6 rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60A5FA] ${isHidden ? 'bg-zinc-700' : 'bg-blue-500'}`}>
                 <div className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${isHidden ? 'translate-x-1' : 'translate-x-6'}`} />
               </button>
             </div>
@@ -2478,6 +2738,7 @@ export default function Perfil() {
                 appsColor={appsColor}
                 fontFamily={fontFamily}
                 linkStyle={linkStyle}
+                cardTheme={cardTheme}
                 verified={verified}
                 sosMode={sosMode}
                 cat={cat}

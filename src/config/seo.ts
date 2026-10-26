@@ -15,9 +15,9 @@ export const SITE_URL = (
 export const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
 export const SITE_NAME = 'AirNext';
-export const SITE_TAGLINE = 'Conectando o físico ao digital';
+export const SITE_TAGLINE = 'Conecta o físico ao digital';
 export const SITE_DESCRIPTION =
-  'AirNext transforma cartões, tags e pulseiras NFC em perfis digitais inteligentes. Compartilhe contatos, pet, kids, TEA e negócios com um toque — privacidade, design premium e controle total.';
+  'NFC + QR Code em um único perfil: links, contato e muito mais. Feito para negócios, pets e pessoas. Saiba mais.';
 
 export const SITE_KEYWORDS = [
   'AirNext',

@@ -17,6 +17,8 @@ export function mapProduct(row: any): Product {
     theme: row.theme ?? 'escuro',
     visibility: row.visibility ?? 'public',
     loteName: row.lote_name ?? undefined,
+    productLine: row.product_line === 'GOOGLE' ? 'GOOGLE' : 'STANDARD',
+    redirectUrl: row.redirect_url ?? null,
     productType: row.product_type ?? row.productType ?? 'CARTAO',
     profileData: row.profile_data ?? row.profileData ?? {},
     mediaCarousel: row.media_carousel ?? [],

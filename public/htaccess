@@ -1,0 +1,12 @@
+# AirNext — Hostinger (Apache/LiteSpeed)
+RewriteEngine On
+
+# 1) Robôs de prévia (WhatsApp, Instagram/Facebook, Telegram, LinkedIn, X, Discord, iMessage…)
+#    recebem o HTML com as tags Open Graph do perfil (share.php).
+RewriteCond %{HTTP_USER_AGENT} (whatsapp|facebookexternalhit|facebot|meta-externalagent|instagram|twitterbot|telegrambot|linkedinbot|slackbot|discord|pinterest|skypeuripreview|snapchat|embedly|redditbot|iframely|viber|vkshare|bitlybot|tumblr|applebot|googlebot|bingbot|imessage|linkpreview) [NC]
+RewriteRule ^(u|p)/([A-Za-z0-9_-]+)/?$ share.php?p=$1&slug=$2 [L,QSA]
+
+# 2) Site React (SPA): qualquer rota que não seja arquivo/pasta real abre o index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /index.html [L]

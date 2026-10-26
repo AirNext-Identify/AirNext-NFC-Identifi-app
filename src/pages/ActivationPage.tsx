@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, Category, ProfileTheme } from '../contexts/AuthContext';
-import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X, QrCode, Nfc, AlertTriangle } from 'lucide-react';
+import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X, QrCode, Nfc, AlertTriangle, Star, ExternalLink, Link2 } from 'lucide-react';
 import Logo from '../components/Logo';
 import { ConsentModal } from '../components/legal/ConsentModal';
 import { hasCurrentRequiredConsents } from '../lib/consents';
@@ -11,7 +11,10 @@ import { extractActivationCode } from '../lib/qrScanner';
 import { supabase } from '../lib/supabase';
 import { getPendingActivationCode, setPendingActivationCode, clearPendingActivationCode } from '../lib/pendingActivation';
 import { isWebNFCSupported } from '../lib/nfc';
+import { GOOGLE_URL_HELP, isValidGoogleReviewUrl, normalizeGoogleReviewUrl } from '../lib/googleReview';
 import { linkChipToProduct, readChipUuid, extractNfcUuid, type ChipLinkResult } from '../lib/chipLink';
+import { SegmentPicker } from '../components/business/SegmentPicker';
+import { getSegment, getSegmentDisplayName } from '../config/businessSegments';
 
 const CATS:{id:Category;label:string;desc:string;icon:React.ElementType;color:string}[]=[
   {id:'PERSONAL',label:'Pessoa',desc:'Compartilhamento pessoal',icon:UserCheck,color:'from-blue-500 to-cyan-400'},
@@ -64,7 +67,9 @@ export default function ActivationPage() {
   };
 
   // Main flow: code → category → step1 → step2 → step3 → theme → done
-  const [phase, setPhase] = useState<'code'|'chip'|'category'|'wizard'|'done'>('code');
+  // 'google' / 'google_done': linha AirNext Google — sem categoria nem perfil, só o
+  // link de avaliações. Quem decide isso é o BANCO (pelo código), não o cliente.
+  const [phase, setPhase] = useState<'code'|'chip'|'category'|'wizard'|'done'|'google'|'google_done'>('code');
   const [wizStep, setWizStep] = useState(1); // 1-5
   // O código vem do link antigo (/ativar/:code), do código guardado após ler o
   // QR/chip, ou é digitado. Ele não deve permanecer na barra de endereço.
@@ -89,6 +94,10 @@ export default function ActivationPage() {
   const [consentModalOpen, setConsentModalOpen] = useState(false);
   const [pendingActivate, setPendingActivate] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  // AirNext Google
+  const [googleCode, setGoogleCode] = useState('');
+  const [googleUrl, setGoogleUrl] = useState('');
+  const [googleResult, setGoogleResult] = useState<{ url: string; productId: string } | null>(null);
 
   const inp = "w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/50 text-sm transition-all";
   const inpStyle: React.CSSProperties = { color: '#ffffff' };
@@ -97,13 +106,24 @@ export default function ActivationPage() {
 // setCode() (ex.: acabou de ser lido pela câmera) sem esperar o próximo
 // render — sem isso, ativar logo após escanear usaria o `code` antigo
 // (stale state), já que setState é assíncrono.
-const runActivate = async (codeOverride?: string, viaChip = false) => {
+const runActivate = async (codeOverride?: string, viaChip = false, redirectUrl?: string) => {
   setBusy(true);
   setError('');
 
-  const res = await activateProduct(codeOverride ?? code);
+  const usedCode = codeOverride ?? code;
+  const res = await activateProduct(usedCode, redirectUrl);
 
   console.log('RESPOSTA:', res);
+
+  // O banco identificou que este código é da linha AirNext Google: a ativação
+  // só conclui com o link de avaliações. Nada foi ativado ainda.
+  if (res?.needsGoogleUrl) {
+    setGoogleCode(usedCode);
+    setPhase('google');
+    setBusy(false);
+    if (res.error) setError(res.error);
+    return;
+  }
 
   if (!res || !res.product?.id) {
     setBusy(false);
@@ -112,6 +132,15 @@ const runActivate = async (codeOverride?: string, viaChip = false) => {
   }
 
   clearPendingActivationCode();
+
+  // Plaquinha Google ativada: sem categoria, sem perfil, sem vínculo de chip.
+  if (res.product.product_line === 'GOOGLE') {
+    setGoogleResult({ url: res.product.redirect_url || normalizeGoogleReviewUrl(redirectUrl || ''), productId: res.product.id });
+    setPhase('google_done');
+    setBusy(false);
+    return;
+  }
+
   setActivated({ id: res.product.id, nfc_uuid: res.product.nfc_uuid });
 
   // Ativou pelo chip, ou o chip já saiu gravado de fábrica → já está vinculado.
@@ -199,6 +228,17 @@ const handleChipActivate = async () => {
     setBusy(false);
     setError('Não foi possível ler o chip. Aproxime a placa do celular e tente novamente.');
   }
+};
+
+// Envia o link de avaliações junto da ativação (atômico no banco).
+const handleGoogleSubmit = async () => {
+  const url = normalizeGoogleReviewUrl(googleUrl);
+  if (!isValidGoogleReviewUrl(url)) {
+    setError(GOOGLE_URL_HELP);
+    return;
+  }
+  setError('');
+  await runActivate(googleCode, false, url);
 };
 
 const handleLinkChip = async () => {
@@ -383,6 +423,75 @@ setPhase('done');
             </div>
           )}
 
+          {/* ═══ PHASE: GOOGLE (AirNext Google — só o link de avaliações) ═══ */}
+          {phase === 'google' && (
+            <div className="p-8">
+              <div className="text-center mb-6">
+                <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-400/15 mb-4"><Star className="h-7 w-7 text-amber-300" /></div>
+                <h2 className="text-xl font-bold text-white">Plaquinha AirNext Google</h2>
+                <p className="mt-1.5 text-sm text-zinc-300">Código <span className="font-mono text-white">{googleCode}</span> reconhecido. Informe o link de avaliações do seu estabelecimento.</p>
+              </div>
+              {error && <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400 mb-4">{error}</div>}
+
+              <label className="text-xs font-medium text-zinc-400 mb-1.5 block">Link de avaliações do Google</label>
+              <div className="relative">
+                <Link2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                <input type="url" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+                  value={googleUrl} onChange={e => { setGoogleUrl(e.target.value); if (error) setError(''); }}
+                  placeholder="https://g.page/r/..../review"
+                  className="w-full bg-white/10 border border-white/15 rounded-xl pl-10 pr-4 py-3.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/50"
+                  style={{ color: '#ffffff' }} />
+              </div>
+              {googleUrl.trim() && !isValidGoogleReviewUrl(normalizeGoogleReviewUrl(googleUrl)) && (
+                <p className="text-[11px] text-amber-300 mt-1.5">{GOOGLE_URL_HELP}</p>
+              )}
+
+              <details className="mt-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-300">
+                <summary className="cursor-pointer font-medium text-zinc-200">Como encontrar meu link?</summary>
+                <ol className="mt-2 list-decimal space-y-1 pl-5 text-[13px] text-zinc-400">
+                  <li>Abra o Google Maps e procure o nome do seu estabelecimento.</li>
+                  <li>Na sua ficha, toque em <b>Compartilhar</b> ou em <b>Pedir avaliações</b>.</li>
+                  <li>Copie o link e cole aqui.</li>
+                </ol>
+              </details>
+
+              <button onClick={handleGoogleSubmit} disabled={!isValidGoogleReviewUrl(normalizeGoogleReviewUrl(googleUrl)) || busy}
+                className="w-full mt-5 flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#2563EB]/30" style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}>
+                {busy ? <><Loader2 className="h-4 w-4 animate-spin" />Ativando...</> : <><Zap className="h-4 w-4" />Ativar plaquinha</>}
+              </button>
+              <button onClick={() => { setPhase('code'); setError(''); setGoogleUrl(''); }} disabled={busy}
+                className="w-full mt-3 py-3 rounded-xl border border-white/10 text-zinc-300 hover:bg-white/5 text-sm font-medium transition-all disabled:opacity-40">
+                Voltar
+              </button>
+              <p className="text-center text-[11px] text-zinc-500 mt-3">Esta plaquinha só direciona para as suas avaliações — não cria perfil público.</p>
+            </div>
+          )}
+
+          {/* ═══ PHASE: GOOGLE DONE ═══ */}
+          {phase === 'google_done' && (
+            <div className="p-8 text-center space-y-5">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20">
+                <CheckCircle className="h-10 w-10 text-emerald-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-white">Plaquinha ativada!</h2>
+              <p className="text-zinc-300 text-sm">A partir de agora, quem escanear o QR Code vai direto para as suas avaliações no Google.</p>
+              <div className="glass rounded-2xl p-4 space-y-1 text-left">
+                <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Destino do QR Code</p>
+                <p className="font-mono text-blue-400 text-xs break-all">{googleResult?.url}</p>
+              </div>
+              <p className="text-xs text-zinc-500">Você pode trocar o link quando quiser, sem precisar imprimir outra plaquinha.</p>
+              {googleResult?.url && (
+                <a href={googleResult.url} target="_blank" rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-white/10 font-semibold text-zinc-200 hover:bg-white/5 text-sm transition-all">
+                  <ExternalLink className="h-4 w-4" /> Testar o link
+                </a>
+              )}
+              <button onClick={() => nav('/dashboard/google')} className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 font-bold text-white text-sm transition-all">
+                Gerenciar minhas plaquinhas
+              </button>
+            </div>
+          )}
+
           {/* ═══ PHASE: CATEGORY ═══ */}
           {phase === 'category' && (
             <div className="p-8">
@@ -439,6 +548,21 @@ setPhase('done');
                         <Camera className="h-6 w-6 text-zinc-600" />
                       </div>
                     </div>
+                    {category === 'BUSINESS' && (
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                        <p className="text-sm font-semibold text-white">Qual é o ramo do seu negócio?</p>
+                        <p className="mb-3 mt-0.5 text-[11px] text-zinc-400">Usamos isso para adaptar os títulos e a ordem do seu perfil. Você pode mudar depois.</p>
+                        <SegmentPicker
+                          value={form.__segment}
+                          otherText={form.__segmentOutro}
+                          onChange={(id) => set('__segment', id)}
+                          onOtherTextChange={(t) => set('__segmentOutro', t)}
+                        />
+                        {!form.__segment && (
+                          <p role="status" className="mt-3 text-[11px] font-medium text-amber-300">Escolha um ramo para continuar. Se não encontrar o seu, selecione “Outro segmento”.</p>
+                        )}
+                      </div>
+                    )}
                     <input className={inp} style={inpStyle} placeholder={namePh} value={form[nameField]||''} onChange={e=>set(nameField,e.target.value)} />
                     <input className={inp} style={inpStyle} placeholder={descPh} value={form[descField]||''} onChange={e=>set(descField,e.target.value)} />
                     <textarea className={inp+' resize-none'} style={inpStyle} rows={2} placeholder={bioPh} value={form[bioField]||''} onChange={e=>set(bioField,e.target.value)} />
@@ -513,6 +637,9 @@ setPhase('done');
                     <div className="glass rounded-xl p-4 text-left space-y-2 text-sm">
                       <div className="flex justify-between"><span className="text-zinc-300">Nome</span><span className="text-white font-medium">{form[nameField]||'—'}</span></div>
                       <div className="flex justify-between"><span className="text-zinc-300">Categoria</span><span className="text-[#60A5FA] font-medium">{CATS.find(c=>c.id===category)?.label}</span></div>
+                      {category === 'BUSINESS' && getSegment(form.__segment) && (
+                        <div className="flex justify-between gap-3"><span className="text-zinc-300">Ramo</span><span className="text-white font-medium text-right">{getSegmentDisplayName(getSegment(form.__segment), form.__segmentOutro) || getSegment(form.__segment)?.label}</span></div>
+                      )}
                       <div className="flex justify-between"><span className="text-zinc-300">URL</span><span className="text-white font-mono text-xs">/u/{slug||'...'}</span></div>
                       <div className="flex justify-between"><span className="text-zinc-300">Tema</span><span className="text-white font-medium">{THEMES.find(t=>t.id===theme)?.label}</span></div>
                     </div>
@@ -528,7 +655,7 @@ setPhase('done');
                   <button onClick={() => {
                     if (wizStep < 5) setWizStep(wizStep + 1);
                     else handleFinish();
-                  }} disabled={wizStep === 5 && !slug.trim()}
+                  }} disabled={(wizStep === 5 && !slug.trim()) || (wizStep === 1 && category === 'BUSINESS' && !form.__segment)}
                     className="flex-1 flex items-center justify-center gap-2 text-white font-semibold py-2.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#2563EB]/30" style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}>
                     {wizStep === 5 ? <><CheckCircle className="h-4 w-4" />Gerar Perfil</> : <>Próximo<ArrowRight className="h-4 w-4" /></>}
                   </button>

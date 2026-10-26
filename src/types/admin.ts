@@ -70,6 +70,10 @@ export interface Product {
   programmedAt?: string;
   programmedBy?: string;
   nfcUrl: string;
+  /** 'GOOGLE' = plaquinha de avaliações do Google (sem perfil). Definido no banco. */
+  productLine?: 'STANDARD' | 'GOOGLE';
+  /** Destino do QR (somente GOOGLE). */
+  redirectUrl?: string;
 }
 
 export interface Lot {
@@ -82,6 +86,7 @@ export interface Lot {
   supplier?: string;
   createdAt: string;
   notes?: string;
+  productLine?: 'STANDARD' | 'GOOGLE';
 }
 
 export interface NFCProgrammingRecord {
@@ -171,9 +176,13 @@ export interface AdminVisit {
 export type AdminModule =
   | 'dashboard'
   | 'customers'
+  | 'orders'
+  | 'feedbacks'
   | 'products'
   | 'lots'
+  | 'google'
   | 'nfc'
+  | 'labels'
   | 'validity'
   | 'notifications'
   | 'analytics'

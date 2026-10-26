@@ -8,9 +8,11 @@
 const KEY = 'airnext:pending_activation';
 const TTL_MS = 30 * 60 * 1000;
 
-export function setPendingActivationCode(code: string): void {
+export function setPendingActivationCode(code: string, line?: string): void {
   try {
-    localStorage.setItem(KEY, JSON.stringify({ code, t: Date.now() }));
+    // `line` ('GOOGLE'…) só ajusta o TEXTO das telas; quem decide o tipo do
+    // produto é sempre o banco (ver sql/10_airnext_google.sql).
+    localStorage.setItem(KEY, JSON.stringify({ code, line, t: Date.now() }));
   } catch {
     /* storage indisponível: o cliente ainda pode digitar o código */
   }
@@ -26,6 +28,17 @@ export function getPendingActivationCode(): string | null {
       return null;
     }
     return code;
+  } catch {
+    return null;
+  }
+}
+
+export function getPendingActivationLine(): string | null {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return null;
+    const { line, t } = JSON.parse(raw) as { line?: string; t: number };
+    return line && Date.now() - t <= TTL_MS ? line : null;
   } catch {
     return null;
   }

@@ -307,7 +307,7 @@ export function GuideView({ onNavigate }: GuideViewProps) {
                     <p>
                       Projetado para programar lotes inteiros de 500+ chips em poucos minutos. Você escolhe o lote e clica em Iniciar:
                       basta ir aproximando os chips em sequência no verso do celular. O sistema grava, emite feedback sonoro/visual,
-                      valida por releitura e passa automaticamente para o próximo!
+                      registra no sistema e passa automaticamente para o próximo!
                     </p>
                   </div>
                 </div>

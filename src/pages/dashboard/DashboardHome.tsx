@@ -17,7 +17,8 @@ import {
   ExternalLink,
   TrendingUp,
   Users,
-  Package
+  Package,
+  Star
 } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
@@ -283,7 +284,7 @@ function ProductCard({ p, onClick }: { p: Product; onClick: () => void }) {
 
 /* ─── MAIN ──────────────────────────────────────────────── */
 export default function DashboardHome() {
-  const { user, products, visits } = useAuth();
+  const { user, products, visits, googleProducts } = useAuth();
   const [selected, setSelected] = useState<Product | null>(null);
 
   const activeProducts = (products || []).filter(p => p.status === 'ATIVO');
@@ -309,6 +310,20 @@ export default function DashboardHome() {
           <Zap className="h-4 w-4" /> Ativar Produto
         </Link>
       </div>
+
+      {/* AirNext Google: atalho para quem tem plaquinha de avaliações */}
+      {(googleProducts || []).length > 0 && (
+        <Link to="/dashboard/google" className="flex items-center gap-3 rounded-2xl border border-amber-400/20 bg-amber-400/5 hover:bg-amber-400/10 p-4 transition-colors">
+          <div className="h-10 w-10 rounded-xl bg-amber-400/15 flex items-center justify-center shrink-0">
+            <Star className="h-5 w-5 text-amber-300" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white">AirNext Google</p>
+            <p className="text-xs text-zinc-400">{googleProducts.length === 1 ? '1 plaquinha ativa' : `${googleProducts.length} plaquinhas ativas`} — gerencie o link das suas avaliações</p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-zinc-500 shrink-0" />
+        </Link>
+      )}
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

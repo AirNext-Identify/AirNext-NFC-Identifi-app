@@ -18,10 +18,10 @@ export default function CustomSitesSection({ whatsapp }: Props) {
   return (
     <section
       id="sites-personalizados"
-      className="relative py-20 md:py-28 overflow-hidden bg-gradient-to-br from-[#0b1020] via-[#0a0a0f] to-[#14102b] text-white"
+      className="relative py-20 md:py-28 overflow-hidden bg-[#0b1020] text-white"
     >
-      <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#0071e3]/20 blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-24 -right-16 w-96 h-96 rounded-full bg-purple-600/15 blur-[120px] pointer-events-none" />
+      
+      
 
       <div className="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         {/* Mockup: janela de navegador + celular */}

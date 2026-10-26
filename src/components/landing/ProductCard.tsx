@@ -68,10 +68,6 @@ export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, ba
       whileHover={{ y: -6 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
       onClick={onOpen}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
-      role="button"
-      tabIndex={0}
-      aria-label={`Ver detalhes de ${p.name}`}
       className="group cursor-pointer h-full flex flex-col outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3] focus-visible:ring-offset-4 rounded-[18px] sm:rounded-[22px] lg:rounded-[28px] focus-visible:ring-offset-transparent"
     >
       {/* Imagem */}
@@ -116,7 +112,7 @@ export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, ba
       {/* Texto */}
       <div className="flex flex-col flex-1">
         <span className={`hidden lg:block text-[11px] font-medium mb-1 truncate ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.tag}</span>
-        <h3 className={`text-[13px] sm:text-[14px] lg:text-[17px] font-semibold mb-1 lg:mb-1.5 leading-tight lg:leading-snug tracking-tight line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.name}</h3>
+        <h3 className={`text-[13px] sm:text-[14px] lg:text-[17px] font-semibold mb-1 lg:mb-1.5 leading-tight lg:leading-snug tracking-tight line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}><button type="button" onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-label={`Ver detalhes de ${p.name}`} className="text-left outline-none focus-visible:ring-2 focus-visible:ring-[#0071e3] focus-visible:ring-offset-2 rounded">{p.name}</button></h3>
         <p className="hidden lg:block text-[13px] text-gray-500 leading-relaxed mb-4 line-clamp-2">{p.desc}</p>
 
         <div className="mt-auto flex items-center justify-between gap-3">

@@ -50,15 +50,16 @@ export function generateUUID(): string {
  * respeitar exatamente este mesmo formato, ou os códigos reais gerados
  * aqui não caberão/baterão nos campos de digitação do cliente.
  */
-export function generateActivationCode(): string {
+export function generateActivationCode(prefix: string = 'AIR'): string {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 32 caracteres, sem ambiguidade
-  const length = 8; // "AIR-" (4) + 8 = 12 caracteres totais, um único traço
+  const length = 8; // prefixo de 3 letras + "-" + 8 = 12 caracteres totais, um único traço
   const bytes = secureRandomBytes(length);
   let suffix = '';
   for (let i = 0; i < length; i++) {
     suffix += chars[bytes[i] % chars.length];
   }
-  return `AIR-${suffix}`;
+  // "AIR" = linha padrão; "ANG" = AirNext Google (ver src/lib/googleReview.ts).
+  return `${prefix}-${suffix}`;
 }
 
 /**

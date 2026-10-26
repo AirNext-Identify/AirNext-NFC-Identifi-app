@@ -157,7 +157,7 @@ function MediaSlotRow({
 }
 
 export default function ImageAdmin() {
-  const { images, setImage, resetImage, resetAll, loading } = useSiteImages();
+  const { images, setImage, resetImage, resetAll, loading } = useSiteImages({ realtime: true });
 
   if (loading) {
     return (

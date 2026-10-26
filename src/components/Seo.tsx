@@ -10,12 +10,12 @@ import {
   fullTitle,
   type SeoProps,
 } from '../config/seo';
+import { SITE_SHARE } from '../config/shareText';
 import {
   buildFaqPageJsonLd,
   buildHowToJsonLd,
   buildProductJsonLd,
   buildSpeakableJsonLd,
-  AIRNEXT_DEFINITION,
 } from '../config/aiContent';
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
@@ -134,8 +134,6 @@ export function Seo({
       upsertJsonLd('airnext-ld-howto', buildHowToJsonLd());
       upsertJsonLd('airnext-ld-product', buildProductJsonLd());
       upsertJsonLd('airnext-ld-speakable', buildSpeakableJsonLd());
-      // Reforça description com definição citável
-      upsertMeta('name', 'description', description.includes('AirNext é') ? description : `${AIRNEXT_DEFINITION} ${description}`.slice(0, 320));
     }
   }, [pageTitle, description, url, image, type, noIndex, keywords, pagePath]);
 
@@ -234,9 +232,8 @@ export function SeoManager() {
 function routeDefaults(pathname: string): SeoProps {
   if (pathname === '/' || pathname === '') {
     return {
-      title: `${SITE_NAME} — Cartões NFC e Perfis Digitais`,
-      description:
-        'AirNext é uma plataforma de cartões, tags e pulseiras NFC que abrem um perfil digital com um toque, sem instalar app. Ideal para networking, pet, kids, TEA e negócios.',
+      title: SITE_SHARE.title,
+      description: SITE_SHARE.description,
     };
   }
   if (pathname.startsWith('/login')) {

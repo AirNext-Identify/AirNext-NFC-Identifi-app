@@ -1,0 +1,23 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "AirNext",
+    "identifier": "airnext.com.br"
+  },
+  "entries": [
+    {
+      "identifier": "urn:ai:airnext.com.br:knowledge:llms-txt",
+      "displayName": "Índice do site AirNext (llms.txt)",
+      "type": "text/plain",
+      "url": "https://airnext.com.br/llms.txt",
+      "description": "Resumo em Markdown do que é a AirNext (cartões, tags e pulseiras NFC com perfil digital) e links para produtos, suporte e documentos legais, em português do Brasil."
+    },
+    {
+      "identifier": "urn:ai:airnext.com.br:knowledge:sitemap",
+      "displayName": "Mapa do site AirNext",
+      "type": "application/xml",
+      "url": "https://airnext.com.br/sitemap.xml",
+      "description": "Lista das páginas públicas do site AirNext para rastreadores e agentes."
+    }
+  ]
+}
