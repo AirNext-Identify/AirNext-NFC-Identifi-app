@@ -4,6 +4,13 @@ import {
 } from 'framer-motion';
 import { ArrowRight, Camera, Globe, MessageCircle, Nfc, PawPrint, QrCode, ShieldCheck, Zap } from 'lucide-react';
 import { NFC_TAG_IMG, PET_TAG_AD_IMG, PET_THOR_IMG } from '../../lib/productImages';
+// Versões menores das artes do topo: o celular baixa ~540px em vez de 1080px (mesma imagem, bem mais leve).
+import petThor540 from '../../assets/airnext/pet-thor-540.webp';
+import petThor828 from '../../assets/airnext/pet-thor-828.webp';
+import petAd540 from '../../assets/airnext/pet-tag-anuncio-540.webp';
+import petAd828 from '../../assets/airnext/pet-tag-anuncio-828.webp';
+import nfcTag360 from '../../assets/airnext/nfc-tag-toque-360.webp';
+import nfcTag720 from '../../assets/airnext/nfc-tag-toque-720.webp';
 
 /**
  * Vitrine do topo da landing — substitui os antigos "cards flutuantes".
@@ -137,6 +144,8 @@ export default function HeroShowcase({ isDark }: Props) {
             <a href="#coleira-pet" aria-label="Conheça o AirNext Pet" className={`group block aspect-[4/5] ${tile} bg-zinc-900`}>
               <img
                 src={PET_THOR_IMG}
+                srcSet={`${petThor540} 540w, ${petThor828} 828w, ${PET_THOR_IMG} 1080w`}
+                sizes="(min-width: 768px) 400px, calc(100vw - 32px)"
                 alt="Cachorro Thor com a tag AirNext na coleira e o perfil de emergência aberto no celular"
                 width={1080}
                 height={1350}
@@ -164,6 +173,8 @@ export default function HeroShowcase({ isDark }: Props) {
             <a href="#produtos" aria-label="Ver produtos AirNext" className={`group block aspect-square ${tile} bg-[#f2f2f4]`}>
               <img
                 src={NFC_TAG_IMG}
+                srcSet={`${nfcTag360} 360w, ${nfcTag720} 720w, ${NFC_TAG_IMG} 1254w`}
+                sizes="(min-width: 768px) 320px, 50vw"
                 alt="Tag NFC AirNext: seu mundo, com um toque"
                 width={1254}
                 height={1254}
@@ -203,6 +214,8 @@ export default function HeroShowcase({ isDark }: Props) {
             <a href="#produtos" aria-label="Garanta já a sua tag AirNext Pet" className={`group block aspect-[4/5] ${tile} bg-[#06122b]`}>
               <img
                 src={PET_TAG_AD_IMG}
+                srcSet={`${petAd540} 540w, ${petAd828} 828w, ${PET_TAG_AD_IMG} 1080w`}
+                sizes="(min-width: 768px) 400px, calc(100vw - 32px)"
                 alt="Tag pet com NFC AirNext: identificação digital do seu pet, em várias cores e modelos"
                 width={1080}
                 height={1350}

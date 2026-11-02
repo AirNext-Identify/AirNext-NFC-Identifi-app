@@ -1,31 +1,38 @@
-import { useMemo, useState } from 'react';
-import { Printer, CheckCircle, RotateCcw, ScanLine, Copy, Search, Download, Check, ExternalLink } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Printer, CheckCircle, RotateCcw, Copy, Download, Check, Nfc, CheckSquare, Square, Tag } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { SearchBar } from '@/components/admin/ui/SearchBar';
 import { EmptyState } from '@/components/admin/ui/EmptyState';
 import { cn } from '@/lib/adminUtils';
-import { QrScanner } from '@/components/QrScanner';
+import { ChipStation, isRecorded } from '@/components/admin/modules/ChipStation';
 import {
   DEFAULT_LABEL_OPTIONS,
   downloadCodeList,
   downloadLabels,
   downloadQrPng,
   downloadQrZip,
-  findProductByScan,
   printCodeList,
   loadPrinted,
+  getPrintedRemoteError,
+  loadPrintedRemote,
   printLabels,
   productQrUrl,
   savePrinted,
+  setPrintedRemote,
   sortForLabels,
   type LabelMode,
 } from '@/lib/labels';
+import type { QrStickersApi } from '@/hooks/useQrStickers';
 import type { Lot, Product } from '@/types/admin';
 
 interface LabelsViewProps {
   products: Product[];
   lots: Lot[];
   appUrl: string;
+  /** QR Codes marcados como adesivo (página Adesivos QR). */
+  stickers: QrStickersApi;
+  /** Registra a gravação do chip no banco (mesma função do Programador NFC). */
+  onProgram: (productId: string, success: boolean, meta?: { serialNumber?: string }) => void | Promise<void>;
 }
 
 type StatusFilter = 'all' | 'recorded' | 'pending';
@@ -38,141 +45,57 @@ const MODES: { id: LabelMode; label: string; hint: string }[] = [
   { id: 'code', label: 'Só código', hint: 'Para colar na plaquinha, na mesma ordem das folhas de QR.' },
 ];
 
-// ─── Ficha detalhada do produto (só no painel admin) ─────────────────────────
-const FIELD_LABELS: Record<string, string> = {
-  activationCode: 'Código de ativação',
-  internalCode: 'Código interno',
-  uuid: 'ID público (UUID)',
-  id: 'ID do registro',
-  status: 'Status',
-  programmedAt: 'Chip gravado em',
-  createdAt: 'Criado em',
-  updatedAt: 'Atualizado em',
-};
-
-/** Campos mostrados primeiro, nessa ordem; o resto vem logo depois. */
-const FIELD_ORDER = ['internalCode', 'status', 'lotId', 'programmedAt', 'createdAt', 'updatedAt', 'uuid', 'id'];
-/** O código de ativação já aparece em destaque no topo da ficha. */
-const FIELD_SKIP = new Set(['activationCode']);
-
-const humanize = (key: string) => {
-  const t = key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ').trim().toLowerCase();
-  return t.charAt(0).toUpperCase() + t.slice(1);
-};
-
-function formatFieldValue(value: unknown): string {
-  if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
-  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
-    const d = new Date(value);
-    if (!Number.isNaN(d.getTime())) return d.toLocaleString('pt-BR');
-  }
-  if (typeof value === 'object') {
-    try { return JSON.stringify(value); } catch { return String(value); }
-  }
-  return String(value);
-}
-
-function productRows(product: Product, lotCode: string): { key: string; label: string; value: string; mono: boolean }[] {
-  const entries = Object.entries(product as unknown as Record<string, unknown>).filter(
-    ([k, v]) => !FIELD_SKIP.has(k) && v !== null && v !== undefined && v !== '' && v !== '—'
-  );
-  const rank = (k: string) => {
-    const i = FIELD_ORDER.indexOf(k);
-    return i === -1 ? FIELD_ORDER.length : i;
-  };
-  entries.sort((a, b) => rank(a[0]) - rank(b[0]));
-  return entries.map(([k, v]) => ({
-    key: k,
-    label: k === 'lotId' ? 'Lote' : FIELD_LABELS[k] || humanize(k),
-    value: k === 'lotId' ? lotCode || formatFieldValue(v) : formatFieldValue(v),
-    mono: k === 'uuid' || k === 'id' || k === 'internalCode',
-  }));
-}
-
-interface ProductDetailsProps {
-  product: Product;
-  lotCode: string;
-  appUrl: string;
-  copied: string;
-  onCopy: (key: string, text: string) => void;
-  onDownloadQr: () => void;
-  onClose: () => void;
-}
-
-function ProductDetails({ product, lotCode, appUrl, copied, onCopy, onDownloadQr, onClose }: ProductDetailsProps) {
-  const base = (appUrl || window.location.origin).replace(/\/$/, '');
-  const publicLink = productQrUrl(product, appUrl);
-  const rows = productRows(product, lotCode);
-  const btn = 'flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-xs font-medium text-zinc-200 hover:bg-zinc-800';
-
-  return (
-    <div className="mt-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-zinc-500">Código de ativação</p>
-          <p className="font-mono text-2xl font-bold text-emerald-300">{product.activationCode}</p>
-        </div>
-        <button onClick={onClose} className="rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-1 text-[11px] text-zinc-400 hover:bg-zinc-800">
-          Fechar
-        </button>
-      </div>
-
-      <dl className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-        {rows.map((r) => (
-          <div key={r.key} className="min-w-0">
-            <dt className="text-[10px] uppercase tracking-widest text-zinc-500">{r.label}</dt>
-            <dd className={cn('break-words text-sm text-zinc-200', r.mono && 'font-mono text-xs')}>{r.value}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button onClick={() => onCopy('code', product.activationCode)} className={btn}>
-          <Copy className="h-3.5 w-3.5" /> {copied === 'code' ? 'Copiado!' : 'Copiar código'}
-        </button>
-        <button
-          onClick={() => onCopy('msg', `Seu código de ativação AirNext: ${product.activationCode}\nPara ativar, acesse: ${base}/ativar/${product.activationCode}`)}
-          className={btn}
-        >
-          <Copy className="h-3.5 w-3.5" /> {copied === 'msg' ? 'Copiado!' : 'Copiar mensagem pro cliente'}
-        </button>
-        <button onClick={() => onCopy('link', publicLink)} className={btn}>
-          <Copy className="h-3.5 w-3.5" /> {copied === 'link' ? 'Copiado!' : 'Copiar link do QR'}
-        </button>
-        <a href={publicLink} target="_blank" rel="noopener noreferrer" className={btn}>
-          <ExternalLink className="h-3.5 w-3.5" /> Abrir página pública
-        </a>
-        <button onClick={onDownloadQr} className={btn}>
-          <Download className="h-3.5 w-3.5" /> Baixar QR (PNG)
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
+export function LabelsView({ products, lots, appUrl, stickers, onProgram }: LabelsViewProps) {
+  const { byProduct: stickerBy } = stickers;
+  const [stickerMsg, setStickerMsg] = useState<string | null>(null);
   const [lotId, setLotId] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [onlyUnprinted, setOnlyUnprinted] = useState(true);
   const [search, setSearch] = useState('');
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
+  // Seleção manual de QR Codes para baixar (independente de "tirar da impressão").
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selBusy, setSelBusy] = useState(false);
   const [printed, setPrinted] = useState<Set<string>>(() => loadPrinted());
   const [mode, setMode] = useState<LabelMode>(DEFAULT_LABEL_OPTIONS.mode);
   const [qrCm, setQrCm] = useState(DEFAULT_LABEL_OPTIONS.qrCm);
   const [cols, setCols] = useState(DEFAULT_LABEL_OPTIONS.cols);
   const [showInternal, setShowInternal] = useState(DEFAULT_LABEL_OPTIONS.showInternal);
 
-  const [scannerOpen, setScannerOpen] = useState(false);
-  const [lookup, setLookup] = useState('');
-  const [found, setFound] = useState<Product | null>(null);
-  const [lookupMsg, setLookupMsg] = useState('');
+  const [stationId, setStationId] = useState<string | null>(null);
   const [copied, setCopied] = useState('');
   const [qrBusy, setQrBusy] = useState(false);
+  // Etiquetas que acabaram de sair para impressão/download e aguardam o "sim, imprimi".
+  const [pendingMark, setPendingMark] = useState<Product[] | null>(null);
+  const [syncWarn, setSyncWarn] = useState(false);
 
-  const runLookup = (raw: string) => {
-    const hit = findProductByScan(raw, products);
-    setFound(hit);
-    setLookupMsg(hit ? '' : 'Nenhuma plaquinha encontrada com esse QR/código.');
+  // Junta o que está salvo no banco com o que só existia neste navegador (e envia o
+  // que faltava para o banco), para PC e celular passarem a mostrar o mesmo marcador.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const remote = await loadPrintedRemote();
+      if (!alive) return;
+      if (!remote) { setSyncWarn(true); return; }
+      const local = loadPrinted();
+      const merged = new Set<string>([...remote, ...local]);
+      const onlyLocal = [...local].filter((id) => !remote.has(id));
+      if (onlyLocal.length > 0) void setPrintedRemote(onlyLocal, true);
+      setPrinted(merged);
+      savePrinted(merged);
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const applyPrinted = async (ids: string[], value: boolean) => {
+    setPrinted((prev) => {
+      const next = new Set(prev);
+      ids.forEach((id) => (value ? next.add(id) : next.delete(id)));
+      savePrinted(next);
+      return next;
+    });
+    const ok = await setPrintedRemote(ids, value);
+    setSyncWarn(!ok);
   };
 
   const copy = async (key: string, text: string) => {
@@ -184,8 +107,6 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
       window.prompt('Copie o texto abaixo:', text);
     }
   };
-
-  const isRecorded = (p: Product) => !!p.programmedAt && p.status !== 'Não programado';
 
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -213,6 +134,59 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
     [products, lotId, printed]
   );
 
+  // Selecionados, na ordem das etiquetas. Continuam selecionados mesmo se o filtro mudar.
+  const selectedProducts = useMemo(() => sortForLabels(products.filter((p) => selected.has(p.id))), [products, selected]);
+  const selectedHidden = selectedProducts.length - visible.filter((p) => selected.has(p.id)).length;
+  const allVisibleSelected = visible.length > 0 && visible.every((p) => selected.has(p.id));
+
+  const toggleSelected = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const selectAllVisible = () => setSelected((prev) => new Set([...prev, ...visible.map((p) => p.id)]));
+  const unselectAllVisible = () =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      visible.forEach((p) => next.delete(p.id));
+      return next;
+    });
+  const clearSelection = () => setSelected(new Set());
+
+  const flashSticker = (text: string) => { setStickerMsg(text); window.setTimeout(() => setStickerMsg(null), 5000); };
+  /** Marca/desmarca um QR como adesivo (botão “Adesivo” do cartão). */
+  const toggleSticker = async (p: Product) => {
+    const err = stickerBy.has(p.id) ? await stickers.unmark([p.id]) : await stickers.mark([p.id]);
+    if (err) flashSticker(`Não foi possível salvar o adesivo: ${err}`);
+  };
+  const markSelectedAsStickers = async () => {
+    const ids = selectedProducts.filter((p) => !stickerBy.has(p.id)).map((p) => p.id);
+    if (ids.length === 0) { flashSticker('Os selecionados já estão na lista de adesivos.'); return; }
+    const err = await stickers.mark(ids);
+    flashSticker(err ? `Não foi possível salvar os adesivos: ${err}` : `${ids.length} QR marcado(s) como adesivo — veja em Adesivos QR.`);
+  };
+  /** Quem é adesivo e foi baixado aqui passa a constar como “baixado” na página Adesivos QR. */
+  const recordDownloaded = (list: Product[]) => {
+    const ids = list.filter((p) => stickerBy.has(p.id)).map((p) => p.id);
+    if (ids.length > 0) void stickers.markDownloaded(ids);
+  };
+
+  const handleDownloadSelected = async () => {
+    if (selectedProducts.length === 0 || selBusy) return;
+    setSelBusy(true);
+    try {
+      if (selectedProducts.length === 1) await downloadQrPng(selectedProducts[0], appUrl);
+      else await downloadQrZip(selectedProducts, appUrl, `${sheetTitle}-selecionados`);
+      recordDownloaded(selectedProducts);
+    } catch {
+      window.alert('Não foi possível gerar os QR Codes selecionados. Tente novamente.');
+    } finally {
+      setSelBusy(false);
+    }
+  };
+
   const toggleExcluded = (id: string) =>
     setExcluded((prev) => {
       const next = new Set(prev);
@@ -227,21 +201,23 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
   const handlePrint = () => {
     if (toPrint.length === 0) return;
     printLabels(toPrint, { baseUrl: appUrl, mode, qrCm, cols, showInternal, sheetTitle });
-    // Pergunta depois que a janela de impressão abre, para o operador confirmar que imprimiu de fato.
-    setTimeout(() => {
-      if (window.confirm(`Marcar ${toPrint.length} etiqueta(s) como impressas? Elas saem da lista "falta imprimir".`)) {
-        const next = new Set(printed);
-        toPrint.forEach((p) => next.add(p.id));
-        setPrinted(next);
-        savePrinted(next);
-        setExcluded(new Set());
-      }
-    }, 1500);
+    // Em vez de um window.confirm (que some/é bloqueado atrás da janela de impressão,
+    // principalmente no celular), mostra uma barra fixa na tela para confirmar.
+    setPendingMark([...toPrint]);
+  };
+
+  const confirmMark = async () => {
+    if (!pendingMark) return;
+    const ids = pendingMark.map((p) => p.id);
+    setPendingMark(null);
+    setExcluded(new Set());
+    await applyPrinted(ids, true);
   };
 
   const handleDownloadLabels = () => {
     if (toPrint.length === 0) return;
     downloadLabels(toPrint, { baseUrl: appUrl, mode, qrCm, cols, showInternal, sheetTitle });
+    setPendingMark([...toPrint]);
   };
 
   const handleDownloadQrs = async () => {
@@ -249,6 +225,8 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
     setQrBusy(true);
     try {
       await downloadQrZip(toPrint, appUrl, sheetTitle);
+      recordDownloaded(toPrint);
+      setPendingMark([...toPrint]);
     } catch {
       window.alert('Não foi possível gerar os QR Codes. Tente novamente.');
     } finally {
@@ -259,9 +237,16 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
   const handleDownloadQr = async (p: Product) => {
     try {
       await downloadQrPng(p, appUrl);
+      recordDownloaded([p]);
     } catch {
       window.alert('Não foi possível baixar o QR Code.');
     }
+  };
+
+  /** Imprime a etiqueta de um produto só (atalho da estação) e marca como impressa. */
+  const handlePrintOne = (p: Product) => {
+    printLabels([p], { baseUrl: appUrl, mode, qrCm, cols, showInternal, sheetTitle: lotCodeOf(p) ? `Lote ${lotCodeOf(p)}` : undefined });
+    void applyPrinted([p.id], true);
   };
 
   const handleCopyAllCodes = () => {
@@ -277,11 +262,11 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
   const resetPrinted = () => {
     const scope = products.filter((p) => !lotId || p.lotId === lotId);
     if (!window.confirm(`Desmarcar ${printedInScope} etiqueta(s) como impressas${lotCode ? ` do lote ${lotCode}` : ''}?`)) return;
-    const next = new Set(printed);
-    scope.forEach((p) => next.delete(p.id));
-    setPrinted(next);
-    savePrinted(next);
+    void applyPrinted(scope.map((p) => p.id), false);
   };
+
+  /** Marca/desmarca uma etiqueta na mão (clique no ✓ do cartão). */
+  const togglePrinted = (p: Product) => void applyPrinted([p.id], !printed.has(p.id));
 
   const statusTabs: { id: StatusFilter; label: string }[] = [
     { id: 'all', label: 'Todos' },
@@ -291,61 +276,51 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
-      {/* Como funciona */}
-      <div className="rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4">
-        <p className="text-sm font-medium text-indigo-200">Imprima por lote, não um por um</p>
-        <p className="mt-1 text-xs text-indigo-300/80">
-          Escolha o lote e imprima a folha inteira: cada etiqueta sai com o <strong>QR e o código juntos</strong>, numerada e
-          sempre na mesma ordem (por código interno). Se precisar de um código separado para a plaquinha, imprima também no
-          modo "Só código" — a ordem é a mesma, então não precisa procurar.
-        </p>
-      </div>
+      {/* Estação: escanear → conferir → gravar chip, tudo na mesma aba */}
+      <ChipStation
+        products={products}
+        lots={lots}
+        appUrl={appUrl}
+        lotId={lotId}
+        selectedId={stationId}
+        onSelect={setStationId}
+        onProgram={onProgram}
+        onPrintLabel={handlePrintOne}
+        onDownloadQr={handleDownloadQr}
+      />
 
-      {/* Identificar plaquinha: lê o QR (ou cola o link/código) e mostra o código de ativação */}
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-        <p className="text-sm font-semibold text-zinc-200">Identificar uma plaquinha</p>
-        <p className="mt-0.5 text-xs text-zinc-500">
-          Escaneie o QR da plaquinha (ou cole o link/código) para ver todas as informações do produto. Esses detalhes aparecem só aqui, no painel admin — quem escaneia fora do painel vê apenas a página pública.
-        </p>
-        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-          <input
-            value={lookup}
-            onChange={(e) => setLookup(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') runLookup(lookup); }}
-            placeholder="Cole o link do QR, UUID, código de ativação ou interno..."
-            className="h-10 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-indigo-500"
-          />
+      {pendingMark && (
+        <div className="sticky top-2 z-20 flex flex-col gap-3 rounded-2xl border border-emerald-500/40 bg-zinc-950/95 p-4 shadow-xl backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-zinc-200">
+            Você imprimiu/baixou <strong className="text-emerald-300">{pendingMark.length}</strong> etiqueta(s)? Marque como impressas para saírem da lista &quot;falta imprimir&quot;.
+          </p>
           <div className="flex gap-2">
-            <button onClick={() => runLookup(lookup)} className="flex h-10 items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-950 px-4 text-sm font-medium text-zinc-200 hover:bg-zinc-800">
-              <Search className="h-4 w-4" /> Buscar
-            </button>
-            <button onClick={() => setScannerOpen(true)} className="flex h-10 items-center gap-2 rounded-xl bg-indigo-500 px-4 text-sm font-semibold text-white hover:bg-indigo-600">
-              <ScanLine className="h-4 w-4" /> Escanear QR
+            <button onClick={() => setPendingMark(null)} className="rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800">Ainda não</button>
+            <button onClick={confirmMark} className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-emerald-400">
+              <CheckCircle className="h-4 w-4" /> Marcar como impressas
             </button>
           </div>
         </div>
-        {lookupMsg && <p className="mt-3 rounded-xl bg-zinc-950 p-3 text-xs text-red-300">{lookupMsg}</p>}
-        {found && (
-          <ProductDetails
-            product={found}
-            lotCode={lots.find((l) => l.id === found.lotId)?.code || ''}
-            appUrl={appUrl}
-            copied={copied}
-            onCopy={copy}
-            onDownloadQr={() => handleDownloadQr(found)}
-            onClose={() => { setFound(null); setLookup(''); }}
-          />
-        )}
+      )}
+
+      {syncWarn && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+          Não consegui salvar o marcador no banco, então ele está valendo só neste navegador.
+          {getPrintedRemoteError() && <> Erro do Supabase: <code>{getPrintedRemoteError()}</code></>}
+        </div>
+      )}
+
+      <div className="flex items-start gap-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/10 p-4">
+        <Printer className="mt-0.5 h-5 w-5 shrink-0 text-indigo-300" />
+        <div>
+          <p className="text-sm font-medium text-indigo-200">Imprima por lote, não um por um</p>
+          <p className="mt-1 text-xs text-indigo-300/80">
+            Escolha o lote e imprima a folha inteira: cada etiqueta sai com o <strong>QR e o código juntos</strong>, numerada e
+            sempre na mesma ordem (por código interno). Para gravar o chip de qualquer etiqueta, toque em <strong>Gravar</strong> no
+            cartão dela — a estação acima já abre com o produto certo.
+          </p>
+        </div>
       </div>
-      <QrScanner
-        isOpen={scannerOpen}
-        onClose={() => setScannerOpen(false)}
-        onDetected={(raw) => {
-          setScannerOpen(false);
-          setLookup(raw);
-          runLookup(raw);
-        }}
-      />
 
       {/* Filtros */}
       <div className="space-y-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
@@ -475,6 +450,55 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
         </div>
       </div>
 
+      {stickerMsg && (
+        <div role="status" className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-3 text-sm text-indigo-200">{stickerMsg}</div>
+      )}
+      {stickers.error && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+          Para guardar os adesivos, rode o script <strong>sql/25_adesivos_qr.sql</strong> no Supabase. <code>{stickers.error}</code>
+        </div>
+      )}
+
+      {/* Seleção de QR Codes para download */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-sky-500/20 bg-sky-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-zinc-300">
+          <span className="font-semibold text-sky-300">{selectedProducts.length}</span> QR Code(s) selecionado(s) para download
+          {selectedHidden > 0 && <span className="ml-2 text-xs text-zinc-500">({selectedHidden} fora do filtro atual)</span>}
+          <p className="mt-0.5 text-xs text-zinc-500">Marque a caixinha “Baixar” em cada cartão abaixo, ou use “Selecionar todos”.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={allVisibleSelected ? unselectAllVisible : selectAllVisible}
+            disabled={visible.length === 0}
+            className="flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {allVisibleSelected ? <Square className="h-4 w-4" /> : <CheckSquare className="h-4 w-4" />}
+            {allVisibleSelected ? `Desmarcar os ${visible.length}` : `Selecionar todos (${visible.length})`}
+          </button>
+          {selectedProducts.length > 0 && (
+            <button onClick={clearSelection} className="flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800">
+              <RotateCcw className="h-4 w-4" /> Limpar seleção
+            </button>
+          )}
+          <button
+            onClick={markSelectedAsStickers}
+            disabled={selectedProducts.length === 0}
+            title="Guarda os selecionados na página Adesivos QR para você saber depois quais já foram baixados"
+            className="flex items-center gap-2 rounded-xl border border-indigo-500/50 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-200 hover:bg-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Tag className="h-4 w-4" /> Marcar como adesivo
+          </button>
+          <button
+            onClick={handleDownloadSelected}
+            disabled={selectedProducts.length === 0 || selBusy}
+            className="flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download className="h-4 w-4" />
+            {selBusy ? 'Gerando…' : selectedProducts.length === 1 ? 'Baixar QR Code (PNG)' : `Baixar ${selectedProducts.length} selecionado(s) (ZIP)`}
+          </button>
+        </div>
+      </div>
+
       {/* Pré-visualização */}
       {visible.length === 0 ? (
         <EmptyState title="Nenhuma etiqueta para imprimir" description={'Escolha um lote ou desmarque "Mostrar só o que falta imprimir" para ver todas.'} />
@@ -488,10 +512,10 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
                 <button
                   onClick={() => toggleExcluded(p.id)}
                   title={off ? 'Clique para incluir na impressão' : 'Clique para tirar da impressão'}
-                  className={cn('relative w-full rounded-2xl border p-3 text-center transition-all', off ? 'border-zinc-800 bg-zinc-950 opacity-40' : 'border-zinc-800 bg-zinc-900 hover:border-indigo-500/50')}
+                  className={cn('relative w-full rounded-2xl border p-3 pb-[4.25rem] text-center transition-all', off ? 'border-zinc-800 bg-zinc-950 opacity-40' : 'border-zinc-800 bg-zinc-900 hover:border-indigo-500/50', selected.has(p.id) && 'ring-2 ring-sky-400')}
                 >
                   <span className="absolute left-2 top-1.5 text-[10px] text-zinc-500">{i + 1}</span>
-                  {printed.has(p.id) && <CheckCircle className="absolute right-2 top-1.5 h-3.5 w-3.5 text-emerald-400" />}
+                  
                   {mode !== 'code' && (
                     <div className="mx-auto mt-3 w-fit rounded-lg bg-white p-1.5">
                       <QRCodeSVG value={productQrUrl(p, appUrl)} size={64} level="M" />
@@ -500,6 +524,53 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
                   {mode !== 'qr' && <p className="mt-2 font-mono text-sm font-bold text-emerald-300">{p.activationCode}</p>}
                   {showInternal && p.internalCode !== '—' && <p className="text-[11px] text-zinc-500">{p.internalCode}</p>}
                 </button>
+                <button
+                  onClick={() => setStationId(p.id)}
+                  title={isRecorded(p) ? 'Abrir na estação (chip já gravado)' : 'Gravar o chip deste produto'}
+                  className={cn(
+                    'absolute left-1/2 top-1.5 -translate-x-1/2 flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold',
+                    isRecorded(p) ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20'
+                  )}
+                >
+                  <Nfc className="h-3 w-3" /> {isRecorded(p) ? 'Gravado' : 'Gravar'}
+                </button>
+                <button
+                  onClick={() => togglePrinted(p)}
+                  title={printed.has(p.id) ? 'Impressa — clique para desmarcar' : 'Marcar como impressa'}
+                  className={cn(
+                    'absolute right-1.5 top-1 rounded-full p-1',
+                    printed.has(p.id) ? 'text-emerald-400 hover:bg-emerald-500/10' : 'text-zinc-600 hover:bg-zinc-800 hover:text-zinc-300'
+                  )}
+                >
+                  <CheckCircle className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => toggleSticker(p)}
+                  title={stickerBy.has(p.id)
+                    ? (stickerBy.get(p.id)?.downloaded_at ? 'Adesivo já baixado — clique para tirar da lista de adesivos' : 'Adesivo (falta baixar) — clique para tirar da lista')
+                    : 'Marcar este QR como adesivo (vai para a página Adesivos QR)'}
+                  className={cn(
+                    'absolute bottom-10 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-semibold transition',
+                    stickerBy.has(p.id)
+                      ? (stickerBy.get(p.id)?.downloaded_at
+                        ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300'
+                        : 'border-indigo-400 bg-indigo-500/20 text-indigo-200')
+                      : 'border-zinc-700 bg-zinc-950/90 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                  )}
+                >
+                  <Tag className="h-3 w-3" />
+                  {stickerBy.has(p.id) ? (stickerBy.get(p.id)?.downloaded_at ? 'Adesivo · baixado' : 'Adesivo') : 'Adesivo'}
+                </button>
+                <label
+                  title="Selecionar este QR Code para download"
+                  className={cn(
+                    'absolute bottom-1.5 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1 rounded-lg border px-1.5 py-1 text-[10px] font-semibold',
+                    selected.has(p.id) ? 'border-sky-400 bg-sky-500/20 text-sky-200' : 'border-zinc-700 bg-zinc-950/90 text-zinc-400 hover:bg-zinc-800'
+                  )}
+                >
+                  <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggleSelected(p.id)} className="h-3.5 w-3.5 accent-sky-500" />
+                  Baixar
+                </label>
                 <button
                   onClick={() => copy(`card-${p.id}`, p.activationCode)}
                   title="Copiar código de ativação"
@@ -520,7 +591,7 @@ export function LabelsView({ products, lots, appUrl }: LabelsViewProps) {
           </div>
           {visible.length > PREVIEW_LIMIT && (
             <p className="text-center text-xs text-zinc-500">
-              Mostrando {PREVIEW_LIMIT} de {visible.length} na tela — todas as {toPrint.length} selecionadas entram na impressão.
+              Mostrando {PREVIEW_LIMIT} de {visible.length} na tela — todas as {toPrint.length} entram na impressão. Para baixar QR Codes além dos {PREVIEW_LIMIT} da tela, use “Selecionar todos”.
             </p>
           )}
         </>

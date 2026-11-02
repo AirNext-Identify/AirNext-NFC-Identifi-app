@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { parseServicos } from '../../utils/servicos';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, ProfileTheme } from '../../contexts/AuthContext';
 
@@ -123,6 +124,7 @@ const FIELDS: Record<string, { key: string; label: string; type?: string; placeh
     { key: 'dataFundacao', label: 'Data de Fundação', placeholder: 'Ex: 2019 ou 03/2019' },
     { key: 'bio', label: 'Bio Curta (aparece abaixo do nome)', type: 'textarea', placeholder: 'Frase curta de destaque, slogan...' },
     { key: 'descricao', label: 'Descrição / Sobre a Empresa', type: 'textarea', placeholder: 'O que a empresa faz, história, diferenciais...' },
+    { key: 'servicos', label: 'Serviços / Produtos Principais (separe por vírgula ou linha)', type: 'textarea', placeholder: 'Ex: Corte masculino, Barba, Hidratação, Coloração' },
     { key: 'whatsapp', label: 'WhatsApp Comercial', placeholder: '5511999999999' },
     { key: 'telefone', label: 'Telefone', placeholder: '(11) 3333-3333' },
     { key: 'email', label: 'E-mail Comercial', type: 'email', placeholder: 'contato@empresa.com' },
@@ -504,7 +506,7 @@ function PhonePreview({
           const maisInfoBlock = (() => {
             // Campos já cobertos por header/contato/blocos dedicados — não duplicar
             const skip = new Set([
-              'nome', 'nomeEmpresa', 'cargo', 'bio', 'descricao', 'dataFundacao', 'catalogo', 'chavePix',
+              'nome', 'nomeEmpresa', 'cargo', 'bio', 'descricao', 'servicos', 'dataFundacao', 'catalogo', 'chavePix',
               'telefone', 'email', 'emailContato', 'cnpj', 'razaoSocial', 'site', 'endereco', 'whatsapp',
               'whatsappTutor', 'foto', 'capa', 'googleReview',
               // TEA: já no cartão de apoio
@@ -532,7 +534,7 @@ function PhonePreview({
             );
           })();
 
-          const sobreEmpresaBlock = (cat === 'BUSINESS' && (form.descricao || form.dataFundacao || galeria2.length > 0)) ? (
+          const sobreEmpresaBlock = (cat === 'BUSINESS' && (form.descricao || form.dataFundacao || parseServicos(form.servicos).length > 0 || galeria2.length > 0)) ? (
             <div
               className="relative overflow-hidden px-3 py-3.5"
               style={{ borderRadius: br, background: isLight ? `linear-gradient(155deg, ${primaryColor || '#3b82f6'}12, ${secondaryColor || '#8b5cf6'}12)` : `linear-gradient(155deg, ${primaryColor || '#3b82f6'}22, ${secondaryColor || '#8b5cf6'}18)`, border: `1px solid ${primaryColor || '#3b82f6'}30` }}
@@ -541,6 +543,13 @@ function PhonePreview({
               {form.dataFundacao && <p className="text-[7px] font-semibold mt-0.5" style={{ color: primaryColor || '#3b82f6' }}>Desde {form.dataFundacao}</p>}
               {form.descricao && (
                 <p className="text-[7px] mt-1.5 leading-relaxed line-clamp-4 pl-1.5" style={{ borderLeft: `2px solid ${primaryColor || '#3b82f6'}50` }}>{form.descricao}</p>
+              )}
+              {parseServicos(form.servicos).length > 0 && (
+                <div className="flex flex-wrap gap-0.5 mt-1.5">
+                  {parseServicos(form.servicos).slice(0, 6).map(sv => (
+                    <span key={sv} className="px-1 py-[1px] rounded-full text-[6px] font-semibold" style={{ background: `${primaryColor || '#3b82f6'}22`, color: primaryColor || '#3b82f6' }}>{sv}</span>
+                  ))}
+                </div>
               )}
               {galeria2.length > 0 && (
                 <div className="grid grid-cols-3 gap-1 mt-2">

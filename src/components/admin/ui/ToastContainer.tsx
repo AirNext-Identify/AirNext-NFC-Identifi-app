@@ -18,14 +18,14 @@ const styles = {
 
 export function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {
   return (
-    <div className="fixed right-4 top-4 z-[100] flex flex-col gap-3">
+    <div className="fixed right-3 top-3 z-[100] flex max-w-[calc(100vw-1.5rem)] flex-col gap-3 sm:right-4 sm:top-4">
       {toasts.map((toast) => {
         const Icon = icons[toast.type];
         return (
           <div
             key={toast.id}
             className={cn(
-              'flex w-80 items-start gap-3 rounded-xl border p-4 shadow-2xl backdrop-blur-md transition-all animate-in slide-in-from-right-full',
+              'flex w-80 max-w-full items-start gap-3 rounded-xl border p-4 shadow-2xl backdrop-blur-md transition-all animate-in slide-in-from-right-full',
               styles[toast.type]
             )}
           >

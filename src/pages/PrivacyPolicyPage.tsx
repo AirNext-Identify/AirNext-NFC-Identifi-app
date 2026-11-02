@@ -99,13 +99,37 @@ export default function PrivacyPolicyPage() {
               title: 'Dados de cadastro',
               content: (
                 <ul className="list-disc space-y-1 pl-5">
-                  <li>Nome</li>
+                  <li>Nome e sobrenome</li>
                   <li>E-mail</li>
-                  <li>Telefone (quando informado)</li>
-                  <li>Senha ou credenciais de acesso</li>
-                  <li>Data de nascimento, quando necessária</li>
+                  <li>Telefone / WhatsApp</li>
+                  <li>Idade (opcional)</li>
+                  <li>Quem gerencia a conta (você, responsável, familiar ou cuidador, empresa ou outra pessoa) e o nome dessa pessoa, quando indicado</li>
+                  <li>Senha ou credenciais de acesso (nunca guardamos a senha em texto aberto)</li>
                   <li>Identificadores da conta</li>
                 </ul>
+              ),
+            },
+            {
+              title: 'Para que usamos esses dados de cadastro',
+              content: (
+                <>
+                  <p className="mb-2">
+                    Usamos nome, sobrenome e telefone para identificar a conta, prestar suporte,
+                    confirmar a titularidade e recuperar o acesso. A idade, que é opcional, nos ajuda
+                    a aplicar as regras de proteção de menores. Esses dados da conta não aparecem no
+                    seu perfil público, a menos que você os adicione ao perfil.
+                  </p>
+                  <p className="mb-2">
+                    <strong className="text-zinc-800">Menores de 18 anos:</strong> a conta deve ser
+                    criada e administrada por um responsável legal. Quando a idade informada é menor
+                    que 18, pedimos a declaração de autorização do responsável. Se identificarmos
+                    dados de menor sem essa autorização, podemos suspender a conta e excluir os dados.
+                  </p>
+                  <p>
+                    Você pode corrigir esses dados a qualquer momento em <strong className="text-zinc-800">Minha conta</strong> ou
+                    pedir a exclusão pelo suporte.
+                  </p>
+                </>
               ),
             },
             {

@@ -86,7 +86,7 @@ export function useOrders(onNewOrder?: (o: Order) => void) {
     return () => { window.clearInterval(poll); supabase.removeChannel(channel); };
   }, [load, announce]);
 
-  const patch = useCallback(async (id: string, fields: Partial<Pick<Order, 'status' | 'admin_notes' | 'seen' | 'finalized_at'>>) => {
+  const patch = useCallback(async (id: string, fields: Partial<Pick<Order, 'status' | 'admin_notes' | 'seen' | 'finalized_at' | 'carrier' | 'tracking_code' | 'tracking_url' | 'estimated_delivery' | 'shipping_note' | 'shipped_at'>>) => {
     setOrders(prev => prev.map(o => (o.id === id ? { ...o, ...fields } : o)));
     const { error: err } = await supabase.from('orders').update(fields).eq('id', id);
     if (err) { setError(err.message); load(); }
@@ -98,6 +98,7 @@ export function useOrders(onNewOrder?: (o: Order) => void) {
   const finalize = (id: string) => patch(id, { status: 'concluido', finalized_at: new Date().toISOString(), seen: true });
   const reopen = (id: string) => patch(id, { status: 'em_contato', finalized_at: null });
   const saveNotes = (id: string, admin_notes: string) => patch(id, { admin_notes });
+  const saveShipping = (id: string, fields: Parameters<typeof patch>[1]) => patch(id, { ...fields, seen: true });
   const remove = useCallback(async (id: string) => {
     setOrders(prev => prev.filter(o => o.id !== id));
     const { error: err } = await supabase.from('orders').delete().eq('id', id);
@@ -105,5 +106,5 @@ export function useOrders(onNewOrder?: (o: Order) => void) {
   }, [load]);
 
   const unseen = orders.filter(o => !o.seen).length;
-  return { orders, loading, error, unseen, setStatus, markSeen, finalize, reopen, saveNotes, remove, reload: load };
+  return { orders, loading, error, unseen, setStatus, markSeen, finalize, reopen, saveNotes, saveShipping, remove, reload: load };
 }

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import AppleCarousel from './AppleCarousel';
+import { PET_STEP_IMGS } from '../../lib/productImages';
 import {
-  AlertTriangle, ArrowRight, Check, ChevronDown, Droplets, Heart, MapPin, MessageCircle,
+  AlertTriangle, Check, ChevronDown, ChevronRight, Droplets, Heart, MapPin, MessageCircle,
   Nfc, PawPrint, Phone, QrCode, ShieldCheck, Smartphone, Stethoscope, Syringe, X,
 } from 'lucide-react';
 
@@ -340,101 +342,95 @@ function PetSOS() {
   );
 }
 
-/* ───────────────────────── Seção 4 — Como funciona + comparativo + CTA ───────────────────────── */
+/* ───────────────────────── Seção 4 — Como funciona + comparativo + CTA (estilo Apple) ───────────────────────── */
+const PET_CARD = 'flex min-h-[540px] w-full flex-col rounded-[28px] p-7 sm:min-h-[640px] sm:p-9';
+const STEP_COLORS = ['#ff9f0a', '#30d158', '#0a84ff'];
+
 function PetHow({ whatsapp, onBuy }: Omit<Props, 'image'>) {
   const msg = encodeURIComponent('Olá! Quero saber mais sobre a coleira inteligente AirNext Pet.');
   return (
-    <section className="relative bg-[#050505] text-white py-20 md:py-32 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-5 sm:px-6">
+    <section className="relative bg-[#f5f5f7] text-[#1d1d1f] py-20 md:py-28 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
-          className="text-center max-w-3xl mx-auto mb-12 md:mb-16"
+          className="mb-10 md:mb-12"
         >
-          <p className="eyebrow mb-4" style={{ color: ORANGE }}>Como funciona</p>
-          <h2 className="h2-apple">Três passos.<br />Segurança para a vida toda.</h2>
+          <p className="text-[19px] font-semibold text-[#6e6e73] mb-2">Como funciona</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold tracking-tight leading-[1.08]">Três passos.<br />Segurança para a vida toda.</h2>
         </motion.div>
+      </div>
 
-        <div className="grid md:grid-cols-3 gap-5 md:gap-6 mb-16 md:mb-24">
-          {STEPS.map(({ icon: Icon, title, text }, i) => (
-            <motion.div
-              key={title}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="rounded-[26px] p-7 bg-white/[0.04] border border-white/10"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <span className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: `${ORANGE}26`, color: ORANGE }}><Icon size={22} /></span>
-                <span className="text-4xl font-bold text-white/10 tabular-nums">{i + 1}</span>
-              </div>
-              <h3 className="text-lg font-semibold mb-2">{title}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{text}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-5 md:gap-6 mb-16 md:mb-24">
-          <motion.div
-            initial={{ opacity: 0, x: -28 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.7 }}
-            className="rounded-[28px] p-7 md:p-9 bg-white/[0.03] border border-white/10"
-          >
-            <p className="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 mb-6">Plaquinha comum</p>
-            <ul className="space-y-4">
-              {OLD.map((t) => (
-                <li key={t} className="flex gap-3 text-[15px] text-gray-400 leading-snug">
-                  <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-white/10 flex items-center justify-center"><X size={12} className="text-gray-500" /></span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 28 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="rounded-[28px] p-7 md:p-9 bg-[#2a1700] border border-[#ff9500]/30 shadow-md"
-          >
-            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-6" style={{ color: ORANGE }}>Coleira inteligente AirNext Pet</p>
-            <ul className="space-y-4">
-              {NEW.map((t) => (
-                <li key={t} className="flex gap-3 text-[15px] text-white leading-snug">
-                  <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-black" style={{ background: ORANGE }}><Check size={12} /></span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        </div>
-
-        <div className="rounded-[36px] p-8 md:p-14 text-center bg-[#2a1700] border border-white/10 relative overflow-hidden">
-          
-          <div className="relative">
-            <div className="flex items-center justify-center gap-3 mb-5" style={{ color: ORANGE }} aria-hidden="true">
-              <Nfc size={22} /><QrCode size={22} /><Droplets size={22} />
+      <AppleCarousel label="Como funciona o AirNext Pet">
+        {STEPS.map(({ icon: Icon, title, text }, i) => (
+          <div key={title} className="relative flex min-h-[540px] w-full flex-col overflow-hidden rounded-[28px] bg-[#1d1d1f] p-7 text-white sm:min-h-[640px] sm:p-9">
+            <img
+              src={PET_STEP_IMGS[i]}
+              alt={title}
+              width={720}
+              height={1280}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/25 to-transparent" aria-hidden="true" />
+            <div className="relative">
+              <p className="mb-2 text-[15px] font-semibold text-white/70">Passo {i + 1}</p>
+              <h3 className="text-[32px] font-semibold leading-[1.08] tracking-tight sm:text-[36px]">{title}</h3>
+              <p className="mt-3 text-[17px] leading-snug text-white/80">{text}</p>
             </div>
-            <h3 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.03em] leading-tight mb-4">
-              Proteja quem<br className="hidden sm:block" /> protege a sua casa.
-            </h3>
-            <p className="text-gray-400 max-w-xl mx-auto mb-8">
-              Pagamento único, sem mensalidade e sem bateria. A identificação do seu pet sempre atualizada e pronta para uma emergência.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <button onClick={onBuy} className="inline-flex items-center gap-2 text-black px-7 py-3.5 rounded-full text-sm font-bold active:scale-[0.98] transition shadow-xl shadow-orange-500/20 hover:brightness-110" style={{ background: ORANGE }}>
-                Quero a coleira AirNext Pet <ArrowRight size={16} />
-              </button>
-              <a href={`https://wa.me/${whatsapp}?text=${msg}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-bold border border-white/20 hover:bg-white/10 transition">
-                <MessageCircle size={16} /> Falar no WhatsApp
-              </a>
-            </div>
+            <span className="relative mt-auto flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ background: STEP_COLORS[i] }}><Icon size={26} /></span>
           </div>
+        ))}
+
+        <div className={`${PET_CARD} bg-white`}>
+          <p className="text-[15px] font-semibold text-[#6e6e73] mb-2">Plaquinha comum</p>
+          <h3 className="text-[28px] font-semibold leading-tight tracking-tight mb-8">Pouco espaço, pouca ajuda.</h3>
+          <ul className="space-y-4 mt-auto">
+            {OLD.map((t) => (
+              <li key={t} className="flex gap-3 text-[15px] text-[#6e6e73] leading-snug">
+                <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-[#ff3b30]/10 flex items-center justify-center"><X size={12} className="text-[#ff3b30]" /></span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className={`${PET_CARD} bg-[#1d1d1f] text-white`}>
+          <p className="text-[15px] font-semibold text-[#86868b] mb-2">Coleira inteligente AirNext Pet</p>
+          <h3 className="text-[28px] font-semibold leading-tight tracking-tight mb-8">Tudo sobre o seu pet, em um toque.</h3>
+          <ul className="space-y-4 mt-auto">
+            {NEW.map((t) => (
+              <li key={t} className="flex gap-3 text-[15px] text-white leading-snug">
+                <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-[#34c759] flex items-center justify-center"><Check size={12} className="text-white" /></span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </AppleCarousel>
+
+      <div className="max-w-6xl mx-auto px-6 mt-16 md:mt-24 text-center">
+        <div className="flex items-center justify-center gap-3 mb-5" aria-hidden="true">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0a84ff] text-white"><Nfc size={20} /></span>
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1d1d1f] text-white"><QrCode size={20} /></span>
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#30b0c7] text-white"><Droplets size={20} /></span>
+        </div>
+        <h3 className="text-[clamp(1.9rem,4.5vw,3rem)] font-semibold tracking-tight leading-[1.1] mb-4">
+          Proteja quem<br className="hidden sm:block" /> protege a sua casa.
+        </h3>
+        <p className="text-[19px] text-[#6e6e73] max-w-xl mx-auto mb-8 leading-snug">
+          Pagamento único, sem mensalidade e sem bateria. A identificação do seu pet sempre atualizada e pronta para uma emergência.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <button onClick={onBuy} className="rounded-full bg-[#0071e3] px-7 py-3 text-[17px] font-medium text-white transition-colors hover:bg-[#0077ed]">
+            Comprar
+          </button>
+          <a href={`https://wa.me/${whatsapp}?text=${msg}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full px-5 py-3 text-[17px] font-medium text-[#0066cc] hover:underline">
+            Falar no WhatsApp <ChevronRight size={18} />
+          </a>
         </div>
       </div>
     </section>

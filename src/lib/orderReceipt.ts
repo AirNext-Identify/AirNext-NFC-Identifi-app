@@ -1,4 +1,4 @@
-import { ORDER_STATUSES, type Order } from './orders';
+import { ORDER_STATUSES, PAYMENT_LABEL, formatAddress, type Order } from './orders';
 
 const brl = (n: number) => `R$ ${Number(n || 0).toFixed(2).replace('.', ',')}`;
 const fmtDateTime = (iso?: string | null) =>
@@ -41,10 +41,17 @@ export async function renderReceiptCanvas(o: Order): Promise<HTMLCanvasElement> 
   measure.font = `26px ${sans}`;
   const noteLines = o.notes ? wrap(measure, o.notes, W - PAD * 2 - 8).slice(0, 14) : [];
   const adminLines = o.admin_notes ? wrap(measure, o.admin_notes, W - PAD * 2 - 8).slice(0, 6) : [];
+  const addrLines = o.shipping_address ? wrap(measure, formatAddress(o.shipping_address), W - PAD * 2 - 8).slice(0, 5) : [];
+  const deliveryLines = [
+    ...(o.recipient_name ? [`Recebe: ${o.recipient_name}${o.recipient_phone ? ` · ${fmtPhone(o.recipient_phone)}` : ''}`] : []),
+    ...addrLines,
+    ...(o.payment_method ? [`Pagamento: ${PAYMENT_LABEL[o.payment_method] ?? o.payment_method}`] : []),
+  ];
   const itemRows = o.items.map(it => wrap(measure, `${it.qty}x  ${it.name}${it.format ? ` (${it.format})` : ''}`, W - PAD * 2 - 220));
   const itemsH = itemRows.reduce((a, r) => a + r.length * 36 + 14, 0);
 
   const H = 150 + 70 + 270 + 80 + itemsH + 120
+    + (deliveryLines.length ? 70 + deliveryLines.length * 34 : 0)
     + (noteLines.length ? 70 + noteLines.length * 34 : 0)
     + (adminLines.length ? 70 + adminLines.length * 34 : 0) + 120;
 
@@ -113,6 +120,7 @@ export async function renderReceiptCanvas(o: Order): Promise<HTMLCanvasElement> 
     ctx.fillStyle = '#374151'; ctx.font = `26px ${sans}`;
     lines.forEach(l => { y += 34; ctx.fillText(l, PAD, y); });
   };
+  if (deliveryLines.length) block('Entrega e pagamento', deliveryLines);
   if (noteLines.length) block('Observações do cliente', noteLines);
   if (adminLines.length) block('Anotações', adminLines);
 
@@ -174,6 +182,11 @@ ${o.finalized_at ? `<div><div class="l">Concluído em</div><div class="v">${fmtD
 </div>
 <table><thead><tr><th>Itens</th><th class="r">Valor</th></tr></thead><tbody>${rows}</tbody></table>
 <div class="total"><span>TOTAL</span><span>${o.subtotal > 0 ? brl(o.subtotal) : 'Sob consulta'}</span></div>
+${(o.recipient_name || o.shipping_address || o.payment_method) ? `<div class="box"><div class="l">Entrega e pagamento</div>${esc([
+  o.recipient_name ? `Recebe: ${o.recipient_name}${o.recipient_phone ? ` · ${fmtPhone(o.recipient_phone)}` : ''}` : '',
+  o.shipping_address ? formatAddress(o.shipping_address) : '',
+  o.payment_method ? `Pagamento: ${PAYMENT_LABEL[o.payment_method] ?? o.payment_method}` : '',
+].filter(Boolean).join('\n'))}</div>` : ''}
 ${o.notes ? `<div class="box"><div class="l">Observações do cliente</div>${esc(o.notes)}</div>` : ''}
 ${o.admin_notes ? `<div class="box"><div class="l">Anotações</div>${esc(o.admin_notes)}</div>` : ''}
 <div class="foot">Obrigado pela preferência! · ${SITE}</div>
@@ -189,12 +202,19 @@ ${o.admin_notes ? `<div class="box"><div class="l">Anotações</div>${esc(o.admi
 // ---------------------------------------------------------------------------
 export function downloadOrdersCsv(orders: Order[], filename: string): void {
   const cell = (v: string | number) => `"${String(v ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' | ')}"`;
-  const head = ['Pedido', 'Data do pedido', 'Cliente', 'WhatsApp', 'Itens', 'Valor (R$)', 'Status', 'Concluído em', 'Observações do cliente', 'Anotações'];
+  const head = ['Pedido', 'Data do pedido', 'Cliente', 'WhatsApp', 'E-mail', 'Quem recebe', 'Tel. quem recebe', 'Endereço de entrega', 'Pagamento', 'Transportadora', 'Código de rastreio', 'Itens', 'Valor (R$)', 'Status', 'Concluído em', 'Observações do cliente', 'Anotações'];
   const lines = orders.map(o => [
     o.order_number,
     fmtDateTime(o.created_at),
     o.customer_name || '',
     fmtPhone(o.customer_phone),
+    o.customer_email || '',
+    o.recipient_name || '',
+    fmtPhone(o.recipient_phone ?? null),
+    formatAddress(o.shipping_address),
+    o.payment_method ? (PAYMENT_LABEL[o.payment_method] ?? o.payment_method) : '',
+    o.carrier || '',
+    o.tracking_code || '',
     o.items.map(i => `${i.qty}x ${i.name}${i.format ? ` (${i.format})` : ''}`).join(' + '),
     Number(o.subtotal || 0).toFixed(2).replace('.', ','),
     statusLabel(o),

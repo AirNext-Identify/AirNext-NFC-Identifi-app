@@ -1,0 +1,30 @@
+{
+  "name": "airnext-site",
+  "version": "1.0.0",
+  "title": "AirNext",
+  "description": "Consulta ao catálogo público da AirNext, plataforma brasileira de cartões, tags e pulseiras NFC com perfil digital e QR Code: produtos e preços, perguntas frequentes e canais de contato. Somente leitura.",
+  "protocolVersion": "2025-06-18",
+  "serverInfo": {
+    "name": "airnext-site",
+    "title": "AirNext",
+    "version": "1.0.0"
+  },
+  "endpoint": "https://airnext.com.br/mcp",
+  "transport": {
+    "type": "streamable-http",
+    "endpoint": "https://airnext.com.br/mcp"
+  },
+  "capabilities": {
+    "tools": { "listChanged": false }
+  },
+  "authentication": { "required": false },
+  "tools": [
+    { "name": "search_products", "description": "Lista os produtos AirNext com preço em reais; aceita um filtro por palavra." },
+    { "name": "get_product", "description": "Preço, descrição, características e link de um produto." },
+    { "name": "answer_faq", "description": "Responde dúvidas a partir das perguntas frequentes da AirNext." },
+    { "name": "get_contact_info", "description": "WhatsApp, telefone, e-mails e Instagram oficiais." }
+  ],
+  "documentationUrl": "https://airnext.com.br/llms.txt",
+  "iconUrl": "https://airnext.com.br/favicon.png",
+  "instructions": "Somente leitura. Preços em BRL. Idioma: português do Brasil (pt-BR). Para comprar, siga o link da página do produto."
+}

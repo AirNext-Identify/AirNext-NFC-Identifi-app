@@ -7,6 +7,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { QRCodeSVG } from 'qrcode.react';
 import type { Product } from '@/types/admin';
+import { supabase } from '@/lib/supabase';
 
 export type LabelMode = 'qr-code' | 'qr' | 'code';
 
@@ -291,6 +292,56 @@ export function savePrinted(ids: Set<string>): void {
   } catch {
     /* sem armazenamento: só não lembra o que já foi impresso */
   }
+}
+
+// ─── "Já impresso" no banco (compartilhado entre PC e celular) ──────────────
+// Tabela public.printed_labels (sql/21_admin_clientes_e_etiquetas.sql). Se o script
+// ainda não foi rodado, as funções devolvem null/false e o painel segue só com o
+// controle local deste navegador.
+let lastRemoteError = '';
+/** Mensagem do último erro ao falar com printed_labels (vazia se deu certo). */
+export const getPrintedRemoteError = () => lastRemoteError;
+const PAGE = 1000;
+const CHUNK = 500;
+
+/** Lê todos os ids marcados como impressos no banco. null = tabela indisponível. */
+export async function loadPrintedRemote(): Promise<Set<string> | null> {
+  const ids = new Set<string>();
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from('printed_labels')
+      .select('product_id')
+      .order('product_id')
+      .range(from, from + PAGE - 1);
+    if (error) {
+      lastRemoteError = error.message;
+      console.warn('printed_labels indisponível:', error.message);
+      return null;
+    }
+    for (const row of data ?? []) ids.add(String((row as any).product_id));
+    if (!data || data.length < PAGE) break;
+  }
+  return ids;
+}
+
+/** Marca (printed=true) ou desmarca (printed=false) etiquetas no banco. Devolve se deu certo. */
+export async function setPrintedRemote(productIds: string[], printed: boolean): Promise<boolean> {
+  if (productIds.length === 0) return true;
+  for (let i = 0; i < productIds.length; i += CHUNK) {
+    const part = productIds.slice(i, i + CHUNK);
+    const { error } = printed
+      ? await supabase
+          .from('printed_labels')
+          .upsert(part.map((product_id) => ({ product_id, printed_at: new Date().toISOString() })), { onConflict: 'product_id' })
+      : await supabase.from('printed_labels').delete().in('product_id', part);
+    if (error) {
+      lastRemoteError = error.message;
+      console.warn('Falha ao gravar printed_labels:', error.message);
+      return false;
+    }
+  }
+  lastRemoteError = '';
+  return true;
 }
 
 const esc = (s: string) =>

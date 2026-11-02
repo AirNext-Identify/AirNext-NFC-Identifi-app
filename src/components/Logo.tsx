@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
+import { LOGO_ON_DARK_IMG, LOGO_ON_LIGHT_IMG } from '../lib/productImages';
 
 interface LogoProps {
   to?: string;
@@ -10,12 +11,13 @@ interface LogoProps {
   withTouchGlow?: boolean;
 }
 
+// Logo em imagem (proporção 3:1.25). Alturas reduzidas em relação à versão em texto.
 const SIZES = {
-  xs: 'text-2xl',
-  sm: 'text-3xl sm:text-4xl',
-  md: 'text-4xl sm:text-5xl',
-  lg: 'text-5xl sm:text-6xl',
-  xl: 'text-6xl sm:text-7xl'
+  xs: 'h-5',
+  sm: 'h-6 sm:h-7',
+  md: 'h-7 sm:h-8',
+  lg: 'h-9 sm:h-11',
+  xl: 'h-12 sm:h-14'
 };
 
 export default function Logo({ to = '/dashboard', dark = false, size = 'sm', withTouchGlow = false }: LogoProps) {
@@ -29,7 +31,6 @@ export default function Logo({ to = '/dashboard', dark = false, size = 'sm', wit
 
   return (
     <span className="relative inline-flex items-center justify-center">
-      {/* Anel de brilho: pulsa em sincronia com o foguete "encostando" na logo */}
       {withTouchGlow && (
         <>
           <span
@@ -39,7 +40,6 @@ export default function Logo({ to = '/dashboard', dark = false, size = 'sm', wit
           <Sparkles className="logo-touch-spark absolute -top-2 -right-3 h-4 w-4 text-cyan-300 pointer-events-none" />
         </>
       )}
-      {/* Onda de clique: expande e some a cada toque no logo */}
       {clicked && (
         <span
           key={Date.now()}
@@ -49,22 +49,21 @@ export default function Logo({ to = '/dashboard', dark = false, size = 'sm', wit
       )}
       <Link
         to={to}
+        aria-label="AirNext"
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onClick={handleClick}
-        className={`${SIZES[size]} relative select-none inline-flex leading-none transition-all duration-300 ${hover ? 'scale-110 drop-shadow-[0_0_18px_rgba(96,165,250,0.55)]' : ''} ${clicked ? 'logo-click-flash' : ''}`}
-        style={{ fontFamily: "'Lobster', cursive" }}
+        className={`relative select-none inline-flex items-center leading-none transition-transform duration-300 ${hover ? 'scale-105' : ''} ${clicked ? 'logo-click-flash' : ''}`}
       >
-        <span className={dark ? 'text-zinc-900' : 'text-white'}>Air</span>
-        <span
-          className="bg-clip-text text-transparent transition-all duration-300"
-          style={{ backgroundImage: (hover || clicked) ? 'linear-gradient(90deg, #60a5fa, #a855f7, #f59e0b)' : 'linear-gradient(90deg, #3b82f6, #3b82f6)' }}
-        >
-          Next
-        </span>
-        {(hover || clicked) && (
-          <Sparkles className="absolute -top-3 -right-4 h-4 w-4 text-amber-300 animate-ping" />
-        )}
+        <img
+          src={dark ? LOGO_ON_LIGHT_IMG : LOGO_ON_DARK_IMG}
+          alt="AirNext"
+          width={375}
+          height={157}
+          decoding="async"
+          draggable={false}
+          className={`${SIZES[size]} w-auto`}
+        />
       </Link>
     </span>
   );

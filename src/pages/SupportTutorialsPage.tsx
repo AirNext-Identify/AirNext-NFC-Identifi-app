@@ -7,6 +7,8 @@ import {
 import Logo from '../components/Logo';
 import { Seo } from '../components/Seo';
 import { AIRNEXT_FAQ } from '../config/aiContent';
+import ativarVideo from '../assets/airnext/ativar-airnext.mp4';
+import ativarPoster from '../assets/airnext/ativar-airnext-poster.jpg';
 import { COMBO_KIT_IMG, GOOGLE_SHOWCASE, STAND_GOOGLE_NFC_IMG } from '../lib/productImages';
 
 type Tutorial = {
@@ -20,6 +22,10 @@ type Tutorial = {
   /** Imagem de capa (carrega rápido, sem baixar o vídeo na lista). */
   poster: string;
   icon: React.ElementType;
+  /** Vídeo gravado na vertical (celular): o player usa layout lateral no desktop. */
+  portrait?: boolean;
+  /** Passo a passo exibido ao lado do vídeo. */
+  steps?: string[];
 };
 
 const PET_POSTER = 'https://images.pexels.com/photos/15075137/pexels-photo-15075137.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200';
@@ -28,13 +34,21 @@ const TEA_POSTER = 'https://images.pexels.com/photos/8944295/pexels-photo-894429
 const TUTORIALS: Tutorial[] = [
   {
     id: 'ativar',
-    poster: COMBO_KIT_IMG,
+    poster: ativarPoster,
     title: 'Como ativar seu produto AirNext',
-    description: 'Do código de ativação ao primeiro perfil publicado, em poucos minutos.',
+    description: 'Do código de ativação ao primeiro perfil publicado, em menos de um minuto.',
     category: 'Primeiros passos',
-    duration: '2 min',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smart-phone-426-large.mp4',
+    duration: '42 s',
+    videoUrl: ativarVideo,
     icon: Zap,
+    portrait: true,
+    steps: [
+      'Aproxime o celular do produto AirNext ou escaneie o QR Code.',
+      'No painel, toque em Ativar Produto e digite o código de ativação.',
+      'Aguarde a validação e escolha a categoria do seu perfil.',
+      'Pronto: seu perfil digital está no ar, com link próprio para compartilhar.',
+      'Compartilhe por aproximação (NFC) ou pelo QR Code.',
+    ],
   },
   {
     id: 'nfc',
@@ -113,6 +127,14 @@ export default function SupportTutorialsPage() {
         (!q || `${t.title} ${t.description} ${t.category}`.toLowerCase().includes(q))
     );
   }, [filter, query]);
+
+  // Link direto: /suporte?video=ativar abre o tutorial automaticamente.
+  useEffect(() => {
+    const id = new URLSearchParams(location.search).get('video');
+    if (!id) return;
+    const t = TUTORIALS.find((x) => x.id === id);
+    if (t) setActive(t);
+  }, [location.search]);
 
   // Modal: ESC fecha, trava a rolagem do fundo.
   useEffect(() => {
@@ -204,9 +226,9 @@ export default function SupportTutorialsPage() {
         </div>
       </section>
 
-      <main className="max-w-6xl mx-auto px-6 -mt-6 pb-24">
+      <main className="relative z-10 max-w-6xl mx-auto px-6 -mt-6 pb-24">
         {/* Filtros (rolam na horizontal no celular) */}
-        <div className="-mx-6 px-6 mb-10 flex gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-center sm:overflow-visible">
+        <div className="-mx-6 px-6 mb-10 flex gap-2 overflow-x-auto py-2 sm:flex-wrap sm:justify-center sm:overflow-visible">
           {CATEGORIES.map((c) => (
             <button
               key={c}
@@ -363,7 +385,11 @@ export default function SupportTutorialsPage() {
           aria-label={active.title}
         >
           <div
-            className="flex h-full w-full flex-col bg-[#0b0b0d] sm:h-auto sm:max-w-3xl sm:rounded-[28px] sm:overflow-hidden shadow-2xl"
+            className={`flex h-full w-full flex-col bg-[#0b0b0d] sm:rounded-[28px] sm:overflow-hidden shadow-2xl ${
+              active.portrait
+                ? 'sm:h-[88vh] sm:max-h-[820px] sm:w-auto sm:max-w-3xl sm:flex-row'
+                : 'sm:h-auto sm:max-w-3xl'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-3 py-2 sm:hidden">
@@ -383,7 +409,13 @@ export default function SupportTutorialsPage() {
                 <X size={18} />
               </button>
             </div>
-            <div className="aspect-video bg-black shrink-0">
+            <div
+              className={
+                active.portrait
+                  ? 'min-h-0 flex-1 bg-black sm:h-full sm:flex-none sm:aspect-[9/19.5]'
+                  : 'aspect-video bg-black shrink-0'
+              }
+            >
               <video
                 key={active.id}
                 src={active.videoUrl}
@@ -394,7 +426,11 @@ export default function SupportTutorialsPage() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="flex-1 overflow-y-auto p-5 text-white">
+            <div
+              className={`overflow-y-auto p-5 text-white ${
+                active.portrait ? 'shrink-0 max-h-[38%] sm:max-h-none sm:w-80 sm:flex-none' : 'flex-1'
+              }`}
+            >
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold text-blue-400 uppercase tracking-wide mb-1">{active.category} · {active.duration}</p>
@@ -410,6 +446,18 @@ export default function SupportTutorialsPage() {
                   <X size={18} />
                 </button>
               </div>
+              {active.steps && (
+                <ol className="mt-5 space-y-3">
+                  {active.steps.map((step, i) => (
+                    <li key={step} className="flex items-start gap-3 text-sm leading-snug text-zinc-300">
+                      <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-[11px] font-bold text-blue-400">
+                        {i + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              )}
               <button
                 type="button"
                 onClick={nextTutorial}

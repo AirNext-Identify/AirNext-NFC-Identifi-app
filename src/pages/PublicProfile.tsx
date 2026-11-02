@@ -100,9 +100,12 @@ import { SITE_NAME } from '../config/seo';
 import { getSegment, getSegmentPreset, getSegmentDisplayName, suggestBlockOrder } from '../config/businessSegments';
 import { getLayoutClasses, ProfileLayout } from '../lib/layout';
 import { profilePreview, profileInvite } from '../config/shareText';
+import ScanLoader from '../components/ScanLoader';
+import { parseServicos } from '../utils/servicos';
+import { prefetchVcardPhoto, foldVcardLine } from '../utils/vcardPhoto';
 import { cardThemeClass, getCardThemeStyle } from '../lib/cardThemes';
 import { visibleFreeLinks, FREE_LINK_CATEGORIES } from '../lib/freeLinks';
-import { getFontOption, loadGoogleFont } from '../lib/fonts';
+import { getFontOption, ensureFontReady } from '../lib/fonts';
 import { PUZZLE_PATTERN_BG } from '../lib/patterns';
 import { isLightBackground, getDefaultBackground } from '../lib/background';
 
@@ -229,21 +232,7 @@ const getSocialUrl = (key: string, val: string): string => {
 
 /* ─── LOADING SCREEN ──────────────────────────────────────── */
 function LoadingScreen() {
-  return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <div className="absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-blue-600/20 blur-3xl" />
-        <div className="absolute bottom-1/3 right-1/3 w-64 h-64 rounded-full bg-violet-600/15 blur-3xl" />
-      </div>
-      <div className="relative flex flex-col items-center gap-5 scale-in">
-        <div className="relative">
-          <div className="w-14 h-14 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
-          <div className="absolute inset-0 rounded-full bg-blue-500/10 blur-xl" />
-        </div>
-        <p className="text-zinc-500 text-sm font-semibold tracking-wide">Carregando perfil...</p>
-      </div>
-    </div>
-  );
+  return <ScanLoader />;
 }
 
 /* ─── MAIN COMPONENT ──────────────────────────────────────── */
@@ -287,6 +276,7 @@ export default function PublicProfile() {
       setLoading(true);
       const p = await getPublicProfile(slug);
       if (!p) { setIsPrivate(true); setLoading(false); return; }
+      await ensureFontReady(p.profileData?.__fontFamily);
       setProduct(p);
       setLoading(false);
       if (!visitRecorded.current) {
@@ -374,10 +364,6 @@ export default function PublicProfile() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [lightboxIndex, lightbox2Index]);
-
-  useEffect(() => {
-    loadGoogleFont(product?.profileData?.__fontFamily);
-  }, [product]);
 
   // Scroll reveal — SEMPRE chamado (Rules of Hooks). Só observa o DOM
   // quando o perfil público já está montado.
@@ -554,8 +540,12 @@ export default function PublicProfile() {
     window.setTimeout(() => container.remove(), 4200);
   };
 
-  const saveContact = () => {
+  // Começa a preparar a foto do contato assim que o perfil carrega (idempotente, sem estado).
+  if (d.foto) void prefetchVcardPhoto(d.foto);
+
+  const saveContact = async () => {
     trackClick('save_contact');
+    const photoB64 = d.foto ? await prefetchVcardPhoto(d.foto) : null;
     const vName = vcard.nome || name;
     const vOrg = vcard.empresa || d.nomeEmpresa || '';
     const vTitle = vcard.cargo || cargo;
@@ -579,11 +569,15 @@ export default function PublicProfile() {
       vTitle && `TITLE:${vTitle}`,
       vEndereco && `ADR;TYPE=WORK:;;${vEndereco};;;;`,
       vObs && `NOTE:${vObs}`,
+      // Foto de perfil dentro do contato (JPEG base64). Se não foi possível baixar, usa o link como alternativa.
+      photoB64
+        ? `PHOTO;ENCODING=b;TYPE=JPEG:${photoB64}`
+        : d.foto && /^https?:\/\//i.test(d.foto) && `PHOTO;VALUE=uri:${d.foto}`,
       'END:VCARD',
-    ].filter(Boolean);
+    ].filter(Boolean) as string[];
 
-    const v = lines.join('\n');
-    const blob = new Blob([v], { type: 'text/vcard' });
+    const v = lines.map(foldVcardLine).join('\r\n') + '\r\n';
+    const blob = new Blob([v], { type: 'text/vcard;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `${vName || name || 'contato'}.vcf`;
@@ -1155,7 +1149,7 @@ export default function PublicProfile() {
   })();
 
   const galeria2 = Array.isArray(d.mediaCarousel2) ? d.mediaCarousel2.filter((m: any) => m?.url) : [];
-  const sobreEmpresaBlock = (cat === 'BUSINESS' && (d.descricao || d.dataFundacao || galeria2.length > 0)) ? (
+  const sobreEmpresaBlock = (cat === 'BUSINESS' && (d.descricao || d.dataFundacao || parseServicos(d.servicos).length > 0 || galeria2.length > 0)) ? (
     <div className="px-5 py-6" style={{ backgroundColor: isLightTheme ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)' }}>
       <div
         className="relative overflow-hidden px-6 py-7 group/car2"
@@ -1195,6 +1189,23 @@ export default function PublicProfile() {
               <p className={`text-[15px] ${th.text} leading-[1.75] tracking-[0.005em] whitespace-pre-line`} style={mainTextStyle}>
                 {d.descricao}
               </p>
+            </div>
+          )}
+
+          {parseServicos(d.servicos).length > 0 && (
+            <div className="mt-6">
+              <p className={`text-[10px] font-bold uppercase tracking-widest ${th.muted} mb-2.5`} style={labelStyle}>O que fazemos</p>
+              <div className="flex flex-wrap gap-2">
+                {parseServicos(d.servicos).map((sv) => (
+                  <span
+                    key={sv}
+                    className="px-3.5 py-1.5 rounded-full text-[13px] font-semibold"
+                    style={{ background: `${primaryColor}1f`, color: primaryColor, border: `1px solid ${primaryColor}33` }}
+                  >
+                    {sv}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
@@ -1428,7 +1439,7 @@ export default function PublicProfile() {
           <div className="bg-white p-4 rounded-2xl shadow-lg ring-1 ring-black/5">
             {d.__pixQrImage
               ? <img src={d.__pixQrImage} alt="QR Code Pix" className="w-40 h-40 object-contain rounded-xl" />
-              : <QRCodeSVG value={d.chavePix} size={160} fgColor="#0a0a0a" />
+              : <QRCodeSVG value={d.chavePix} size={160} fgColor="#0a0a0a" aria-label="QR Code da chave Pix" />
             }
           </div>
           <p className={`text-[11px] ${th.muted} text-center -mt-1`}>Abra o app do seu banco e escaneie para pagar</p>
@@ -1472,7 +1483,7 @@ export default function PublicProfile() {
           <div className="bg-white p-4 rounded-2xl shadow-lg">
             {d.__wifiQrImage
               ? <img src={d.__wifiQrImage} alt="QR Code Wi-Fi" className="w-40 h-40 object-contain rounded-xl" />
-              : <QRCodeSVG value={`WIFI:T:WPA;S:${d.__wifiSsid || ''};P:${d.__wifiPassword || ''};;`} size={160} />
+              : <QRCodeSVG value={`WIFI:T:WPA;S:${d.__wifiSsid || ''};P:${d.__wifiPassword || ''};;`} size={160} aria-label="QR Code para conectar ao Wi-Fi" />
             }
           </div>
           <p className={`text-[11px] ${th.muted} text-center -mt-1`}>Aponte a câmera para conectar automaticamente</p>
@@ -1974,7 +1985,8 @@ export default function PublicProfile() {
   const profilePrev = profilePreview({ cat, name, cargo, bio: bio || d.descricao, segment: segmentName || undefined });
   const profileSeoTitle = profilePrev.title;
   const profileSeoDesc = profilePrev.description;
-  const profileSeoImage = d.foto || d.capa || undefined;
+  // Prévia com a foto/capa do próprio perfil. Crianças, idosos e TEA não expõem foto em links públicos (privacidade).
+  const profileSeoImage = ['PERSONAL', 'BUSINESS', 'PET'].includes(cat) ? (d.foto || d.capa || undefined) : undefined;
 
   return (
     <div
@@ -1986,6 +1998,8 @@ export default function PublicProfile() {
         description={profileSeoDesc}
         image={profileSeoImage}
         type="profile"
+        brandless
+        siteName={name || undefined}
         path={typeof window !== 'undefined' ? window.location.pathname : undefined}
       />
       {/* Camada de fundo fixa ao viewport — evita que a imagem de fundo
@@ -2388,7 +2402,7 @@ export default function PublicProfile() {
             <p className="text-white font-bold text-lg mb-1">QR Code do Perfil</p>
             <p className="text-zinc-500 text-sm mb-6">Escaneie para abrir o perfil</p>
             <div className="bg-white p-5 rounded-3xl inline-block shadow-2xl">
-              <QRCodeSVG value={`${window.location.href}${window.location.search ? '&' : '?'}via=qr`} size={200} />
+              <QRCodeSVG value={`${window.location.href}${window.location.search ? '&' : '?'}via=qr`} size={200} aria-label="QR Code deste perfil" />
             </div>
             <div className="mt-5 flex gap-2 justify-center">
               <button

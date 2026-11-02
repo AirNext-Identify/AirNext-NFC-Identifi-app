@@ -46,6 +46,10 @@ export type SeoProps = {
   type?: 'website' | 'profile' | 'article';
   noIndex?: boolean;
   keywords?: string;
+  /** Perfis públicos: sem marca AirNext no título, no nome do site e nas imagens padrão. */
+  brandless?: boolean;
+  /** Nome exibido como "site" na prévia (perfis públicos usam o nome do próprio perfil). */
+  siteName?: string;
 };
 
 export function absoluteUrl(path = '/'): string {

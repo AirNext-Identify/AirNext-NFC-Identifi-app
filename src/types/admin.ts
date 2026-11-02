@@ -177,6 +177,7 @@ export type AdminModule =
   | 'dashboard'
   | 'customers'
   | 'orders'
+  | 'stickers'
   | 'feedbacks'
   | 'products'
   | 'lots'
@@ -188,3 +189,9 @@ export type AdminModule =
   | 'analytics'
   | 'guide'
   | 'settings';
+
+/** Módulos válidos do painel (usado para abrir direto por #endereço e no botão voltar do navegador). */
+export const ADMIN_MODULES: AdminModule[] = [
+  'dashboard', 'orders', 'feedbacks', 'customers', 'products', 'lots', 'nfc',
+  'labels', 'stickers', 'validity', 'notifications', 'analytics', 'guide', 'settings',
+];

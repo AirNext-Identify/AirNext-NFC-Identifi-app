@@ -75,7 +75,7 @@ export function Header({
   }, [query, customers, products, lots]);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/80 py-4 pl-16 pr-4 backdrop-blur-xl sm:px-6 lg:pl-6">
+    <header className="sticky top-0 z-20 border-b border-zinc-800 bg-zinc-950/80 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] backdrop-blur-xl sm:px-6 lg:py-4">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h2 className="truncate text-lg font-semibold tracking-tight text-zinc-100 sm:text-xl">{title}</h2>
@@ -117,7 +117,7 @@ export function Header({
             </button>
 
             {notifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 rounded-2xl border border-zinc-800 bg-zinc-900 p-4 shadow-2xl backdrop-blur-xl sm:w-96">
+              <div className="absolute right-0 top-full mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-zinc-800 bg-zinc-900 p-4 shadow-2xl backdrop-blur-xl sm:w-96">
                 <div className="mb-3 flex items-center justify-between border-b border-zinc-800 pb-3">
                   <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-indigo-400" />

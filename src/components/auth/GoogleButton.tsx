@@ -26,7 +26,7 @@ export default function GoogleButton({
       type="button"
       onClick={onClick}
       disabled={busy}
-      className="w-full flex items-center justify-center gap-3 bg-white hover:bg-zinc-100 text-zinc-800 font-semibold py-3.5 rounded-xl transition-all disabled:opacity-60 text-sm shadow-sm hover:shadow-md border border-black/5 hover:scale-[1.01] active:scale-[0.99]"
+      className="w-full flex items-center justify-center gap-3 bg-white hover:bg-zinc-100 text-zinc-800 font-semibold py-3.5 rounded-full transition-all disabled:opacity-60 text-[15px] shadow-sm hover:shadow-md border border-black/5 hover:scale-[1.01] active:scale-[0.99]"
     >
       {busy ? <Loader2 className="h-4.5 w-4.5 animate-spin text-zinc-500" /> : <GoogleGlyph />}
       {busy ? 'Conectando...' : label}

@@ -6,7 +6,7 @@ import type { Product } from '../types/product';
 // viviam dentro do AuthContext, o que obrigava toda visita pública (NFC/QR —
 // provavelmente o maior volume de tráfego do app) a montar o AuthProvider
 // inteiro e disparar checagem de sessão só para exibir um cartão público.
-export async function getPublicProfile(slug: string): Promise<Product | undefined> {
+async function fetchPublicProfile(slug: string): Promise<Product | undefined> {
   const { data, error } = await supabase
     .from('products')
     // 🔒 FIX: user_id removido do select público — não é usado pela página
@@ -32,6 +32,37 @@ export async function getPublicProfile(slug: string): Promise<Product | undefine
   const product = mapProduct(data);
   if (product.visibility === 'private' || product.visibility === 'hidden') return undefined;
   return product;
+}
+
+// Pré-carregamento: a tela de escaneamento (NfcRedirect) já sabe o slug assim que o banco responde e começa a
+// buscar o perfil e as imagens principais ANTES de a página do perfil abrir. Quando ela abre, os dados já estão
+// a caminho (ou prontos), sem uma segunda espera. Cada entrada é usada uma única vez e expira em 20 s.
+const prefetched = new Map<string, Promise<Product | undefined>>();
+
+export function prefetchPublicProfile(slug: string): void {
+  if (!slug || prefetched.has(slug)) return;
+  const p = fetchPublicProfile(slug).catch(() => undefined);
+  prefetched.set(slug, p);
+  p.then((prod) => {
+    if (!prod || typeof window === 'undefined') return;
+    const d: any = prod.profileData || {};
+    [d.foto, d.capa].filter((u) => typeof u === 'string' && /^https?:\/\//i.test(u)).forEach((u) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = u;
+    });
+  });
+  window.setTimeout(() => prefetched.delete(slug), 20000);
+}
+
+export async function getPublicProfile(slug: string): Promise<Product | undefined> {
+  const hit = prefetched.get(slug);
+  if (hit) {
+    prefetched.delete(slug);
+    const prod = await hit;
+    if (prod) return prod;
+  }
+  return fetchPublicProfile(slug);
 }
 
 export async function recordVisit(

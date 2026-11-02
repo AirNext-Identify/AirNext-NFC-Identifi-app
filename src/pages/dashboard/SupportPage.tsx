@@ -5,7 +5,7 @@ import {
   Search, MessageCircle, ChevronDown, ChevronUp, ExternalLink, 
   HelpCircle, Zap, Key, Settings, CreditCard, Shield, Wifi,
   AlertTriangle, Lightbulb, Trash2, X, Loader2,
-  ArrowLeft, Send
+  ArrowLeft, Send, PlayCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -273,6 +273,19 @@ export default function SupportPage() {
         </div>
         <ExternalLink className="h-4 w-4 text-zinc-600 group-hover:text-emerald-400 transition-colors" />
       </a>
+
+      {/* Vídeo: como ativar */}
+      <button onClick={() => nav('/suporte?video=ativar')}
+        className="glass rounded-2xl p-5 flex items-center gap-4 hover:bg-blue-500/10 hover:border-blue-500/20 border border-white/5 transition-all group w-full text-left">
+        <div className="h-12 w-12 rounded-2xl bg-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/30 transition-colors">
+          <PlayCircle className="h-6 w-6 text-blue-400" />
+        </div>
+        <div className="flex-1">
+          <p className="font-bold text-white text-sm">Vídeo: como ativar seu AirNext</p>
+          <p className="text-xs text-zinc-500 mt-0.5">Passo a passo em 42 segundos</p>
+        </div>
+        <ExternalLink className="h-4 w-4 text-zinc-600 group-hover:text-blue-400 transition-colors" />
+      </button>
 
       {/* Options grid */}
       <div className="grid grid-cols-2 gap-3">

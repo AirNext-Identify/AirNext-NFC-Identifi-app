@@ -18,12 +18,13 @@ import {
   ShoppingBag,
   Star,
   Printer,
+  QrCode,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn, getInitials } from '@/lib/adminUtils';
 import type { AdminModule } from '@/types/admin';
 
-const menuItems: { id: AdminModule; label: string; icon: React.ElementType }[] = [
+export const menuItems: { id: AdminModule; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'orders', label: 'Pedidos', icon: ShoppingBag },
   { id: 'feedbacks', label: 'Feedbacks', icon: Star },
@@ -31,12 +32,22 @@ const menuItems: { id: AdminModule; label: string; icon: React.ElementType }[] =
   { id: 'products', label: 'Produtos', icon: CreditCard },
   { id: 'lots', label: 'Lotes', icon: Boxes },
   { id: 'nfc', label: 'Programador NFC', icon: Cpu },
-  { id: 'labels', label: 'Etiquetas (QR)', icon: Printer },
+  { id: 'labels', label: 'Etiquetas & Gravação', icon: Printer },
+  { id: 'stickers', label: 'Adesivos QR', icon: QrCode },
   { id: 'validity', label: 'Validade', icon: CalendarClock },
   { id: 'notifications', label: 'Notificações', icon: Bell },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'guide', label: 'Manual & Guia NFC', icon: BookOpen },
   { id: 'settings', label: 'Configurações', icon: Settings },
+];
+
+/** Menu organizado por seção (desktop e "Mais" do celular). */
+export const menuGroups: { label: string; ids: AdminModule[] }[] = [
+  { label: 'Geral', ids: ['dashboard'] },
+  { label: 'Vendas', ids: ['orders', 'customers', 'feedbacks'] },
+  { label: 'Produção', ids: ['products', 'lots', 'nfc', 'labels', 'stickers'] },
+  { label: 'Gestão', ids: ['validity', 'notifications', 'analytics'] },
+  { label: 'Sistema', ids: ['guide', 'settings'] },
 ];
 
 interface SidebarProps {
@@ -55,20 +66,15 @@ export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userNa
     <>
       <button
         onClick={onToggleMobile}
-        className="fixed left-3 top-3 z-[60] flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300 shadow-xl transition-colors hover:bg-zinc-800 lg:hidden"
+        className="hidden"
         title="Abrir menu"
       >
         {mobileOpen ? <X className="h-5 w-5 text-indigo-400" /> : <Menu className="h-5 w-5" />}
       </button>
 
-      {mobileOpen && (
-        <div className="fixed inset-0 z-[35] bg-black/60 backdrop-blur-sm lg:hidden" onClick={onToggleMobile} />
-      )}
-
       <aside
         className={cn(
-          'fixed left-0 top-0 z-40 flex h-[100dvh] w-64 transform flex-col border-r border-zinc-800 bg-zinc-950 transition-transform duration-300 lg:z-30 lg:translate-x-0',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+          'fixed left-0 top-0 z-30 hidden h-[100dvh] w-64 flex-col border-r border-zinc-800 bg-zinc-950 lg:flex'
         )}
       >
         <div className="flex h-16 shrink-0 items-center gap-3 border-b border-zinc-900 px-6">
@@ -82,33 +88,43 @@ export function Sidebar({ active, onNavigate, mobileOpen, onToggleMobile, userNa
         </div>
 
         <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain p-4 [scrollbar-width:thin] [scrollbar-color:#3f3f46_transparent]">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = active === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onNavigate(item.id);
-                  if (mobileOpen) onToggleMobile();
-                }}
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
-                  isActive
-                    ? 'bg-zinc-900 text-zinc-100 shadow-sm'
-                    : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200'
-                )}
-              >
-                <Icon className={cn('h-4.5 w-4.5', isActive ? 'text-indigo-400' : 'text-zinc-500')} />
-                {item.label}
-                {!!badges?.[item.id] && (
-                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1.5 text-[11px] font-bold text-white animate-pulse">
-                    {badges[item.id]}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          {menuGroups.map((group) => (
+            <div key={group.label} className="pb-2">
+              <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-600">{group.label}</p>
+              <div className="space-y-0.5">
+                {group.ids.map((id) => {
+                  const item = menuItems.find((m) => m.id === id);
+                  if (!item) return null;
+                  const Icon = item.icon;
+                  const isActive = active === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        onNavigate(item.id);
+                        if (mobileOpen) onToggleMobile();
+                      }}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={cn(
+                        'flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all',
+                        isActive
+                          ? 'bg-zinc-900 text-zinc-100 shadow-sm'
+                          : 'text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200'
+                      )}
+                    >
+                      <Icon className={cn('h-4.5 w-4.5', isActive ? 'text-indigo-400' : 'text-zinc-500')} />
+                      {item.label}
+                      {!!badges?.[item.id] && (
+                        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1.5 text-[11px] font-bold text-white animate-pulse">
+                          {badges[item.id]}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
 
           <a
             href="/painel-imagens"

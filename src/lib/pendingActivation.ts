@@ -1,7 +1,11 @@
 /**
- * Guarda temporariamente o código de ativação lido do QR/chip, para que ele
- * NÃO precise ficar na barra de endereço (nem no histórico, nem em ?next=) ao
- * longo do fluxo scan → login/cadastro → ativação.
+ * Guarda temporariamente o código de ativação que o PRÓPRIO CLIENTE recebeu
+ * (link /ativar/:código enviado pelo suporte), para que ele não fique na barra
+ * de endereço nem no histórico ao longo do fluxo login/cadastro → ativação.
+ *
+ * Ler QR/chip NUNCA grava código aqui: o código de ativação não sai do banco
+ * por escaneamento (ver sql/19_ativacao_codigo_obrigatorio.sql). Quem escaneia
+ * só deixa um aviso (hint) de que o produto está aguardando ativação.
  *
  * Expira em 30 min e é apagado assim que o produto é ativado.
  */
@@ -47,6 +51,40 @@ export function getPendingActivationLine(): string | null {
 export function clearPendingActivationCode(): void {
   try {
     localStorage.removeItem(KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+const HINT_KEY = 'airnext:pending_activation_hint';
+
+/** Marca que o cliente escaneou/tocou um produto ainda não ativado (sem guardar código). */
+export function setPendingActivationHint(line?: string): void {
+  try {
+    localStorage.setItem(HINT_KEY, JSON.stringify({ line, t: Date.now() }));
+  } catch {
+    /* storage indisponível: só perde o texto personalizado da tela */
+  }
+}
+
+export function getPendingActivationHint(): { line?: string } | null {
+  try {
+    const raw = localStorage.getItem(HINT_KEY);
+    if (!raw) return null;
+    const { line, t } = JSON.parse(raw) as { line?: string; t: number };
+    if (Date.now() - t > TTL_MS) {
+      localStorage.removeItem(HINT_KEY);
+      return null;
+    }
+    return { line };
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingActivationHint(): void {
+  try {
+    localStorage.removeItem(HINT_KEY);
   } catch {
     /* ignore */
   }

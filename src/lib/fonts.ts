@@ -34,15 +34,48 @@ export function getFontOption(id?: string): FontOption {
 }
 
 /** Injeta (uma única vez por família) a tag <link> do Google Fonts no <head>. */
-export function loadGoogleFont(id?: string) {
+export function loadGoogleFont(id?: string): Promise<void> {
+  if (typeof document === 'undefined') return Promise.resolve();
+  const opt = getFontOption(id);
+  if (!opt.google) return Promise.resolve();
+  const linkId = `airnect-font-${opt.id}`;
+  const existing = document.getElementById(linkId) as HTMLLinkElement | null;
+  if (existing) {
+    if (existing.dataset.ready === '1') return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => resolve(), { once: true });
+    });
+  }
+  return new Promise<void>((resolve) => {
+    const link = document.createElement('link');
+    link.id = linkId;
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${opt.google}:wght@${opt.weights || '400;600;700'}&display=swap`;
+    const done = () => { link.dataset.ready = '1'; resolve(); };
+    link.addEventListener('load', done, { once: true });
+    link.addEventListener('error', done, { once: true });
+    document.head.appendChild(link);
+  });
+}
+
+/**
+ * Carrega a fonte do perfil e espera ela estar pronta (com limite de tempo) ANTES de o texto
+ * aparecer. Sem isso o perfil abria com a fonte reserva e as letras "trocavam" de forma ao carregar.
+ */
+export async function ensureFontReady(id?: string, timeoutMs = 2500): Promise<void> {
   if (typeof document === 'undefined') return;
   const opt = getFontOption(id);
   if (!opt.google) return;
-  const linkId = `airnect-font-${opt.id}`;
-  if (document.getElementById(linkId)) return;
-  const link = document.createElement('link');
-  link.id = linkId;
-  link.rel = 'stylesheet';
-  link.href = `https://fonts.googleapis.com/css2?family=${opt.google}:wght@${opt.weights || '400;600;700'}&display=swap`;
-  document.head.appendChild(link);
+  const work = (async () => {
+    await loadGoogleFont(id);
+    const fonts = (document as any).fonts;
+    if (!fonts?.load) return;
+    const name = opt.family.split(',')[0].trim();
+    await Promise.all([
+      fonts.load(`400 16px ${name}`),
+      fonts.load(`700 16px ${name}`),
+    ]);
+  })().catch(() => undefined);
+  await Promise.race([work, new Promise<void>((r) => setTimeout(r, timeoutMs))]);
 }

@@ -111,21 +111,19 @@
      borda em degradê e brilho superior — usado nas 3 telas de acesso. */
   .auth-card {
     position: relative;
-    border-radius: 1.5rem;
-    background: rgba(10, 16, 32, 0.72);
-    backdrop-filter: blur(40px) saturate(1.5);
-    border: 1px solid transparent;
-    background-image: linear-gradient(rgba(10, 16, 32, 0.85), rgba(10, 16, 32, 0.72)), linear-gradient(140deg, rgba(0,113,227,0.65), rgba(96,165,250,0.28) 50%, rgba(37,99,235,0.45));
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
-    box-shadow: 0 28px 80px -24px rgba(0,113,227,0.35), 0 8px 32px 0 rgba(0,0,0,0.45);
+    border-radius: 1.75rem;
+    background: rgba(22, 22, 24, 0.82);
+    backdrop-filter: blur(40px) saturate(1.6);
+    -webkit-backdrop-filter: blur(40px) saturate(1.6);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 40px 100px -30px rgba(0, 113, 227, 0.28), 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
   .auth-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 8%; right: 8%;
+    top: 0; left: 12%; right: 12%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(96,165,250,0.6), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
   }
   .auth-bg-sweep {
     position: absolute;
@@ -137,9 +135,6 @@
   @keyframes authSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 
-  .input-dark { @apply w-full border rounded-2xl px-5 py-4 text-[15px] focus:outline-none focus:ring-2 transition-all duration-300 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus:ring-blue-500/50 focus:border-blue-500/50; }
-  .input-light { @apply w-full border rounded-2xl px-5 py-4 text-[15px] focus:outline-none focus:ring-2 transition-all duration-300 bg-zinc-50 border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:ring-blue-500/30 focus:border-blue-500/50 shadow-sm; }
-  
   /* Buttons Premium */
   .btn-base { @apply flex items-center justify-center gap-2.5 font-bold transition-all duration-300 active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100; }
   
@@ -577,3 +572,61 @@ html:not(.app-ready) body {
 }
 .pp-theme-minimal .pp-social-chip { box-shadow: none; }
 .pp-theme-solid .pp-social-chip { border: 1px solid rgba(128, 128, 128, 0.15); }
+
+
+/* ─── Visual Apple (preto · branco · azul) das telas de acesso ─────────────── */
+.apple-bg { background: #000; }
+.apple-glow {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 50% -5%, rgba(0, 113, 227, 0.32), transparent 70%),
+    radial-gradient(40% 30% at 100% 100%, rgba(0, 113, 227, 0.12), transparent 70%);
+}
+/*
+ * Componentes de formulário e botão em @layer components (e NÃO soltos fora de
+ * qualquer layer). No Tailwind v4, CSS sem layer vence TODAS as utilities —
+ * então `apple-input pl-11` perdia o padding-left para o `padding` do próprio
+ * .apple-input, e o ícone ficava por cima do texto digitado. Dentro de
+ * @layer components, as utilities (pl-11, pr-11, px-8...) voltam a vencer.
+ */
+@layer components {
+  .input-dark { @apply w-full border rounded-2xl px-5 py-4 text-[15px] focus:outline-none focus:ring-2 transition-all duration-300 bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus:ring-blue-500/50 focus:border-blue-500/50; }
+  .input-light { @apply w-full border rounded-2xl px-5 py-4 text-[15px] focus:outline-none focus:ring-2 transition-all duration-300 bg-zinc-50 border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:ring-blue-500/30 focus:border-blue-500/50 shadow-sm; }
+
+  .apple-label { display: block; font-size: 12px; font-weight: 500; color: #a1a1a6; margin-bottom: 6px; letter-spacing: 0.01em; }
+  .apple-input {
+    width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 14px;
+    padding: 14px 16px; color: #fff; font-size: 15px; transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .apple-input::placeholder { color: #636366; }
+  .apple-input:hover { border-color: #3a3a3c; }
+  .apple-input:focus { outline: none; border-color: #0071e3; box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.22); background: #1c1c1e; }
+  .apple-input option { background: #1c1c1e; color: #fff; }
+  .auth-help-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    min-height: 44px; padding: 0 1rem; border-radius: 9999px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    color: #d1d1d6; font-size: 14px; font-weight: 500;
+    transition: background .2s, border-color .2s, color .2s, transform .15s;
+  }
+  .auth-help-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.22); color: #fff; }
+  .auth-help-btn:active { transform: scale(0.97); }
+  .apple-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #0071e3; color: #fff; font-weight: 600; font-size: 15px; padding: 14px 20px;
+    border-radius: 999px; transition: transform .15s, background .15s, opacity .15s;
+  }
+  .apple-btn:hover { background: #0a84ff; }
+  .apple-btn:active { transform: scale(0.985); }
+  .apple-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .apple-btn-light {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #fff; color: #000; font-weight: 600; font-size: 15px; padding: 13px 20px; border-radius: 999px;
+    transition: transform .15s, background .15s, opacity .15s;
+  }
+  .apple-btn-light:hover { background: #f2f2f7; }
+  .apple-btn-light:active { transform: scale(0.985); }
+  .apple-btn-light:disabled { opacity: .5; }
+  .apple-link { color: #2997ff; font-weight: 500; transition: color .15s; }
+  .apple-link:hover { color: #64b5ff; }
+}

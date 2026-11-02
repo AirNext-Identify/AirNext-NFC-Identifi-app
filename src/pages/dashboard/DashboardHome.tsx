@@ -18,13 +18,20 @@ import {
   TrendingUp,
   Users,
   Package,
-  Star
+  Star,
+  UserCircle,
+  Pencil,
+  Share2,
+  Globe,
+  LifeBuoy,
+  QrCode,
 } from "lucide-react";
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { BrandIcon } from '../../components/Icons';
 import { isLightBackground, getDefaultBackground } from '../../lib/background';
+import { isAccountComplete, maskPhone } from '../../lib/account';
 
 /* ─── CONSTANTS ────────────────────────────────────────── */
 const PT: Record<string, string> = {
@@ -282,16 +289,51 @@ function ProductCard({ p, onClick }: { p: Product; onClick: () => void }) {
   );
 }
 
+/* ─── ATALHO (tile estilo Apple) ───────────────────────── */
+function Shortcut({ icon: Icon, title, sub, to, onClick, href, highlight }: {
+  icon: React.ElementType; title: string; sub?: string; to?: string; onClick?: () => void; href?: string; highlight?: boolean;
+}) {
+  const cls = `group flex flex-col gap-3 rounded-[22px] border p-4 text-left outline-none transition-all hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2997ff]/60 ${
+    highlight ? 'bg-[#0071e3] border-[#0071e3] shadow-lg shadow-[#0071e3]/25' : 'bg-[#1c1c1e]/70 border-white/8 hover:border-white/20 hover:bg-[#1c1c1e]'
+  }`;
+  const inner = (
+    <>
+      <span className={`h-10 w-10 rounded-2xl flex items-center justify-center ${highlight ? 'bg-white/20' : 'bg-[#0071e3]/15'}`}>
+        <Icon className={`h-5 w-5 ${highlight ? 'text-white' : 'text-[#2997ff]'}`} />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold text-white leading-tight">{title}</span>
+        {sub && <span className={`block text-[11px] mt-0.5 leading-snug ${highlight ? 'text-white/80' : 'text-[#a1a1a6]'}`}>{sub}</span>}
+      </span>
+    </>
+  );
+  if (to) return <Link to={to} className={cls}>{inner}</Link>;
+  if (href) return <a href={href} className={cls}>{inner}</a>;
+  return <button type="button" onClick={onClick} className={cls}>{inner}</button>;
+}
+
 /* ─── MAIN ──────────────────────────────────────────────── */
 export default function DashboardHome() {
   const { user, products, visits, googleProducts } = useAuth();
   const [selected, setSelected] = useState<Product | null>(null);
+  const toast = useToast();
 
   const activeProducts = (products || []).filter(p => p.status === 'ATIVO');
   const totalViews = visits.length;
   const totalClicks = visits.filter(v => v.type === 'nfc' || v.type === 'qr').length;
 
-  const firstName = user?.name?.split(' ')[0] || 'Usuário';
+  const firstName = user?.firstName || user?.name?.split(' ')[0] || 'Usuário';
+  const firstActive = activeProducts[0];
+  const editHref = firstActive ? `/dashboard/perfil/${firstActive.id}` : '/dashboard/produtos';
+  const shareProfile = async () => {
+    if (!firstActive?.slug) { toast.show('Ative um produto para ter um link para compartilhar.', 'info'); return; }
+    const url = `${window.location.origin}/u/${firstActive.slug}`;
+    try {
+      if (navigator.share) { await navigator.share({ title: getName(firstActive), url }); return; }
+      await navigator.clipboard.writeText(url);
+      toast.show('Link do perfil copiado!', 'success');
+    } catch { /* cancelado pelo usuário */ }
+  };
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
 
@@ -301,15 +343,27 @@ export default function DashboardHome() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-zinc-500 text-sm">{greeting} 👋</p>
-          <h1 className="text-2xl font-black text-white mt-0.5">{firstName}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-white mt-0.5">{firstName}</h1>
         </div>
         <Link
           to="/ativar"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-all active:scale-95 shadow-lg shadow-blue-500/20 shrink-0"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0071e3] hover:bg-[#0a84ff] text-white text-sm font-semibold transition-all active:scale-95 shrink-0"
         >
           <Zap className="h-4 w-4" /> Ativar Produto
         </Link>
       </div>
+
+      {/* Cadastro incompleto: convida a preencher nome, sobrenome e telefone */}
+      {user && !isAccountComplete(user) && (
+        <Link to="/dashboard/conta" className="flex items-center gap-3 rounded-2xl border border-[#0071e3]/40 bg-[#0071e3]/10 hover:bg-[#0071e3]/15 p-4 transition-colors">
+          <div className="h-10 w-10 rounded-2xl bg-[#0071e3]/20 flex items-center justify-center shrink-0"><UserCircle className="h-5 w-5 text-[#2997ff]" /></div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white">Complete os dados da sua conta</p>
+            <p className="text-xs text-[#a1a1a6]">Nome, sobrenome e telefone ajudam no suporte e na recuperação da conta.</p>
+          </div>
+          <ArrowRight className="h-4 w-4 text-[#2997ff] shrink-0" />
+        </Link>
+      )}
 
       {/* AirNext Google: atalho para quem tem plaquinha de avaliações */}
       {(googleProducts || []).length > 0 && (
@@ -327,9 +381,24 @@ export default function DashboardHome() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <StatsCard icon={Package} label="Produtos Ativos" value={activeProducts.length} gradient="from-blue-500 to-violet-600" />
-        <StatsCard icon={Users} label="Acessos" value={totalViews.toLocaleString('pt-BR')} sub="total" gradient="from-emerald-500 to-teal-600" />
-        <StatsCard icon={TrendingUp} label="Interações" value={totalClicks.toLocaleString('pt-BR')} sub="NFC + QR" gradient="from-amber-500 to-orange-500" />
+        <StatsCard icon={Package} label="Produtos Ativos" value={activeProducts.length} gradient="from-[#2997ff] to-[#0071e3]" />
+        <StatsCard icon={Users} label="Acessos" value={totalViews.toLocaleString('pt-BR')} sub="total" gradient="from-[#2997ff] to-[#0071e3]" />
+        <StatsCard icon={TrendingUp} label="Interações" value={totalClicks.toLocaleString('pt-BR')} sub="NFC + QR" gradient="from-[#2997ff] to-[#0071e3]" />
+      </div>
+
+      {/* Atalhos */}
+      <div>
+        <h2 className="text-base font-semibold text-white mb-3">Atalhos</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <Shortcut icon={Pencil} title="Editar perfil" sub={firstActive ? `Abrir ${getName(firstActive)}` : 'Escolher um perfil'} to={editHref} />
+          <Shortcut icon={Package} title="Meus perfis" sub="Todos os seus produtos" to="/dashboard/produtos" />
+          <Shortcut icon={Zap} title="Ativar produto" sub="Cartão, tag ou pulseira" to="/ativar" />
+          <Shortcut icon={Share2} title="Compartilhar" sub="Enviar o link do perfil" onClick={shareProfile} />
+          <Shortcut icon={Eye} title="Ver perfil público" sub="Como os outros veem" onClick={() => firstActive?.slug ? window.open(`/u/${firstActive.slug}`, '_blank', 'noopener,noreferrer') : toast.show('Ative um produto para ver o perfil público.', 'info')} />
+          <Shortcut icon={UserCircle} title="Minha conta" sub={user?.phone ? maskPhone(user.phone) : 'Nome, telefone e idade'} to="/dashboard/conta" />
+          <Shortcut icon={BarChart3} title="Estatísticas" sub="Acessos e interações" to="/dashboard/estatisticas" />
+          <Shortcut icon={LifeBuoy} title="Suporte" sub="Dúvidas e ajuda" to="/dashboard/suporte" />
+        </div>
       </div>
 
       {/* Perfis ao Vivo — carrossel principal, sincronizado com os mesmos dados
@@ -406,33 +475,17 @@ export default function DashboardHome() {
         )}
       </div>
 
-      {/* Quick Links */}
+      {/* Mais */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Link
-          to="/dashboard/estatisticas"
-          className="glass rounded-2xl p-4 flex items-center gap-3.5 hover:border-white/15 transition-all group"
-        >
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0">
-            <BarChart3 className="h-5 w-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-white">Estatísticas</p>
-            <p className="text-[11px] text-zinc-600">Acessos e engajamento</p>
-          </div>
-          <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
-        </Link>
-        <Link
-          to="/dashboard/suporte"
-          className="glass rounded-2xl p-4 flex items-center gap-3.5 hover:border-white/15 transition-all group"
-        >
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0">
-            <Bell className="h-5 w-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-white">Suporte</p>
-            <p className="text-[11px] text-zinc-600">Dúvidas e ajuda</p>
-          </div>
-          <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+        <a href="/" className="rounded-[22px] bg-[#1c1c1e]/70 border border-white/8 hover:border-white/20 p-4 flex items-center gap-3.5 transition-all group">
+          <span className="h-10 w-10 rounded-2xl bg-[#0071e3]/15 flex items-center justify-center shrink-0"><Globe className="h-5 w-5 text-[#2997ff]" /></span>
+          <span className="flex-1"><span className="block text-sm font-semibold text-white">Visitar o site</span><span className="block text-[11px] text-[#a1a1a6]">Conheça novos produtos AirNext</span></span>
+          <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-zinc-300 transition-colors" />
+        </a>
+        <Link to="/ativar" className="rounded-[22px] bg-[#1c1c1e]/70 border border-white/8 hover:border-white/20 p-4 flex items-center gap-3.5 transition-all group">
+          <span className="h-10 w-10 rounded-2xl bg-[#0071e3]/15 flex items-center justify-center shrink-0"><QrCode className="h-5 w-5 text-[#2997ff]" /></span>
+          <span className="flex-1"><span className="block text-sm font-semibold text-white">Escanear QR Code</span><span className="block text-[11px] text-[#a1a1a6]">Ative um produto com a câmera</span></span>
+          <ArrowRight className="h-4 w-4 text-zinc-600 group-hover:text-zinc-300 transition-colors" />
         </Link>
       </div>
 

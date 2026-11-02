@@ -33,7 +33,7 @@ export function Modal({ isOpen, onClose, title, description, children, maxWidth 
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="overflow-y-auto">{children}</div>
+        <div className="overflow-y-auto pb-[env(safe-area-inset-bottom,0px)]">{children}</div>
       </div>
     </div>
   );

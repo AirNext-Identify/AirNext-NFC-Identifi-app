@@ -1,0 +1,273 @@
+{
+ "products": [
+  {
+   "id": "pro",
+   "name": "AirNext Pro",
+   "audience": "Profissionais",
+   "price_brl": 89.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Perfil digital para profissionais, autônomos e empreendedores.",
+   "features": [
+    "Chip NFC",
+    "QR Code Dinâmico",
+    "PVC Premium Matte",
+    "IP65 · À Prova d'Água",
+    "Edição ilimitada do perfil"
+   ],
+   "url": "https://airnext.com.br/produto/pro"
+  },
+  {
+   "id": "stand",
+   "name": "AirNext Stand",
+   "audience": "Estabelecimentos",
+   "price_brl": 129.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Centralizador de informações para estabelecimentos.",
+   "features": [
+    "Base Acrílico Premium",
+    "Chip NFC",
+    "QR Code Estático + Dinâmico",
+    "Avaliações no Google com um toque",
+    "Dashboard de analytics",
+    "Personalização com logo"
+   ],
+   "url": "https://airnext.com.br/produto/stand"
+  },
+  {
+   "id": "pet",
+   "name": "AirNext Pet",
+   "audience": "Pets",
+   "price_brl": 79.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Identificação inteligente para pets.",
+   "features": [
+    "Acabamento em Resina",
+    "Chip NFC",
+    "QR Code Estático + Dinâmico",
+    "IP68 · Submersível",
+    "Argola",
+    "Dados veterinários e +"
+   ],
+   "url": "https://airnext.com.br/produto/pet"
+  },
+  {
+   "id": "kids",
+   "name": "AirNext Kids",
+   "audience": "Crianças",
+   "price_brl": 99.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Identificação digital para crianças.",
+   "features": [
+    "Silicone Hipoalergênico",
+    "Chip NFC",
+    "Nome e foto de identificação",
+    "Resistente à água",
+    "Contato dos responsáveis"
+   ],
+   "url": "https://airnext.com.br/produto/kids"
+  },
+  {
+   "id": "senior",
+   "name": "AirNext Senior",
+   "audience": "Idosos",
+   "price_brl": 99.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Identificação para idosos.",
+   "features": [
+    "Dados do plano de saúde",
+    "Chip NFC",
+    "QR Code Estático + Dinâmico",
+    "Medicações em uso",
+    "Contato do médico",
+    "Endereço residencial",
+    "Leitura sem aplicativo"
+   ],
+   "url": "https://airnext.com.br/produto/senior"
+  },
+  {
+   "id": "tea",
+   "name": "AirNext TEA",
+   "audience": "Espectro Autista",
+   "price_brl": 99.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Identificação para pessoas com Transtorno do Espectro Autista.",
+   "features": [
+    "Instruções de comunicação",
+    "Chip NFC",
+    "QR Code Estático + Dinâmico",
+    "Sensibilidades sensoriais",
+    "Contato do cuidador",
+    "Dados médicos de emergência"
+   ],
+   "url": "https://airnext.com.br/produto/tea"
+  },
+  {
+   "id": "combo",
+   "name": "Combo AirNext Completo",
+   "audience": "Kit · Economize",
+   "price_brl": 219.9,
+   "old_price_brl": 259.7,
+   "price_note": null,
+   "description": "Tag + Card Pro + Pulseira NFC juntos por um preço especial.",
+   "features": [
+    "Card Pro + Tag + Pulseira NFC",
+    "Um único perfil digital para os três",
+    "Economia de R$ 39,80 no kit",
+    "Chip NFC + QR Code em todas as peças",
+    "Personalização pelo WhatsApp após o pedido"
+   ],
+   "url": "https://airnext.com.br/produto/combo"
+  },
+  {
+   "id": "hubgoogle",
+   "name": "AirNext Hub Google Avaliação",
+   "audience": "Google Avaliações",
+   "price_brl": 79.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Plaquinha NFC que leva o cliente direto para avaliar seu negócio no Google.",
+   "features": [
+    "Link direto para avaliação no Google",
+    "Chip NFC + QR Code de backup",
+    "Acrílico premium resistente",
+    "Sem app e sem mensalidade",
+    "Aumenta suas avaliações e sua reputação"
+   ],
+   "url": "https://airnext.com.br/produto/hubgoogle"
+  },
+  {
+   "id": "service",
+   "name": "AirNext Service",
+   "audience": "Estabelecimentos",
+   "price_brl": 129.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Placa NFC inteligente para hotéis, restaurantes, clínicas, salões, lojas e qualquer negócio.",
+   "features": [
+    "Wi-Fi, cardápio e catálogo de serviços",
+    "Solicitação de atendimento e reservas",
+    "Avaliações e feedback dos clientes",
+    "Localização, horários e redes sociais",
+    "Para hotéis, restaurantes, clínicas, lojas e mais"
+   ],
+   "url": "https://airnext.com.br/produto/service"
+  },
+  {
+   "id": "tag",
+   "name": "AirNext Tag",
+   "audience": "Multiuso",
+   "price_brl": 69.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Tag NFC universal para bagagens, mochilas, chaves e objetos do dia a dia.",
+   "features": [
+    "Base Acrílico Premium",
+    "Acabamento em Resina",
+    "Chip NFC",
+    "QR Code de backup",
+    "Resistente à água e riscos",
+    "Fácil de fixar em qualquer objeto",
+    "Ideal para bagagens, celulares e inúmeras possibilidades de uso no dia a dia."
+   ],
+   "url": "https://airnext.com.br/produto/tag"
+  },
+  {
+   "id": "corporate",
+   "name": "AirNext Corporate",
+   "audience": "Empresas",
+   "price_brl": 99.9,
+   "old_price_brl": null,
+   "price_note": null,
+   "description": "Crachás e cartões NFC inteligentes para equipes e colaboradores.",
+   "features": [
+    "Emissão em lote para equipes",
+    "Perfil corporativo com marca própria",
+    "Chip NFC + QR Code",
+    "Dashboard de gestão"
+   ],
+   "url": "https://airnext.com.br/produto/corporate"
+  },
+  {
+   "id": "evento",
+   "name": "AirNext Evento",
+   "audience": "Eventos",
+   "price_brl": null,
+   "old_price_brl": null,
+   "price_note": "sob consulta",
+   "description": "Crachás inteligentes para congressos, feiras e eventos.",
+   "features": [
+    "Programação e mapa do evento",
+    "Acesso por NFC + QR Code",
+    "Perfil digital personalizado",
+    "Networking sem troca de papel",
+    "PVC Premium Matte"
+   ],
+   "url": "https://airnext.com.br/produto/evento"
+  }
+ ],
+ "faq": [
+  {
+   "question": "O que é AirNext?",
+   "answer": "AirNext é uma plataforma de cartões NFC, tags e pulseiras que compartilham um perfil digital com um toque no celular. Não precisa instalar app: funciona com NFC nativo ou QR Code. Serve para networking, pet, kids, TEA, idosos e negócios."
+  },
+  {
+   "question": "Como funciona o cartão NFC AirNext?",
+   "answer": "Cada produto AirNext tem um chip NFC e um QR Code ligados ao seu perfil online. Ao aproximar o celular, o perfil abre no navegador com seus contatos e informações. Você edita o conteúdo pelo painel web sem trocar o cartão físico."
+  },
+  {
+   "question": "Preciso instalar aplicativo para usar AirNext?",
+   "answer": "Não. Celulares modernos já leem NFC e QR Code sem baixar nada. O perfil abre no navegador do visitante."
+  },
+  {
+   "question": "Posso editar o perfil depois de comprar o cartão AirNext?",
+   "answer": "Sim. O chip aponta para o seu perfil online. Você altera textos, fotos, links e ordem dos blocos quantas vezes quiser no painel; o produto físico permanece o mesmo."
+  },
+  {
+   "question": "AirNext tem mensalidade?",
+   "answer": "O plano básico da AirNext não tem mensalidade. O perfil digital essencial é gratuito. Recursos avançados (analytics, domínio personalizado) são opcionais."
+  },
+  {
+   "question": "AirNext funciona em iPhone e Android?",
+   "answer": "Sim. No Android o NFC costuma abrir o perfil automaticamente. No iPhone, o NFC lê a tag em modelos compatíveis e o QR Code funciona em qualquer iPhone com câmera."
+  },
+  {
+   "question": "O que fazer se o celular não tiver NFC?",
+   "answer": "Todo produto AirNext inclui QR Code de backup. Qualquer celular, tablet ou notebook com câmera acessa o perfil escaneando o código."
+  },
+  {
+   "question": "AirNext serve para pet perdido?",
+   "answer": "Sim. A tag pet AirNext mostra dados do animal e contato do tutor. Quem encontrar o pet pode ligar ou chamar no WhatsApp direto pelo perfil."
+  },
+  {
+   "question": "AirNext tem perfil para autismo (TEA)?",
+   "answer": "Sim. O perfil TEA inclui cartão de apoio com grau de suporte, como ajudar, gatilhos, estratégias para acalmar e contatos de emergência — pensado para quem está por perto em uma crise."
+  },
+  {
+   "question": "A AirNext é segura e está de acordo com a LGPD?",
+   "answer": "Sim. Você controla o que aparece no perfil. A AirNext trata dados conforme a LGPD; políticas de privacidade, termos e cookies estão publicadas no site."
+  },
+  {
+   "question": "Qual a durabilidade do chip NFC AirNext?",
+   "answer": "Os chips são projetados para mais de 100.000 ciclos de leitura e vida útil superior a 10 anos, com resistência à água (IP65) e ao uso diário."
+  },
+  {
+   "question": "A AirNext faz cartões personalizados para empresas?",
+   "answer": "Sim. A AirNext oferece soluções B2B com logo, cores da marca, gravação em lote e painel para equipes. Contato: airnext.oficial@gmail.com."
+  }
+ ],
+ "contact": {
+  "whatsapp": "https://wa.me/5547996287761",
+  "phone": "+55 47 99628-7761",
+  "support_email": "contato@airnext.com.br",
+  "privacy_email": "airnext.oficial@gmail.com",
+  "instagram": "https://www.instagram.com/airnext.com.br/",
+  "contact_page": "https://airnext.com.br/contato",
+  "support_page": "https://airnext.com.br/suporte"
+ }
+}

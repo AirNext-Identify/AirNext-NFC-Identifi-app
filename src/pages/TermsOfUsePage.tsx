@@ -76,12 +76,33 @@ export default function TermsOfUsePage() {
               ),
             },
             {
-              title: 'Idade e responsáveis',
+              title: 'Dados da conta',
               content: (
                 <p>
-                  Contas e perfis de menores devem ser criados e administrados por pais ou
-                  responsáveis legais. O responsável declara ter autorização para gerir o perfil.
+                  Para criar a conta pedimos nome, sobrenome, e-mail, telefone e, de forma opcional,
+                  idade. Você se compromete a manter esses dados corretos e atualizados na área{' '}
+                  <strong className="text-zinc-800">Minha conta</strong>. Eles servem para identificar
+                  a conta, dar suporte e recuperar o acesso, e não aparecem no seu perfil público,
+                  a menos que você os adicione ao perfil.
                 </p>
+              ),
+            },
+            {
+              title: 'Idade, menores e quem gerencia',
+              content: (
+                <>
+                  <p className="mb-2">
+                    Menores de 18 anos só podem usar a AirNext com autorização e acompanhamento de
+                    pai, mãe ou responsável legal, que responde pela conta e declara ter essa
+                    autorização ao criá-la.
+                  </p>
+                  <p>
+                    Você pode indicar quem gerencia a conta (você mesmo, um responsável, um familiar
+                    ou cuidador, sua empresa ou outra pessoa). Quem gerencia age em seu nome, e a
+                    titularidade e as responsabilidades da conta continuam com você ou com o
+                    responsável legal indicado.
+                  </p>
+                </>
               ),
             },
             {

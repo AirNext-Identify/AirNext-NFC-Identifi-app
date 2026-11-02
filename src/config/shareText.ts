@@ -1,5 +1,6 @@
 /**
- * Textos de compartilhamento — AirNext.
+ * Textos de compartilhamento.
+ *  • Perfis públicos NÃO citam a AirNext: usam a identidade e a descrição da categoria de cada perfil.
  *  • SITE: o que aparece ao compartilhar airnext.com.br (descrição oficial).
  *  • PROFILE: convite padrão ao compartilhar o perfil de uma pessoa/pet/negócio.
  * Cada perfil tem prévia e convite próprios, diferentes dos do site.
@@ -26,19 +27,20 @@ interface ProfileShareInput {
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1).trim()}…` : s);
 
 /** Prévia (título + descrição do link) do perfil, por categoria. */
-export function profilePreview({ cat, name, cargo, bio, segment }: ProfileShareInput) {
+export function profilePreview({ cat, name, cargo, bio }: ProfileShareInput) {
   const n = (name || '').trim();
-  const b = clip((bio || '').trim(), 110);
+  // Texto do próprio perfil (sem quebras de linha), só para categorias sem dados sensíveis.
+  const own = clip((bio || '').replace(/\s+/g, ' ').trim(), 160);
   switch (cat) {
     case 'BUSINESS':
       return {
-        title: n ? `${n} — cartão digital` : 'Cartão digital da empresa',
-        description: b || `${segment ? `${segment} · ` : ''}Contatos, localização, horários e links em um só lugar. Toque para ver.`,
+        title: n || 'Cartão de visita digital da empresa',
+        description: own || 'Contatos, localização, horários e links da empresa em um só lugar. Toque para ver.',
       };
     case 'PET':
       return {
         title: n ? `${n} — perfil do pet` : 'Perfil do pet',
-        description: 'Identificação digital do pet: contato do tutor e informações importantes. Se encontrou, toque para ajudar.',
+        description: own || 'Identificação digital do pet: contato do tutor e informações importantes. Se encontrou, toque para ajudar.',
       };
     case 'KIDS':
       return {
@@ -57,8 +59,8 @@ export function profilePreview({ cat, name, cargo, bio, segment }: ProfileShareI
       };
     default:
       return {
-        title: n ? `${n}${cargo ? ` · ${cargo}` : ''} — cartão digital` : 'Cartão digital',
-        description: b || 'Contatos, redes e links em um só toque. Salve meu contato direto no celular.',
+        title: n ? `${n}${cargo ? ` · ${cargo}` : ''}` : 'Cartão de visita digital',
+        description: own || 'Veja meus contatos, redes e links e salve meu contato no celular com um toque.',
       };
   }
 }
@@ -70,11 +72,11 @@ export function profileInvite({ cat, name }: ProfileShareInput) {
     case 'BUSINESS':
       return `Oi! Este é o cartão digital${n ? ` da ${n}` : ' da nossa empresa'}. Veja contatos, horários e links por aqui:`;
     case 'PET':
-      return `Este é o perfil${n ? ` do ${n}` : ' do meu pet'} na AirNext, com contato do tutor e informações importantes:`;
+      return `Este é o perfil${n ? ` do ${n}` : ' do meu pet'}, com contato do tutor e informações importantes:`;
     case 'KIDS':
     case 'SENIOR':
     case 'TEA':
-      return `Perfil de segurança${n ? ` de ${n}` : ''} na AirNext, com contatos de emergência e informações importantes:`;
+      return `Perfil de segurança${n ? ` de ${n}` : ''}, com contatos de emergência e informações importantes:`;
     default:
       return `Oi! Aqui está meu cartão digital${n ? ` (${n})` : ''}. Salve meu contato e veja meus links:`;
   }

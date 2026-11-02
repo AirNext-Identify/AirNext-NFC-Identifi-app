@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App";
+import { registerWebMcpTools } from "./lib/webmcp";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -9,26 +10,28 @@ createRoot(document.getElementById("root")!).render(
   </StrictMode>
 );
 
-// Libera a exibição do #root assim que o React montou (ver regra `.app-ready`
-// em index.css). O timeout é só uma rede de segurança caso algo trave.
-const markReady = () => document.documentElement.classList.add("app-ready");
-requestAnimationFrame(() => requestAnimationFrame(markReady));
-setTimeout(markReady, 4000);
+// Ferramentas para agentes de IA no navegador (WebMCP). Sem a API no navegador, não faz nada.
+registerWebMcpTools();
 
-// Fonte do logo (Lobster) carregada SEM bloquear a primeira pintura: o <link> entra como
-// "print" e vira "all" quando termina de baixar (o texto aparece antes com fonte reserva).
+// O #root só é liberado (regra `.app-ready` em index.css) quando o App confirma que montou de
+// verdade (useEffect em App.tsx) — assim o HTML pré-renderizado nunca aparece como texto solto.
+// O timeout é só uma rede de segurança caso algo trave.
+setTimeout(() => document.documentElement.classList.add("app-ready"), 4000);
+
+// Fonte do logo (Lobster): só aparece em peças abaixo da dobra, então carrega DEPOIS da página
+// (load + navegador ocioso), sem preconnect e sem disputar banda com o conteúdo inicial.
 (() => {
-  const pre = (href: string, cross = false) => {
-    const l = document.createElement("link");
-    l.rel = "preconnect"; l.href = href; if (cross) l.crossOrigin = "";
-    document.head.appendChild(l);
+  const loadLobster = () => {
+    const css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = "https://fonts.googleapis.com/css2?family=Lobster&display=swap";
+    document.head.appendChild(css);
   };
-  pre("https://fonts.googleapis.com");
-  pre("https://fonts.gstatic.com", true);
-  const css = document.createElement("link");
-  css.rel = "stylesheet";
-  css.href = "https://fonts.googleapis.com/css2?family=Lobster&display=swap";
-  css.media = "print";
-  css.onload = () => { css.media = "all"; };
-  document.head.appendChild(css);
+  const later = () => {
+    if ("requestIdleCallback" in window) requestIdleCallback(loadLobster, { timeout: 3000 });
+    else setTimeout(loadLobster, 1500);
+  };
+  if (/^\/(u|p|n|a)\//.test(window.location.pathname)) loadLobster();
+  else if (document.readyState === "complete") later();
+  else window.addEventListener("load", later, { once: true });
 })();

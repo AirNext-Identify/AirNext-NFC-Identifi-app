@@ -13,15 +13,20 @@ import {
   Box,
   ExternalLink,
   Cpu,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { Badge } from '@/components/admin/ui/Badge';
 import { Modal } from '@/components/admin/ui/Modal';
 import { formatDate, formatDateTime, getValidityStatus, cn } from '@/lib/adminUtils';
-import type { Customer, Product } from '@/types/admin';
+import { MoveProductModal, type MoveProductOptions } from '@/components/admin/modules/MoveProductModal';
+import type { Customer, Lot, Product } from '@/types/admin';
 
 interface ProductDetailViewProps {
   product: Product;
   customers: Customer[];
+  /** Todos os lotes (padrão + Google) disponíveis como destino do "Mover". */
+  lots?: Lot[];
+  onMove?: (productId: string, targetLotId: string, opts: MoveProductOptions) => Promise<boolean> | boolean | void;
   onBack: () => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
@@ -33,6 +38,8 @@ interface ProductDetailViewProps {
 export function ProductDetailView({
   product,
   customers,
+  lots = [],
+  onMove,
   onBack,
   onDelete,
   onDuplicate,
@@ -42,6 +49,7 @@ export function ProductDetailView({
 }: ProductDetailViewProps) {
   const [showDelete, setShowDelete] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showMove, setShowMove] = useState(false);
   const [showRenew, setShowRenew] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(product.customerId || '');
   const [renewYears, setRenewYears] = useState(2);
@@ -69,6 +77,11 @@ export function ProductDetailView({
           <button onClick={() => setShowTransfer(true)} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
             <UserPlus className="h-4 w-4" /> Transferir
           </button>
+          {onMove && (
+            <button onClick={() => setShowMove(true)} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
+              <ArrowRightLeft className="h-4 w-4" /> Mover
+            </button>
+          )}
           <button onClick={() => setShowRenew(true)} className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:border-zinc-700 hover:text-zinc-100">
             <RefreshCw className="h-4 w-4" /> Renovar
           </button>
@@ -149,15 +162,24 @@ export function ProductDetailView({
         </SectionCard>
       </div>
 
+      {showMove && onMove && (
+        <MoveProductModal product={product} lots={lots} customers={customers} onClose={() => setShowMove(false)} onMove={onMove} />
+      )}
+
       <Modal isOpen={showTransfer} onClose={() => setShowTransfer(false)} title="Transferir produto">
         <p className="mb-3 text-sm text-zinc-400">Transferir <strong className="text-zinc-200">{product.internalCode}</strong> para outro cliente.</p>
         <select value={selectedCustomer} onChange={(e) => setSelectedCustomer(e.target.value)} className="mb-4 h-10 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none">
-          <option value="">Nenhum cliente</option>
+          <option value="">Nenhum cliente (desvincular)</option>
           {customers.map((c) => <option key={c.id} value={c.id}>{c.name} — {c.company}</option>)}
         </select>
+        {!selectedCustomer && (
+          <p className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+            Sem cliente, o produto volta para “Disponível”, a validade é apagada e o perfil deixa de abrir ao escanear ou aproximar o chip.
+          </p>
+        )}
         <div className="flex justify-end gap-2">
           <button onClick={() => setShowTransfer(false)} className="rounded-xl px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800">Cancelar</button>
-          <button onClick={() => { onTransfer(product.id, selectedCustomer || undefined); setShowTransfer(false); }} className="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600">Transferir</button>
+          <button onClick={() => { onTransfer(product.id, selectedCustomer || undefined); setShowTransfer(false); }} className="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600">{selectedCustomer ? 'Transferir' : 'Desvincular'}</button>
         </div>
       </Modal>
 

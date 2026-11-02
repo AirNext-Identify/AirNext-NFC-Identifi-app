@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
-import { Check, ChevronLeft, ChevronRight, MessageCircle, Palette, ShoppingBag } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, MessageCircle, ShoppingBag } from 'lucide-react';
 import { Seo } from '../components/Seo';
 import { useSiteImages } from '../hooks/useSiteImages';
 import { AIRNEXT_HOW_IT_WORKS } from '../config/aiContent';
@@ -48,7 +48,6 @@ export default function ProductDetailPage() {
   const formats = FORMATS.filter((f) => product.formats.includes(f.id));
   const others = PRODUCTS.filter((p) => p.id !== product.id).slice(0, 4);
   const buy = () => navigate(`/?comprar=${product.id}`);
-  const customize = () => navigate(`/?personalizar=${product.id}`);
   const waLink = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Olá! Quero saber mais sobre o ${product.name}.`)}`;
   const label = shortName(product.name);
 
@@ -97,11 +96,6 @@ export default function ProductDetailPage() {
               <button onClick={buy} className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium transition">
                 <ShoppingBag size={17} /> Comprar
               </button>
-              {!product.combo && (
-                <button onClick={customize} className="inline-flex items-center gap-2 px-7 py-3 rounded-full border border-[#2997ff] text-[#2997ff] hover:bg-[#2997ff]/10 font-medium transition">
-                  <Palette size={17} /> Personalizar
-                </button>
-              )}
             </div>
           </div>
 

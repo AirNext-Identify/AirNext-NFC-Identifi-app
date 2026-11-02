@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Star,
   Plus,
@@ -18,12 +18,16 @@ import {
   Wand2,
   Trash2,
   AlertTriangle,
+  MoreHorizontal,
+  UserPlus,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { SearchBar } from '@/components/admin/ui/SearchBar';
 import { Badge } from '@/components/admin/ui/Badge';
 import { Modal } from '@/components/admin/ui/Modal';
 import { EmptyState } from '@/components/admin/ui/EmptyState';
 import { QrModal } from '@/components/admin/modules/ProductsView';
+import { MoveProductModal, type MoveProductOptions } from '@/components/admin/modules/MoveProductModal';
 import { cn, exportCSV, formatDate } from '@/lib/adminUtils';
 import {
   GOOGLE_CODE_PREFIX,
@@ -130,11 +134,23 @@ interface GoogleViewProps {
   onProgramLot: (lotId: string) => void;
   onProgramProduct: (productId: string) => void;
   onReloadScans: () => void;
+  /** Lotes da linha padrão. */
+  stdLots?: Lot[];
+  /** Todos os lotes (padrão + Google): destinos possíveis do "Mover". */
+  allLots: Lot[];
+  /** Exclui a plaquinha (mesma ação da seção Produtos). */
+  onDeleteProduct: (productId: string) => void;
+  /** Duplica a plaquinha (novo código ANG-… e novo QR no mesmo lote). */
+  onDuplicateProduct: (productId: string) => void;
+  /** Transfere (customerId) ou desvincula (undefined) a plaquinha de um cliente. */
+  onTransferProduct: (productId: string, customerId: string | undefined, url?: string) => Promise<boolean>;
+  /** Move para QUALQUER lote (Google ou padrão) e, se quiser, para outro cliente. */
+  onMoveProduct: (productId: string, targetLotId: string, opts: MoveProductOptions) => Promise<boolean>;
   /** Fixa a visão (usado quando a seção vive dentro de Lotes/Produtos): esconde as abas e o botão de criar. */
   view?: 'plates' | 'lots';
 }
 
-export function GoogleView({ products, lots, customers, appUrl, scans, onCreateLot, onDeleteLot, onBlock, onSetRedirect, onProgramLot, onProgramProduct, onReloadScans, view }: GoogleViewProps) {
+export function GoogleView({ products, lots, customers, appUrl, scans, onCreateLot, onDeleteLot, onBlock, onSetRedirect, onProgramLot, onProgramProduct, onReloadScans, allLots, onDeleteProduct, onDuplicateProduct, onTransferProduct, onMoveProduct, view }: GoogleViewProps) {
   const [tabState, setTab] = useState<'plates' | 'lots'>('plates');
   const tab = view ?? tabState;
   const [search, setSearch] = useState('');
@@ -146,6 +162,9 @@ export function GoogleView({ products, lots, customers, appUrl, scans, onCreateL
   const [qrTarget, setQrTarget] = useState<Product | null>(null);
   const [codesLot, setCodesLot] = useState<Lot | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Lot | null>(null);
+  const [transferTarget, setTransferTarget] = useState<Product | null>(null);
+  const [moveTarget, setMoveTarget] = useState<Product | null>(null);
+  const [deletePlateTarget, setDeletePlateTarget] = useState<Product | null>(null);
 
   const customerName = (id?: string) => (id ? customers.find((c) => c.id === id)?.name || 'Cliente' : '');
   const customerEmail = (id?: string) => (id ? customers.find((c) => c.id === id)?.email || '' : '');
@@ -183,6 +202,20 @@ export function GoogleView({ products, lots, customers, appUrl, scans, onCreateL
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageRows = filtered.slice((Math.min(page, totalPages) - 1) * PAGE_SIZE, Math.min(page, totalPages) * PAGE_SIZE);
+
+  const plateMenuItems = (p: Product): MenuItem[] => [
+    { label: 'Ver QR Code', icon: QrCode, onClick: () => setQrTarget(p) },
+    { label: 'Editar', icon: Pencil, onClick: () => setEditTarget(p) },
+    ...(canProgram(p) ? [{ label: 'Gravar chip NFC', icon: Nfc, onClick: () => onProgramProduct(p.id) }] : []),
+    { label: 'Duplicar', icon: Copy, onClick: () => onDuplicateProduct(p.id) },
+    { label: 'Transferir cliente', icon: UserPlus, onClick: () => setTransferTarget(p) },
+    { label: 'Mover (lote / cliente)', icon: ArrowRightLeft, onClick: () => setMoveTarget(p) },
+    'sep',
+    stateOf(p) === 'blocked'
+      ? { label: 'Desbloquear', icon: Unlock, onClick: () => onBlock(p.id, false) }
+      : { label: 'Bloquear', icon: Lock, onClick: () => onBlock(p.id, true) },
+    { label: 'Excluir', icon: Trash2, danger: true, onClick: () => setDeletePlateTarget(p) },
+  ];
 
   const lotStats = (lotId: string) => {
     const rows = products.filter((p) => p.lotId === lotId);
@@ -333,7 +366,7 @@ export function GoogleView({ products, lots, customers, appUrl, scans, onCreateL
             <EmptyState title="Nenhuma plaquinha encontrada" description="Ajuste a busca ou os filtros." />
           ) : (
             <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900">
-              <div className="overflow-x-auto">
+              <div className="hidden overflow-x-auto lg:block">
                 <table className="w-full min-w-[1100px] text-left text-sm">
                   <thead className="border-b border-zinc-800 text-xs uppercase tracking-wide text-zinc-500">
                     <tr>
@@ -390,15 +423,8 @@ export function GoogleView({ products, lots, customers, appUrl, scans, onCreateL
                             ) : <span className="text-zinc-600">0</span>}
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex items-center justify-end gap-1">
-                              <IconBtn title="Ver QR Code" onClick={() => setQrTarget(p)}><QrCode className="h-4 w-4" /></IconBtn>
-                              {canProgram(p) && <IconBtn title="Gravar chip NFC no Programador" onClick={() => onProgramProduct(p.id)}><Nfc className="h-4 w-4" /></IconBtn>}
-                              {activated && <IconBtn title="Editar link de avaliações" onClick={() => setEditTarget(p)}><Pencil className="h-4 w-4" /></IconBtn>}
-                              {blocked ? (
-                                <IconBtn title="Desbloquear" onClick={() => onBlock(p.id, false)}><Unlock className="h-4 w-4" /></IconBtn>
-                              ) : s !== 'pending_chip' && (
-                                <IconBtn title="Bloquear" danger onClick={() => onBlock(p.id, true)}><Lock className="h-4 w-4" /></IconBtn>
-                              )}
+                            <div className="flex items-center justify-end">
+                              <PlateActionsMenu items={plateMenuItems(p)} />
                             </div>
                           </td>
                         </tr>
@@ -407,7 +433,49 @@ export function GoogleView({ products, lots, customers, appUrl, scans, onCreateL
                   </tbody>
                 </table>
               </div>
-              <div className="flex items-center justify-between border-t border-zinc-800 px-4 py-3 text-xs text-zinc-500">
+              {/* Mobile / tablet: cartões */}
+              <div className="divide-y divide-zinc-800/70 lg:hidden">
+                {pageRows.map((p) => {
+                  const s = stateOf(p);
+                  const sc = scans[p.id];
+                  return (
+                    <div key={p.id} className="p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate font-mono text-sm font-medium text-zinc-100">{p.activationCode}</p>
+                          <p className="truncate text-xs text-zinc-500">Lote {lotCode(p.lotId)}</p>
+                        </div>
+                        <PlateActionsMenu items={plateMenuItems(p)} />
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Badge variant="dot" colorClass={STATE_STYLE[s].color} dotColor={STATE_STYLE[s].dot}>{STATE_LABEL[s]}</Badge>
+                        <Badge colorClass={chipOf(p).color}>Chip: {chipOf(p).label}</Badge>
+                      </div>
+                      <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                        <div className="min-w-0">
+                          <p className="text-zinc-500">Cliente</p>
+                          <p className="truncate text-zinc-300">{p.customerId ? customerName(p.customerId) : '—'}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-zinc-500">Ativada em</p>
+                          <p className="truncate text-zinc-300">{p.activatedAt ? formatDate(p.activatedAt) : '—'}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-zinc-500">Escaneamentos</p>
+                          <p className="truncate text-zinc-300">{sc ? `${sc.total.toLocaleString('pt-BR')} (${sc.last30} em 30 dias)` : '0'}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-zinc-500">Link de avaliações</p>
+                          {p.redirectUrl ? (
+                            <a href={p.redirectUrl} target="_blank" rel="noopener noreferrer" className="block truncate text-sky-400 hover:underline">{p.redirectUrl.replace(/^https:\/\//, '')}</a>
+                          ) : <p className="text-zinc-600">—</p>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex flex-col gap-2 border-t border-zinc-800 px-4 py-3 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
                 <span>{filtered.length.toLocaleString('pt-BR')} plaquinha(s)</span>
                 <div className="flex items-center gap-2">
                   <button disabled={page <= 1} onClick={() => setPage((x) => Math.max(1, x - 1))}
@@ -495,12 +563,42 @@ export function GoogleView({ products, lots, customers, appUrl, scans, onCreateL
 
       <CreateGoogleLotModal isOpen={createOpen} existingLots={lots} onClose={() => setCreateOpen(false)} onCreate={onCreateLot} />
       {editTarget && (
-        <EditRedirectModal
+        <EditPlateModal
           key={editTarget.id}
           product={editTarget}
           customerName={customerName(editTarget.customerId)}
+          googleLots={lots}
           onClose={() => setEditTarget(null)}
-          onSave={onSetRedirect}
+          onSaveLink={onSetRedirect}
+          onMoveLot={(lotId) => onMoveProduct(editTarget.id, lotId, {})}
+        />
+      )}
+      {transferTarget && (
+        <TransferPlateModal
+          key={transferTarget.id}
+          product={transferTarget}
+          customers={customers}
+          onClose={() => setTransferTarget(null)}
+          onConfirm={onTransferProduct}
+        />
+      )}
+      {moveTarget && (
+        <MoveProductModal
+          key={moveTarget.id}
+          product={moveTarget}
+          lots={allLots}
+          customers={customers}
+          onClose={() => setMoveTarget(null)}
+          onMove={onMoveProduct}
+        />
+      )}
+      {deletePlateTarget && (
+        <DeletePlateModal
+          key={deletePlateTarget.id}
+          product={deletePlateTarget}
+          customerName={customerName(deletePlateTarget.customerId)}
+          onClose={() => setDeletePlateTarget(null)}
+          onConfirm={() => { onDeleteProduct(deletePlateTarget.id); setDeletePlateTarget(null); }}
         />
       )}
       <QrModal
@@ -521,22 +619,6 @@ export function GoogleView({ products, lots, customers, appUrl, scans, onCreateL
       )}
       <LotCodesModal lot={codesLot} products={products.filter((p) => p.lotId === codesLot?.id)} customerName={customerName} onClose={() => setCodesLot(null)} />
     </div>
-  );
-}
-
-function IconBtn({ children, title, onClick, danger }: { children: React.ReactNode; title: string; onClick: () => void; danger?: boolean }) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      aria-label={title}
-      className={cn(
-        'rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-800',
-        danger ? 'hover:text-red-400' : 'hover:text-zinc-100'
-      )}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -744,40 +826,224 @@ export function DeleteGoogleLotModal({
   );
 }
 
-function EditRedirectModal({
-  product, customerName, onClose, onSave,
+type MenuItem = { label: string; icon: React.ElementType; onClick: () => void; danger?: boolean } | 'sep';
+
+/**
+ * Menu "⋯" de ações da plaquinha — mesmo modelo da seção Produtos. Usa posição
+ * fixa para não ser cortado pela rolagem horizontal da tabela.
+ */
+function PlateActionsMenu({ items }: { items: MenuItem[] }) {
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!pos) return;
+    const close = () => setPos(null);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [pos]);
+
+  const toggle = () => {
+    if (pos) { setPos(null); return; }
+    const r = btnRef.current?.getBoundingClientRect();
+    if (!r) return;
+    const menuH = items.length * 38 + 16;
+    const openUp = r.bottom + menuH > window.innerHeight - 8;
+    setPos({ top: openUp ? Math.max(8, r.top - menuH - 4) : r.bottom + 4, right: Math.max(8, window.innerWidth - r.right) });
+  };
+
+  return (
+    <>
+      <button ref={btnRef} onClick={toggle} title="Ações" aria-label="Ações" aria-haspopup="menu" aria-expanded={!!pos}
+        className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100">
+        <MoreHorizontal className="h-4 w-4" />
+      </button>
+      {pos && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setPos(null)} />
+          <div role="menu" style={{ top: pos.top, right: pos.right }}
+            className="fixed z-50 w-60 rounded-xl border border-zinc-800 bg-zinc-950 py-1 shadow-2xl">
+            {items.map((it, i) =>
+              it === 'sep' ? (
+                <div key={`sep-${i}`} className="my-1 border-t border-zinc-800" />
+              ) : (
+                <button key={it.label} role="menuitem" onClick={() => { setPos(null); it.onClick(); }}
+                  className={cn(
+                    'flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
+                    it.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-zinc-300 hover:bg-zinc-800'
+                  )}>
+                  <it.icon className="h-4 w-4" />
+                  {it.label}
+                </button>
+              )
+            )}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+const fieldCls = 'h-10 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none focus:border-zinc-700';
+
+/** Editar plaquinha: link de avaliações (se já ativada) e lote. */
+function EditPlateModal({
+  product, customerName, googleLots, onClose, onSaveLink, onMoveLot,
 }: {
   product: Product;
   customerName: string;
+  googleLots: Lot[];
   onClose: () => void;
-  onSave: (id: string, url: string) => Promise<boolean>;
+  onSaveLink: (id: string, url: string) => Promise<boolean>;
+  onMoveLot: (lotId: string) => Promise<boolean>;
 }) {
-  // O pai monta este modal com key={product.id}: o estado nasce com o link atual.
+  // O pai monta este modal com key={product.id}: o estado nasce com os valores atuais.
+  const activated = !!product.customerId;
   const [value, setValue] = useState(product.redirectUrl || '');
+  const [lotId, setLotId] = useState(product.lotId || '');
   const [busy, setBusy] = useState(false);
 
   const clean = normalizeGoogleReviewUrl(value);
-  const valid = isValidGoogleReviewUrl(clean);
+  const linkChanged = activated && clean !== (product.redirectUrl || '');
+  const linkValid = !linkChanged || isValidGoogleReviewUrl(clean);
+  const lotChanged = !!lotId && lotId !== product.lotId;
+  const canSave = (linkChanged || lotChanged) && linkValid && !busy;
+
   const save = async () => {
-    if (!valid) return;
+    if (!canSave) return;
     setBusy(true);
-    const ok = await onSave(product.id, clean);
+    let ok = true;
+    if (linkChanged) ok = await onSaveLink(product.id, clean);
+    if (ok && lotChanged) ok = await onMoveLot(lotId);
     setBusy(false);
     if (ok) onClose();
   };
 
   return (
-    <Modal isOpen onClose={onClose} title={`Editar link — ${product.activationCode}`}
-      description={`Cliente: ${customerName || '—'}. A mudança vale na hora para o mesmo QR Code já impresso.`} maxWidth="max-w-lg">
-      <div className="space-y-3">
-        <input value={value} onChange={(e) => setValue(e.target.value)} placeholder="https://g.page/r/..../review" autoFocus
-          className="h-10 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none focus:border-zinc-700" />
-        {value.trim() && !valid && <p className="text-xs text-amber-400">{GOOGLE_URL_HELP}</p>}
+    <Modal isOpen onClose={busy ? () => {} : onClose} title={`Editar — ${product.activationCode}`}
+      description={activated ? `Cliente: ${customerName || '—'}. A mudança de link vale na hora para o mesmo QR Code já impresso.` : 'Plaquinha ainda não ativada por um cliente.'}
+      maxWidth="max-w-lg">
+      <div className="space-y-4">
+        <div>
+          <label className="text-xs font-medium text-zinc-500">Link de avaliações do Google</label>
+          <input value={value} onChange={(e) => setValue(e.target.value)} placeholder="https://g.page/r/..../review" disabled={!activated}
+            className={cn(fieldCls, 'mt-1 disabled:opacity-50')} />
+          {!activated && <p className="mt-1 text-xs text-zinc-500">O link é informado pelo cliente na ativação (ou use “Transferir cliente” para ativar em nome dele).</p>}
+          {activated && value.trim() && !linkValid && <p className="mt-1 text-xs text-amber-400">{GOOGLE_URL_HELP}</p>}
+        </div>
+        <div>
+          <label className="text-xs font-medium text-zinc-500">Lote</label>
+          <select value={lotId} onChange={(e) => setLotId(e.target.value)} className={cn(fieldCls, 'mt-1')}>
+            {!product.lotId && <option value="">Sem lote</option>}
+            {googleLots.map((l) => <option key={l.id} value={l.id}>{l.code}</option>)}
+          </select>
+          <p className="mt-1 text-xs text-zinc-500">Trocar de lote não muda o código nem o QR Code da plaquinha.</p>
+        </div>
         <div className="flex justify-end gap-2 pt-1">
           <button onClick={onClose} disabled={busy} className="rounded-xl border border-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800">Cancelar</button>
-          <button onClick={save} disabled={!valid || busy}
+          <button onClick={save} disabled={!canSave}
             className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-40">
-            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Salvar link
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Salvar
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/** Transferir / desvincular cliente (ativação manual em nome do cliente). */
+function TransferPlateModal({
+  product, customers, onClose, onConfirm,
+}: {
+  product: Product;
+  customers: Customer[];
+  onClose: () => void;
+  onConfirm: (productId: string, customerId: string | undefined, url?: string) => Promise<boolean>;
+}) {
+  const [customerId, setCustomerId] = useState(product.customerId || '');
+  const [url, setUrl] = useState(product.redirectUrl || '');
+  const [busy, setBusy] = useState(false);
+
+  const clean = normalizeGoogleReviewUrl(url);
+  const unlinking = !customerId;
+  const wasLinked = !!product.customerId;
+  const urlOk = unlinking || isValidGoogleReviewUrl(clean);
+  const unchanged = customerId === (product.customerId || '') && (unlinking || clean === (product.redirectUrl || ''));
+  const canSave = urlOk && !unchanged && !(unlinking && !wasLinked) && !busy;
+
+  const submit = async () => {
+    if (!canSave) return;
+    setBusy(true);
+    const ok = await onConfirm(product.id, customerId || undefined, clean);
+    setBusy(false);
+    if (ok) onClose();
+  };
+
+  return (
+    <Modal isOpen onClose={busy ? () => {} : onClose} title="Transferir plaquinha" maxWidth="max-w-lg"
+      description={`Ativa ${product.activationCode} em nome de um cliente (ou desvincula). Equivale ao cliente ter ativado sozinho.`}>
+      <div className="space-y-4">
+        <div>
+          <label className="text-xs font-medium text-zinc-500">Cliente</label>
+          <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className={cn(fieldCls, 'mt-1')}>
+            <option value="">Nenhum cliente (desvincular)</option>
+            {customers.map((c) => <option key={c.id} value={c.id}>{c.name}{c.company ? ` — ${c.company}` : ''}</option>)}
+          </select>
+        </div>
+        {!unlinking && (
+          <div>
+            <label className="text-xs font-medium text-zinc-500">Link de avaliações do Google (obrigatório)</label>
+            <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://g.page/r/..../review" className={cn(fieldCls, 'mt-1')} />
+            {url.trim() && !urlOk && <p className="mt-1 text-xs text-amber-400">{GOOGLE_URL_HELP}</p>}
+          </div>
+        )}
+        {unlinking && wasLinked && (
+          <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+            Desvincular volta a plaquinha para “Pronta p/ ativar” e apaga o link de avaliações cadastrado.
+          </p>
+        )}
+        <div className="flex justify-end gap-2 pt-1">
+          <button onClick={onClose} disabled={busy} className="rounded-xl border border-zinc-800 px-4 py-2.5 text-sm font-medium text-zinc-300 hover:bg-zinc-800">Cancelar</button>
+          <button onClick={submit} disabled={!canSave}
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 disabled:opacity-40">
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />} {unlinking ? 'Desvincular' : 'Transferir'}
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function DeletePlateModal({
+  product, customerName, onClose, onConfirm,
+}: {
+  product: Product;
+  customerName: string;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <Modal isOpen onClose={onClose} title={`Excluir plaquinha — ${product.activationCode}`} maxWidth="max-w-md">
+      <div className="space-y-4">
+        <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+          <p className="text-sm text-red-300">
+            Excluir <strong>{product.activationCode}</strong>? O código e o QR Code (inclusive os já impressos) deixam de funcionar. Essa ação não pode ser desfeita.
+          </p>
+        </div>
+        {product.customerId && (
+          <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+            Esta plaquinha está ativa na conta de <strong>{customerName || 'um cliente'}</strong> — ele perderá o acesso a ela.
+          </p>
+        )}
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button onClick={onClose} className="rounded-xl px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800">Cancelar</button>
+          <button onClick={onConfirm} className="flex items-center justify-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600">
+            <Trash2 className="h-4 w-4" /> Excluir plaquinha
           </button>
         </div>
       </div>

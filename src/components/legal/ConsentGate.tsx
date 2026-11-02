@@ -21,15 +21,29 @@ export function ConsentGate({
 }) {
   const { user, loading, consentStatus, refreshConsents } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
+  // Id do usuário cuja checagem de aceite já foi CONFIRMADA por uma segunda leitura.
+  // Logo após o login a primeira leitura pode vir vazia (o token ainda está assentando) e
+  // antes isso fazia o aviso "concorda com os termos?" piscar na tela e sumir sozinho.
+  // Agora o aviso só abre se uma releitura também disser que falta o aceite.
+  const [verifiedFor, setVerifiedFor] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user || loading || consentStatus.loading) return;
-    setModalOpen(!consentStatus.requiredOk);
-  }, [user, loading, consentStatus.loading, consentStatus.requiredOk]);
+    if (!user) { setVerifiedFor(null); setModalOpen(false); return; }
+    if (loading || consentStatus.loading) return;
+    if (consentStatus.requiredOk) { setModalOpen(false); return; }
+    if (verifiedFor !== user.id) {
+      setVerifiedFor(user.id);
+      void refreshConsents();
+      return;
+    }
+    setModalOpen(true);
+  }, [user, loading, consentStatus.loading, consentStatus.requiredOk, verifiedFor, refreshConsents]);
 
   if (!user) return <>{children}</>;
 
-  if (loading || consentStatus.loading) {
+  const checking = loading || consentStatus.loading || (!consentStatus.requiredOk && verifiedFor !== user.id);
+
+  if (checking) {
     return (
       <>
         {fallback ?? (

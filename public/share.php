@@ -5,8 +5,8 @@
 //
 // ✏️ PREENCHA as 2 linhas abaixo com os MESMOS valores do seu .env (VITE_SUPABASE_URL e
 // VITE_SUPABASE_ANON_KEY). A chave "anon" já é pública (vai no código do site), pode ficar aqui.
-const SUPABASE_URL = 'COLE_AQUI_A_VITE_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'COLE_AQUI_A_VITE_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://vojalkxquanqfaitwlmy.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvamFsa3hxdWFucWZhaXR3bG15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0MzQ1MTEsImV4cCI6MjA5OTAxMDUxMX0.Lb7toNZdPGUK-ZE0Oc_8PjE8_Uk3gma3Ksw80KBk3A0';
 
 const SITE = 'https://airnext.com.br';
 
@@ -18,8 +18,8 @@ function preview($cat, $name, $cargo, $bio) {
   $n = trim($name); $b = clip(trim($bio), 110);
   switch ($cat) {
     case 'BUSINESS':
-      return [$n ? "$n — cartão digital" : 'Cartão digital da empresa',
-              $b ?: 'Contatos, localização, horários e links em um só lugar. Toque para ver.'];
+      return [$n ? "$n — cartão de visita digital" : 'Cartão de visita digital da empresa',
+              'Cartão de visita digital AirNext: contatos, localização, horários e links da empresa em um só lugar. Toque para ver.'];
     case 'PET':
       return [$n ? "$n — perfil do pet" : 'Perfil do pet',
               'Identificação digital do pet: contato do tutor e informações importantes. Se encontrou, toque para ajudar.'];
@@ -33,8 +33,8 @@ function preview($cat, $name, $cargo, $bio) {
       return [$n ? "$n — cartão de apoio" : 'Cartão de apoio TEA',
               'Como se comunicar e ajudar com respeito, e contatos dos responsáveis. Toque para ver.'];
     default:
-      return [$n ? ($n . ($cargo ? " · $cargo" : '') . ' — cartão digital') : 'Cartão digital',
-              $b ?: 'Contatos, redes e links em um só toque. Salve meu contato direto no celular.'];
+      return [$n ? ($n . ($cargo ? " · $cargo" : '') . ' — cartão de visita digital') : 'Cartão de visita digital',
+              'Cartão de visita digital AirNext: veja meus contatos, redes e links e salve meu contato no celular com um toque.'];
   }
 }
 
@@ -45,6 +45,14 @@ $url = SITE . "/$prefix/" . rawurlencode($slug);
 $title = 'AirNext NFC | Conecta o físico ao digital';
 $desc = 'NFC + QR Code em um único perfil: links, contato e muito mais. Feito para negócios, pets e pessoas. Saiba mais.';
 $image = SITE . '/og-image.png';
+$imgW = 1200; $imgH = 630; $card = 'summary_large_image';
+
+// Só para o Instagram (página inicial): usa a arte quadrada "Seu mundo, com um toque".
+if (($_GET['home'] ?? '') === '1') {
+  $image = SITE . '/og-airnext.jpg'; $imgW = 1200; $imgH = 1200; $card = 'summary';
+  $url = SITE . '/';
+  $slug = '';
+}
 
 if (preg_match('/^[A-Za-z0-9_-]{1,80}$/', $slug) && strpos(SUPABASE_URL, 'COLE_AQUI') === false) {
   $q = SUPABASE_URL . '/rest/v1/products?slug=eq.' . rawurlencode($slug)
@@ -81,7 +89,7 @@ header('Cache-Control: public, max-age=300');
 <meta property="og:site_name" content="AirNext"/><meta property="og:locale" content="pt_BR"/>
 <meta property="og:type" content="profile"/><meta property="og:url" content="<?= e($url) ?>"/>
 <meta property="og:title" content="<?= e($title) ?>"/><meta property="og:description" content="<?= e($desc) ?>"/>
-<meta property="og:image" content="<?= e($image) ?>"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
-<meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="<?= e($title) ?>"/>
+<meta property="og:image" content="<?= e($image) ?>"/><meta property="og:image:width" content="<?= $imgW ?>"/><meta property="og:image:height" content="<?= $imgH ?>"/>
+<meta name="twitter:card" content="<?= $card ?>"/><meta name="twitter:title" content="<?= e($title) ?>"/>
 <meta name="twitter:description" content="<?= e($desc) ?>"/><meta name="twitter:image" content="<?= e($image) ?>"/>
 </head><body><h1><?= e($title) ?></h1><p><?= e($desc) ?></p><a href="<?= e($url) ?>">Abrir perfil</a></body></html>

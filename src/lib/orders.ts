@@ -18,6 +18,29 @@ export const ORDER_STATUSES: { id: OrderStatus; label: string; badge: string }[]
 
 export interface OrderItem { name: string; format?: string; qty: number; price: number }
 
+export type PaymentMethod = 'pix' | 'cartao';
+export const PAYMENT_LABEL: Record<PaymentMethod, string> = { pix: 'Pix', cartao: 'Cartão de crédito/débito' };
+
+export interface ShippingAddress {
+  cep: string;
+  street: string;
+  number: string;        // 's/n' quando não há número
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  reference?: string;
+}
+
+/** Endereço em uma linha (para WhatsApp, recibo, planilha). */
+export function formatAddress(a?: ShippingAddress | null): string {
+  if (!a) return '';
+  const l1 = [a.street, a.number].filter(Boolean).join(', ') + (a.complement ? ` — ${a.complement}` : '');
+  const l2 = [a.neighborhood, [a.city, a.state].filter(Boolean).join('/')].filter(Boolean).join(' · ');
+  const cep = a.cep ? `CEP ${a.cep}` : '';
+  return [l1, l2, cep].filter(Boolean).join(' · ') + (a.reference ? ` (ref.: ${a.reference})` : '');
+}
+
 export interface Order {
   id: string;
   order_number: string;
@@ -26,6 +49,17 @@ export interface Order {
   subtotal: number;
   customer_name: string | null;
   customer_phone: string | null;
+  customer_email?: string | null;
+  recipient_name?: string | null;
+  recipient_phone?: string | null;
+  payment_method?: PaymentMethod | null;
+  shipping_address?: ShippingAddress | null;
+  carrier?: string | null;
+  tracking_code?: string | null;
+  tracking_url?: string | null;
+  estimated_delivery?: string | null;
+  shipping_note?: string | null;
+  shipped_at?: string | null;
   notes: string | null;
   status: OrderStatus;
   admin_notes: string | null;
@@ -46,6 +80,11 @@ export interface NewOrderInput {
   subtotal: number;
   customerName?: string;
   customerPhone?: string;
+  customerEmail?: string;
+  recipientName?: string;
+  recipientPhone?: string;
+  paymentMethod?: PaymentMethod;
+  shippingAddress?: ShippingAddress;
   notes?: string;
 }
 
@@ -54,17 +93,39 @@ export interface NewOrderInput {
  * quebra o envio pelo WhatsApp — se o banco falhar, o cliente segue normalmente.
  */
 export async function saveOrder(input: NewOrderInput): Promise<void> {
+  const base = {
+    order_number: input.orderNumber,
+    source: input.source,
+    items: input.items,
+    subtotal: input.subtotal,
+    customer_name: input.customerName?.trim() || null,
+    customer_phone: input.customerPhone?.trim() || null,
+  };
+  const userNotes = input.notes?.trim() || '';
   try {
     const { error } = await supabase.from('orders').insert({
-      order_number: input.orderNumber,
-      source: input.source,
-      items: input.items,
-      subtotal: input.subtotal,
-      customer_name: input.customerName?.trim() || null,
-      customer_phone: input.customerPhone?.trim() || null,
-      notes: input.notes?.trim().slice(0, 4000) || null,
+      ...base,
+      customer_email: input.customerEmail?.trim() || null,
+      recipient_name: input.recipientName?.trim() || null,
+      recipient_phone: input.recipientPhone?.trim() || null,
+      payment_method: input.paymentMethod ?? null,
+      shipping_address: input.shippingAddress ?? null,
+      notes: userNotes.slice(0, 4000) || null,
     });
-    if (error) console.warn('Pedido não registrado no painel:', error.message);
+    if (!error) return;
+
+    // Fallback: se o SQL 09 ainda não foi rodado (colunas novas inexistentes), o pedido
+    // NÃO se perde — os dados de entrega/pagamento vão dentro das observações.
+    console.warn('Pedido com colunas novas falhou, usando fallback:', error.message);
+    const extra = [
+      input.recipientName ? `Recebe: ${input.recipientName}${input.recipientPhone ? ` (${input.recipientPhone})` : ''}` : '',
+      input.shippingAddress ? `Entrega: ${formatAddress(input.shippingAddress)}` : '',
+      input.paymentMethod ? `Pagamento: ${PAYMENT_LABEL[input.paymentMethod]}` : '',
+      input.customerEmail ? `E-mail: ${input.customerEmail}` : '',
+    ].filter(Boolean).join('\n');
+    const merged = [extra, userNotes && `Obs.: ${userNotes}`].filter(Boolean).join('\n').slice(0, 4000);
+    const { error: err2 } = await supabase.from('orders').insert({ ...base, notes: merged || null });
+    if (err2) console.warn('Pedido não registrado no painel:', err2.message);
   } catch (e) {
     console.warn('Pedido não registrado no painel:', e);
   }

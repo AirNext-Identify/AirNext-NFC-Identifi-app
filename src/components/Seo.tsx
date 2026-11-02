@@ -11,6 +11,7 @@ import {
   type SeoProps,
 } from '../config/seo';
 import { SITE_SHARE } from '../config/shareText';
+import { buildOrganizationJsonLd } from '../config/organization';
 import {
   buildFaqPageJsonLd,
   buildHowToJsonLd,
@@ -27,6 +28,16 @@ function upsertMeta(attr: 'name' | 'property', key: string, content: string) {
     document.head.appendChild(el);
   }
   el.setAttribute('content', content);
+}
+
+function removeMeta(attr: 'name' | 'property', key: string) {
+  if (typeof document === 'undefined') return;
+  document.head.querySelectorAll(`meta[${attr}="${key}"]`).forEach((el) => el.remove());
+}
+
+function removeById(id: string) {
+  if (typeof document === 'undefined') return;
+  document.getElementById(id)?.remove();
 }
 
 function upsertLink(rel: string, href: string) {
@@ -64,14 +75,54 @@ export function Seo({
   type = 'website',
   noIndex = false,
   keywords = SITE_KEYWORDS,
+  brandless = false,
+  siteName,
 }: SeoProps) {
   const location = useLocation();
   const pagePath = path ?? location.pathname;
   const url = absoluteUrl(pagePath);
-  const pageTitle = fullTitle(title);
+  const pageTitle = brandless && title ? title : fullTitle(title);
 
   useEffect(() => {
     document.title = pageTitle;
+
+    // Perfil público: identidade do próprio perfil, sem nada da AirNext na prévia.
+    if (brandless) {
+      const hasImage = !!image && image !== DEFAULT_OG_IMAGE;
+      upsertMeta('name', 'description', description);
+      removeMeta('name', 'keywords');
+      upsertMeta('name', 'author', siteName || pageTitle);
+      upsertMeta('name', 'robots', noIndex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large');
+      upsertMeta('name', 'googlebot', noIndex ? 'noindex, nofollow' : 'index, follow');
+
+      upsertMeta('property', 'og:site_name', siteName || pageTitle);
+      upsertMeta('property', 'og:locale', 'pt_BR');
+      upsertMeta('property', 'og:type', 'profile');
+      upsertMeta('property', 'og:title', pageTitle);
+      upsertMeta('property', 'og:description', description);
+      upsertMeta('property', 'og:url', url);
+      upsertMeta('name', 'twitter:card', 'summary');
+      upsertMeta('name', 'twitter:title', pageTitle);
+      upsertMeta('name', 'twitter:description', description);
+      removeMeta('name', 'twitter:site');
+      if (hasImage) {
+        upsertMeta('property', 'og:image', image!);
+        upsertMeta('property', 'og:image:alt', pageTitle);
+        upsertMeta('name', 'twitter:image', image!);
+      } else {
+        removeMeta('property', 'og:image');
+        removeMeta('property', 'og:image:width');
+        removeMeta('property', 'og:image:height');
+        removeMeta('property', 'og:image:alt');
+        removeMeta('name', 'twitter:image');
+      }
+      // Remove as dimensões fixas da imagem do site (a foto do perfil tem tamanho próprio).
+      removeMeta('property', 'og:image:width');
+      removeMeta('property', 'og:image:height');
+      ['airnext-ld-org', 'airnext-ld-website', 'airnext-ld-faq', 'airnext-ld-howto', 'airnext-ld-product', 'airnext-ld-speakable'].forEach(removeById);
+      upsertLink('canonical', url);
+      return;
+    }
 
     upsertMeta('name', 'description', description);
     upsertMeta('name', 'keywords', keywords);
@@ -102,16 +153,7 @@ export function Seo({
 
     upsertLink('canonical', url);
 
-    upsertJsonLd('airnext-ld-org', {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: SITE_NAME,
-      url: absoluteUrl('/'),
-      logo: absoluteUrl('/favicon.png'),
-      description: SITE_DESCRIPTION,
-      email: 'airnext.oficial@gmail.com',
-      sameAs: [],
-    });
+    upsertJsonLd('airnext-ld-org', buildOrganizationJsonLd());
 
     upsertJsonLd('airnext-ld-website', {
       '@context': 'https://schema.org',
@@ -135,7 +177,7 @@ export function Seo({
       upsertJsonLd('airnext-ld-product', buildProductJsonLd());
       upsertJsonLd('airnext-ld-speakable', buildSpeakableJsonLd());
     }
-  }, [pageTitle, description, url, image, type, noIndex, keywords, pagePath]);
+  }, [pageTitle, description, url, image, type, noIndex, keywords, pagePath, brandless, siteName]);
 
   return null;
 }
@@ -224,6 +266,8 @@ export function SeoManager() {
   }, []);
 
   // SEO padrão por rota (páginas específicas podem sobrescrever com <Seo />)
+  // Perfis públicos (/u/:slug e /p/:slug) definem a própria prévia em <Seo brandless />.
+  if (location.pathname.startsWith('/u/') || location.pathname.startsWith('/p/')) return null;
   const routeSeo = routeDefaults(location.pathname);
 
   return <Seo {...routeSeo} path={location.pathname} />;

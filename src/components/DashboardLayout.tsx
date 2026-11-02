@@ -1,19 +1,51 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Package, BarChart3, LogOut, Menu, Zap, HelpCircle, Bell, X, Globe, Star } from 'lucide-react';
+import { LayoutDashboard, Package, BarChart3, LogOut, Menu, Zap, HelpCircle, Bell, X, Globe, Star, UserCircle, Pencil, ChevronDown } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import Logo from './Logo';
 import NotificationCenter from './NotificationCenter';
 import { useToast } from './Toast';
+import { WelcomeTour, HelpFab } from './dashboard/WelcomeTour';
+
+const tourKey = (id: string) => `airnext:tour:${id}`;
+const TOUR_ANCHORS: Record<string, string> = {
+  '/dashboard/produtos': 'perfil',
+  '/dashboard/estatisticas': 'estatisticas',
+  '/dashboard/conta': 'conta',
+  '/dashboard/suporte': 'suporte',
+};
 
 export default function DashboardLayout() {
- const { user, logout, notifications, loading, googleProducts } = useAuth();
+ const { user, logout, notifications, loading, googleProducts, products } = useAuth();
   const loc = useLocation();
   const nav = useNavigate();
   const toast = useToast();
   const [open, setOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const seenIds = useRef<Set<string> | null>(null);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [tourDone, setTourDone] = useState(true);
+
+  // Primeiro acesso: contas criadas nos últimos 7 dias veem o tour de boas-vindas uma vez.
+  useEffect(() => {
+    if (loading || !user || user.role === 'ADMIN') return;
+    let done = false;
+    try { done = localStorage.getItem(tourKey(user.id)) === 'done'; } catch { /* sem storage: mostra */ }
+    setTourDone(done);
+    const created = user.createdAt ? new Date(`${user.createdAt}T00:00:00`).getTime() : 0;
+    const recent = created > 0 && Date.now() - created < 7 * 86400000;
+    if (!done && recent) {
+      const t = setTimeout(() => setTourOpen(true), 800);
+      return () => clearTimeout(t);
+    }
+  }, [loading, user?.id]);
+
+  const closeTour = () => {
+    setTourOpen(false);
+    setTourDone(true);
+    if (user) { try { localStorage.setItem(tourKey(user.id), 'done'); } catch { /* ignore */ } }
+  };
   const doLogout = () => { logout(); nav('/'); };
 
   // Toast discreto sempre que uma notificação nova (ainda não vista nesta
@@ -51,8 +83,13 @@ export default function DashboardLayout() {
     // AirNext Google: só aparece para quem já ativou uma plaquinha de avaliações.
     ...((googleProducts || []).length > 0 ? [{ name: 'Avaliações Google', href: '/dashboard/google', icon: Star }] : []),
     { name: 'Estatísticas', href: '/dashboard/estatisticas', icon: BarChart3 },
+    { name: 'Minha conta', href: '/dashboard/conta', icon: UserCircle },
     { name: 'Suporte', href: '/dashboard/suporte', icon: HelpCircle },
   ];
+
+  // Atalho "Editar perfil": abre direto o perfil ativo mais recente; sem perfil ativo, vai para a lista.
+  const firstActive = (products || []).find(p => p.status === 'ATIVO');
+  const editHref = firstActive ? `/dashboard/perfil/${firstActive.id}` : '/dashboard/produtos';
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return loc.pathname === '/dashboard';
@@ -70,14 +107,14 @@ export default function DashboardLayout() {
       </div>
       <nav className="flex-1 px-3 space-y-1">
         {NAV.map(n => (
-          <Link key={n.name} to={n.href} onClick={() => setOpen(false)}
+          <Link key={n.name} to={n.href} data-tour={TOUR_ANCHORS[n.href]} onClick={() => setOpen(false)}
             className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${isActive(n.href) ? 'bg-blue-500/10 text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/5'}`}>
             <n.icon className={`h-4 w-4 ${isActive(n.href) ? 'text-blue-400' : 'text-zinc-600'}`} />
             {n.name}
           </Link>
         ))}
         <div className="pt-4 mt-4 border-t border-white/5">
-          <Link to="/ativar" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-blue-400 bg-blue-500/5 hover:bg-blue-500/10 transition-all">
+          <Link to="/ativar" data-tour="ativar" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold text-blue-400 bg-blue-500/5 hover:bg-blue-500/10 transition-all">
             <Zap className="h-4 w-4" /> Ativar Produto
           </Link>
           <Link
@@ -91,8 +128,10 @@ export default function DashboardLayout() {
       </nav>
       <div className="px-3 pb-4 border-t border-white/5 pt-4 mt-auto">
         <div className="flex items-center gap-2.5 px-2 mb-3">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white text-xs font-bold">{user?.name?.charAt(0)}</div>
-          <div className="min-w-0 flex-1"><p className="text-xs font-medium text-white truncate">{user?.name}</p><p className="text-[10px] text-zinc-600 truncate">{user?.email}</p></div>
+          <Link to="/dashboard/conta" onClick={() => setOpen(false)} className="flex items-center gap-2.5 min-w-0 flex-1 rounded-xl hover:bg-white/5 p-1 -m-1 transition-colors">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-b from-[#2997ff] to-[#0071e3] flex items-center justify-center text-white text-xs font-semibold shrink-0">{user?.name?.charAt(0)}</div>
+            <div className="min-w-0 flex-1"><p className="text-xs font-medium text-white truncate">{user?.name}</p><p className="text-[10px] text-zinc-500 truncate">{user?.email}</p></div>
+          </Link>
           <button onClick={() => { setNotifOpen(true); setOpen(false); }} className="relative p-1.5 rounded-full hover:bg-white/5 text-zinc-500 lg:hidden">
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-blue-500" />}
@@ -125,12 +164,45 @@ export default function DashboardLayout() {
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-surface" />}
           </button>
-          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white text-[11px] font-bold">{user?.name?.charAt(0)}</div>
+          <div className="relative">
+            <button onClick={() => setMenuOpen(v => !v)} aria-haspopup="menu" aria-expanded={menuOpen} className="flex items-center gap-1.5 rounded-full pl-1 pr-2 py-1 hover:bg-white/5 transition-colors">
+              <span className="h-7 w-7 rounded-full bg-gradient-to-b from-[#2997ff] to-[#0071e3] flex items-center justify-center text-white text-[11px] font-semibold">{user?.name?.charAt(0)}</span>
+              <ChevronDown className={`h-3.5 w-3.5 text-zinc-500 transition-transform ${menuOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                <div role="menu" className="absolute right-0 top-full mt-2 w-64 z-50 rounded-2xl bg-[#1c1c1e]/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/60 p-1.5 scale-in">
+                  <div className="px-3 py-2.5 border-b border-white/8 mb-1">
+                    <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
+                    <p className="text-[11px] text-zinc-500 truncate">{user?.email}</p>
+                  </div>
+                  {[
+                    { to: '/dashboard/conta', icon: UserCircle, label: 'Minha conta' },
+                    { to: editHref, icon: Pencil, label: 'Editar perfil' },
+                    { to: '/dashboard/produtos', icon: Package, label: 'Meus perfis' },
+                    { to: '/ativar', icon: Zap, label: 'Ativar produto' },
+                    { to: '/dashboard/estatisticas', icon: BarChart3, label: 'Estatísticas' },
+                    { to: '/dashboard/suporte', icon: HelpCircle, label: 'Suporte' },
+                  ].map(i => (
+                    <Link key={i.label} to={i.to} role="menuitem" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-200 hover:bg-white/8 transition-colors">
+                      <i.icon className="h-4 w-4 text-[#2997ff]" /> {i.label}
+                    </Link>
+                  ))}
+                  <button onClick={() => { setMenuOpen(false); doLogout(); }} role="menuitem" className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[#ff6961] hover:bg-[#ff453a]/10 transition-colors mt-1 border-t border-white/8">
+                    <LogOut className="h-4 w-4" /> Sair
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8 max-w-[1400px] w-full mx-auto"><Outlet /></main>
       </div>
 
       <NotificationCenter open={notifOpen} onClose={() => setNotifOpen(false)} />
+      <WelcomeTour open={tourOpen} firstName={user?.firstName || user?.name?.split(' ')[0]} onClose={closeTour} />
+      {!tourOpen && <HelpFab pulse={!tourDone} onStartTour={() => setTourOpen(true)} />}
     </div>
   );
 }

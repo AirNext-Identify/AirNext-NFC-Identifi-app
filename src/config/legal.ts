@@ -7,8 +7,23 @@ export const LEGAL_CONFIG = {
   legalName: 'AirNext Tecnologia LTDA',
   /** Preencher quando disponível — deixar vazio para não exibir */
   cnpj: '',
-  address: '',
-  privacyEmail: 'airnext.oficial@gmail.com',
+  address: 'Centro, Balneário Camboriú - SC, Brasil',
+  /**
+   * Endereço estruturado para o schema.org (Organization). NÃO invente: preencha só com o endereço
+   * oficial da empresa. Países/estados vazios são omitidos. Quando preencher, atualize também `address`.
+   */
+  addressDetails: {
+    street: '',
+    locality: 'Balneário Camboriú',
+    region: 'SC',
+    postalCode: '',
+    country: 'BR',
+  },
+  /** Telefone/WhatsApp de atendimento (mesmo número usado nos botões do site). */
+  phone: '+55 47 99628-7761',
+  phoneE164: '+5547996287761',
+  whatsappNumber: '5547996287761',
+  instagramUrl: 'https://www.instagram.com/airnext.com.br/',  privacyEmail: 'airnext.oficial@gmail.com',
   supportEmail: 'contato@airnext.com.br',
   dataControllerName: 'Pedro Veloso',
   tagline: 'Conectando o físico ao digital.',
@@ -25,8 +40,8 @@ export const LEGAL_CONFIG = {
 
 /** Versões atuais dos documentos — ao publicar nova versão, incrementa e solicita novo aceite. */
 export const DOCUMENT_VERSIONS = {
-  privacy_policy: '1.0',
-  terms_of_use: '1.0',
+  privacy_policy: '1.1',
+  terms_of_use: '1.1',
   cookies_policy: '1.0',
 } as const;
 
@@ -39,12 +54,12 @@ export const DOCUMENT_META: Record<
   privacy_policy: {
     title: 'Política de Privacidade',
     path: '/politica-de-privacidade',
-    lastUpdated: '27/07/2026',
+    lastUpdated: '27/10/2026',
   },
   terms_of_use: {
     title: 'Termos de Uso',
     path: '/termos-de-uso',
-    lastUpdated: '27/07/2026',
+    lastUpdated: '27/10/2026',
   },
   cookies_policy: {
     title: 'Política de Cookies',

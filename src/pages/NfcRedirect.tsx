@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { Loader2, PackageSearch, Lock, Clock, Zap } from "lucide-react";
-import { getPendingActivationCode, getPendingActivationLine, setPendingActivationCode } from "../lib/pendingActivation";
+import { Loader2, PackageSearch, Lock, Clock, Zap, KeyRound } from "lucide-react";
+import { getPendingActivationHint, setPendingActivationHint } from "../lib/pendingActivation";
 import { isValidGoogleReviewUrl } from "../lib/googleReview";
+import { takeScanLookup } from "../lib/scanPrefetch";
+import { prefetchPublicProfile } from "../lib/publicApi";
+import ScanLoader from "../components/ScanLoader";
 
 type ProductStatus = "DISPONIVEL" | "ATIVO" | "BLOQUEADO" | "EXPIRADO" | "NAO_PROGRAMADO" | "CANCELADO";
 
 type NfcState =
   | { kind: "loading" }
   | { kind: "not_found" }
-  | { kind: "available"; code: string }
+  | { kind: "available" }
   | { kind: "blocked" }
   | { kind: "expired" }
   | { kind: "cancelled" }
@@ -44,12 +47,13 @@ export default function NfcRedirect() {
 
     async function lookup() {
       if (!lookupValue) {
-        // Rota "/a" (sem código na URL): usada depois que o código foi guardado
-        // com segurança e removido do endereço. Mostra o estado "disponível".
-        const pending = getPendingActivationCode();
+        // Rota "/a" (sem nada na URL): usada depois que o link antigo /a/:código
+        // foi limpo do endereço. Mostra o estado "disponível" a partir do aviso
+        // guardado (nunca do código).
+        const hint = getPendingActivationHint();
         if (!cancelled) {
-          setGoogleLine(getPendingActivationLine() === "GOOGLE");
-          setState(pending ? { kind: "available", code: pending } : { kind: "not_found" });
+          setGoogleLine(hint?.line === "GOOGLE");
+          setState(hint ? { kind: "available" } : { kind: "not_found" });
         }
         return;
       }
@@ -59,15 +63,14 @@ export default function NfcRedirect() {
       // permanente que também é impresso como QR Code na placa — ambos os
       // meios resolvem para a MESMA linha de products, pelo mesmo motor de
       // ativação (ver ActivationPage/AuthContext.activateProduct).
-      // Resolução via função no banco (resolve_product): devolve só o
-      // necessário e o `code` apenas se o produto estiver DISPONIVEL. A
-      // tabela products não é mais legível por anônimos para isso — ninguém
-      // consegue LISTAR produtos disponíveis, só resolver um por vez a partir
-      // do uuid/código que tem em mãos (QR/chip). Ver sql/02_travar.sql.
-      const { data, error } = await supabase.rpc(
-        "resolve_product",
-        uuid ? { p_uuid: uuid } : { p_code: code }
-      );
+      // Resolução via função no banco (resolve_product): devolve só o estado
+      // do produto. O código de ativação NUNCA é devolvido aqui — quem escaneia
+      // ou aproxima a placa não consegue ativá-la sem o código que acompanha o
+      // produto (ver sql/19_ativacao_codigo_obrigatorio.sql).
+      // A consulta já pode ter sido iniciada no carregamento do app (ver lib/scanPrefetch.ts).
+      const early = takeScanLookup(uuid ? "n" : "a", lookupValue);
+      const { data, error } = await (early ??
+        supabase.rpc("resolve_product", uuid ? { p_uuid: uuid } : { p_code: code }));
 
       if (cancelled) return;
 
@@ -126,21 +129,21 @@ export default function NfcRedirect() {
           setState({ kind: "not_found" });
           return;
         }
-        setState({ kind: "redirecting" });
+        // Começa a buscar o perfil agora, em paralelo, para ele já estar pronto quando a página abrir.
+        prefetchPublicProfile(data.slug);
         navigate(`/u/${data.slug}?via=${source}`, { replace: true });
         return;
       }
 
       if (status === "DISPONIVEL") {
-        // Carrega o código de ativação junto do estado "available" para que
-        // o botão "Ativar agora" leve o cliente direto de volta para o
-        // código certo depois do login — sem isso ele precisaria digitar o
-        // código manualmente de novo em /ativar (ver App.tsx "next=").
-        // O código NÃO fica na barra de endereço: guardamos localmente e
-        // trocamos a URL para "/a" (sem o código) logo após ler o produto.
-        setPendingActivationCode(data.code, isGoogle ? "GOOGLE" : undefined);
-        setState({ kind: "available", code: data.code });
-        navigate("/a", { replace: true });
+        // Produto aguardando ativação. Escanear/aproximar NÃO ativa: o cliente
+        // precisa entrar na conta e digitar o código de ativação que acompanha
+        // o produto. Guardamos só um aviso (sem código) para manter o texto
+        // certo depois do login.
+        setPendingActivationHint(isGoogle ? "GOOGLE" : undefined);
+        setState({ kind: "available" });
+        // Link antigo /a/:código: tira o código do endereço e do histórico.
+        if (code) navigate("/a", { replace: true });
         return;
       }
 
@@ -178,6 +181,9 @@ export default function NfcRedirect() {
     };
   }, [uuid, code, navigate]);
 
+  // Carregando/redirecionando: mesma tela de espera do app e da página do perfil (sem troca visível).
+  if (state.kind === "loading" || (state.kind === "redirecting" && !googleLine)) return <ScanLoader />;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface p-4">
       <div className="w-full max-w-sm text-center">
@@ -209,6 +215,13 @@ export default function NfcRedirect() {
                 ? "Ative sua plaquinha AirNext Google para começar a receber avaliações dos seus clientes."
                 : "Ative seu produto AirNext para criar o seu perfil digital."}
             </p>
+            <div className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/5 p-3 text-left">
+              <KeyRound className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
+              <p className="text-xs text-zinc-400">
+                Para ativar, você precisa do <span className="font-semibold text-zinc-200">código de ativação</span> que
+                acompanha o produto. Só aproximar ou escanear a placa não ativa.
+              </p>
+            </div>
             <Link
               to={`/login?next=${encodeURIComponent("/ativar")}`}
               className="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-5 rounded-xl transition-colors text-sm"

@@ -1,6 +1,10 @@
 # AirNext — Hostinger (Apache/LiteSpeed)
 RewriteEngine On
 
+# 0) Instagram: a página inicial usa a arte quadrada (og-airnext.jpg); os demais apps seguem o index.html.
+RewriteCond %{HTTP_USER_AGENT} (instagram|meta-externalagent) [NC]
+RewriteRule ^$ share.php?home=1 [L]
+
 # 1) Robôs de prévia (WhatsApp, Instagram/Facebook, Telegram, LinkedIn, X, Discord, iMessage…)
 #    recebem o HTML com as tags Open Graph do perfil (share.php).
 RewriteCond %{HTTP_USER_AGENT} (whatsapp|facebookexternalhit|facebot|meta-externalagent|instagram|twitterbot|telegrambot|linkedinbot|slackbot|discord|pinterest|skypeuripreview|snapchat|embedly|redditbot|iframely|viber|vkshare|bitlybot|tumblr|applebot|googlebot|bingbot|imessage|linkpreview) [NC]

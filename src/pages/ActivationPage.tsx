@@ -2,18 +2,15 @@ import { useState, useEffect } from 'react';
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, Category, ProfileTheme } from '../contexts/AuthContext';
-import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X, QrCode, Nfc, AlertTriangle, Star, ExternalLink, Link2 } from 'lucide-react';
+import { Zap, CheckCircle, Loader2, UserCheck, Briefcase, PawPrint, Baby, Heart, Brain, ChevronLeft, Camera, Phone, Share2, Palette, PartyPopper, ArrowRight, X, QrCode, Nfc, AlertTriangle, Star, ExternalLink, Link2, ShieldCheck } from 'lucide-react';
 import Logo from '../components/Logo';
 import { ConsentModal } from '../components/legal/ConsentModal';
 import { hasCurrentRequiredConsents } from '../lib/consents';
-import { QrScanner } from '../components/QrScanner';
-import { extractActivationCode } from '../lib/qrScanner';
-import { supabase } from '../lib/supabase';
 import { getPendingActivationCode, setPendingActivationCode, clearPendingActivationCode } from '../lib/pendingActivation';
-import { isWebNFCSupported } from '../lib/nfc';
 import { GOOGLE_URL_HELP, isValidGoogleReviewUrl, normalizeGoogleReviewUrl } from '../lib/googleReview';
-import { linkChipToProduct, readChipUuid, extractNfcUuid, type ChipLinkResult } from '../lib/chipLink';
+import { linkChipToProduct, type ChipLinkResult } from '../lib/chipLink';
 import { SegmentPicker } from '../components/business/SegmentPicker';
+import ImageUploadEditor from '../components/upload/ImageUploadEditor';
 import { getSegment, getSegmentDisplayName } from '../config/businessSegments';
 
 const CATS:{id:Category;label:string;desc:string;icon:React.ElementType;color:string}[]=[
@@ -91,9 +88,10 @@ export default function ActivationPage() {
   const [theme, setTheme] = useState<ProfileTheme>('moderno');
   const [form, setForm] = useState<Record<string,any>>({nome: user?.name || ''});
   const set = (k:string,v:any) => setForm(p=>({...p,[k]:v}));
+  // Foto de perfil / capa escolhidas na ativação (sobem pro Storage e viram profile_data.foto / capa)
+  const [photoEditor, setPhotoEditor] = useState<'foto'|'capa'|null>(null);
   const [consentModalOpen, setConsentModalOpen] = useState(false);
   const [pendingActivate, setPendingActivate] = useState(false);
-  const [scannerOpen, setScannerOpen] = useState(false);
   // AirNext Google
   const [googleCode, setGoogleCode] = useState('');
   const [googleUrl, setGoogleUrl] = useState('');
@@ -102,18 +100,17 @@ export default function ActivationPage() {
   const inp = "w-full bg-white/10 border border-white/15 rounded-xl px-4 py-3 text-white placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]/50 text-sm transition-all";
   const inpStyle: React.CSSProperties = { color: '#ffffff' };
 
-// codeOverride permite ativar com um código que ainda não passou por
-// setCode() (ex.: acabou de ser lido pela câmera) sem esperar o próximo
-// render — sem isso, ativar logo após escanear usaria o `code` antigo
-// (stale state), já que setState é assíncrono.
-const runActivate = async (codeOverride?: string, viaChip = false, redirectUrl?: string) => {
+// A ativação só acontece com o código DIGITADO pelo cliente (ou recebido em
+// /ativar/:código). Escanear o QR ou aproximar o chip não ativa o produto: o
+// banco nunca devolve o código por esse caminho (ver sql/19_ativacao_codigo_obrigatorio.sql).
+// codeOverride existe para o passo do link de avaliações (Google), que repete o
+// mesmo código sem depender do próximo render.
+const runActivate = async (codeOverride?: string, redirectUrl?: string) => {
   setBusy(true);
   setError('');
 
   const usedCode = codeOverride ?? code;
   const res = await activateProduct(usedCode, redirectUrl);
-
-  console.log('RESPOSTA:', res);
 
   // O banco identificou que este código é da linha AirNext Google: a ativação
   // só conclui com o link de avaliações. Nada foi ativado ainda.
@@ -143,16 +140,16 @@ const runActivate = async (codeOverride?: string, viaChip = false, redirectUrl?:
 
   setActivated({ id: res.product.id, nfc_uuid: res.product.nfc_uuid });
 
-  // Ativou pelo chip, ou o chip já saiu gravado de fábrica → já está vinculado.
+  // O chip já saiu gravado de fábrica → já está vinculado.
   // Caso contrário (ex.: placa liberada só com QR), oferece vincular o chip agora.
-  const alreadyLinked = viaChip || !!res.product.programmed_at || !res.product.nfc_uuid;
+  const alreadyLinked = !!res.product.programmed_at || !res.product.nfc_uuid;
   setChipLinked(alreadyLinked);
   setChipMsg(null);
   setPhase(alreadyLinked ? 'category' : 'chip');
   setBusy(false);
 };
 
-const handleActivate = async (codeOverride?: string, viaChip = false) => {
+const handleActivate = async (codeOverride?: string) => {
   if (!user?.id) {
     setError('Faça login para ativar o produto.');
     return;
@@ -166,7 +163,7 @@ const handleActivate = async (codeOverride?: string, viaChip = false) => {
     setConsentModalOpen(true);
     return;
   }
-  await runActivate(codeOverride, viaChip);
+  await runActivate(codeOverride);
 };
 
 const handleConsentAccepted = async () => {
@@ -174,59 +171,6 @@ const handleConsentAccepted = async () => {
   if (pendingActivate) {
     setPendingActivate(false);
     await runActivate();
-  }
-};
-
-// Chamado pelo QrScanner quando um QR é lido na tela "Ativar Produto":
-// extrai o código AIR-XXXXXXXX de dentro da URL do QR (ou do texto puro),
-// preenche o campo como se o cliente tivesse digitado, e já dispara a
-// MESMA ativação usada no fluxo manual/NFC — nenhum motor novo.
-const handleQrDetected = async (rawValue: string) => {
-  setScannerOpen(false);
-  let extracted = extractActivationCode(rawValue);
-
-  // QR novo: aponta para o ID público (/n/{uuid}) e não contém o código.
-  // Descobrimos o produto pelo uuid e ativamos pelo mesmo motor de sempre.
-  if (!extracted) {
-    const uuid = extractNfcUuid(rawValue);
-    if (uuid) {
-      const { data } = await supabase.rpc('resolve_product', { p_uuid: uuid });
-      extracted = data?.code ? String(data.code).toUpperCase() : null;
-    }
-  }
-  if (!extracted) {
-    setError('QR Code lido, mas não reconhecido como um código AirNext válido.');
-    return;
-  }
-  const formatted = formatActivationCode(extracted);
-  setCode(formatted);
-  handleActivate(formatted);
-};
-
-// Ativar tocando a placa: lê o chip, descobre o produto pelo uuid gravado e
-// dispara a MESMA ativação do código/QR (um único motor, um único status).
-const handleChipActivate = async () => {
-  setError('');
-  setBusy(true);
-  try {
-    const { uuid } = await readChipUuid();
-    if (!uuid) {
-      setBusy(false);
-      setError('Chip lido, mas não reconhecido como um chip AirNext.');
-      return;
-    }
-    const { data } = await supabase.rpc('resolve_product', { p_uuid: uuid });
-    if (!data?.code) {
-      setBusy(false);
-      setError('Não encontramos nenhum produto para este chip.');
-      return;
-    }
-    setCode(formatActivationCode(data.code));
-    setBusy(false);
-    await handleActivate(data.code, true);
-  } catch {
-    setBusy(false);
-    setError('Não foi possível ler o chip. Aproxime a placa do celular e tente novamente.');
   }
 };
 
@@ -238,7 +182,7 @@ const handleGoogleSubmit = async () => {
     return;
   }
   setError('');
-  await runActivate(googleCode, false, url);
+  await runActivate(googleCode, url);
 };
 
 const handleLinkChip = async () => {
@@ -285,7 +229,13 @@ setBusy(false);
 
 if (!ok) {
 console.error(error);
-setError(typeof error === 'string' ? error : error?.message || 'Falha ao salvar perfil.');
+const msg = typeof error === 'string' ? error : error?.message || '';
+// 23505 = endereço (slug) já usado por outro perfil
+if (typeof error !== 'string' && (error?.code === '23505' || /duplicate|unique/i.test(msg))) {
+  setError('Esse endereço de perfil já está em uso. Escolha outro (volte ao passo 1).');
+} else {
+  setError(msg || 'Falha ao salvar perfil.');
+}
 return;
 }
 
@@ -306,7 +256,7 @@ setPhase('done');
   const bioPh = category === 'BUSINESS' ? 'Endereço' : category === 'PET' ? 'Idade e observações' : category === 'KIDS' ? 'Observações' : category === 'SENIOR' ? 'Observações' : category === 'TEA' ? 'Informações importantes' : 'Bio / Sobre você';
 
   return (
-    <div className="min-h-screen bg-[#05070f] flex items-center justify-center p-4 pt-24 pb-8 relative overflow-hidden">
+    <div className="min-h-screen apple-bg flex items-center justify-center p-4 pt-24 pb-8 relative overflow-hidden">
       {/* Discreet Apple-style back button */}
       <button onClick={() => nav('/dashboard')} className="fixed top-5 left-5 z-50 flex items-center gap-1.5 px-3.5 py-2 rounded-full glass text-zinc-300 hover:text-white hover:scale-105 active:scale-95 transition-all text-xs font-medium">
         <ChevronLeft className="h-4 w-4" /> Voltar
@@ -316,14 +266,8 @@ setPhase('done');
         <X className="h-5 w-5" />
       </button>
 
-      {/* Fundo escuro limpo com identidade AirNext (sem efeito animado) +
-          leve textura de pontos discreta. */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden>
-        <div className="absolute -top-24 -left-20 h-72 w-72 rounded-full bg-[#2563EB]/22 blur-[100px]" />
-        <div className="absolute top-1/3 -right-16 h-80 w-80 rounded-full bg-[#0071e3]/18 blur-[110px]" />
-        <div className="absolute -bottom-20 left-1/3 h-64 w-64 rounded-full bg-[#60A5FA]/10 blur-[90px]" />
-        <div className="absolute inset-0 opacity-[0.3] dot-grid" />
-      </div>
+      {/* Fundo preto com brilho azul — visual Apple */}
+      <div className="apple-glow" aria-hidden />
 
       <div className="relative w-full max-w-lg">
         {/* Banner / Logo */}
@@ -332,9 +276,9 @@ setPhase('done');
           <div
             className="inline-flex items-center gap-1.5 mt-4 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest"
             style={{
-              background: 'linear-gradient(90deg, rgba(99,102,241,0.22), rgba(34,211,238,0.18))',
-              border: '1px solid rgba(255,255,255,0.12)',
-              color: '#c7d2fe',
+              background: 'rgba(0,113,227,0.16)',
+              border: '1px solid rgba(0,113,227,0.35)',
+              color: '#9ccbff',
             }}
           >
             <Zap className="h-3 w-3 text-[#60A5FA]" /> Ativação de Produto
@@ -358,35 +302,18 @@ setPhase('done');
                 placeholder="AIR-XXXXXXXX" />
               <p className="text-center text-[11px] text-zinc-500 mb-4">Digite só as letras e números — os traços são adicionados automaticamente</p>
               <button onClick={() => handleActivate()} disabled={!code.trim() || busy}
-                className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#2563EB]/30" style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}>
+                className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-full transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#0071e3]/25" style={{ background: '#0071e3' }}>
                 {busy ? <><Loader2 className="h-4 w-4 animate-spin" />Validando...</> : <><Zap className="h-4 w-4" />Ativar Produto</>}
               </button>
 
-              {/* Divisor "ou" */}
-              <div className="flex items-center gap-3 my-4">
-                <div className="h-px flex-1 bg-white/10" />
-                <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-widest">ou</span>
-                <div className="h-px flex-1 bg-white/10" />
+              {/* O código é obrigatório: aproximar ou escanear a placa NÃO ativa. */}
+              <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-white/10 bg-white/5 p-3.5">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#60A5FA]" />
+                <p className="text-[12px] leading-relaxed text-zinc-400">
+                  O código de ativação acompanha o seu produto. Mesmo com a placa em mãos, o QR Code e o chip
+                  <span className="text-zinc-200"> não ativam sozinhos</span> — isso protege você contra ativações indevidas.
+                </p>
               </div>
-
-              {/* Ativação via QR Code: lê o QR impresso na placa pela câmera
-                  e ativa automaticamente — mesmo motor de ativação do código
-                  digitado, só que sem precisar digitar nada (ver
-                  handleQrDetected / src/lib/qrScanner.ts). */}
-              <button onClick={() => setScannerOpen(true)} disabled={busy}
-                className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm">
-                <QrCode className="h-4 w-4" />Ativar com QR Code (câmera)
-              </button>
-              <p className="text-center text-[11px] text-zinc-500 mt-3">Aponte a câmera para o QR Code impresso na placa</p>
-
-              {/* Ativação pelo chip NFC: toca a placa e ativa o mesmo produto
-                  (QR e chip são o mesmo produto — uma única ativação). */}
-              {isWebNFCSupported() && (
-                <button onClick={handleChipActivate} disabled={busy}
-                  className="w-full mt-3 flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm">
-                  <Nfc className="h-4 w-4" />Ativar tocando a placa (chip NFC)
-                </button>
-              )}
             </div>
           )}
 
@@ -411,13 +338,13 @@ setPhase('done');
 
               {!chipLinked && (
                 <button onClick={handleLinkChip} disabled={chipBusy}
-                  className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 text-sm shadow-lg shadow-[#2563EB]/30" style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}>
+                  className="w-full flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-full transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 text-sm shadow-lg shadow-[#0071e3]/25" style={{ background: '#0071e3' }}>
                   {chipBusy ? <><Loader2 className="h-4 w-4 animate-spin" />Aproxime a placa e mantenha encostada...</> : <><Nfc className="h-4 w-4" />Vincular chip NFC</>}
                 </button>
               )}
               <button onClick={() => setPhase('category')}
                 className={`w-full mt-3 flex items-center justify-center gap-2 font-semibold py-3 rounded-xl text-sm transition-all ${chipLinked ? 'text-white shadow-lg shadow-[#2563EB]/30' : 'text-zinc-300 border border-white/10 hover:bg-white/5'}`}
-                style={chipLinked ? { background: 'linear-gradient(135deg, #2563EB, #3B82F6)' } : undefined}>
+                style={chipLinked ? { background: '#0071e3' } : undefined}>
                 {chipLinked ? <>Continuar<ArrowRight className="h-4 w-4" /></> : 'Pular por enquanto'}
               </button>
             </div>
@@ -456,7 +383,7 @@ setPhase('done');
               </details>
 
               <button onClick={handleGoogleSubmit} disabled={!isValidGoogleReviewUrl(normalizeGoogleReviewUrl(googleUrl)) || busy}
-                className="w-full mt-5 flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#2563EB]/30" style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}>
+                className="w-full mt-5 flex items-center justify-center gap-2 text-white font-semibold py-3.5 rounded-full transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#0071e3]/25" style={{ background: '#0071e3' }}>
                 {busy ? <><Loader2 className="h-4 w-4 animate-spin" />Ativando...</> : <><Zap className="h-4 w-4" />Ativar plaquinha</>}
               </button>
               <button onClick={() => { setPhase('code'); setError(''); setGoogleUrl(''); }} disabled={busy}
@@ -486,7 +413,7 @@ setPhase('done');
                   <ExternalLink className="h-4 w-4" /> Testar o link
                 </a>
               )}
-              <button onClick={() => nav('/dashboard/google')} className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 font-bold text-white text-sm transition-all">
+              <button onClick={() => nav('/dashboard/google')} className="w-full py-3.5 rounded-full bg-[#0071e3] hover:bg-[#0a84ff] font-bold text-white text-sm transition-all">
                 Gerenciar minhas plaquinhas
               </button>
             </div>
@@ -542,11 +469,22 @@ setPhase('done');
                       <h3 className="text-lg font-bold text-white">Identidade</h3>
                       <p className="text-xs text-zinc-300">Foto, nome e descrição</p>
                     </div>
-                    {/* Avatar placeholder */}
-                    <div className="flex justify-center">
-                      <div className="h-20 w-20 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors">
-                        <Camera className="h-6 w-6 text-zinc-600" />
+                    {/* Foto de perfil — sobe pro Storage e é salva em profile_data.foto */}
+                    <div className="flex flex-col items-center gap-2">
+                      <button type="button" onClick={() => setPhotoEditor('foto')} aria-label="Escolher foto de perfil"
+                        className="relative h-24 w-24 rounded-full overflow-hidden bg-white/5 border-2 border-dashed border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors group">
+                        {form.foto
+                          ? <img src={form.foto} alt="Foto de perfil" className="h-full w-full object-cover" />
+                          : <Camera className="h-6 w-6 text-zinc-400" />}
+                        {form.foto && <span className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><Camera className="h-5 w-5 text-white" /></span>}
+                      </button>
+                      <div className="flex items-center gap-3 text-[11px]">
+                        <button type="button" onClick={() => setPhotoEditor('foto')} className="font-semibold text-[#60A5FA] hover:underline">{form.foto ? 'Trocar foto' : 'Adicionar foto'}</button>
+                        {form.foto && <button type="button" onClick={() => set('foto', '')} className="text-zinc-400 hover:text-red-400">Remover</button>}
                       </div>
+                      <button type="button" onClick={() => setPhotoEditor('capa')} className="text-[11px] text-zinc-400 hover:text-white transition-colors">
+                        {form.capa ? '✓ Capa adicionada — trocar' : '+ Adicionar foto de capa (opcional)'}
+                      </button>
                     </div>
                     {category === 'BUSINESS' && (
                       <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
@@ -634,6 +572,7 @@ setPhase('done');
                     </div>
                     <h3 className="text-lg font-bold text-white">Tudo pronto!</h3>
                     <p className="text-sm text-zinc-300">Revise e finalize seu perfil</p>
+                    {form.foto && <img src={form.foto} alt="" className="mx-auto h-16 w-16 rounded-full object-cover border border-white/15" />}
                     <div className="glass rounded-xl p-4 text-left space-y-2 text-sm">
                       <div className="flex justify-between"><span className="text-zinc-300">Nome</span><span className="text-white font-medium">{form[nameField]||'—'}</span></div>
                       <div className="flex justify-between"><span className="text-zinc-300">Categoria</span><span className="text-[#60A5FA] font-medium">{CATS.find(c=>c.id===category)?.label}</span></div>
@@ -646,6 +585,8 @@ setPhase('done');
                   </div>
                 )}
 
+                {error && <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400 mt-4">{error}</div>}
+
                 {/* Navigation */}
                 <div className="flex gap-3 mt-6">
                   <button onClick={() => wizStep === 1 ? setPhase('category') : setWizStep(wizStep - 1)}
@@ -656,7 +597,7 @@ setPhase('done');
                     if (wizStep < 5) setWizStep(wizStep + 1);
                     else handleFinish();
                   }} disabled={(wizStep === 5 && !slug.trim()) || (wizStep === 1 && category === 'BUSINESS' && !form.__segment)}
-                    className="flex-1 flex items-center justify-center gap-2 text-white font-semibold py-2.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#2563EB]/30" style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}>
+                    className="flex-1 flex items-center justify-center gap-2 text-white font-semibold py-2.5 rounded-full transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40 disabled:hover:scale-100 text-sm shadow-lg shadow-[#0071e3]/25" style={{ background: '#0071e3' }}>
                     {wizStep === 5 ? <><CheckCircle className="h-4 w-4" />Gerar Perfil</> : <>Próximo<ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </div>
@@ -691,7 +632,7 @@ setPhase('done');
               <p className="text-xs text-zinc-600">⚡ Configurado em menos de 3 minutos!</p>
 
               {/* CTA principal: Editar Perfil */}
-              <button onClick={() => nav(`/dashboard/perfil/${activated?.id || ''}?tab=visual`)} className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 font-bold text-white text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 transition-all active:scale-95">
+              <button onClick={() => nav(`/dashboard/perfil/${activated?.id || ''}?tab=visual`)} className="w-full py-3.5 rounded-full bg-[#0071e3] hover:bg-[#0a84ff] font-bold text-white text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 transition-all active:scale-95">
                 ✏️ Editar Perfil Agora
               </button>
 
@@ -711,6 +652,17 @@ setPhase('done');
         </div>
       </div>
 
+      {photoEditor && (
+        <ImageUploadEditor
+          initialImage={form[photoEditor] || ''}
+          aspect={photoEditor === 'foto' ? 1 : 3}
+          title={photoEditor === 'foto' ? 'Foto de Perfil' : 'Foto de Capa'}
+          helperText={photoEditor === 'foto' ? 'Formato quadrado · recomendado 1080×1080px' : 'Formato largo (3:1) · recomendado 1200×400px'}
+          onUploaded={(url) => { set(photoEditor, url); setPhotoEditor(null); }}
+          onCancel={() => setPhotoEditor(null)}
+        />
+      )}
+
       {user?.id && (
         <ConsentModal
           isOpen={consentModalOpen}
@@ -723,7 +675,6 @@ setPhase('done');
         />
       )}
 
-      <QrScanner isOpen={scannerOpen} onClose={() => setScannerOpen(false)} onDetected={handleQrDetected} />
     </div>
   );
 }

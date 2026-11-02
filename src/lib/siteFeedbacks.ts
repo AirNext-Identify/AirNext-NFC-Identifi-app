@@ -69,7 +69,7 @@ export async function saveSiteFeedback(input: {
 }
 
 export async function fetchPublicFeedbacks(): Promise<PublicFeedback[]> {
-  // Função do banco (sql/16): só publicados e só campos seguros, já ordenados (destaques primeiro).
+  // Função do banco (sql/16; se der 404 no console, rode sql/26): só publicados e só campos seguros, já ordenados (destaques primeiro).
   const { data, error } = await supabase.rpc('get_public_feedbacks', { p_limit: 30 });
   if (error) return [];
   return (data ?? []) as PublicFeedback[];

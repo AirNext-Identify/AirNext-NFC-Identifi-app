@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Plus, Boxes, Eye, Wand2, AlertTriangle, CheckCircle2, Loader2, ShieldCheck, Pencil, Trash2, KeyRound, Copy, Check, Star, Nfc, PackageCheck, X, Package } from 'lucide-react';
+import { Plus, Boxes, Eye, Wand2, AlertTriangle, CheckCircle2, Loader2, ShieldCheck, Pencil, Trash2, KeyRound, Copy, Check, Star, Nfc, PackageCheck, X, Package, ArrowRightLeft } from 'lucide-react';
 import { SearchBar } from '@/components/admin/ui/SearchBar';
 import { Badge } from '@/components/admin/ui/Badge';
 import { Modal } from '@/components/admin/ui/Modal';
 import { EmptyState } from '@/components/admin/ui/EmptyState';
 import { cn, formatDate, formatDateTime, exportCSV } from '@/lib/adminUtils';
 import { LotCodesModal, LotChipsModal, DeleteGoogleLotModal, stateOf, STATE_LABEL, STATE_STYLE, chipOf } from '@/components/admin/modules/GoogleView';
+import { MoveProductModal, type MoveProductOptions } from '@/components/admin/modules/MoveProductModal';
 import type { ActivationAlert } from '@/hooks/useActivationAlerts';
 import type { Customer, Lot, Product } from '@/types/admin';
 
@@ -30,12 +31,15 @@ interface LotsViewProps {
   onMarkActivationsSeen?: (ids: string[]) => void;
   /** Abre Produtos já filtrado pelos itens deste lote. */
   onViewLotProducts?: (lot: Lot) => void;
+  /** Move um produto para QUALQUER lote (padrão ⇄ Google) e/ou outro cliente. */
+  onMoveProduct?: (productId: string, targetLotId: string, opts: MoveProductOptions) => Promise<boolean> | boolean | void;
 }
 
 const QUANTITY_PRESETS = [100, 250, 500, 1000, 2500, 5000];
 const MAX_QUANTITY = 20000;
 
-export function LotsView({ lots, products, onCreate, onUpdate, onDelete, onProgramLot, onProgramProduct, customers = [], onCreateGoogleLot, onDeleteGoogleLot, activationAlerts = [], onMarkActivationsSeen, onViewLotProducts }: LotsViewProps) {
+export function LotsView({ lots, products, onCreate, onUpdate, onDelete, onProgramLot, onProgramProduct, customers = [], onCreateGoogleLot, onDeleteGoogleLot, activationAlerts = [], onMarkActivationsSeen, onViewLotProducts, onMoveProduct }: LotsViewProps) {
+  const [moveTarget, setMoveTarget] = useState<Product | null>(null);
   const [search, setSearch] = useState('');
   const [createModal, setCreateModal] = useState(false);
   const [detailLot, setDetailLot] = useState<Lot | null>(null);
@@ -113,7 +117,11 @@ export function LotsView({ lots, products, onCreate, onUpdate, onDelete, onProgr
         onChips={(l) => { setChipsLot(l); setDetailLot(null); }}
         onEdit={(l) => { setEditLot(l); setDetailLot(null); }}
         onDelete={detailLot && canDelete(detailLot) ? (l) => { askDelete(l); setDetailLot(null); } : undefined}
+        onMoveProduct={onMoveProduct ? setMoveTarget : undefined}
       />
+      {moveTarget && onMoveProduct && (
+        <MoveProductModal key={moveTarget.id} product={moveTarget} lots={lots} customers={customers} onClose={() => setMoveTarget(null)} onMove={onMoveProduct} />
+      )}
       <LotChipsModal
         lot={chipsLot}
         products={chipsLot ? productsOfLot(chipsLot.id) : []}
@@ -295,7 +303,7 @@ function ActivationsPanel({ alerts, onMarkSeen }: { alerts: ActivationAlert[]; o
 /** "Ver detalhes" de um lote Google: resumo, contagens por situação e cada plaquinha (cliente, ativação, chip). */
 /** Detalhe do lote (padrão ou Google): informações, contadores coloridos e as plaquinhas do lote. */
 function LotDetailModal({
-  lot, products, customerName, onClose, onProducts, onCodes, onChips, onEdit, onDelete,
+  lot, products, customerName, onClose, onProducts, onCodes, onChips, onEdit, onDelete, onMoveProduct,
 }: {
   lot: Lot | null;
   products: Product[];
@@ -306,6 +314,7 @@ function LotDetailModal({
   onChips: (lot: Lot) => void;
   onEdit: (lot: Lot) => void;
   onDelete?: (lot: Lot) => void;
+  onMoveProduct?: (product: Product) => void;
 }) {
   if (!lot) return null;
   const google = lot.productLine === 'GOOGLE';
@@ -340,7 +349,7 @@ function LotDetailModal({
           <EmptyState title="Nenhuma plaquinha neste lote" />
         ) : (
           <div className="max-h-[40vh] overflow-auto rounded-xl border border-zinc-800">
-            <table className="w-full min-w-[560px] text-left text-sm">
+            <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="sticky top-0 bg-zinc-900 text-xs uppercase tracking-wide text-zinc-500">
                 <tr>
                   <th className="px-3 py-2 font-medium">Código</th>
@@ -348,6 +357,7 @@ function LotDetailModal({
                   <th className="px-3 py-2 font-medium">Cliente</th>
                   <th className="px-3 py-2 font-medium">Ativada em</th>
                   <th className="px-3 py-2 font-medium">Chip</th>
+                  {onMoveProduct && <th className="px-3 py-2 font-medium text-right">Mover</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800/70">
@@ -360,6 +370,13 @@ function LotDetailModal({
                       <td className="px-3 py-2 text-zinc-400">{customerName(p.customerId) || '—'}</td>
                       <td className="px-3 py-2 text-xs text-zinc-400">{p.activatedAt ? formatDateTime(p.activatedAt) : '—'}</td>
                       <td className="px-3 py-2"><Badge colorClass={chipOf(p).color}>{chipOf(p).label}</Badge></td>
+                      {onMoveProduct && (
+                        <td className="px-3 py-2 text-right">
+                          <button onClick={() => onMoveProduct(p)} title="Mover para outro lote ou cliente" className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 px-2 py-1 text-xs font-medium text-zinc-300 hover:border-indigo-500/40 hover:text-indigo-300">
+                            <ArrowRightLeft className="h-3.5 w-3.5" /> Mover
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   );
                 })}

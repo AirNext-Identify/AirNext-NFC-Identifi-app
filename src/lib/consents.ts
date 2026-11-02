@@ -86,11 +86,29 @@ function statusFromVersions(latest: Record<string, string>): Omit<ConsentStatus,
   };
 }
 
+/** Junta o que está no servidor com o espelho local: vale a versão atual vinda de qualquer um dos dois. */
+function mergeLatest(remote: Record<string, string>, local: Record<string, string>): Record<string, string> {
+  const out: Record<string, string> = { ...local, ...remote };
+  for (const t of ['privacy_policy', 'terms_of_use'] as const) {
+    const cur = DOCUMENT_VERSIONS[t];
+    if (remote[t] === cur || local[t] === cur) out[t] = cur;
+  }
+  if (!out.marketing && local.marketing) out.marketing = local.marketing;
+  return out;
+}
+
 /**
  * Status detalhado dos consentimentos do usuário (versão atual vs registrada).
+ *
+ * Antes, se a leitura no servidor funcionava mas vinha vazia (ex.: o INSERT tinha caído no
+ * fallback local por causa de RLS), o espelho local era ignorado e o modal de aceite
+ * reaparecia a cada login mesmo já aceito. Agora os dois lados são combinados.
  */
 export async function getConsentStatus(userId: string): Promise<ConsentStatus> {
   if (!userId) return { ...EMPTY_CONSENT_STATUS, loading: false };
+
+  const localLatest = latestVersionsFromRows([...readLocalConsents(userId)].reverse());
+  let remoteLatest: Record<string, string> = {};
 
   try {
     const { data, error } = await supabase
@@ -100,21 +118,19 @@ export async function getConsentStatus(userId: string): Promise<ConsentStatus> {
       .eq('accepted', true)
       .order('accepted_at', { ascending: false });
 
-    // 403/42501 = RLS ou tabela sem grant — cai no fallback local sem quebrar a UI
+    // 403/42501 = RLS ou tabela sem grant — usa só o espelho local, sem quebrar a UI
     if (error) {
       if (import.meta.env.DEV) {
         console.debug('[consents] remote read unavailable, using local fallback:', error.message);
       }
-      throw error;
+    } else {
+      remoteLatest = latestVersionsFromRows(data || []);
     }
-
-    const latest = latestVersionsFromRows(data || []);
-    return { ...statusFromVersions(latest), loading: false };
   } catch {
-    const rows = readLocalConsents(userId);
-    const latest = latestVersionsFromRows([...rows].reverse());
-    return { ...statusFromVersions(latest), loading: false };
+    /* sem rede: segue com o local */
   }
+
+  return { ...statusFromVersions(mergeLatest(remoteLatest, localLatest)), loading: false };
 }
 
 /**
@@ -210,6 +226,22 @@ export async function flushPendingConsents(userId: string): Promise<ConsentStatu
     { type: 'marketing', accepted: !!pending.marketing },
   ]);
   clearPendingConsents();
+  return getConsentStatus(userId);
+}
+
+/**
+ * Aceite feito no formulário de cadastro e guardado no próprio usuário (user_metadata.consent_accepted).
+ * Serve quando o e-mail é confirmado em outro navegador/aparelho, onde o sessionStorage do cadastro
+ * não existe mais: sem isso o cliente aceitava no cadastro e o modal pedia tudo de novo no primeiro acesso.
+ */
+export async function flushMetadataConsents(userId: string, metadata: any): Promise<ConsentStatus | null> {
+  const c = metadata?.consent_accepted;
+  if (!userId || !c?.privacy || !c?.terms) return null;
+  await recordConsents(userId, [
+    { type: 'privacy_policy', accepted: true },
+    { type: 'terms_of_use', accepted: true },
+    { type: 'marketing', accepted: !!c.marketing },
+  ]);
   return getConsentStatus(userId);
 }
 

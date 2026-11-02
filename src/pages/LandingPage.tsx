@@ -8,44 +8,47 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import { useSiteImages } from '../hooks/useSiteImages';
 import { isVideoUrl } from '../lib/media';
-import { COMBO_KIT_IMG, HUB_GALLERY, STAND_GALLERY, PET_GALLERY, PET_THOR_IMG, NFC_TAG_IMG } from '../lib/productImages';
+import { setAnalyticsConsent } from '../lib/analytics';
+import { COMBO_KIT_IMG, HUB_GALLERY, STAND_GALLERY, PET_GALLERY, PET_THOR_IMG, NFC_TAG_IMG, PET_CAVALIER_SENTADO_IMG, PET_THOR_PERFIL_IMG, PET_FILHOTE_CHUVA_IMG, EVENTO_PARTICIPANTE_IMG } from '../lib/productImages';
 import { fmtPrice, priceLabel } from '../lib/price';
-import ProductCard from '../components/landing/ProductCard';
 import ProductHero from '../components/landing/ProductHero';
-import HeroShowcase from '../components/landing/HeroShowcase';
+import HeroScroll3D from '../components/landing/HeroScroll3D';
+import TeaTechSlider from '../components/landing/TeaTechSlider';
 import { productImage } from '../lib/productShowcase';
-import { saveOrder } from '../lib/orders';
+import { LOGO_ON_DARK, LOGO_ON_LIGHT } from '../components/BrandLogo';
+import SacolaDrawer from '../components/store/SacolaDrawer';
+import { useStore } from '../store/StoreContext';
 import { usePublicFeedbacks } from '../hooks/usePublicFeedbacks';
-import SplashScreen from '../components/splash/SplashScreen';
-import { useFeedback, useFeedbackTheme, FeedbackLink, GOOGLE_REVIEW_URL } from '../components/feedback';
+// (Abertura animada desativada p/ desempenho: para reativar, reimporte ../components/splash/SplashScreen e renderize <SplashScreen /> no topo da landing.)
+import { useFeedbackTheme, FeedbackLink, GOOGLE_REVIEW_URL } from '../components/feedback';
 const ProductShowcase = lazy(() => import('../components/landing/ProductShowcase'));
 const GooglePlaquesSection = lazy(() => import('../components/landing/GooglePlaquesSection'));
-const CustomSitesSection = lazy(() => import('../components/landing/CustomSitesSection'));
+const PrivacyShowcaseSection = lazy(() => import('../components/landing/PrivacyShowcaseSection'));
+const AirNextHighlightsSection = lazy(() => import('../components/landing/AirNextHighlightsSection'));
 const StandStorySection = lazy(() => import('../components/landing/StandStorySection'));
 const PetStorySection = lazy(() => import('../components/landing/PetStorySection'));
 const TagShowcaseSection = lazy(() => import('../components/landing/TagShowcaseSection'));
 import {
-  ChevronDown, ChevronRight, ShoppingBag, Nfc, QrCode,
+  ChevronRight, ShoppingBag, Nfc, QrCode,
   Shield, Check, ArrowRight, ArrowLeft,
   Globe, MessageCircle, Camera, AtSign, Zap,
   Smartphone, Users, Send, X, Play,
   Leaf, Recycle, TreePine, Droplets, Heart,
   BookOpen, HelpCircle, LifeBuoy,
-  Rocket, Eye, Target, Lock, Plus, Minus, Trash2, Search,
+  Rocket, Eye, Target, Plus, Minus, Trash2, Search,
   Baby, Puzzle, Briefcase, Sun, Moon, Sparkles, Star, UserRound,
-  Upload, Save, Palette, Image as ImageIcon, FolderOpen,
-  CreditCard, KeyRound, Tag as TagIcon, Move, PawPrint, Building2,
-  RotateCcw, RotateCw, ZoomIn, FlipHorizontal2, Share2, Loader2,
+  Palette, 
+  CreditCard, KeyRound, Tag as TagIcon, PawPrint, Building2,
+  Share2, 
   Watch,
   Square,
-  Circle,
+  
   RectangleHorizontal,
-  ChevronUp,
-  Phone, Wifi, AlertTriangle, Sparkle,
+  
+  Phone, Wifi, AlertTriangle,
   Ticket, EyeOff, Link2, Store, Gift,
-  IdCard,
+  IdCard, Utensils,
 } from 'lucide-react';
-type CP = React.CSSProperties & Record<string, string>;
 
 /**
  * ─── AirNext Design System — referência rápida ──────────────────────────
@@ -73,14 +76,6 @@ type CP = React.CSSProperties & Record<string, string>;
  */
 
 // --- Type definitions ---
-interface CartItem {
-  key: string;
-  product: Product;
-  formatId: string;
-  formatLabel: string;
-  quantity: number;
-}
-
 // --- Reusable Swipe Indicator ---
 /** Mídia do lightbox: carrega na hora (sem lazy), mostra um indicador e cai para a imagem padrão se a trocada falhar. */
 function DemoLightboxMedia({ src, fallback, alt }: { src: string; fallback: string; alt: string }) {
@@ -187,13 +182,20 @@ function SwipeIndicator({ isDark }: { isDark: boolean }) {
   );
 }
 
-// --- Logo ---
+// --- Logo (imagem) --- `dark` = fundo escuro → "Air" branco; senão "Air" escuro.
 function Logo({ dark = false, size = 'md' }: { dark?: boolean; size?: 'sm' | 'md' | 'lg' }) {
-  const s = size === 'lg' ? 'text-4xl' : size === 'sm' ? 'text-lg' : 'text-2xl';
+  const h = size === 'lg' ? 'h-8' : size === 'sm' ? 'h-6' : 'h-7';
   return (
-    <a href="#top" className={`flex items-center gap-0.5 font-lobster tracking-tight ${s}`}>
-      <span className={dark ? 'text-white' : 'text-gray-900'}>Air</span>
-      <span className="text-[#0071e3]">Next</span>
+    <a href="#top" aria-label="AirNext" className="inline-flex items-center transition-opacity hover:opacity-80">
+      <img
+        src={dark ? LOGO_ON_DARK : LOGO_ON_LIGHT}
+        alt="AirNext"
+        width={884}
+        height={367}
+        decoding="async"
+        draggable={false}
+        className={`${h} w-auto select-none`}
+      />
     </a>
   );
 }
@@ -271,25 +273,6 @@ export const FORMATS: AirNextFormat[] = [
   icon: <IdCard size={16} />,
   shapeClass: 'aspect-[2.8/4.5] rounded-2xl',
   },
-];
-
-// Formatos que aceitam escolha livre de "corte" físico — quadrado, redondo ou
-// retangular — usados por Tags e Adesivos (chaveiro, cartão e pulseira têm
-// corte fixo por natureza do produto).
-const SHAPEABLE_FORMATS = ['tag', 'adesivo'];
-
-interface ShapeOption {
-  id: 'quadrado' | 'redondo' | 'retangular';
-  label: string;
-  icon: React.ReactNode;
-  shapeClass: string;
-  dims: { radius: number; circle?: boolean; wRatio: number; hRatio: number };
-}
-
-const SHAPES: ShapeOption[] = [
-  { id: 'quadrado', label: 'Quadrado', icon: <Square size={15} />, shapeClass: 'aspect-square rounded-[22px]', dims: { radius: 44, wRatio: 1, hRatio: 1 } },
-  { id: 'redondo', label: 'Redondo', icon: <Circle size={15} />, shapeClass: 'aspect-square rounded-full', dims: { radius: 0, circle: true, wRatio: 1, hRatio: 1 } },
-  { id: 'retangular', label: 'Retangular', icon: <RectangleHorizontal size={15} />, shapeClass: 'aspect-[3/4] rounded-[26px]', dims: { radius: 40, wRatio: 3, hRatio: 4 } },
 ];
 
 export interface Product {
@@ -434,73 +417,12 @@ export const PRODUCTS: Product[] = [
 // novos produtos acima presentes no mesmo array PRODUCTS.
 export const ORIGINAL_LINE_IDS = ['pro', 'stand', 'pet', 'kids', 'senior', 'tea'];
 
-// Curated colour palette offered in the customizer — kept separate from each
-// line's default brand colour so a client can pick *any* card colour freely.
-const CUSTOM_COLORS = [
-  '#0071e3', '#34c759', '#ff9500', '#ff3b30', '#af52de', '#00d2ff',
-  '#ff2d55', '#30d158', '#5856d6', '#ffd60a', '#1c1c1e', '#ffffff',
-];
-
-// =====================================================================
-// --- Personalizador AirNext: interactive multi-format customizer ---
-// Lets the client pick a product line, physical format, colour, and a
-// freely-positionable/zoomable/rotatable photo for BOTH sides (frente e
-// verso) of the piece, save the project locally, and send the finished
-// mockup (both sides) straight to AirNext's WhatsApp for production.
-// =====================================================================
-interface SideState {
-  image: string | null;
-  offset: { x: number; y: number };
-  scaleX: number;
-  scaleY: number;
-  rotation: number;
-  text: string; // opcional — nome, telefone, instrução etc.
-  textOffset: { x: number; y: number }; // cliente pode arrastar o texto livremente sobre a peça
-  showQr: boolean; // opcional — cliente decide se quer QR Code impresso neste lado
-  qrOffset: { x: number; y: number }; // cliente pode arrastar o QR Code livremente também
-}
-
-interface SavedProject {
-  id: number;
-  lineId: string;
-  lineName: string;
-  formatId: string;
-  formatLabel: string;
-  shapeId?: string;
-  shapeLabel?: string;
-  color: string;
-  sides: { front: SideState; back: SideState };
-  createdAt: string;
-}
-
-const CUSTOM_PROJECTS_KEY = 'airnext_custom_projects_v2';
 const AIRNEXT_WHATSAPP = '5547996287761';
 
 // --- Rastreamento (só carrega depois do consentimento de cookies) ---
-// Troque pelos IDs reais quando tiver em mãos.
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // pegue em analytics.google.com
+// O Google Analytics (G-R0FNB8J98C) agora é instalado no index.html e repassado por lib/analytics.ts.
+// Troque o ID do Pixel quando tiver em mãos.
 const META_PIXEL_ID = 'SEU_PIXEL_ID_AQUI'; // pegue em business.facebook.com/events_manager > Fontes de dados
-
-function loadGoogleAnalytics(measurementId: string) {
-  // Só aceita o formato oficial (G-XXXXXXXX) — evita injeção de código no <script> inline.
-  if (!/^G-[A-Z0-9]{4,20}$/.test(measurementId)) return;
-  if (document.getElementById('ga-script') || measurementId.includes('XXXX')) return;
-  const script1 = document.createElement('script');
-  script1.id = 'ga-script';
-  script1.async = true;
-  script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
-  document.head.appendChild(script1);
-
-  const script2 = document.createElement('script');
-  script2.id = 'ga-inline';
-  script2.innerHTML = `
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '${measurementId}');
-  `;
-  document.head.appendChild(script2);
-}
 
 function loadMetaPixel(pixelId: string) {
   if ((window as any).fbq || pixelId.includes('AQUI')) return;
@@ -524,1277 +446,13 @@ function loadMetaPixel(pixelId: string) {
   (window as any).fbq('track', 'PageView');
 }
 
-const emptySide = (): SideState => ({ image: null, offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0, text: '', textOffset: { x: 0, y: 0 }, showQr: false, qrOffset: { x: 0, y: 0 } });
-
-// Resize + compress an uploaded image client-side before it's ever stored,
-// so previews stay high quality on screen while saved projects remain small
-// enough to persist reliably (this is what was silently failing before).
-function compressImage(dataUrl: string, maxDim = 1200, quality = 0.92): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    img.onload = () => {
-      let { width, height } = img;
-      if (width > maxDim || height > maxDim) {
-        if (width > height) { height = Math.round((height * maxDim) / width); width = maxDim; }
-        else { width = Math.round((width * maxDim) / height); height = maxDim; }
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) { reject(new Error('Canvas indisponível')); return; }
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, width, height);
-      resolve(canvas.toDataURL('image/jpeg', quality));
-    };
-    img.onerror = () => reject(new Error('Falha ao carregar a imagem'));
-    img.src = dataUrl;
-  });
+/** Avatar do mockup de "Casos de Uso": se a foto externa não carregar, cai para o ícone/iniciais
+ *  em vez de mostrar a imagem quebrada. */
+function DemoAvatar({ src, alt, fallback }: { src?: string; alt: string; fallback: React.ReactNode }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) return <>{fallback}</>;
+  return <img src={src} alt={alt} className="w-full h-full object-cover" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />;
 }
-
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Falha ao carregar imagem'));
-    img.src = src;
-  });
-}
-
-// Dimensões em alta definição — prontas para produção/impressão, não só tela.
-const CANVAS_DIMS: Record<string, { w: number; h: number; radius: number; circle?: boolean }> = {
-  cartao: { w: 1800, h: 1134, radius: 92 },
-  tag: { w: 960, h: 1280, radius: 112 },
-  placa: { w: 1800, h: 1134, radius: 92 },
-  chaveiro: { w: 1040, h: 1040, radius: 104 },
-  display: { w: 1800, h: 1134, radius: 92 },
-  pulseira: { w: 1800, h: 500, radius: 250 },
-  adesivo: { w: 1040, h: 1040, radius: 520, circle: true },
-  cracha: { w: 1120, h: 1800, radius: 90 },
-};
-// Tag e Adesivo aceitam um "corte" físico escolhido pelo cliente
-// (quadrado, redondo ou retangular) — isso muda as dimensões do canvas final.
-function getCanvasDims(formatId: string, shape?: ShapeOption): { w: number; h: number; radius: number; circle?: boolean } {
-  const base = CANVAS_DIMS[formatId] || CANVAS_DIMS.cartao;
-  if (!shape || !SHAPEABLE_FORMATS.includes(formatId)) return base;
-  const size = 1120;
-  if (shape.id === 'redondo') return { w: size, h: size, radius: size / 2, circle: true };
-  if (shape.id === 'retangular') return { w: 960, h: 1280, radius: 80 };
-  return { w: size, h: size, radius: 88 }; // quadrado
-}
-
-// Desenha um pequeno ícone de "ondas de aproximação" (NFC) no canvas —
-// o símbolo padrão AirNext que aparece em toda peça personalizada.
-function drawNfcGlyph(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.strokeStyle = 'rgba(255,255,255,0.92)';
-  ctx.lineCap = 'round';
-  [0.55, 0.95, 1.35].forEach((r) => {
-    ctx.beginPath();
-    ctx.lineWidth = scale * 0.16;
-    ctx.arc(0, 0, r * scale, -0.95, -0.15);
-    ctx.stroke();
-  });
-  ctx.beginPath();
-  ctx.fillStyle = 'rgba(255,255,255,0.95)';
-  ctx.arc(0, 0, scale * 0.18, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-// Desenha um pequeno selo "QR incluso" — representação simplificada usada
-// apenas na prévia/mockup; o QR real e funcional é gerado pela produção.
-function drawQrBadge(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
-  ctx.save();
-  ctx.fillStyle = 'rgba(255,255,255,0.95)';
-  const r = size * 0.14;
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + size, y, x + size, y + size, r);
-  ctx.arcTo(x + size, y + size, x, y + size, r);
-  ctx.arcTo(x, y + size, x, y, r);
-  ctx.arcTo(x, y, x + size, y, r);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = '#111';
-  const cells = 5;
-  const pad = size * 0.14;
-  const cell = (size - pad * 2) / cells;
-  const pattern = [
-    [1, 1, 1, 0, 1], [1, 0, 1, 0, 1], [1, 1, 1, 0, 0],
-    [0, 0, 1, 1, 1], [1, 0, 1, 0, 1],
-  ];
-  for (let r0 = 0; r0 < cells; r0++) {
-    for (let c0 = 0; c0 < cells; c0++) {
-      if (pattern[r0][c0]) ctx.fillRect(x + pad + c0 * cell, y + pad + r0 * cell, cell * 0.9, cell * 0.9);
-    }
-  }
-  ctx.restore();
-}
-
-function tracePath(ctx: CanvasRenderingContext2D, w: number, h: number, d: { radius: number; circle?: boolean }) {
-  ctx.beginPath();
-  if (d.circle) {
-    ctx.arc(w / 2, h / 2, w / 2, 0, Math.PI * 2);
-  } else {
-    const r = d.radius;
-    ctx.moveTo(r, 0);
-    ctx.arcTo(w, 0, w, h, r);
-    ctx.arcTo(w, h, 0, h, r);
-    ctx.arcTo(0, h, 0, 0, r);
-    ctx.arcTo(0, 0, w, 0, r);
-  }
-  ctx.closePath();
-}
-
-// Renders one face (frente/verso) to a high-resolution canvas, replicating
-// exactly what the on-screen preview shows (same offset/scale/rotation math).
-async function renderSideToCanvas(
-  side: SideState,
-  formatId: string,
-  color: string,
-  _lineName: string,
-  _formatLabel: string,
-  previewWidthPx: number,
-  shape?: ShapeOption
-): Promise<string> {
-  const d = getCanvasDims(formatId, shape);
-  const canvas = document.createElement('canvas');
-  canvas.width = d.w;
-  canvas.height = d.h;
-  const ctx = canvas.getContext('2d')!;
-
-  ctx.save();
-  tracePath(ctx, d.w, d.h, d);
-  ctx.clip();
-
-  const grad = ctx.createLinearGradient(0, 0, d.w, d.h);
-  grad.addColorStop(0, color);
-  grad.addColorStop(1, `${color}cc`);
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, d.w, d.h);
-
-  if (side.image) {
-    const img = await loadImage(side.image);
-    const scaleFactor = d.w / Math.max(previewWidthPx, 1);
-    const baseScale = Math.max(d.w / img.width, d.h / img.height);
-    ctx.save();
-    ctx.translate(d.w / 2, d.h / 2);
-    ctx.translate(side.offset.x * scaleFactor, side.offset.y * scaleFactor);
-    ctx.rotate((side.rotation * Math.PI) / 180);
-    ctx.scale(side.scaleX, side.scaleY);
-    const drawW = img.width * baseScale;
-    const drawH = img.height * baseScale;
-    ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
-    ctx.restore();
-
-    const overlay = ctx.createLinearGradient(0, d.h * 0.45, 0, d.h);
-    overlay.addColorStop(0, 'rgba(0,0,0,0)');
-    overlay.addColorStop(1, 'rgba(0,0,0,0.55)');
-    ctx.fillStyle = overlay;
-    ctx.fillRect(0, 0, d.w, d.h);
-  }
-
-  // Símbolo de aproximação padrão AirNext + nome da marca, em fonte Lobster —
-  // presente em TODAS as categorias/formatos, sempre no canto superior esquerdo.
-  await document.fonts.load(`${Math.round(d.w * 0.04)}px Lobster`);
-  drawNfcGlyph(ctx, d.w * 0.075, d.h * 0.085, d.w * 0.018);
-  ctx.fillStyle = 'rgba(255,255,255,0.95)';
-  ctx.font = `${Math.round(d.w * 0.04)}px Lobster, cursive`;
-  ctx.textBaseline = 'middle';
-  ctx.fillText('AirNext', d.w * 0.115, d.h * 0.095);
-  ctx.textBaseline = 'alphabetic';
-
-  // Texto (nome/instrução) é opcional e segue exatamente a posição que o
-  // cliente escolheu ao arrastar livremente na prévia — âncora central seleada
-  // (igual à prévia), segura em qualquer formato, inclusive redondo.
-  if (side.text) {
-    const scaleFactor = d.w / Math.max(previewWidthPx, 1);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `bold ${Math.round(d.w * 0.05)}px sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const baseX = d.w * 0.5 + side.textOffset.x * scaleFactor;
-    const baseY = d.h * 0.55 + side.textOffset.y * scaleFactor;
-    ctx.fillText(side.text, baseX, baseY);
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-  }
-
-  // QR Code também é opcional — só entra na peça se o cliente marcar a opção,
-  // e respeita a posição livre escolhida pelo cliente.
-  if (side.showQr) {
-    const scaleFactor = d.w / Math.max(previewWidthPx, 1);
-    const qrSize = Math.min(d.w, d.h) * 0.16;
-    const centerX = d.w * 0.5 + side.qrOffset.x * scaleFactor;
-    const centerY = d.h * 0.78 + side.qrOffset.y * scaleFactor;
-    drawQrBadge(ctx, centerX - qrSize / 2, centerY - qrSize / 2, qrSize);
-  }
-
-  ctx.restore();
-  return canvas.toDataURL('image/png');
-}
-
-function downloadDataUrl(dataUrl: string, filename: string) {
-  const a = document.createElement('a');
-  a.href = dataUrl;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
-  const res = await fetch(dataUrl);
-  const blob = await res.blob();
-  return new File([blob], filename, { type: blob.type || 'image/png' });
-}
-
-function PersonalizadorSection({ isDark, preset }: { isDark: boolean; preset?: { lineId: string; formatId: string; nonce: number } | null }) {
-  const [selectedLine, setSelectedLine] = useState<Product>(PRODUCTS[0]);
-  const availableFormats = FORMATS.filter(f => selectedLine.formats.includes(f.id));
-  const [selectedFormat, setSelectedFormat] = useState<AirNextFormat>(availableFormats[0]);
-  const [shape, setShape] = useState<ShapeOption>(SHAPES[0]);
-  const [color, setColor] = useState(selectedLine.color);
-  const [sides, setSides] = useState<{ front: SideState; back: SideState }>({ front: emptySide(), back: emptySide() });
-  const [activeSide, setActiveSide] = useState<'front' | 'back'>('front');
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [savedProjects, setSavedProjects] = useState<SavedProject[]>([]);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const feedback = useFeedback();
-  const [sending, setSending] = useState(false);
-  const [sendError, setSendError] = useState<string | null>(null);
-  const [lockAspect, setLockAspect] = useState(true);
-  // No mobile a prévia fica "flutuando" fixa na tela enquanto o cliente edita,
-  // e pode ser minimizada para não atrapalhar os campos de edição.
-  const [mobilePreviewMinimized, setMobilePreviewMinimized] = useState(false);
-
-  // --- Configurador em tela cheia ---------------------------------------
-  // Inspirado no padrão usado por grandes marcas (ex.: Apple Watch Studio,
-  // Nike By You): a ferramenta fica escondida por trás de uma vitrine/teaser
-  // na página, e só assume a tela inteira — como uma "página dentro da
-  // página" — quando o cliente decide personalizar. Dentro dela, o processo
-  // vira um wizard guiado por etapas, com prévia ao vivo sempre visível.
-  const [isOpen, setIsOpen] = useState(false);
-  const [wizardStep, setWizardStep] = useState(0);
-  const WIZARD_STEPS = [
-    { label: 'Linha', icon: <Briefcase size={14} /> },
-    { label: 'Formato', icon: <TagIcon size={14} /> },
-    { label: 'Cor', icon: <Palette size={14} /> },
-    { label: 'Foto & Texto', icon: <ImageIcon size={14} /> },
-    { label: 'Revisar', icon: <Check size={14} /> },
-  ];
-  const lastStep = WIZARD_STEPS.length - 1;
-  const goToStep = (n: number) => setWizardStep(Math.max(0, Math.min(lastStep, n)));
-  const openWizard = () => { setIsOpen(true); setWizardStep(0); };
-  const closeWizard = () => setIsOpen(false);
-
-  // Trava o scroll da página por trás enquanto o configurador em tela cheia
-  // está aberto — reforça a sensação de "outra página" sobre a atual.
-  useEffect(() => {
-    if (!isOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, [isOpen]);
-
-  const isShapeable = SHAPEABLE_FORMATS.includes(selectedFormat.id);
-  const effectiveShapeClass = isShapeable ? shape.shapeClass : selectedFormat.shapeClass;
-
-  const dragState = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
-  const textDragState = useRef<{ startX: number; startY: number; origX: number; origY: number; side: 'front' | 'back' } | null>(null);
-  const qrDragState = useRef<{ startX: number; startY: number; origX: number; origY: number; side: 'front' | 'back' } | null>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-
-  const current = sides[activeSide];
-  const updateSide = (patch: Partial<SideState>, side: 'front' | 'back' = activeSide) => {
-    setSides(prev => ({ ...prev, [side]: { ...prev[side], ...patch } }));
-  };
-
-  // Load previously saved client projects on mount
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CUSTOM_PROJECTS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const migrated = parsed.map((p: any) => ({
-          ...p,
-          sides: {
-            front: { ...emptySide(), ...p.sides?.front, scaleX: p.sides?.front?.scaleX ?? p.sides?.front?.scale ?? 1, scaleY: p.sides?.front?.scaleY ?? p.sides?.front?.scale ?? 1, textOffset: p.sides?.front?.textOffset ?? { x: 0, y: 0 }, qrOffset: p.sides?.front?.qrOffset ?? { x: 0, y: 0 }, showQr: p.sides?.front?.showQr ?? false },
-            back: { ...emptySide(), ...p.sides?.back, scaleX: p.sides?.back?.scaleX ?? p.sides?.back?.scale ?? 1, scaleY: p.sides?.back?.scaleY ?? p.sides?.back?.scale ?? 1, textOffset: p.sides?.back?.textOffset ?? { x: 0, y: 0 }, qrOffset: p.sides?.back?.qrOffset ?? { x: 0, y: 0 }, showQr: p.sides?.back?.showQr ?? false },
-          },
-        }));
-        setSavedProjects(migrated);
-      }
-    } catch (err) {
-      console.error('Não foi possível carregar projetos salvos:', err);
-    }
-  }, []);
-
-  const selectLine = (line: Product) => {
-    setSelectedLine(line);
-    const formatsForLine = FORMATS.filter(f => line.formats.includes(f.id));
-    setSelectedFormat(formatsForLine[0]);
-    setColor(line.color);
-  };
-
-  // When the shop/cart asks to personalize a specific line+format, jump straight to it.
-  useEffect(() => {
-    if (!preset) return;
-    const line = PRODUCTS.find(l => l.id === preset.lineId);
-    if (!line) return;
-    const formatsForLine = FORMATS.filter(f => line.formats.includes(f.id));
-    const format = formatsForLine.find(f => f.id === preset.formatId) || formatsForLine[0];
-    setSelectedLine(line);
-    setSelectedFormat(format);
-    setColor(line.color);
-    setWizardStep(0);
-    setIsOpen(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset?.nonce]);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Selecione um arquivo de imagem válido.');
-      return;
-    }
-    setUploadError(null);
-    setUploading(true);
-    const sideAtUploadTime = activeSide;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const raw = reader.result as string;
-        const compressed = await compressImage(raw);
-        updateSide({ image: compressed, offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0 }, sideAtUploadTime);
-      } catch (err) {
-        console.error(err);
-        setUploadError('Não foi possível processar essa imagem. Tente outra.');
-      } finally {
-        setUploading(false);
-      }
-    };
-    reader.onerror = () => {
-      setUploadError('Falha ao ler o arquivo.');
-      setUploading(false);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!current.image) return;
-    (e.target as Element).setPointerCapture(e.pointerId);
-    dragState.current = { startX: e.clientX, startY: e.clientY, origX: current.offset.x, origY: current.offset.y };
-  };
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragState.current) return;
-    const dx = e.clientX - dragState.current.startX;
-    const dy = e.clientY - dragState.current.startY;
-    updateSide({ offset: { x: dragState.current.origX + dx, y: dragState.current.origY + dy } });
-  };
-  const onPointerUp = () => { dragState.current = null; };
-
-  // Funcionalidade extra: zoom da foto direto com o scroll do mouse (desktop),
-  // sem precisar usar o slider — some agilidade a mais no ajuste da imagem.
-  const onImageWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    if (!current.image) return;
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.05 : 0.05;
-    const nextX = Math.min(3, Math.max(0.3, current.scaleX + delta));
-    const nextY = lockAspect ? nextX : Math.min(3, Math.max(0.3, current.scaleY + delta));
-    updateSide({ scaleX: nextX, scaleY: nextY });
-  };
-
-  // Funcionalidade extra: espelhar a foto horizontalmente (útil para fotos de rosto/logo invertidos)
-  const flipImageHorizontal = () => updateSide({ scaleX: current.scaleX * -1 });
-
-  // Arraste livre do texto — funciona igual ao da foto, mas move só o texto
-  const onTextPointerDown = (e: React.PointerEvent<HTMLParagraphElement>, sideKey: 'front' | 'back') => {
-    e.stopPropagation();
-    (e.target as Element).setPointerCapture(e.pointerId);
-    textDragState.current = { startX: e.clientX, startY: e.clientY, origX: sides[sideKey].textOffset.x, origY: sides[sideKey].textOffset.y, side: sideKey };
-  };
-  const onTextPointerMove = (e: React.PointerEvent<HTMLParagraphElement>) => {
-    if (!textDragState.current) return;
-    e.stopPropagation();
-    const dx = e.clientX - textDragState.current.startX;
-    const dy = e.clientY - textDragState.current.startY;
-    updateSide({ textOffset: { x: textDragState.current.origX + dx, y: textDragState.current.origY + dy } }, textDragState.current.side);
-  };
-  const onTextPointerUp = () => { textDragState.current = null; };
-
-  // Arraste livre do QR Code — mesma lógica, elemento independente
-  const onQrPointerDown = (e: React.PointerEvent<HTMLDivElement>, sideKey: 'front' | 'back') => {
-    e.stopPropagation();
-    (e.target as Element).setPointerCapture(e.pointerId);
-    qrDragState.current = { startX: e.clientX, startY: e.clientY, origX: sides[sideKey].qrOffset.x, origY: sides[sideKey].qrOffset.y, side: sideKey };
-  };
-  const onQrPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!qrDragState.current) return;
-    e.stopPropagation();
-    const dx = e.clientX - qrDragState.current.startX;
-    const dy = e.clientY - qrDragState.current.startY;
-    updateSide({ qrOffset: { x: qrDragState.current.origX + dx, y: qrDragState.current.origY + dy } }, qrDragState.current.side);
-  };
-  const onQrPointerUp = () => { qrDragState.current = null; };
-
-  const saveProject = () => {
-    try {
-      const project: SavedProject = {
-        id: Date.now(),
-        lineId: selectedLine.id,
-        lineName: selectedLine.name,
-        formatId: selectedFormat.id,
-        formatLabel: selectedFormat.label,
-        shapeId: isShapeable ? shape.id : undefined,
-        shapeLabel: isShapeable ? shape.label : undefined,
-        color,
-        sides,
-        createdAt: new Date().toISOString(),
-      };
-      const updated = [project, ...savedProjects].slice(0, 12);
-      localStorage.setItem(CUSTOM_PROJECTS_KEY, JSON.stringify(updated));
-      setSavedProjects(updated);
-      setSaveStatus('success');
-    } catch (err) {
-      console.error('Erro ao salvar projeto:', err);
-      setSaveStatus('error');
-    } finally {
-      setTimeout(() => setSaveStatus('idle'), 3000);
-    }
-  };
-
-  const loadProject = (p: SavedProject) => {
-    const line = PRODUCTS.find(l => l.id === p.lineId) || PRODUCTS[0];
-    const formatsForLine = FORMATS.filter(f => line.formats.includes(f.id));
-    const format = formatsForLine.find(f => f.id === p.formatId) || formatsForLine[0];
-    setSelectedLine(line);
-    setSelectedFormat(format);
-    if (p.shapeId) setShape(SHAPES.find(s => s.id === p.shapeId) || SHAPES[0]);
-    setColor(p.color);
-    setSides(p.sides);
-    setActiveSide('front');
-    setWizardStep(3);
-    setIsOpen(true);
-  };
-
-    // Gera um número de pedido curto e legível a partir do timestamp.
-  const genOrderNumber = () => `AN-${Date.now().toString().slice(-6)}`;
-
-  const handleSendWhatsApp = async () => {
-    setSending(true);
-    setSendError(null);
-    try {
-      const previewWidth = previewRef.current?.getBoundingClientRect().width || 400;
-      const frontDataUrl = await renderSideToCanvas(sides.front, selectedFormat.id, color, selectedLine.name, selectedFormat.label, previewWidth, shape);
-      const backDataUrl = await renderSideToCanvas(sides.back, selectedFormat.id, color, selectedLine.name, selectedFormat.label, previewWidth, shape);
-
-      const now = new Date();
-      const orderNumber = genOrderNumber();
-      const dataHora = now.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-
-      // Resumo completo do pedido — gerado automaticamente com todas as
-      // informações do projeto (linha, formato, corte, cor, textos
-      // opcionais, QR opcional) mais número do pedido e data/hora.
-      const summary =
-        `Olá! Finalizei a personalização do meu projeto AirNext e quero enviar para produção:\n\n` +
-        `*Pedido:* ${orderNumber}\n` +
-        `*Data/Hora:* ${dataHora}\n\n` +
-        `• Linha: ${selectedLine.name}\n` +
-        `• Formato: ${selectedFormat.label}${isShapeable ? ` (corte ${shape.label.toLowerCase()})` : ''}\n` +
-        `• Cor: ${color}\n` +
-        `• Texto (frente): ${sides.front.text || 'não informado (opcional)'}\n` +
-        `• QR Code (frente): ${sides.front.showQr ? 'Sim, incluir' : 'Não incluir'}\n` +
-        `• Texto (verso): ${sides.back.text || 'não informado (opcional)'}\n` +
-        `• QR Code (verso): ${sides.back.showQr ? 'Sim, incluir' : 'Não incluir'}\n\n` +
-        `Seguem as imagens de frente e verso do projeto completo.`;
-
-      void saveOrder({
-        orderNumber,
-        source: 'personalizador',
-        items: [{ name: `${selectedLine.name} personalizado`, format: selectedFormat.label, qty: 1, price: 0 }],
-        subtotal: 0,
-        notes: summary,
-      });
-
-      const frontFile = await dataUrlToFile(frontDataUrl, `airnext-${orderNumber}-frente.png`);
-      const backFile = await dataUrlToFile(backDataUrl, `airnext-${orderNumber}-verso.png`);
-
-      const nav = navigator as Navigator & { canShare?: (data?: ShareData) => boolean; share?: (data: ShareData) => Promise<void> };
-
-      if (nav.canShare && nav.share && nav.canShare({ files: [frontFile, backFile] })) {
-        await nav.share({ files: [frontFile, backFile], title: `Pedido AirNext ${orderNumber}`, text: summary });
-      } else {
-        // Browsers can't attach files to a wa.me link directly, so we download
-        // both mockups and open WhatsApp with the message ready to send.
-        downloadDataUrl(frontDataUrl, `airnext-${orderNumber}-frente.png`);
-        downloadDataUrl(backDataUrl, `airnext-${orderNumber}-verso.png`);
-        const waUrl = `https://wa.me/${AIRNEXT_WHATSAPP}?text=${encodeURIComponent(
-          `${summary}\n\n(As duas imagens foram baixadas no seu dispositivo — é só anexá-las aqui na conversa)`
-        )}`;
-        window.open(waUrl, '_blank', 'noopener,noreferrer');
-      }
-      feedback.prompt('design_sent', { delay: 2500 });
-    } catch (err: any) {
-      if (err?.name !== 'AbortError') {
-        console.error('Erro ao preparar envio:', err);
-        setSendError('Não foi possível preparar o envio. Tente novamente.');
-      }
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const cardShapeExtra =
-    selectedFormat.id === 'chaveiro' ? 'max-w-[200px] sm:max-w-[240px]' :
-    selectedFormat.id === 'pulseira' ? 'max-w-[300px] sm:max-w-[360px]' :
-    isShapeable ? 'max-w-[200px] sm:max-w-[240px]' : // tag / adesivo, quadrado/redondo/retangular
-    'max-w-sm sm:max-w-md'; // cartão
-
-  const renderFace = (sideKey: 'front' | 'back') => {
-    const s = sides[sideKey];
-    const isActive = activeSide === sideKey;
-    return (
-      <div
-        className={`absolute inset-0 ${effectiveShapeClass} overflow-hidden select-none border shadow-2xl`}
-        style={{
-          background: `linear-gradient(135deg, ${color}, ${color}cc)`,
-          borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)',
-          touchAction: 'none',
-          backfaceVisibility: 'hidden',
-          transform: sideKey === 'back' ? 'rotateY(180deg)' : undefined,
-          pointerEvents: isActive ? 'auto' : 'none',
-        }}
-        onPointerDown={isActive ? onPointerDown : undefined}
-        onPointerMove={isActive ? onPointerMove : undefined}
-        onPointerUp={isActive ? onPointerUp : undefined}
-        onPointerLeave={isActive ? onPointerUp : undefined}
-        onWheel={isActive ? onImageWheel : undefined}
-      >
-        {s.image ? (
-          <img loading="lazy" decoding="async"
-            src={s.image}
-            alt={`Personalização — ${sideKey === 'front' ? 'frente' : 'verso'}`}
-            draggable={false}
-            className={`absolute inset-0 w-full h-full object-cover ${isActive ? 'cursor-grab active:cursor-grabbing' : ''}`}
-            style={{ transform: `translate(${s.offset.x}px, ${s.offset.y}px) rotate(${s.rotation}deg) scale(${s.scaleX}, ${s.scaleY})`, transition: dragState.current ? 'none' : 'transform 0.05s linear' }}
-          />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/90 p-6 text-center">
-            <ImageIcon size={28} className="opacity-70" />
-            <p className="text-xs font-semibold opacity-80">Envie uma foto para o {sideKey === 'front' ? 'frente' : 'verso'}</p>
-          </div>
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/10 pointer-events-none" />
-
-        {selectedFormat.id === 'chaveiro' && (
-          <div className={`absolute top-3 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full border-2 ${isDark ? 'border-white/50 bg-[#121212]' : 'border-white/70 bg-white'}`} />
-        )}
-        {selectedFormat.id === 'tag' && (
-          <div className={`absolute top-4 right-4 w-4 h-4 rounded-full border-2 ${isDark ? 'border-white/50 bg-[#121212]' : 'border-white/70 bg-white'}`} />
-        )}
-
-        <div className="absolute top-4 left-4 flex items-center gap-1.5 text-white/90">
-          <Nfc size={16} />
-          <span style={{ fontFamily: "'Lobster', cursive" }} className="text-sm tracking-wide leading-none translate-y-[1px]">AirNext</span>
-        </div>
-
-        {/* Indicador de lado — só um pontinho discreto, sem texto poluindo a peça */}
-        <div className="absolute top-4 right-4 flex items-center gap-1">
-          <span className={`w-1.5 h-1.5 rounded-full ${sideKey === 'front' ? 'bg-white' : 'bg-white/35'}`} />
-          <span className={`w-1.5 h-1.5 rounded-full ${sideKey === 'back' ? 'bg-white' : 'bg-white/35'}`} />
-        </div>
-
-        {/* QR Code opcional — âncora sempre no centro visível da peça (segura em qualquer
-            formato, inclusive redondo), e arrastável livremente pelo cliente a partir daí */}
-        {s.showQr && (
-          <div
-            onPointerDown={isActive ? (e) => onQrPointerDown(e, sideKey) : undefined}
-            onPointerMove={isActive ? onQrPointerMove : undefined}
-            onPointerUp={isActive ? onQrPointerUp : undefined}
-            onPointerLeave={isActive ? onQrPointerUp : undefined}
-            className={`absolute w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-lg ${isActive ? 'cursor-grab active:cursor-grabbing' : ''}`}
-            style={{
-              left: '50%',
-              top: '78%',
-              transform: `translate(-50%, -50%) translate(${s.qrOffset.x}px, ${s.qrOffset.y}px)`,
-              transition: qrDragState.current ? 'none' : 'transform 0.05s linear',
-              touchAction: 'none',
-              pointerEvents: isActive ? 'auto' : 'none',
-            }}
-          >
-            <QrCode size={18} className="text-black" />
-          </div>
-        )}
-
-        {/* Texto totalmente opcional e arrastável livremente pelo cliente — âncora central
-            visível (segura em qualquer formato, inclusive redondo). Some por completo quando
-            vazio, sem placeholder poluindo a peça. */}
-        {s.text && (
-          <p
-            onPointerDown={isActive ? (e) => onTextPointerDown(e, sideKey) : undefined}
-            onPointerMove={isActive ? onTextPointerMove : undefined}
-            onPointerUp={isActive ? onTextPointerUp : undefined}
-            onPointerLeave={isActive ? onTextPointerUp : undefined}
-            className={`absolute max-w-[80%] text-center text-white text-lg font-bold leading-tight drop-shadow-md whitespace-nowrap ${isActive ? 'cursor-grab active:cursor-grabbing' : ''}`}
-            style={{
-              left: '50%',
-              top: '55%',
-              transform: `translate(-50%, -50%) translate(${s.textOffset.x}px, ${s.textOffset.y}px)`,
-              transition: textDragState.current ? 'none' : 'transform 0.05s linear',
-              touchAction: 'none',
-              pointerEvents: isActive ? 'auto' : 'none',
-            }}
-          >
-            {s.text}
-          </p>
-        )}
-      </div>
-    );
-  };
-
-  return (
-    <section id="personalizado" className={`relative transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-white text-gray-900'}`}>
-      {/* ---------------- Vitrine / gatilho (a ferramenta fica "escondida" aqui) ----------------
-          Mesmo padrão usado por grandes marcas para configuradores de produto (ex.: Apple
-          Watch Studio, Nike By You): na página só existe um convite elegante — o construtor
-          completo só assume a tela, como uma "página dentro da página", quando o cliente
-          decide personalizar. */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-20 md:py-28 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div>
-            <p className="eyebrow text-[#0071e3] mb-3">Personalização Total</p>
-            <h2 className="h2-apple mb-5">Monte o seu AirNext, ao vivo.</h2>
-            <p className={`text-lg leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-lg mb-8`}>
-              Escolha a linha, o formato físico, a cor e a sua própria foto de frente e verso.
-              Acompanhe o resultado em tempo real, num configurador em tela cheia — a mesma
-              experiência que marcas como Apple e Nike usam para personalizar produtos — e
-              envie direto para produção pelo WhatsApp.
-            </p>
-            <div className="flex flex-wrap items-center gap-5">
-              <button
-                onClick={openWizard}
-                className="inline-flex items-center gap-2.5 bg-[#0071e3] hover:bg-[#0077ed] text-white px-8 py-4 rounded-full text-sm font-bold transition shadow-xl shadow-blue-500/25"
-              >
-                <Palette size={17} /> Personalizar agora
-              </button>
-              <span className={`text-xs font-semibold ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                5 linhas · 5 formatos · cor e foto 100% livres
-              </span>
-            </div>
-
-            {/* Meus projetos salvos — retomar de onde parou, sem abrir a ferramenta inteira */}
-            {savedProjects.length > 0 && (
-              <div className={`mt-10 pt-8 border-t border-dashed ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
-                <p className={`text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <FolderOpen size={14} /> Meus projetos salvos ({savedProjects.length})
-                </p>
-                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                  {savedProjects.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => loadProject(p)}
-                      className={`flex-shrink-0 w-28 rounded-2xl border overflow-hidden text-left transition hover:-translate-y-0.5 ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'}`}
-                    >
-                      <div className="relative h-16" style={{ background: `linear-gradient(135deg, ${p.color}, ${p.color}cc)` }}>
-                        {p.sides.front.image && <img loading="lazy" decoding="async" src={p.sides.front.image} alt={p.lineName} className="absolute inset-0 w-full h-full object-cover opacity-90" />}
-                      </div>
-                      <div className="p-2">
-                        <p className={`text-[10px] font-bold truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{p.lineName}</p>
-                        <p className={`text-[9px] ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{p.formatLabel}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Vitrine visual — várias peças/formatos, convite para abrir o configurador */}
-          <button
-            onClick={openWizard}
-            className={`group relative w-full aspect-[4/3] rounded-[32px] overflow-hidden border text-left transition-shadow shadow-lg hover:shadow-2xl ${isDark ? 'border-white/10' : 'border-gray-200'}`}
-            style={{ background: `linear-gradient(135deg, ${selectedLine.color}, ${selectedLine.color}99)` }}
-          >
-            <div className="absolute inset-0 flex items-center justify-center gap-5 sm:gap-7 p-8">
-              {FORMATS.slice(0, 3).map((f, i) => (
-                <div
-                  key={f.id}
-                  className={`bg-white/15 backdrop-blur-sm border border-white/25 shadow-xl flex items-center justify-center text-white/90 ${f.shapeClass}`}
-                  style={{ width: i === 1 ? '34%' : '24%', transform: `rotate(${i === 0 ? -8 : i === 2 ? 8 : 0}deg) translateY(${i === 1 ? '-6px' : '0'})` }}
-                >
-                  {f.icon}
-                </div>
-              ))}
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/0 to-black/10" />
-            <div className="absolute top-5 left-5 flex items-center gap-1.5 text-white/90">
-              <Nfc size={15} />
-              <span style={{ fontFamily: "'Lobster', cursive" }} className="text-xs tracking-wide leading-none translate-y-[1px]">AirNext</span>
-            </div>
-            <div className="absolute bottom-0 inset-x-0 p-6 flex items-center justify-between gap-3">
-              <span className="text-white font-bold text-sm">Toque para abrir o configurador</span>
-              <span className="w-10 h-10 rounded-full bg-white/20 group-hover:bg-white/30 backdrop-blur-sm flex items-center justify-center text-white transition">
-                <ArrowRight size={16} />
-              </span>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* ---------------- Configurador em tela cheia (wizard guiado por etapas) ----------------
-          Renderizado no <body> (portal): assim nenhuma seção da página (transform, overflow,
-          content-visibility…) consegue prender ou sobrepor o configurador, e ele fica acima da
-          barra de navegação e do aviso de cookies. */}
-      {typeof document !== 'undefined' && createPortal(
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className={`fixed inset-0 z-[300] h-[100dvh] overflow-hidden flex flex-col ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-white text-gray-900'}`}
-          >
-            {/* Top bar — fechar + progresso das etapas, como num configurador Apple/Nike */}
-            <div className={`flex-shrink-0 border-b ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
-              <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between gap-4">
-                <button
-                  onClick={closeWizard}
-                  className={`flex items-center gap-2 text-xs font-bold px-3 py-2 rounded-full transition ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-100 text-gray-700'}`}
-                >
-                  <X size={16} /> <span className="hidden sm:inline">Fechar</span>
-                </button>
-
-                <div className="hidden md:flex items-center gap-1">
-                  {WIZARD_STEPS.map((s, i) => (
-                    <button
-                      key={s.label}
-                      onClick={() => goToStep(i)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition ${
-                        i === wizardStep
-                          ? 'bg-[#0071e3] text-white'
-                          : i < wizardStep
-                            ? (isDark ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900')
-                            : (isDark ? 'text-gray-600' : 'text-gray-300')
-                      }`}
-                    >
-                      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${i === wizardStep ? 'bg-white/25' : isDark ? 'bg-white/10' : 'bg-black/5'}`}>
-                        {i < wizardStep ? <Check size={10} /> : i + 1}
-                      </span>
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-
-                <p className={`text-xs font-bold truncate max-w-[40%] text-right ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  {selectedLine.name} · {selectedFormat.label}
-                </p>
-              </div>
-              {/* Barra de progresso — visível no mobile no lugar dos labels */}
-              <div className={`md:hidden h-1 ${isDark ? 'bg-white/10' : 'bg-gray-100'}`}>
-                <div className="h-full bg-[#0071e3] transition-all duration-300" style={{ width: `${((wizardStep + 1) / WIZARD_STEPS.length) * 100}%` }} />
-              </div>
-            </div>
-
-            {/* Corpo — prévia ao vivo + conteúdo da etapa atual */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8 md:py-10 grid lg:grid-cols-5 gap-10 md:gap-12 items-start">
-                {/* ---------------- Prévia ao vivo ---------------- */}
-                <div className="lg:col-span-2 order-1 lg:sticky lg:top-8 self-start">
-                  <div className={`rounded-[28px] transition-all ${mobilePreviewMinimized ? 'p-2' : 'p-3 pb-4'} lg:p-0 lg:bg-transparent lg:border-0 lg:shadow-none ${isDark ? 'bg-[#121212] border border-white/10' : 'bg-[#f5f5f7] border border-gray-200'}`}>
-                    <button
-                      onClick={() => setMobilePreviewMinimized(v => !v)}
-                      className={`lg:hidden w-full flex items-center justify-between gap-2 px-2 py-1 mb-1 rounded-xl text-[11px] font-bold ${isDark ? 'text-gray-300' : 'text-gray-600'}`}
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <Eye size={13} /> Prévia ao vivo
-                      </span>
-                      <motion.span animate={{ rotate: mobilePreviewMinimized ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                        <ChevronUp size={15} />
-                      </motion.span>
-                    </button>
-
-                    <AnimatePresence initial={false}>
-                      {!mobilePreviewMinimized && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="overflow-hidden lg:!h-auto lg:!opacity-100"
-                        >
-                          <div className="flex flex-col items-center gap-4 lg:gap-6 pt-1 lg:pt-0">
-                            <div className="w-full flex justify-center" style={{ perspective: '1500px' }}>
-                              <motion.div
-                                ref={previewRef}
-                                animate={{ rotateY: activeSide === 'front' ? 0 : 180 }}
-                                transition={{ duration: 0.6, ease: 'easeInOut' }}
-                                className={`w-full ${cardShapeExtra} mx-auto relative ${effectiveShapeClass} max-h-[34vh] lg:max-h-none`}
-                                style={{ transformStyle: 'preserve-3d' }}
-                              >
-                                {renderFace('front')}
-                                {renderFace('back')}
-                              </motion.div>
-                            </div>
-
-                            <button
-                              onClick={() => setActiveSide(activeSide === 'front' ? 'back' : 'front')}
-                              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-white text-gray-800 hover:bg-gray-100 border border-gray-200'}`}
-                            >
-                              <FlipHorizontal2 size={14} /> Virar para {activeSide === 'front' ? 'o verso' : 'a frente'}
-                            </button>
-
-                            <p className={`hidden lg:block text-xs text-center max-w-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                              Arraste a foto, ajuste zoom e rotação para o enquadramento perfeito em cada lado.
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                {/* ---------------- Conteúdo da etapa atual ---------------- */}
-                <div className="lg:col-span-3 order-2 min-h-[380px] flex flex-col">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={wizardStep}
-                      initial={{ opacity: 0, x: 16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -16 }}
-                      transition={{ duration: 0.25 }}
-                      className="flex-1"
-                    >
-                      {/* Etapa 1 — Linha */}
-                      {wizardStep === 0 && (
-                        <div>
-                          <h3 className="text-xl font-bold mb-1.5">Escolha a linha AirNext</h3>
-                          <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Cada linha tem um propósito — a personalização se adapta a ela.</p>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {PRODUCTS.filter(l => !l.combo).map(line => (
-                              <button
-                                key={line.id}
-                                onClick={() => selectLine(line)}
-                                className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 ${
-                                  selectedLine.id === line.id
-                                    ? 'ring-2 ring-offset-2 shadow-md'
-                                    : isDark ? 'border-white/10 hover:border-white/25' : 'border-gray-200 hover:border-gray-300'
-                                }`}
-                                style={selectedLine.id === line.id ? {
-                                  borderColor: line.color,
-                                  // @ts-ignore -- ring offset colour follows theme
-                                  '--tw-ring-color': line.color,
-                                  '--tw-ring-offset-color': isDark ? '#0a0a0a' : '#ffffff',
-                                  background: isDark ? `${line.color}14` : `${line.color}0d`,
-                                } as CP : undefined}
-                              >
-                                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${line.color}25`, color: line.color }}>
-                                  {line.icon}
-                                </div>
-                                <div>
-                                  <p className={`text-sm font-bold leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{line.name}</p>
-                                  <p className={`text-[11px] mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{line.tag}</p>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Etapa 2 — Formato + corte físico */}
-                      {wizardStep === 1 && (
-                        <div>
-                          <h3 className="text-xl font-bold mb-1.5">Escolha o formato</h3>
-                          <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Cartão, tag, chaveiro, pulseira ou adesivo NFC.</p>
-                          <div className="flex flex-wrap gap-3">
-                            {availableFormats.map(f => (
-                              <button
-                                key={f.id}
-                                onClick={() => setSelectedFormat(f)}
-                                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs font-bold transition ${
-                                  selectedFormat.id === f.id
-                                    ? 'bg-[#0071e3] text-white border-[#0071e3]'
-                                    : isDark ? 'border-white/15 text-gray-300 hover:border-white/30' : 'border-gray-200 text-gray-700 hover:border-gray-300'
-                                }`}
-                              >
-                                {f.icon} {f.label}
-                              </button>
-                            ))}
-                          </div>
-
-                          {isShapeable && (
-                            <div className="mt-6">
-                              <p className={`text-[11px] font-semibold mb-2.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                                Formato do corte da {selectedFormat.label.toLowerCase()}
-                              </p>
-                              <div className="flex flex-wrap gap-2.5">
-                                {SHAPES.map(sh => (
-                                  <button
-                                    key={sh.id}
-                                    onClick={() => setShape(sh)}
-                                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-[11px] font-bold transition ${
-                                      shape.id === sh.id
-                                        ? 'bg-[#0071e3] text-white border-[#0071e3]'
-                                        : isDark ? 'border-white/15 text-gray-300 hover:border-white/30' : 'border-gray-200 text-gray-700 hover:border-gray-300'
-                                    }`}
-                                  >
-                                    {sh.icon} {sh.label}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Etapa 3 — Cor */}
-                      {wizardStep === 2 && (
-                        <div>
-                          <h3 className="text-xl font-bold mb-1.5">Escolha a cor</h3>
-                          <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Uma paleta curada — ou qualquer cor que você preferir.</p>
-                          <div className="flex flex-wrap items-center gap-3">
-                            {CUSTOM_COLORS.map(c => (
-                              <button
-                                key={c}
-                                onClick={() => setColor(c)}
-                                aria-label={`Cor ${c}`}
-                                className={`w-10 h-10 rounded-full border-2 transition-transform hover:scale-110 ${color === c ? 'ring-2 ring-offset-2' : 'border-black/10'}`}
-                                style={{
-                                  background: c,
-                                  borderColor: color === c ? c : undefined,
-                                  // @ts-ignore
-                                  '--tw-ring-color': c,
-                                  '--tw-ring-offset-color': isDark ? '#0a0a0a' : '#ffffff',
-                                } as CP}
-                              />
-                            ))}
-                            <label className={`relative w-10 h-10 rounded-full border flex items-center justify-center cursor-pointer overflow-hidden ${isDark ? 'border-white/20 bg-white/5' : 'border-gray-300 bg-gray-50'}`}>
-                              <Palette size={16} className={isDark ? 'text-gray-300' : 'text-gray-600'} />
-                              <input
-                                type="color"
-                                value={color}
-                                onChange={(e) => setColor(e.target.value)}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                aria-label="Escolher cor personalizada"
-                              />
-                            </label>
-                            <span className={`text-xs font-mono px-2 py-1 rounded-lg ${isDark ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>{color}</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Etapa 4 — Foto (frente/verso) + texto opcional + QR */}
-                      {wizardStep === 3 && (
-                        <div className="space-y-8">
-                          <div>
-                            <h3 className="text-xl font-bold mb-1.5">Foto — frente e verso</h3>
-                            <p className={`text-sm mb-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Envie, arraste, gire e dê zoom até ficar do seu jeito.</p>
-
-                            <div className={`inline-flex p-1 rounded-full mb-4 ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
-                              {(['front', 'back'] as const).map(k => (
-                                <button
-                                  key={k}
-                                  onClick={() => setActiveSide(k)}
-                                  className={`px-5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 ${
-                                    activeSide === k
-                                      ? 'bg-[#0071e3] text-white shadow'
-                                      : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
-                                  }`}
-                                >
-                                  <FlipHorizontal2 size={13} /> {k === 'front' ? 'Frente' : 'Verso'}
-                                  {sides[k].image && <Check size={12} className="text-green-400" />}
-                                </button>
-                              ))}
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                              <label className={`flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl border-2 border-dashed cursor-pointer text-sm font-semibold transition flex-1 ${
-                                isDark ? 'border-white/20 text-gray-300 hover:border-[#0071e3] hover:bg-white/5' : 'border-gray-300 text-gray-700 hover:border-[#0071e3] hover:bg-blue-50/40'
-                              }`}>
-                                <Upload size={16} />
-                                {uploading ? 'Processando imagem...' : current.image ? `Trocar imagem (${activeSide === 'front' ? 'frente' : 'verso'})` : `Enviar imagem do ${activeSide === 'front' ? 'frente' : 'verso'} em alta qualidade`}
-                                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                              </label>
-                              {current.image && (
-                                <button
-                                  onClick={() => updateSide({ image: null, offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0 })}
-                                  className={`flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-2xl text-xs font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                                >
-                                  <Trash2 size={14} /> Remover
-                                </button>
-                              )}
-                            </div>
-                            {uploadError && <p className="text-xs text-red-500 mt-2">{uploadError}</p>}
-
-                            {current.image && (
-                              <div className="mt-5 space-y-4">
-                                <div className={`flex items-center gap-3 text-xs font-semibold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                  <Move size={14} /> Arraste a imagem dentro do preview para posicionar livremente
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                  <span className={`text-xs font-bold flex items-center gap-1.5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    <ZoomIn size={13} /> Ajuste da imagem
-                                  </span>
-                                  <button
-                                    onClick={() => setLockAspect(v => !v)}
-                                    className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition ${lockAspect ? (isDark ? 'bg-white/10 text-gray-300' : 'bg-gray-100 text-gray-600') : 'bg-[#0071e3] text-white'}`}
-                                  >
-                                    {lockAspect ? 'Destravar e esticar livremente' : 'Ajuste livre ativado'}
-                                  </button>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                  <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}><ZoomIn size={13} /> Zoom</span>
-                                  <input aria-label="Largura da imagem no cartão"
-                                    type="range"
-                                    min={0.2}
-                                    max={4}
-                                    step={0.01}
-                                    value={current.scaleX}
-                                    onChange={(e) => {
-                                      const v = parseFloat(e.target.value);
-                                      updateSide(lockAspect ? { scaleX: v, scaleY: v } : { scaleX: v });
-                                    }}
-                                    className="w-full accent-[#0071e3]"
-                                  />
-                                  <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{Math.round(current.scaleX * 100)}%</span>
-                                </div>
-
-                                {!lockAspect && (
-                                  <div className="flex items-center gap-3">
-                                    <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Altura</span>
-                                    <input aria-label="Altura da imagem no cartão"
-                                      type="range"
-                                      min={0.2}
-                                      max={4}
-                                      step={0.01}
-                                      value={current.scaleY}
-                                      onChange={(e) => updateSide({ scaleY: parseFloat(e.target.value) })}
-                                      className="w-full accent-[#0071e3]"
-                                    />
-                                    <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{Math.round(current.scaleY * 100)}%</span>
-                                  </div>
-                                )}
-                                {!lockAspect && (
-                                  <p className={`text-[11px] -mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                                    Modo livre: estique a largura e a altura de forma independente até a imagem ficar exatamente do seu jeito.
-                                  </p>
-                                )}
-
-                                <div className="flex items-center gap-3">
-                                  <span className={`text-xs font-bold w-14 flex items-center gap-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}><RotateCw size={13} /> Girar</span>
-                                  <input aria-label="Rotação da imagem no cartão"
-                                    type="range"
-                                    min={-180}
-                                    max={180}
-                                    step={1}
-                                    value={current.rotation}
-                                    onChange={(e) => updateSide({ rotation: parseFloat(e.target.value) })}
-                                    className="w-full accent-[#0071e3]"
-                                  />
-                                  <span className={`text-[10px] font-mono w-10 text-right ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{current.rotation}°</span>
-                                </div>
-
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <button onClick={() => updateSide({ rotation: current.rotation - 90 })} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                                    <RotateCcw size={13} /> -90°
-                                  </button>
-                                  <button onClick={() => updateSide({ rotation: current.rotation + 90 })} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                                    <RotateCw size={13} /> +90°
-                                  </button>
-                                  <button onClick={flipImageHorizontal} className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                                    <FlipHorizontal2 size={13} /> Espelhar
-                                  </button>
-                                  <button onClick={() => updateSide({ offset: { x: 0, y: 0 }, scaleX: 1, scaleY: 1, rotation: 0 })} className={`px-3 py-2 rounded-full text-[11px] font-bold transition ${isDark ? 'bg-white/10 text-gray-300 hover:bg-white/20' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
-                                    Redefinir ajuste
-                                  </button>
-                                </div>
-                                <p className={`text-[10px] mt-2 flex items-center gap-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                                  <Move size={11} /> Arraste a foto na prévia para posicionar · role o scroll do mouse para dar zoom
-                                </p>
-                              </div>
-                            )}
-                          </div>
-
-                          <div>
-                            <p className={`text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                              Nome ou texto do {activeSide === 'front' ? 'frente' : 'verso'}
-                              <span className={`normal-case font-medium tracking-normal ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>(opcional)</span>
-                            </p>
-                            <input aria-label="Texto exibido no cartão"
-                              type="text"
-                              maxLength={28}
-                              placeholder={activeSide === 'front' ? 'Ex: João Silva, ou Nome do seu Pet — pode deixar em branco' : 'Ex: Telefone, endereço ou instrução — pode deixar em branco'}
-                              value={current.text}
-                              onChange={(e) => updateSide({ text: e.target.value })}
-                              className={`w-full px-5 py-3.5 rounded-2xl border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition ${
-                                isDark ? 'bg-[#121212] border-white/10 text-white placeholder:text-gray-500' : 'bg-white border-gray-200 text-gray-900 placeholder:text-gray-400'
-                              }`}
-                            />
-
-                            {current.text && (
-                              <div className="flex items-center justify-between mt-2.5 px-1">
-                                <p className={`text-[11px] flex items-center gap-1.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                                  <Move size={12} /> Arraste o texto na prévia para posicionar
-                                </p>
-                                <button
-                                  onClick={() => updateSide({ textOffset: { x: 0, y: 0 } })}
-                                  className={`text-[11px] font-semibold underline underline-offset-2 ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
-                                >
-                                  Centralizar
-                                </button>
-                              </div>
-                            )}
-                            <label className={`mt-3 flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border cursor-pointer transition ${isDark ? 'bg-[#121212] border-white/10 hover:border-white/20' : 'bg-white border-gray-200 hover:border-gray-300'}`}>
-                              <span className="flex items-center gap-2.5">
-                                <QrCode size={16} className={isDark ? 'text-gray-400' : 'text-gray-500'} />
-                                <span className={`text-xs font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                                  Incluir QR Code no {activeSide === 'front' ? 'frente' : 'verso'} <span className={isDark ? 'text-gray-500' : 'text-gray-400'}>(opcional)</span>
-                                </span>
-                              </span>
-                              <span className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition ${current.showQr ? 'bg-[#0071e3]' : isDark ? 'bg-white/15' : 'bg-gray-300'}`}>
-                                <input aria-label="Mostrar QR Code no cartão"
-                                  type="checkbox"
-                                  checked={current.showQr}
-                                  onChange={(e) => updateSide({ showQr: e.target.checked })}
-                                  className="sr-only"
-                                />
-                                <span className={`inline-block h-[18px] w-[18px] transform rounded-full bg-white shadow transition-transform ${current.showQr ? 'translate-x-[22px]' : 'translate-x-[3px]'}`} />
-                              </span>
-                            </label>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Etapa 5 — Revisar e enviar */}
-                      {wizardStep === 4 && (
-                        <div>
-                          <h3 className="text-xl font-bold mb-1.5">Revisar e enviar</h3>
-                          <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Confira o resumo do seu projeto antes de salvar ou enviar para produção.</p>
-
-                          <div className={`rounded-2xl border p-6 mb-6 space-y-2.5 ${isDark ? 'border-white/10 bg-white/5' : 'border-gray-200 bg-[#f5f5f7]'}`}>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Linha</span>
-                              <span className="font-semibold">{selectedLine.name}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Formato</span>
-                              <span className="font-semibold">{selectedFormat.label}{isShapeable ? ` · corte ${shape.label.toLowerCase()}` : ''}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Cor</span>
-                              <span className="font-semibold flex items-center gap-2">
-                                <span className="w-4 h-4 rounded-full border border-black/10" style={{ background: color }} /> {color}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Frente</span>
-                              <span className="font-semibold">{sides.front.image ? 'Foto enviada' : 'Sem foto'}{sides.front.text ? ` · "${sides.front.text}"` : ''}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-sm">
-                              <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>Verso</span>
-                              <span className="font-semibold">{sides.back.image ? 'Foto enviada' : 'Sem foto'}{sides.back.text ? ` · "${sides.back.text}"` : ''}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col gap-4">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                              <button
-                                onClick={saveProject}
-                                className="inline-flex items-center justify-center gap-2 bg-[#0071e3] hover:bg-[#0077ed] text-white px-8 py-4 rounded-full text-sm font-bold transition shadow-lg shadow-blue-500/25 w-full sm:w-auto"
-                              >
-                                <Save size={16} /> Salvar meu projeto
-                              </button>
-                              <button
-                                onClick={handleSendWhatsApp}
-                                disabled={sending}
-                                className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full text-sm font-bold transition shadow-lg w-full sm:w-auto ${
-                                  sending ? 'opacity-60 cursor-wait' : ''
-                                } bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-green-500/25`}
-                              >
-                                {sending ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
-                                {sending ? 'Preparando envio...' : 'Enviar pelo WhatsApp'}
-                              </button>
-                            </div>
-                            <AnimatePresence>
-                              {saveStatus === 'success' && (
-                                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-green-500 flex items-center gap-1.5">
-                                  <Check size={16} /> Projeto salvo com sucesso!
-                                </motion.p>
-                              )}
-                              {saveStatus === 'error' && (
-                                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-red-500">
-                                  Não foi possível salvar. Tente uma imagem menor.
-                                </motion.p>
-                              )}
-                              {sendError && (
-                                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm font-semibold text-red-500">
-                                  {sendError}
-                                </motion.p>
-                              )}
-                            </AnimatePresence>
-                            <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
-                              O envio gera as imagens de frente e verso do seu projeto e abre o compartilhamento nativo (ou o WhatsApp) já com tudo pronto.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </motion.div>
-                  </AnimatePresence>
-
-                  {/* Navegação entre etapas */}
-                  <div className={`flex items-center justify-between gap-4 mt-10 pt-6 border-t ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
-                    <button
-                      onClick={() => goToStep(wizardStep - 1)}
-                      disabled={wizardStep === 0}
-                      className={`inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold transition ${
-                        wizardStep === 0
-                          ? 'opacity-0 pointer-events-none'
-                          : isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                      }`}
-                    >
-                      <ArrowLeft size={15} /> Voltar
-                    </button>
-                    {wizardStep < lastStep && (
-                      <button
-                        onClick={() => goToStep(wizardStep + 1)}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold bg-[#0071e3] hover:bg-[#0077ed] text-white transition shadow-lg shadow-blue-500/20"
-                      >
-                        Continuar <ArrowRight size={15} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>,
-      document.body,
-      )}
-    </section>
-  );
-}
-
-// Depoimentos de exemplo exibidos enquanto nenhum feedback estiver PUBLICADO no Admin → Feedbacks.
-const FALLBACK_TESTIMONIALS = [
-  { name: 'Marina Costa', role: 'Arquiteta', text: 'Em feiras de arquitetura o cartão AirNext me salvou. As pessoas chegam em casa com meu portfólio salvo no celular. Nunca mais imprimi cartão de papel.', avatar: 'MC', photo: 'https://i.pravatar.cc/120?img=5', rating: 5 },
-  { name: 'Rafael Andrade', role: 'Restaurante', text: 'Colocamos as tags NFC nas mesas e os pedidos pelo cardápio digital aumentaram 34% no primeiro mês. Os clientes adoram a experiência.', avatar: 'RA', photo: 'https://i.pravatar.cc/120?img=11', rating: 5 },
-  { name: 'Carla Menezes', role: 'Veterinária', text: 'Indico para todos os tutores. A tag pet é genial — se o animal fugir, qualquer um acessa os dados. Já ajudou 3 pets perdidos a voltarem para casa.', avatar: 'CM', photo: 'https://i.pravatar.cc/120?img=9', rating: 5 },
-  { name: 'Lucas Pereira', role: 'Eventos', text: 'Usamos pulseiras em um festival com 3 mil pessoas. O check-in foi 3x mais rápido e os convidados amaram trocar contatos na hora.', avatar: 'LP', photo: 'https://i.pravatar.cc/120?img=13', rating: 5 },
-  { name: 'Juliana Lima', role: 'Marketing', text: 'Economizamos uma fortuna com cartões impressos. A experiência premium do AirNext impressiona os clientes na primeira reunião.', avatar: 'JL', photo: 'https://i.pravatar.cc/120?img=20', rating: 5 },
-  { name: 'Pedro Souza', role: 'Designer', text: 'Zero fricção. Aproximo o celular do cliente e já compartilho portfólio, Instagram e LinkedIn. Networking evoluído.', avatar: 'PS', photo: 'https://i.pravatar.cc/120?img=15', rating: 5 },
-  { name: 'Amanda Rocha', role: 'Médica Pediatra', text: 'Comprei as pulseiras kids para meus filhos e recomendo demais. Em parques me sinto muito mais segura sabendo que qualquer pessoa consegue me ligar.', avatar: 'AR', photo: 'https://i.pravatar.cc/120?img=32', rating: 5 },
-  { name: 'Thiago Menezes', role: 'CEO Startup', text: 'Equipamos toda a equipe com AirNext Card Pro e a troca de informações em eventos de tecnologia ficou muito mais profissional.', avatar: 'TM', photo: 'https://i.pravatar.cc/120?img=33', rating: 5 },
-  { name: 'Fernanda Azevedo', role: 'Tutora de PET', text: 'A tag pet salvou meu cachorro quando ele fugiu no Ano Novo. Quem achou ligou na hora! Produto essencial.', avatar: 'FA', photo: 'https://i.pravatar.cc/120?img=45', rating: 5 },
-];
 
 export default function LandingPage() {
   const { resolve: resolveImg, loading: imagesLoading } = useSiteImages();
@@ -1817,15 +475,12 @@ export default function LandingPage() {
     };
   }, [isDark]);
   useFeedbackTheme(isDark);
-  const feedback = useFeedback();
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'form' | 'sent'>('cart');
-  const [checkoutInfo, setCheckoutInfo] = useState({ nome: '', telefone: '', obs: '' });
+  // Sacola e pedidos: a MESMA da Loja (StoreContext, persistida no navegador) e a mesma gaveta (SacolaDrawer).
+  const store = useStore();
+  const cartOpen = store.cartOpen;
+  const setCartOpen = (open: boolean) => (open ? store.openCart() : store.closeCart());
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalFormatId, setModalFormatId] = useState<string | null>(null);
-  const [configuratorPreset, setConfiguratorPreset] = useState<{ lineId: string; formatId: string; nonce: number } | null>(null);
-  const [treeCount, setTreeCount] = useState(10);
   const [scrolled, setScrolled] = useState(false);
   // Posição vertical da navbar no mobile: começa logo abaixo da faixa de aviso e
   // "gruda" no topo (top: 0) quando a faixa sai da tela — igual ao apple.com.
@@ -1834,7 +489,6 @@ export default function LandingPage() {
   // Feedbacks publicados no Admin (com os depoimentos de exemplo como reserva)
   const { feedbacks: pubFeedbacks, settings: fbSettings } = usePublicFeedbacks();
   const testimonialsList = useMemo(() => {
-    if (!pubFeedbacks.length) return FALLBACK_TESTIMONIALS;
     return pubFeedbacks.map(f => ({
       name: f.name || 'Cliente AirNext',
       role: f.role || '',
@@ -1919,15 +573,6 @@ export default function LandingPage() {
 
   // Use Case Tab State
   const [activeUseCase, setActiveUseCase] = useState(0);
-
-  // Products section — filter by physical format/category, makes the section functional
-  const [productFormatFilter] = useState<string>('todos');
-  const mainLineProducts = PRODUCTS.filter(p => ORIGINAL_LINE_IDS.includes(p.id));
-  const shopProducts = productFormatFilter === 'todos'
-    ? mainLineProducts
-    : mainLineProducts.filter(p => p.formats.includes(productFormatFilter));
-  // Segunda fileira — novas linhas AirNext, exibidas na seção própria abaixo de "Produtos"
-  const row2Products = PRODUCTS.filter(p => !ORIGINAL_LINE_IDS.includes(p.id));
 
   // "Veja como funciona na prática" — lightbox de imagem/vídeo, sem levar para produtos
   const [demoLightbox, setDemoLightbox] = useState<Product | null>(null);
@@ -2021,19 +666,35 @@ export default function LandingPage() {
 
   // --- Consentimento de Cookies (LGPD) ---
   useEffect(() => {
+    // Sem escolha salva, o banner entra no 1º toque/rolagem/tecla ou após 12 s — e não junto com o 1º desenho,
+    // senão ele vira o "maior elemento" da tela e atrasa o LCP. Nada é gravado/enviado antes do aceite
+    // (Consent Mode do Google em "negado" e Meta Pixel só carrega após consentir), então isso não afeta a LGPD.
+    let cleanup: (() => void) | undefined;
+    const showBannerLater = () => {
+      const events = ['scroll', 'pointerdown', 'keydown', 'touchstart'];
+      let timer = 0;
+      const stop = () => {
+        window.clearTimeout(timer);
+        events.forEach((e) => window.removeEventListener(e, show));
+      };
+      const show = () => { stop(); setCookieBannerVisible(true); };
+      events.forEach((e) => window.addEventListener(e, show, { passive: true }));
+      timer = window.setTimeout(show, 12000);
+      cleanup = stop;
+    };
     const stored = localStorage.getItem('airnext_cookie_consent');
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         setCookiePrefs(parsed);
-        if (parsed.analytics) loadGoogleAnalytics(GA_MEASUREMENT_ID);
         if (parsed.marketing) loadMetaPixel(META_PIXEL_ID);
       } catch {
-        setCookieBannerVisible(true);
+        showBannerLater();
       }
     } else {
-      setCookieBannerVisible(true);
+      showBannerLater();
     }
+    return () => cleanup?.();
   }, []);
 
   const saveCookieConsent = (prefs: { analytics: boolean; marketing: boolean }) => {
@@ -2041,7 +702,7 @@ export default function LandingPage() {
     setCookiePrefs(prefs);
     setCookieBannerVisible(false);
     setCookieSettingsOpen(false);
-    if (prefs.analytics) loadGoogleAnalytics(GA_MEASUREMENT_ID);
+    setAnalyticsConsent(prefs);
     if (prefs.marketing) loadMetaPixel(META_PIXEL_ID);
   };
 
@@ -2094,11 +755,10 @@ export default function LandingPage() {
   };
 
   const links = [
-    { label: 'Produtos', href: '#produtos' },
+    { label: 'Produtos', href: '#destaques' },
     { label: 'Funcionalidades', href: '#funcionalidades' },
     { label: 'Galeria', href: '#galeria' },
     { label: 'Casos', href: '#casos-uso' },
-    { label: 'Dispositivos', href: '#dispositivos' },
     { label: 'Segurança', href: '#seguranca' },
     { label: 'Inclusão', href: '#para-todos' },
     { label: 'Sobre', href: '#quem-somos' },
@@ -2106,75 +766,7 @@ export default function LandingPage() {
     { label: 'Suporte', href: '#ajuda' },
   ];
 
-  const addToCart = (product: Product, formatId?: string) => {
-    const format = product.combo
-      ? { id: 'combo', label: 'Kit: Card + Tag + Pulseira' }
-      : (FORMATS.find(f => f.id === (formatId || product.formats[0])) || FORMATS.find(f => f.id === product.formats[0])!);
-    const key = `${product.id}::${format.id}`;
-    setCart(prev => {
-      const existing = prev.find(item => item.key === key);
-      if (existing) {
-        return prev.map(item =>
-          item.key === key
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prev, { key, product, formatId: format.id, formatLabel: format.label, quantity: 1 }];
-    });
-    setCartOpen(true);
-  };
-
-  const removeFromCart = (key: string) => {
-    setCart(prev => prev.filter(item => item.key !== key));
-  };
-
-  const updateQuantity = (key: string, delta: number) => {
-    setCart(prev =>
-      prev.map(item => {
-        if (item.key === key) {
-          const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : item;
-        }
-        return item;
-      })
-    );
-  };
-
-  const cartSubtotal = cart.reduce((acc, item) => acc + Math.round(item.product.price * item.quantity * 100) / 100, 0);
-
-  const goPersonalize = (product: Product, formatId?: string) => {
-    setConfiguratorPreset({ lineId: product.id, formatId: formatId || product.formats[0], nonce: Date.now() });
-    setCartOpen(false);
-    setSelectedProduct(null);
-    requestAnimationFrame(() => {
-      document.getElementById('personalizado')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  };
-
-  const buildOrderWhatsAppMessage = (orderNumber: string) => {
-    const now = new Date();
-    const dataHora = now.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-    const totalItens = cart.reduce((acc, item) => acc + item.quantity, 0);
-
-    const lines = [
-      'Olá! Gostaria de finalizar o pedido completo abaixo:',
-      '',
-      `*Pedido:* ${orderNumber}`,
-      `*Data/Hora:* ${dataHora}`,
-      `*Itens:* ${totalItens}`,
-      '',
-    ];
-    cart.forEach(item => {
-      lines.push(`• ${item.product.name} (${item.formatLabel}) — ${item.quantity}x — R$ ${fmtPrice(item.product.price * item.quantity)}`);
-    });
-    lines.push('', `Subtotal: R$ ${fmtPrice(cartSubtotal)}`);
-    lines.push('', '*Dados de contato*');
-    lines.push(`Nome: ${checkoutInfo.nome || 'não informado'}`);
-    lines.push(`Telefone: ${checkoutInfo.telefone || 'não informado'}`);
-    if (checkoutInfo.obs) lines.push(`Observações: ${checkoutInfo.obs}`);
-    return lines.join('\n');
-  };
+  const addToCart = (product: Product, formatId?: string) => store.add(product, formatId);
 
   // Vindo da página "Saiba mais" (/produto/:id): ?comprar=ID adiciona à sacola e ?personalizar=ID abre o personalizador.
   const location = useLocation();
@@ -2190,28 +782,10 @@ export default function LandingPage() {
       if (prod) { if (prod.price > 0) addToCart(prod); else setSelectedProduct(prod); }
     } else if (customId) {
       const prod = PRODUCTS.find(x => x.id === customId);
-      if (prod) goPersonalize(prod);
+      if (prod) setSelectedProduct(prod);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
-
-  const handleFinalizeOrder = () => {
-    const orderNumber = `AN-${Date.now().toString().slice(-6)}`;
-    // Registra o pedido no painel admin (aviso em tempo real). Nunca bloqueia o envio pelo WhatsApp.
-    void saveOrder({
-      orderNumber,
-      source: 'sacola',
-      items: cart.map(item => ({ name: item.product.name, format: item.formatLabel, qty: item.quantity, price: item.product.price })),
-      subtotal: cartSubtotal,
-      customerName: checkoutInfo.nome,
-      customerPhone: checkoutInfo.telefone,
-      notes: checkoutInfo.obs,
-    });
-    const msg = encodeURIComponent(buildOrderWhatsAppMessage(orderNumber));
-    window.open(`https://wa.me/${AIRNEXT_WHATSAPP}?text=${msg}`, '_blank', 'noopener,noreferrer');
-    setCheckoutStep('sent');
-    feedback.prompt('order_sent', { delay: 2500 });
-  };
 
   const everyoneData = [
     {
@@ -2300,7 +874,8 @@ export default function LandingPage() {
       screen: {
         bg: 'linear-gradient(135deg, #7c2d12, #451a03)',
         avatarBg: 'linear-gradient(135deg, #f59e0b, #b45309)',
-        photo: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&h=200&fit=crop',
+        // Sem foto externa: o avatar do restaurante é o ícone (nunca quebra se um site de imagens sair do ar).
+        avatarIcon: <Utensils size={34} className="text-white" />,
         title: 'Bistro Paris',
         subtitle: 'Mesa 14 · Informações da casa',
         items: [
@@ -2319,7 +894,7 @@ export default function LandingPage() {
       screen: {
         bg: 'linear-gradient(135deg, #7f1d1d, #450a0a)',
         avatarBg: 'linear-gradient(135deg, #ef4444, #b91c1c)',
-        photo: 'https://i.pravatar.cc/200?img=12',
+        photo: 'https://images.pexels.com/photos/13936039/pexels-photo-13936039.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
         title: 'João Carlos',
         subtitle: 'Ficha médica de emergência',
         items: [
@@ -2342,15 +917,9 @@ export default function LandingPage() {
     : PRODUCTS;
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 antialiased ${isDark ? 'bg-[#050505] text-white' : 'bg-[#fbfbfd] text-gray-900'}`}>
+    <div className={`min-h-[100dvh] overflow-x-clip transition-colors duration-500 antialiased ${isDark ? 'bg-[#050505] text-white' : 'bg-[#fbfbfd] text-gray-900'}`}>
 
-      {/* Abertura: logo AirNext com anel circular e saída em círculo (1x por sessão) */}
-      <SplashScreen />
-
-      {/* Fonte da marca — usada no "AirNext" gravado em cada peça personalizada */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet" />
+      {/* A fonte da marca (Lobster) é carregada uma única vez, sem bloquear a renderização, em main.tsx. */}
 
       {/* Ajustes globais e elegantes para os indicadores (bullets) de todos os carrosséis do site —
           ficam sempre abaixo dos blocos, nunca sobrepondo conteúdo. */}
@@ -2361,14 +930,6 @@ export default function LandingPage() {
         .swiper-pagination-bullet-active { width: 18px; border-radius: 9999px; background: #0071e3; }
       `}</style>
       
-      {/* Upper Announcement Bar */}
-      <div id="announce-bar" className="relative overflow-hidden bg-[#0a1128] text-white text-center py-2.5 px-4 text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-2">
-        <div className="absolute inset-0 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.18),transparent)] bg-[length:200%_100%] animate-[shine_5s_linear_infinite]" />
-        <Sparkle size={13} className="relative shrink-0" />
-        <span className="relative">Frete grátis para todo o Brasil em compras acima de R$150 · Parcele em até 12x</span>
-        <style>{`@keyframes shine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
-      </div>
-
       {/* --- Scroll-driven Progress bar --- */}
       <div className="fixed top-0 left-0 h-[3px] z-[60] rounded-r-full bg-blue-500 transition-[width] duration-150 ease-out" style={{ width: `${scrollProgress}%` }} />
 
@@ -2378,20 +939,26 @@ export default function LandingPage() {
           Desktop (>= md): mantém a barra flutuante arredondada original. */}
       <nav
         style={{ ['--nav-top' as string]: `${navTop}px` }}
-        className={`fixed z-50 inset-x-0 top-[var(--nav-top)] md:top-12 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[95%] md:max-w-7xl transition-[background-color,box-shadow,border-color] duration-300 group/nav
+        className={`fixed z-50 inset-x-0 top-[var(--nav-top)] md:top-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[95%] md:max-w-7xl transition-[background-color,box-shadow,border-color] duration-300 group/nav
           bg-black/90 backdrop-blur-xl border-b border-white/10 pt-[env(safe-area-inset-top)] md:pt-0 md:border-b-0 md:rounded-full md:border ${
           scrolled
             ? `${isDark ? 'md:bg-[#0a0a0a]/80 md:border-white/10' : 'md:bg-white/80 md:border-gray-200/70'} md:backdrop-blur-2xl md:shadow-md`
             : `${isDark ? 'md:bg-white/[0.04] md:border-white/10' : 'md:bg-white/50 md:border-gray-200/40'} md:backdrop-blur-md`
         }`}
       >
-        <div className="relative px-4 md:px-6 h-12 md:h-16 flex items-center justify-between gap-3 md:gap-4">
+        <div className="relative px-4 md:px-6 h-[52px] md:h-[68px] flex items-center justify-between gap-3 md:gap-4">
           {/* Logo: no mobile a barra é sempre escura, então o "Air" fica branco */}
-          <span className="md:hidden"><Logo size="sm" dark /></span>
-          <span className="hidden md:block"><Logo size="md" dark={isDark} /></span>
+          <span className="md:hidden relative top-[3px]"><Logo size="sm" dark /></span>
+          <span className="hidden md:block relative top-[3px]"><Logo size="md" dark={isDark} /></span>
 
           {/* Center nav links with animated underline on hover */}
           <div className="hidden xl:flex items-center gap-1">
+            <Link
+              to="/loja"
+              className="relative mr-1 inline-flex h-9 items-center gap-1.5 rounded-full bg-[#0071e3] px-4 text-[12.5px] font-semibold tracking-tight text-white shadow-[0_6px_16px_-8px_rgba(0,113,227,0.9)] transition duration-200 hover:-translate-y-px hover:bg-[#0077ed] active:translate-y-0 active:scale-95"
+            >
+              <ShoppingBag size={14} aria-hidden="true" /> Loja
+            </Link>
             {links.map(l => (
               <a
                 key={l.label}
@@ -2418,6 +985,14 @@ export default function LandingPage() {
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
 
+            {/* Loja — atalho sempre visível a partir do tablet */}
+            <Link
+              to="/loja"
+              className="hidden md:inline-flex xl:hidden items-center gap-1.5 h-9 px-4 rounded-full bg-[#0071e3] text-white text-xs font-semibold shadow-[0_6px_16px_-8px_rgba(0,113,227,0.9)] hover:bg-[#0077ed] hover:-translate-y-px active:translate-y-0 active:scale-95 transition duration-200 flex-shrink-0"
+            >
+              <ShoppingBag size={14} /> Loja
+            </Link>
+
             {/* Busca */}
             <button onClick={() => setSearchOpen(true)} className={`flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`} aria-label="Buscar">
               <Search size={18} />
@@ -2426,9 +1001,9 @@ export default function LandingPage() {
             {/* Sacola */}
             <button onClick={() => setCartOpen(true)} className={`relative flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`} aria-label="Sacola">
               <ShoppingBag size={18} />
-              {cart.length > 0 && (
+              {store.count > 0 && (
                 <span className="absolute top-1 right-1 bg-[#0071e3] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                  {cart.reduce((acc, item) => acc + item.quantity, 0)}
+                  {store.count}
                 </span>
               )}
             </button>
@@ -2504,6 +1079,14 @@ export default function LandingPage() {
                 </span>
               </button>
 
+              <Link
+                to="/loja"
+                onClick={() => setMobileOpen(false)}
+                className="w-full mb-3 py-3.5 rounded-full text-center font-semibold flex items-center justify-center gap-2 bg-[#0071e3] text-white active:scale-[0.98] transition"
+              >
+                <ShoppingBag size={16} /> Ir para a Loja
+              </Link>
+
               <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto px-2 no-scrollbar">
                 {links.map(l => (
                   <a key={l.label} href={l.href} onClick={(e) => goToSection(e, l.href)} className={`text-lg font-semibold py-3 border-b ${isDark ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'} flex items-center justify-between`}>
@@ -2512,9 +1095,9 @@ export default function LandingPage() {
                 ))}
               </div>
               <div className="px-2 flex flex-col gap-3">
-                <a href="#produtos" onClick={(e) => goToSection(e, '#produtos')} className={`mt-6 w-full py-4 rounded-full text-center font-semibold flex items-center justify-center gap-2 ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}>
+                <Link to="/loja" onClick={() => setMobileOpen(false)} className={`mt-6 w-full py-4 rounded-full text-center font-semibold flex items-center justify-center gap-2 ${isDark ? 'bg-white text-black' : 'bg-black text-white'}`}>
                   <ShoppingBag size={16} /> Comprar Agora
-                </a>
+                </Link>
                 <Link
                   to="/login"
                   onClick={() => setMobileOpen(false)}
@@ -2572,212 +1155,12 @@ export default function LandingPage() {
         )}
       </AnimatePresence>
 
-      {/* Shopping Cart Drawer */}
-      <AnimatePresence>
-        {cartOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm">
-            <div className="absolute inset-0" onClick={() => setCartOpen(false)} />
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className={`absolute right-0 top-0 bottom-0 w-full max-w-md ${isDark ? 'bg-[#121212] text-white border-white/10' : 'bg-white text-gray-900 border-gray-200'} shadow-2xl flex flex-col p-6 z-10 border-l`}
-            >
-              <div className={`flex items-center justify-between pb-4 border-b ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
-                <div className="flex items-center gap-2">
-                  {checkoutStep === 'form' && (
-                    <button onClick={() => setCheckoutStep('cart')} className={`p-1.5 -ml-1.5 rounded-full transition ${isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-800'}`}>
-                      <ArrowLeft size={16} />
-                    </button>
-                  )}
-                  <ShoppingBag className="text-[#0071e3]" size={20} />
-                  <h3 className="text-lg font-bold">
-                    {checkoutStep === 'form' ? 'Finalizar pedido' : checkoutStep === 'sent' ? 'Pedido enviado' : 'Sua Sacola'}
-                  </h3>
-                </div>
-                <button onClick={() => { setCartOpen(false); setCheckoutStep('cart'); }} className={`p-2 rounded-full transition ${isDark ? 'hover:bg-gray-800 text-gray-300' : 'hover:bg-gray-100 text-gray-800'}`}>
-                  <X size={20} />
-                </button>
-              </div>
-
-              {cart.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-                  <ShoppingBag size={48} className="text-gray-600 mb-4" />
-                  <p className="text-base font-semibold mb-1">Sua sacola está vazia</p>
-                  <p className="text-xs text-gray-500 mb-6">Explore nossos produtos premium e adicione itens inovadores.</p>
-                  <button onClick={() => { setCartOpen(false); window.setTimeout(() => document.getElementById('produtos')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} className={`px-6 py-2.5 rounded-full text-xs font-bold transition ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}>
-                    Ver Coleção
-                  </button>
-                </div>
-              ) : checkoutStep === 'sent' ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-                  <div className="w-16 h-16 rounded-full bg-green-500/15 text-green-500 flex items-center justify-center mb-4">
-                    <Check size={28} />
-                  </div>
-                  <p className="text-base font-semibold mb-1">Pedido enviado para o WhatsApp!</p>
-                  <p className="text-xs text-gray-500 mb-6">Nossa equipe vai confirmar os detalhes e o prazo de produção com você por lá.</p>
-                  <div className={`w-full max-w-xs mb-6 rounded-2xl border p-3.5 flex items-center justify-between gap-3 text-left ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold">Gostou da experiência?</p>
-                      <p className="text-[11px] text-gray-500">Leva 10 segundos.</p>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 rounded-full text-[11px] font-semibold text-white bg-[#0071e3] hover:bg-[#0077ed] transition">
-                        Google
-                      </a>
-                      <FeedbackLink source="sacola · pedido enviado" className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition ${isDark ? 'bg-white/10 hover:bg-white/15' : 'bg-black/5 hover:bg-black/10'}`}>
-                        Feedback
-                      </FeedbackLink>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => { setCart([]); setCheckoutStep('cart'); setCheckoutInfo({ nome: '', telefone: '', obs: '' }); setCartOpen(false); }}
-                    className={`px-6 py-2.5 rounded-full text-xs font-bold transition ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}
-                  >
-                    Concluir
-                  </button>
-                </div>
-              ) : checkoutStep === 'form' ? (
-                <div className="flex-1 flex flex-col">
-                  <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
-                    <div className={`rounded-2xl border p-4 space-y-1.5 text-xs ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                      {cart.map(item => (
-                        <div key={item.key} className="flex justify-between">
-                          <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>{item.quantity}x {item.product.name} ({item.formatLabel})</span>
-                          <span className="font-bold">R$ {fmtPrice(item.product.price * item.quantity)}</span>
-                        </div>
-                      ))}
-                      <div className={`flex justify-between pt-2 mt-1 border-t font-bold ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
-                        <span>Subtotal</span>
-                        <span>R$ {fmtPrice(cartSubtotal)}</span>
-                      </div>
-                    </div>
-
-                    <input aria-label="Seu nome"
-                      type="text" placeholder="Seu nome"
-                      value={checkoutInfo.nome}
-                      onChange={(e) => setCheckoutInfo(c => ({ ...c, nome: e.target.value }))}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${isDark ? 'bg-[#050505] border-white/10 text-white placeholder:text-gray-500' : 'bg-white border-gray-200 placeholder:text-gray-400'}`}
-                    />
-                    <input aria-label="Seu telefone ou WhatsApp"
-                      type="tel" placeholder="Seu telefone / WhatsApp"
-                      value={checkoutInfo.telefone}
-                      onChange={(e) => setCheckoutInfo(c => ({ ...c, telefone: e.target.value }))}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${isDark ? 'bg-[#050505] border-white/10 text-white placeholder:text-gray-500' : 'bg-white border-gray-200 placeholder:text-gray-400'}`}
-                    />
-                    <textarea aria-label="Observações do pedido (opcional)"
-                      rows={2} placeholder="Observações (opcional)"
-                      value={checkoutInfo.obs}
-                      onChange={(e) => setCheckoutInfo(c => ({ ...c, obs: e.target.value }))}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${isDark ? 'bg-[#050505] border-white/10 text-white placeholder:text-gray-500' : 'bg-white border-gray-200 placeholder:text-gray-400'}`}
-                    />
-                  </div>
-                  <div className={`pt-4 border-t ${isDark ? 'border-white/10' : 'border-gray-100'}`}>
-                    <button
-                      onClick={handleFinalizeOrder}
-                      disabled={!checkoutInfo.nome || !checkoutInfo.telefone}
-                      className="w-full py-4 rounded-full text-sm font-bold transition shadow-lg bg-[#25D366] hover:bg-[#20bd5a] text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      <MessageCircle size={16} /> Enviar pedido pelo WhatsApp
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
-                    {cart.map(item => (
-                      <div key={item.key} className={`flex gap-4 p-3 rounded-2xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-gray-50 border-gray-100'}`}>
-                        <img loading="lazy" decoding="async" src={resolveImg(`cart-${item.product.id}`, item.product.img)} alt={item.product.name} className="w-16 h-16 rounded-xl object-cover" />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-sm truncate">{item.product.name}</h4>
-                          <p className="text-xs text-gray-400 mb-2">Formato: {item.formatLabel}</p>
-                          <div className="flex items-center justify-between">
-                            <div className={`flex items-center gap-2.5 border rounded-full px-2 py-1 ${isDark ? 'bg-black border-white/10' : 'bg-white border-gray-200'}`}>
-                              <button onClick={() => updateQuantity(item.key, -1)} className={`p-1 rounded-full ${isDark ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 text-gray-600'}`}>
-                                <Minus size={10} />
-                              </button>
-                              <span className="text-xs font-bold">{item.quantity}</span>
-                              <button onClick={() => updateQuantity(item.key, 1)} className={`p-1 rounded-full ${isDark ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 text-gray-600'}`}>
-                                <Plus size={10} />
-                              </button>
-                            </div>
-                            <span className="text-sm font-bold">R$ {fmtPrice(item.product.price * item.quantity)}</span>
-                          </div>
-                          <button
-                            onClick={() => goPersonalize(item.product, item.formatId)}
-                            className="mt-2 text-[10px] font-bold text-[#0071e3] hover:underline flex items-center gap-1"
-                          >
-                            <Palette size={11} /> Personalizar este item antes de enviar
-                          </button>
-                        </div>
-                        <button onClick={() => removeFromCart(item.key)} className="text-gray-500 hover:text-red-500 p-1 self-start transition">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className={`pt-4 border-t ${isDark ? 'border-white/10' : 'border-gray-100'} space-y-4`}>
-                    <div className="flex justify-between text-sm font-bold">
-                      <span>Subtotal</span>
-                      <span>R$ {fmtPrice(cartSubtotal)}</span>
-                    </div>
-                    <div className={`p-4 rounded-2xl border flex gap-3 ${isDark ? 'bg-blue-900/20 border-blue-900/50 text-blue-200/80' : 'bg-blue-50 border-blue-100 text-blue-800'}`}>
-                      <Zap size={18} className={`${isDark ? 'text-blue-400' : 'text-blue-600'} flex-shrink-0`} />
-                      <p className="text-[11px] leading-relaxed font-semibold">
-                        Você está a poucos passos de simplificar suas conexões e ajudar o meio ambiente com zero papel!
-                      </p>
-                    </div>
-                    <button onClick={() => setCheckoutStep('form')} className={`w-full py-4 rounded-full text-sm font-bold transition shadow-lg ${isDark ? 'bg-white text-black hover:bg-gray-100 shadow-white/5' : 'bg-black text-white hover:bg-gray-800 shadow-black/10'}`}>
-                      Finalizar Compra
-                    </button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Sacola e pedidos — mesma da Loja */}
+      <SacolaDrawer isDark={isDark} lockScroll={false} />
 
       <main>
-        {/* --- Hero --- */}
-        <section id="top" className={`relative pt-24 md:pt-40 pb-12 md:pb-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#050505]' : 'bg-[#fbfbfd]'}`}>
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <motion.div initial={false} animate={{ opacity: 1, y: 0 }}>
-                <p className="eyebrow text-[#0071e3] mb-4 flex items-center justify-center gap-2">
-                  <Nfc size={12} /> NFC + QR Code · Tecnologia Premium
-                </p>
-                <h1 className={`h1-apple mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>Aproxime. Conecte.<br />Impressione.</h1>
-                <p className={`text-xl md:text-2xl ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-3xl mx-auto mb-4 font-medium leading-relaxed`}>
-                  AirNext simplifica conexões. Um toque para compartilhar,<br className="hidden md:block" /> um gesto para impactar.
-                </p>
-                <p className={`ai-definition text-sm md:text-base ${isDark ? 'text-gray-500' : 'text-gray-500'} max-w-2xl mx-auto mb-10 leading-relaxed`}>
-                  Cartões, tags e pulseiras NFC com perfil digital sempre atualizado. Aproxime o celular ou escaneie o QR Code e pronto: sem app, sem fio, sem complicação.
-                </p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  <a href="#produtos" className={`group px-8 py-3.5 rounded-full flex items-center gap-3 transition-all shadow-xl text-[15px] font-semibold ${
-                    isDark ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'
-                  }`}>
-                    Explorar Produtos
-                    <span className={`w-7 h-7 rounded-full flex items-center justify-center transition ${isDark ? 'bg-black/10 group-hover:bg-black/20' : 'bg-white/20 group-hover:bg-white/30'}`}>
-                      <ChevronDown size={14} className={isDark ? 'text-black' : 'text-white'} />
-                    </span>
-                  </a>
-                  <a href="#video-demo" className={`group px-8 py-3.5 rounded-full flex items-center gap-3 transition-all border text-[15px] font-semibold shadow-sm ${
-                    isDark ? 'bg-white/10 text-white border-white/20 hover:bg-white/20' : 'bg-white text-black border-gray-200 hover:bg-gray-50'
-                  }`}>
-                    <Play size={16} /> Assistir Demo
-                  </a>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Vitrine AirNext (estilo Apple) — substitui os antigos cards flutuantes */}
-            <HeroShowcase isDark={isDark} />
-          </div>
-        </section>
+        {/* --- Hero: palco 3D com scroll (celular se aproxima da tag NFC) --- */}
+        <HeroScroll3D isDark={isDark} />
 
         {/* --- Destaques: slider estilo Apple (imagem do produto + descrição + Saiba mais / Comprar) --- */}
         <section id="destaques" className="bg-white text-[#1d1d1f] pt-14 md:pt-20 pb-8 md:pb-12">
@@ -2788,7 +1171,7 @@ export default function LandingPage() {
           </div>
           <LazyOnView id="destaques-slide" minHeight={640}>
           <ProductShowcase
-            products={['pro', 'stand', 'pet', 'kids', 'senior', 'tea', 'hubgoogle', 'combo']
+            products={['hubgoogle', 'stand', 'pet', 'tag', 'pro']
               .map(id => PRODUCTS.find(x => x.id === id)!)
               .filter(Boolean)}
             getImage={(sp) => productImage(sp, resolveImg, ORIGINAL_LINE_IDS.includes(sp.id))}
@@ -2799,69 +1182,20 @@ export default function LandingPage() {
             }}
           />
           </LazyOnView>
-        </section>
-
-        {/* --- Video Demo Section --- */}
-        <section id="video-demo" className="py-20 md:py-28 bg-black text-white relative overflow-hidden">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-            <div className="text-center mb-14">
-              <p className="eyebrow text-blue-400 mb-3">Demonstração</p>
-              <h2 className="h2-apple mb-4">Veja a mágica acontecer.</h2>
-              <p className="text-lg text-gray-400 max-w-2xl mx-auto">Assista como o AirNext conecta pessoas em menos de 1 segundo. Sem fio. Sem app. Sem fricção.</p>
-            </div>
-
-            <div className="relative mx-auto rounded-[28px] md:rounded-[40px] overflow-hidden bg-black aspect-[4/5] sm:aspect-video lg:aspect-[21/9]">
-              {imagesLoading ? (
-                <div className="absolute inset-0 bg-white/5 animate-pulse" />
-              ) : (
-                <video
-                  key={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  src={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/10 pointer-events-none" />
-              <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 pointer-events-none">
-                <p className="text-[11px] font-bold tracking-[0.2em] text-white/60 uppercase mb-1">AirNext em ação</p>
-                <p className="text-xl md:text-2xl font-bold text-white">Um Toque. Multi Conexão.</p>
-              </div>
-            </div>
-
-            <div className="mt-16">
-              <Swiper
-                modules={[Pagination]}
-                spaceBetween={20}
-                slidesPerView={1}
-                pagination={{ clickable: true }}
-                breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }}
-                className="pb-10 dark-swiper"
-              >
-                {[
-                  { icon: <Zap size={28} />, title: 'Aproxime o Celular', desc: 'Basta encostar o celular no produto AirNext. O NFC faz o resto automaticamente.' },
-                  { icon: <Smartphone size={28} />, title: 'Link Instantâneo', desc: 'Uma notificação aparece na tela. Toque para abrir o perfil completo em segundos.' },
-                  { icon: <QrCode size={28} />, title: 'QR Code Backup', desc: 'Sem NFC? Escaneie o QR Code com a câmera nativa. Funciona em qualquer dispositivo.' },
-                  { icon: <Users size={28} />, title: 'Compartilhe Tudo', desc: 'WhatsApp, Instagram, LinkedIn, portfólio, vCard — tudo em um único perfil editável.' },
-                  { icon: <Shield size={28} />, title: '100% Seguro', desc: 'Criptografia NFC Forum. Você controla todas as informações do seu perfil.' },
-                ].map((c, i) => (
-                  <SwiperSlide key={i}>
-                    <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur h-full hover:bg-white/10 transition">
-                      <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-300 mb-5">{c.icon}</div>
-                      <h4 className="text-lg font-bold mb-2">{c.title}</h4>
-                      <p className="text-sm text-gray-400 leading-relaxed">{c.desc}</p>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <SwipeIndicator isDark={true} />
-            </div>
+          <div className="mt-8 md:mt-10 flex justify-center px-5">
+            <Link
+              to="/loja"
+              className="group relative inline-flex h-[52px] items-center gap-2 overflow-hidden rounded-full border border-white/15 bg-black/75 px-8 text-[16px] font-semibold text-white shadow-[0_12px_32px_-12px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-xl transition duration-300 hover:bg-black/90 hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.65),inset_0_1px_0_rgba(255,255,255,0.25)] active:scale-95"
+            >
+              <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent" />
+              <span className="relative">Descubra mais</span>
+              <svg className="relative h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            </Link>
           </div>
         </section>
 
         {/* --- Demo Carousel: AirNext em ação por linha de produto --- */}
+        <LazyOnView id="demos" minHeight={900}>
         {((isDark: boolean) => (
         <section id="demos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
@@ -2920,95 +1254,7 @@ export default function LandingPage() {
           <DemoLightbox product={demoLightbox} resolveImg={resolveImg} onClose={() => setDemoLightbox(null)} />
         </section>
         ))(false)}
-
-        {/* --- Products Section --- */}
-        {/* --- Second Products Row: new AirNext lines (Combo, Tag, Corporate, Evento, Service, Google Hub) --- */}
-        <section id="produtos" className={`pt-20 md:pt-28 pb-4 md:pb-6 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
-          <div className="max-w-7xl mx-auto px-6">
-           <div className="text-center mb-14">
-              <p className="eyebrow text-[#0071e3] mb-3">Feito para o seu estilo</p>
-              <h2 className="h2-apple">Projetado para cada ocasião</h2>
-              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Encontre o modelo ideal para o seu estilo, com a tecnologia AirNext presente em todas as versões.</p>
-            </div>
-
-            {/* Filtro por categoria — estilo minimalista, texto com sublinhado, rolável no mobile */}
-            <style>{`.airnext-filter-scroll::-webkit-scrollbar{display:none}`}</style>
-      
-            {/* Carrossel de produtos */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">{shopProducts.map(p => (<div key={p.id} className="h-full">
-                  <ProductCard
-                    product={p}
-                    isDark={isDark}
-                    imgSrc={resolveImg(`shop-${p.id}`, p.img)}
-                    imgLoading={imagesLoading}
-                    onOpen={() => setSelectedProduct(p)}
-                    onAdd={() => addToCart(p)}
-                    onPersonalize={() => goPersonalize(p)}
-                  />
-                </div>))}</div>
-
-            {shopProducts.length === 0 && (
-              <div className={`text-center py-16 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                <Search size={40} className="mx-auto mb-4 opacity-50" />
-                <p className="text-sm font-semibold">Nenhum produto nessa categoria ainda.</p>
-              </div>
-            )}
-
-          
-          </div>
-        </section>
-
-        {/* --- Second Products Row: new AirNext lines (Combo, Tag, Corporate, Evento, Service, Google Hub) --- */}
-        <section id="mais-produtos" className={`pt-14 md:pt-20 pb-20 md:pb-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-14">
-              <p className="eyebrow text-[#0071e3] mb-3">Mais linhas AirNext</p>
-              <h2 className="h2-apple">Para negócios, eventos e muito mais</h2>
-              <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>Combos, placas de avaliação, soluções para empresas e estabelecimentos — a mesma tecnologia, do jeito que o seu negócio precisa.</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">{row2Products.map(p => (<div key={p.id} className="h-full">
-                  <ProductCard
-                    product={p}
-                    isDark={isDark}
-                    imgSrc={resolveImg(`row2-${p.id}`, p.img)}
-                    imgLoading={imagesLoading}
-                    badgeLabel="Novo"
-                    onOpen={() => setSelectedProduct(p)}
-                    onAdd={() => addToCart(p)}
-                    onPersonalize={() => goPersonalize(p)}
-                  />
-                </div>))}</div>
-
-            {/* Personalized products promo block */}
-            <div className={`mt-10 rounded-[32px] p-8 md:p-12 border relative overflow-hidden ${isDark ? 'bg-blue-950/40 border-white/10' : 'bg-blue-50 border-blue-100/60'}`}>
-              
-              <div className="relative grid md:grid-cols-3 gap-6 items-center">
-                <div className="md:col-span-2">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Sparkles size={18} className="text-[#0071e3]" />
-                    <p className={`eyebrow ${isDark ? 'text-blue-300' : 'text-[#0071e3]'}`}>100% Personalizado</p>
-                  </div>
-                  <h3 className={`text-xl md:text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    Não achou o padrão perfeito? Monte o seu do zero.
-                  </h3>
-                  <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Escolha a linha AirNext, o formato (cartão, tag, chaveiro, pulseira ou adesivo), a cor e a sua própria foto — ajuste tudo
-                    do seu jeito e envie direto para produção pelo WhatsApp.
-                  </p>
-                </div>
-                <div className="flex md:justify-end">
-                  <button
-                    onClick={() => goPersonalize(PRODUCTS[0])}
-                    className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#0077ed] transition shadow-xl shadow-blue-500/20"
-                  >
-                    <Palette size={16} /> Ir para o Personalizador
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        </LazyOnView>
 
         {/* --- Plaquinhas de avaliação Google (em alta) --- */}
         <LazyOnView id="plaquinhas-google"><GooglePlaquesSection
@@ -3034,8 +1280,11 @@ export default function LandingPage() {
         <LazyOnView id="airnext-tag"><TagShowcaseSection whatsapp={AIRNEXT_WHATSAPP} onBuy={() => { const tg = PRODUCTS.find(x => x.id === 'tag'); if (tg) setSelectedProduct(tg); }}
         /></LazyOnView>
 
-        {/* --- Sites personalizados --- */}
-        <LazyOnView id="sites-personalizados"><CustomSitesSection whatsapp={AIRNEXT_WHATSAPP} /></LazyOnView>
+        {/* --- Destaques + motivos para comprar (estilo apple.com) --- */}
+        <LazyOnView id="destaques-airnext" minHeight={900}><AirNextHighlightsSection
+          whatsapp={AIRNEXT_WHATSAPP}
+          videoSrc={resolveImg('video-demo', 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4')}
+        /></LazyOnView>
 
         <AnimatePresence>
             {selectedProduct && (
@@ -3133,21 +1382,6 @@ export default function LandingPage() {
                       ))}
                     </div>
 
-                    {!selectedProduct.combo && (
-                    <div className={`mb-10 p-6 rounded-2xl border flex flex-col sm:flex-row sm:items-center gap-4 justify-between ${isDark ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
-                      <div>
-                        <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Quer deixar do seu jeito?</p>
-                        <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Personalize cor, foto e texto — ou leve o modelo padrão AirNext, pronto para usar.</p>
-                      </div>
-                      <button
-                        onClick={() => goPersonalize(selectedProduct, modalFormatId || selectedProduct.formats[0])}
-                        className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold transition border ${isDark ? 'border-white/20 text-white hover:bg-white/10' : 'border-gray-300 text-gray-800 hover:bg-white'}`}
-                      >
-                        <Palette size={16} /> Personalizar produto
-                      </button>
-                    </div>
-                    )}
-
                     <div className="flex flex-wrap gap-3">
                       <button
                         onClick={() => { addToCart(selectedProduct, modalFormatId || selectedProduct.formats[0]); setSelectedProduct(null); setModalFormatId(null); }}
@@ -3171,10 +1405,8 @@ export default function LandingPage() {
         {/* --- NFC vs Papel: por que compartilhar contato por NFC muda tudo --- */}
         <NfcVsPaperSection isDark={isDark} />
 
-        {/* --- AirNext Personalizador: interactive multi-format customizer --- */}
-        <PersonalizadorSection isDark={false} preset={configuratorPreset} />
-
         {/* --- Momentos Reais Gallery Carousel --- */}
+        <LazyOnView id="galeria" minHeight={800}>
         {((isDark: boolean) => (
         <section id="galeria" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'} overflow-hidden`}>
           <div className="max-w-7xl mx-auto px-6">
@@ -3193,47 +1425,30 @@ export default function LandingPage() {
               className="pb-10"
             >
               {[
-                            { 
-                id: 'pro',
-                img: PRODUCTS[0].img,
-                title: 'Conexões que acontecem na hora',
-                caption: 'Compartilhe seu perfil profissional em segundos e transforme cada encontro em uma nova oportunidade de conexão.'
-              },
-
-              { 
-                id: 'pet',
-                img: PRODUCTS[2].img,
-                title: 'Mais segurança em cada passeio',
-                caption: 'Informações importantes sempre acessíveis para ajudar seu pet a ser identificado e voltar para casa com mais facilidade.'
-              },
-
-              { 
-                id: 'stand',
-                img: PRODUCTS[1].img,
-                title: 'Tudo em um só lugar',
-                caption: 'Apresente seu negócio, cardápio e principais informações de forma rápida, prática e moderna para seus clientes.'
-              },
-
-              { 
-                id: 'kids',
-                img: PRODUCTS[3].img,
-                title: 'Mais tranquilidade para a família',
-                caption: 'Informações importantes e identificação sempre acessíveis para ajudar a manter seus filhos mais seguros em qualquer lugar.'
-              },
-
-              { 
-                id: 'senior',
-                img: PRODUCTS[4].img,
-                title: 'Mais autonomia. Mais tranquilidade.',
-                caption: 'Informações importantes sempre acessíveis para cuidar de quem você ama com mais segurança, praticidade e independência.'
-              },
-
-              { 
-                id: 'tea',
-                img: PRODUCTS[5].img,
-                title: 'Comunicação que aproxima',
-                caption: 'Informações importantes sempre acessíveis para tornar a comunicação mais simples, acolhedora e segura em diferentes situações.'
-              },
+                {
+                  id: 'evento',
+                  img: EVENTO_PARTICIPANTE_IMG,
+                  title: 'Conexões que acontecem na hora',
+                  caption: 'Compartilhe seu perfil profissional em segundos e transforme cada encontro em uma nova oportunidade.'
+                },
+                {
+                  id: 'pet-passeio',
+                  img: PET_CAVALIER_SENTADO_IMG,
+                  title: 'Mais segurança em cada passeio',
+                  caption: 'Informações importantes sempre acessíveis para ajudar seu pet a ser identificado e voltar para casa.'
+                },
+                {
+                  id: 'pet-perfil',
+                  img: PET_THOR_PERFIL_IMG,
+                  title: 'O perfil completo do seu pet',
+                  caption: 'Nome, raça, contato do tutor e muito mais — tudo na tela de quem encontrar, sem instalar nada.'
+                },
+                {
+                  id: 'pet-resgate',
+                  img: PET_FILHOTE_CHUVA_IMG,
+                  title: 'Quem encontra, sabe para quem ligar',
+                  caption: 'Mesmo em dias difíceis, um toque na tag leva direto ao contato de quem cuida dele.'
+                },
               ].map((item, i) => (
                 <SwiperSlide key={i}>
                   <div className="relative rounded-[28px] overflow-hidden aspect-[3/4] group">
@@ -3255,8 +1470,10 @@ export default function LandingPage() {
           </div>
         </section>
         ))(false)}
+        </LazyOnView>
 
         {/* --- Interactive Use Cases Simulator Section --- */}
+        <LazyOnView id="casos-uso" minHeight={900}>
         <section id="casos-uso" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'} border-y`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
@@ -3286,7 +1503,7 @@ export default function LandingPage() {
                       {s.icon}
                     </span>
                     <div>
-                      <h4 className={`font-bold text-base mb-1 ${activeUseCase === i ? 'text-[#0071e3]' : isDark ? 'text-white' : 'text-gray-900'}`}>{s.title}</h4>
+                      <h3 className={`font-bold text-base mb-1 ${activeUseCase === i ? 'text-[#0071e3]' : isDark ? 'text-white' : 'text-gray-900'}`}>{s.title}</h3>
                       <p className={`text-xs ${isDark && activeUseCase !== i ? 'text-gray-400' : 'text-gray-500'} leading-relaxed line-clamp-2 min-h-[32px]`}>{s.desc}</p>
                     </div>
                   </button>
@@ -3331,16 +1548,12 @@ export default function LandingPage() {
                           className="w-20 h-20 rounded-full overflow-hidden shadow-lg border-2 border-white/25 flex items-center justify-center text-2xl font-extrabold text-white"
                           style={{ background: useCaseScenarios[activeUseCase].screen.avatarBg }}
                         >
-                          {useCaseScenarios[activeUseCase].screen.photo ? (
-                            <img
-                              src={useCaseScenarios[activeUseCase].screen.photo}
-                              alt={useCaseScenarios[activeUseCase].screen.title}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            getInitials(useCaseScenarios[activeUseCase].screen.title)
-                          )}
+                          <DemoAvatar
+                            key={activeUseCase}
+                            src={useCaseScenarios[activeUseCase].screen.photo}
+                            alt={useCaseScenarios[activeUseCase].screen.title}
+                            fallback={useCaseScenarios[activeUseCase].screen.avatarIcon ?? getInitials(useCaseScenarios[activeUseCase].screen.title)}
+                          />
                         </div>
                         {/* Selinho com o ícone do cenário, sobre o avatar */}
                         <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#111] border-2 border-white/20 flex items-center justify-center shadow-md">
@@ -3370,27 +1583,24 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+        </LazyOnView>
 
-        {/* --- Devices Section --- */}
-        <DeviceCompatibilitySection isDark={isDark} />
         
         {/* --- Quem Usa Recomenda / Feedbacks Section --- */}
-        {fbSettings?.show_section === false ? null : ((isDark: boolean) => (
+        {(fbSettings?.show_section === false || pubFeedbacks.length === 0) ? null : ((isDark: boolean) => (
         <section id="feedbacks" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-[#fbfbfd] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-14">
               <p className="eyebrow text-[#0071e3] mb-3">{fbSettings?.eyebrow || 'Quem Usa Recomenda'}</p>
               <h2 className={`h2-apple mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>{fbSettings?.title || 'Feedbacks de Clientes.'}</h2>
               {fbSettings?.subtitle && <p className={`mx-auto max-w-xl text-base ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{fbSettings.subtitle}</p>}
-              {(pubFeedbacks.length === 0 || fbSettings?.show_summary !== false) && (
+              {fbSettings?.show_summary !== false && (
                 <div className="flex items-center justify-center gap-2 mt-3">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={18} className="text-yellow-400" fill={pubFeedbacks.length === 0 || i < Math.round(fbAvg) ? '#facc15' : 'transparent'} />
+                    <Star key={i} size={18} className="text-yellow-400" fill={i < Math.round(fbAvg) ? '#facc15' : 'transparent'} />
                   ))}
                   <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} ml-1`}>
-                    {pubFeedbacks.length === 0
-                      ? '4.9/5 · 1.200+ avaliações'
-                      : `${fbAvg.toFixed(1).replace('.', ',')}/5 · ${pubFeedbacks.length} avaliaç${pubFeedbacks.length === 1 ? 'ão' : 'ões'}`}
+                    {`${fbAvg.toFixed(1).replace('.', ',')}/5 · ${pubFeedbacks.length} avaliaç${pubFeedbacks.length === 1 ? 'ão' : 'ões'}`}
                   </span>
                 </div>
               )}
@@ -3445,211 +1655,11 @@ export default function LandingPage() {
         </section>
         ))(false)}
 
-        {/* --- Security Section --- */}
-        <section id="seguranca" className="py-20 md:py-28 bg-[#050810] text-white relative overflow-hidden">
-          <div className="absolute inset-0 grid-pattern opacity-10" />
-          
-          
-
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
-            {/* Header banner */}
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-5">
-                <span className="relative flex h-2 w-2">
-                  <span className=" absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-400" />
-                </span>
-                <p className="text-[11px] font-bold tracking-wider uppercase text-blue-300">Privacidade por padrão · Segurança de nível bancário</p>
-              </div>
-              <h2 className="h2-apple mb-5 text-white">
-                Seus dados. Suas regras. <span className="text-emerald-500">Inteligência que protege.</span>
-              </h2>
-              <p className="text-lg text-gray-400 leading-relaxed">
-                O AirNext foi construído com uma arquitetura <strong className="text-gray-200">privacy-first</strong>: criptografia de nível militar, conformidade total
-                com a LGPD e monitoramento contínuo — para que você compartilhe o que quiser, com quem quiser, e nada além disso.
-              </p>
-            </div>
-
-            <div className="grid lg:grid-cols-5 gap-6 items-stretch">
-              {/* Left: feature cards */}
-              <div className="lg:col-span-3 grid sm:grid-cols-2 gap-5">
-                {[
-                  { icon: <Lock size={20} />, title: 'Criptografia ponta a ponta', desc: 'Cada chip NFC é gravado com criptografia AES-256 e chaves seguindo o padrão oficial do fórum NFC — praticamente impossível de clonar.', accent: 'from-blue-500/20 to-blue-500/5 text-blue-300' },
-                  { icon: <Eye size={20} />, title: 'Você no controle total', desc: 'Ative, edite ou oculte qualquer link do seu perfil em segundos. Nada aparece sem sua permissão explícita.', accent: 'from-emerald-500/20 to-emerald-500/5 text-emerald-300' },
-                  { icon: <Target size={20} />, title: 'Zero rastreamento comercial', desc: 'Não vendemos, não compartilhamos e não monitoramos o comportamento de quem escaneia seu perfil. Ponto final.', accent: 'from-emerald-500/20 to-emerald-500/5 text-emerald-300' },
-                  { icon: <Zap size={20} />, title: 'Monitoramento 24/7', desc: 'Infraestrutura com detecção automática de anomalias e resposta a incidentes em tempo real, todos os dias do ano.', accent: 'from-amber-500/20 to-amber-500/5 text-amber-300' },
-                ].map((s, i) => (
-                  <motion.div
-                    key={i}
-                    whileHover={{ y: -4 }}
-                    className="p-6 rounded-[24px] bg-white/[0.03] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] transition-all"
-                  >
-                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${s.accent} flex items-center justify-center mb-4`}>
-                      {s.icon}
-                    </div>
-                    <h4 className="font-bold text-[15px] mb-2 text-white">{s.title}</h4>
-                    <p className="text-[13px] text-gray-400 leading-relaxed">{s.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Right: compliance seal card */}
-              <div className="lg:col-span-2 bg-gradient-to-b from-white/[0.06] to-white/[0.02] rounded-[32px] border border-white/10 p-8 md:p-12 relative overflow-hidden flex flex-col">
-                
-                <div className="relative flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/15 flex items-center justify-center text-blue-300 flex-shrink-0">
-                    <Shield size={22} />
-                  </div>
-                  <div>
-                     <h3 className="text-lg font-bold text-white leading-tight">
-                        Sua privacidade em primeiro lugar
-                      </h3>
-                      <p className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">
-                        Segurança e controle dos seus dados
-                      </p>
-                  </div>
-                </div>
-
-                
-
-                
-                <div className="relative mt-auto grid grid-cols-2 gap-3 pt-6 border-t border-white/10">
-                  <div className="text-center">
-                    <p className="text-xl font-extrabold text-white">100%</p>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
-                      Você no Controle do Perfil
-                    </p>
-                  </div>
-
-                  <div className="text-center">
-                    <p className="text-xl font-extrabold text-white">LGPD</p>
-                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
-                      Privacidade dos Dados
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* --- Sustainability Section --- */}
-        <section id="sustentabilidade" className="py-20 md:py-28 bg-[#0a1a0f] text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjAyIj48cGF0aCBkPSJNMzYgMzBoLTJ2LTJoMnYyem0wIDBoLTJ2LTJoMnYyem0wIDBoLTJ2LTJoMnYyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-          
-          
-          
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="text-center mb-16">
-              <p className="eyebrow text-green-400 mb-3">Compromisso com o Planeta</p>
-              <h2 className="h2-apple mb-4">Sustentabilidade que transforma.</h2>
-              <p className="text-lg text-green-100/50 max-w-3xl mx-auto mb-8">
-                Trocando o papel pelo NFC, ajudamos o ecossistema do planeta e reduzimos o desperdício. 
-                Cada produto AirNext é uma escolha consciente pelo meio ambiente.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                {[
-                  { val: '2.4M', label: 'Cartões de Papel\nEconomizados', icon: <Recycle size={20} /> },
-                  { val: '18t', label: 'CO₂ não emitido\nna atmosfera', icon: <Leaf size={20} /> },
-                  { val: '1.200+', label: 'Árvores plantadas\nem parceria com ONGs', icon: <TreePine size={20} /> },
-                  { val: '100%', label: 'Embalagens\nBiodegradáveis', icon: <Droplets size={20} /> },
-                ].map((s, i) => (
-                  <div key={i} className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm min-w-0 overflow-hidden">
-                    <div className="w-9 h-9 rounded-xl bg-green-500/20 flex items-center justify-center text-green-400 mx-auto mb-3">
-                      {s.icon}
-                    </div>
-                    <p className="text-xl sm:text-2xl font-bold text-green-300 tabular-nums break-words">{s.val}</p>
-                    <p className="text-[10px] text-green-100/50 whitespace-pre-line leading-relaxed">{s.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Process Timeline */}
-            <div className="mb-16">
-              <Swiper
-                modules={[Pagination]}
-                spaceBetween={20}
-                slidesPerView={1}
-                pagination={{ clickable: true }}
-                breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 4 } }}
-                className="pb-10 dark-swiper"
-              >
-                {[
-                  { step: '01', title: 'Produção Limpa', desc: 'Fabricamos com energia renovável e matéria-prima reciclada. Zero resíduos tóxicos.', icon: <Zap size={24} /> },
-                  { step: '02', title: 'Uso Inteligente', desc: 'Um único chip substitui milhares de cartões. Sem papel, sem tinta, sem água desperdiçada.', icon: <Nfc size={24} /> },
-                  { step: '03', title: 'Logística Verde', desc: 'Entregamos com embalagens 100% biodegradáveis e compensação total da pegada de carbono.', icon: <Globe size={24} /> },
-                  { step: '04', title: 'Fim da Vida Útil', desc: 'Todo produto AirNext é reciclável. Devolva para ganharmos desconto no próximo.', icon: <Recycle size={24} /> },
-                ].map((s, i) => (
-                  <SwiperSlide key={i}>
-                    <div className="text-center p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] transition group h-full">
-                      <div className="text-4xl font-bold text-white/10 mb-4">{s.step}</div>
-                      <div className="w-12 h-12 rounded-2xl bg-green-500/20 flex items-center justify-center text-green-400 mx-auto mb-4 group-hover:scale-110 transition">
-                        {s.icon}
-                      </div>
-                      <h4 className="text-lg font-bold mb-2">{s.title}</h4>
-                      <p className="text-sm text-green-100/40 leading-relaxed">{s.desc}</p>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <SwipeIndicator isDark={true} />
-            </div>
-
-            {/* Ecological Calculator Enhanced */}
-            <div className="mt-12 p-8 md:p-12 rounded-[40px] bg-gradient-to-br from-white/10 via-white/5 to-white/[0.02] border border-white/10 backdrop-blur-sm">
-              <div className="grid lg:grid-cols-5 gap-10 items-center">
-                <div className="lg:col-span-3">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Leaf size={24} className="text-green-400" />
-                    <h3 className="text-2xl font-bold">Calculadora de Impacto Ambiental</h3>
-                  </div>
-                  <p className="text-sm text-green-100/50 mb-6 leading-relaxed">
-                    Arraste o controle deslizante para simular quantos cartões de papel e árvores sua 
-                    empresa deixa de consumir ao adotar o AirNext como solução oficial de networking.
-                  </p>
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold text-green-300 uppercase tracking-widest flex items-center gap-2">
-                      <Users size={14} /> Colaboradores na sua empresa
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="range"
-                        aria-label="Quantidade de colaboradores na sua empresa"
-                        min="1"
-                        max="500"
-                        step="1"
-                        value={treeCount}
-                        onChange={(e) => setTreeCount(parseInt(e.target.value))}
-                        className="w-full h-2.5 bg-white/20 rounded-full appearance-none cursor-pointer accent-green-400 outline-none"
-                      />
-                      <div className="flex justify-between text-[10px] text-green-100/40 mt-2">
-                        <span>1 colaborador</span>
-                        <span className="font-bold text-green-300 text-xs">{treeCount}</span>
-                        <span>500 colaboradores</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* min-w-0 evita que números grandes estourem a coluna e "sobreponham" o bloco vizinho */}
-                <div className="lg:col-span-2 grid grid-cols-2 gap-4 min-w-0">
-                  <div className="p-4 sm:p-6 bg-white/10 rounded-2xl border border-white/10 text-center overflow-hidden min-w-0">
-                    <Recycle size={26} className="text-green-400 mx-auto mb-3" />
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-green-300 tabular-nums leading-tight break-words">{(treeCount * 300).toLocaleString('pt-BR')}</p>
-                    <p className="text-[10px] uppercase text-green-100/50 mt-1 leading-relaxed">Cartões de Papel<br />poupados por ano</p>
-                  </div>
-                  <div className="p-4 sm:p-6 bg-white/10 rounded-2xl border border-white/10 text-center overflow-hidden min-w-0">
-                    <TreePine size={26} className="text-green-400 mx-auto mb-3" />
-                    <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-green-300 tabular-nums leading-tight break-words">{(treeCount * 0.3).toFixed(1)}</p>
-                    <p className="text-[10px] uppercase text-green-100/50 mt-1 leading-relaxed">Árvores Salvas<br />por ano</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* --- Privacidade e segurança (estilo apple.com) --- */}
+        <PrivacyShowcaseSection />
 
         {/* --- For Everyone --- */}
+        <LazyOnView id="para-todos" minHeight={800}>
         {((isDark: boolean) => (
         <section id="para-todos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
@@ -3702,9 +1712,9 @@ export default function LandingPage() {
                         <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-600'} leading-relaxed`}>{everyoneData[activeEveryone].howTo}</p>
                       </div>
 
-                      <a href="#produtos" className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-8 py-3.5 rounded-full font-semibold hover:bg-[#0077ed] transition shadow-lg shadow-blue-500/20">
+                      <Link to="/loja" className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-8 py-3.5 rounded-full font-semibold hover:bg-[#0077ed] transition shadow-lg shadow-blue-500/20">
                         Ver Produto <ArrowRight size={16} />
-                      </a>
+                      </Link>
                     </motion.div>
                   </div>
                   <div className="aspect-[4/3] lg:aspect-auto relative overflow-hidden order-1 lg:order-2">
@@ -3717,18 +1727,23 @@ export default function LandingPage() {
                         transition={{ duration: .8 }}
                         src={resolveImg(`everyone-${everyoneData[activeEveryone].id}`, everyoneData[activeEveryone].img)}
                         alt={everyoneData[activeEveryone].label}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover min-h-[300px]"
                       />
                     )}
                   </div>
                 </motion.div>
               </AnimatePresence>
+              {everyoneData[activeEveryone].id === 'tea' && <TeaTechSlider isDark={isDark} />}
             </div>
           </div>
         </section>
         ))(false)}
+        </LazyOnView>
 
         {/* --- Quem Somos --- */}
+        <LazyOnView id="quem-somos" minHeight={700}>
         <section id="quem-somos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-14">
@@ -3765,8 +1780,10 @@ export default function LandingPage() {
             <SwipeIndicator isDark={isDark} />
           </div>
         </section>
+        </LazyOnView>
 
         {/* --- B2B & Wholesale Section --- */}
+        <LazyOnView id="b2b" minHeight={800}>
         {((isDark: boolean) => (
         <section id="b2b" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
@@ -3779,7 +1796,7 @@ export default function LandingPage() {
                 </p>
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className={`p-6 rounded-3xl border ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'}`}>
-                    <h4 className={`font-bold text-base mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Dashboard Administrativo</h4>
+                    <h3 className={`font-bold text-base mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Dashboard Administrativo</h3>
                     <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Gerencie todos os perfis da sua equipe em um único painel e crie modelos corporativos.</p>
                   </div>
                   
@@ -3815,8 +1832,10 @@ export default function LandingPage() {
           </div>
         </section>
         ))(false)}
+        </LazyOnView>
 
         {/* --- Help & Support --- */}
+        <LazyOnView id="ajuda" minHeight={1100}>
         <section id="ajuda" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#050505] text-white' : 'bg-white text-gray-900'}`}>
           <div className="max-w-7xl mx-auto px-6">
                 <div className="text-center mb-16">
@@ -3918,6 +1937,7 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+        </LazyOnView>
 
         {/* --- Final CTA --- */}
         <section className="py-20 md:py-28 bg-black text-white relative overflow-hidden">
@@ -3927,19 +1947,31 @@ export default function LandingPage() {
 
           <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
             <p className="eyebrow text-blue-400 mb-4">Comece Hoje</p>
-            <h2 className="h2-apple shimmer-text mb-6">Aproxime. Conecte.<br />Transforme.</h2>
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
+            <h2 className="h2-apple mb-6">
+              {['Aproxime.', 'Conecte.'].map((w, n) => (
+                <motion.span key={w} className="mr-[0.25em] inline-block text-white" initial={{ opacity: 0, y: 32, filter: 'blur(14px)' }} whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.9, delay: n * 0.18, ease: [0.22, 1, 0.36, 1] }}>{w}</motion.span>
+              ))}
+              <br />
+              <motion.span className="inline-block bg-gradient-to-r from-white via-[#8ab8ff] to-[#2997ff] bg-clip-text text-transparent" initial={{ opacity: 0, y: 32, scale: 0.94, filter: 'blur(14px)' }} whileInView={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 1.1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}>Transforme.</motion.span>
+            </h2>
+            <motion.p
+              className="text-lg text-gray-400 max-w-2xl mx-auto mb-10"
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.8, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
               Junte-se a milhares de pessoas e negócios que já simplificaram suas conexões com a AirNext. Sem mensalidade, sem fios, sem fricção.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              <a href="#produtos" className="bg-white text-black px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-xl flex items-center gap-2">
+            <motion.div
+              className="flex flex-wrap justify-center gap-4 mb-12"
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.8, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Link to="/loja" className="bg-white text-black px-10 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-xl flex items-center gap-2 active:scale-95">
                 <ShoppingBag size={18} /> Comprar Agora
+              </Link>
+              <a href="#destaques" className="bg-white/10 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition border border-white/20 flex items-center gap-2 active:scale-95">
+                <Play size={18} /> Ver destaques
               </a>
-              <a href="#video-demo" className="bg-white/10 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition border border-white/20 flex items-center gap-2">
-                <Play size={18} /> Ver Demo
-              </a>
-            </div>
+            </motion.div>
 
            
             <p className="text-xs text-white/40 mt-3">Comece hoje sua jornada com a AirNext e leve sua presença digital para o próximo nível.</p>
@@ -3959,14 +1991,14 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-5 gap-12 mb-16">
             <div className="md:col-span-2 space-y-6">
               <div className="flex items-center gap-3">
-                <Logo dark={isDark} />
+                <Logo dark={isDark} size="lg" />
                 <div className={`flex items-center gap-2 text-[10px] font-bold px-3 py-1.5 rounded-full border ${
                   isDark ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-green-50 text-green-700 border-green-200'
                 }`}>
                   <Recycle size={12} /> 100% Reciclável
                 </div>
               </div>
-              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'} leading-relaxed max-w-sm`}>
+              <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'} leading-relaxed max-w-sm`}>
                 Tecnologia ao toque. Transformando conexões físicas em experiências digitais memoráveis, acessíveis e sustentáveis. 
                 Comprometidos com o meio ambiente — cada produto AirNext elimina o desperdício de papel.
               </p>
@@ -3981,7 +2013,7 @@ export default function LandingPage() {
                     <a key={label} href={href} aria-label={label} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                       isDark 
                         ? 'bg-white/5 border border-white/10 text-gray-400 hover:border-green-400 hover:text-green-400' 
-                        : 'bg-white border border-gray-200 text-gray-400 hover:border-green-400 hover:text-green-600'
+                        : 'bg-white border border-gray-200 text-gray-600 hover:border-green-400 hover:text-green-700'
                     }`}>
                       <Icon size={16} />
                     </a>
@@ -3997,29 +2029,28 @@ export default function LandingPage() {
             </div>
             {[
               { title: 'Produtos', items: [
-                { label: 'Cartão NFC', href: '/cartao-nfc/' }, { label: 'Coleira Inteligente', href: '/coleira-inteligente-airnext/' },
-                { label: 'Pet NFC', href: '/tag-nfc-pet/' }, { label: 'Stand AirNext', href: '/stand-nfc-airnext/' },
-                { label: 'Pulseira NFC', href: '/pulseira-nfc/' }, { label: 'Placa Google', href: '/placa-google-avaliacao-nfc/' },
+                { label: 'Cartão NFC', href: '/produto/pro' }, { label: 'Coleira Inteligente', href: '/produto/pet' },
+                { label: 'Tag NFC', href: '/produto/tag' }, { label: 'Stand AirNext', href: '/produto/stand' },
+                { label: 'Pulseira NFC', href: '/produto/kids' }, { label: 'Placa Google', href: '/produto/hubgoogle' },
               ] },
               { title: 'Empresa', items: [
-                { label: 'Quem Somos', href: '#quem-somos' }, { label: 'Sustentabilidade', href: '#sustentabilidade' },
-                { label: 'Segurança', href: '#seguranca' }, { label: 'Sobre a AirNext', href: '/sobre-a-airnext/' }, { label: 'Carreiras', href: 'mailto:contato@airnext.com.br?subject=Carreiras' },
+                { label: 'Quem Somos', href: '#quem-somos' }, { label: 'Segurança', href: '#seguranca' }, { label: 'Sobre a AirNext', href: '/sobre' }, { label: 'Carreiras', href: 'mailto:contato@airnext.com.br?subject=Carreiras' },
               ] },
               { title: 'Suporte', items: [
-                { label: 'Manuais', href: '#ajuda' }, { label: 'Como funciona o NFC', href: '/blog/como-funciona-cartao-nfc/' }, { label: 'FAQ', href: '#faq' },
-                { label: 'Contato', href: 'https://wa.me/5547996287761' }, { label: 'WhatsApp', href: 'https://wa.me/5547996287761' },
+                { label: 'Manuais', href: '#ajuda' }, { label: 'Suporte e tutoriais', href: '/suporte' }, { label: 'FAQ', href: '#faq' },
+                { label: 'Contato', href: '/contato' }, { label: 'WhatsApp', href: 'https://wa.me/5547996287761' },
                 { label: 'contato@airnext.com.br', href: 'mailto:contato@airnext.com.br' },
                 { label: 'Instagram @airnext.com.br', href: 'https://www.instagram.com/airnext.com.br/' },
                 { label: 'Avaliar a AirNext no Google', href: GOOGLE_REVIEW_URL },
               ] },
             ].map(col => (
               <div key={col.title}>
-                <h4 className={`font-bold text-sm mb-6 tracking-wide uppercase text-xs ${isDark ? 'text-white' : 'text-gray-800'}`}>{col.title}</h4>
+                <h3 className={`font-bold text-sm mb-6 tracking-wide uppercase text-xs ${isDark ? 'text-white' : 'text-gray-800'}`}>{col.title}</h3>
                 <ul className="space-y-3 text-sm">
                   {col.items.map(item => (
                     <li key={item.label}>
                       <a href={item.href} {...(item.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={`hover:translate-x-1 transition-all inline-block ${
-                        isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-500 hover:text-green-700'
+                        isDark ? 'text-gray-400 hover:text-green-400' : 'text-gray-600 hover:text-green-700'
                       }`}>
                         {item.label}
                       </a>
@@ -4053,14 +2084,16 @@ export default function LandingPage() {
           </div>
 
           <div className={`border-t pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] ${
-            isDark ? 'border-gray-800 text-gray-500' : 'border-gray-200 text-gray-400'
+            isDark ? 'border-gray-800 text-gray-400' : 'border-gray-200 text-gray-600'
           }`}>
             <p>© 2026 AirNext Tecnologia LTDA. Todos os direitos reservados.</p>
             <div className="flex flex-wrap justify-center gap-6">
-              <Link to="/politica-de-privacidade" className={`hover:text-green-500 transition`}>Privacidade</Link>
-              <Link to="/termos-de-uso" className={`hover:text-green-500 transition`}>Termos de Uso</Link>
-              <Link to="/politica-de-cookies" className={`hover:text-green-500 transition`}>Cookies</Link>
-              <button onClick={() => setCookieSettingsOpen(true)} className={`hover:text-green-500 transition`}>Configurações de Cookies</button>
+              <Link to="/sobre" className={`${isDark ? 'hover:text-green-400' : 'hover:text-green-700'} transition`}>Sobre</Link>
+              <Link to="/contato" className={`${isDark ? 'hover:text-green-400' : 'hover:text-green-700'} transition`}>Contato</Link>
+              <Link to="/politica-de-privacidade" className={`${isDark ? 'hover:text-green-400' : 'hover:text-green-700'} transition`}>Privacidade</Link>
+              <Link to="/termos-de-uso" className={`${isDark ? 'hover:text-green-400' : 'hover:text-green-700'} transition`}>Termos de Uso</Link>
+              <Link to="/politica-de-cookies" className={`${isDark ? 'hover:text-green-400' : 'hover:text-green-700'} transition`}>Cookies</Link>
+              <button onClick={() => setCookieSettingsOpen(true)} className={`${isDark ? 'hover:text-green-400' : 'hover:text-green-700'} transition`}>Configurações de Cookies</button>
             </div>
           </div>
         </div>
@@ -4391,427 +2424,67 @@ const NFC_GAINS = [
 ];
 
 function NfcVsPaperSection({ isDark }: { isDark: boolean }) {
-  return (
-    <section className={`py-20 md:py-28 transition-colors duration-500 relative overflow-hidden ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
-      {/* Ondas NFC decorativas ao fundo */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.06]">
-        {[0, 1, 2].map(i => (
-          <motion.div
-            key={i}
-            className={`absolute rounded-full border-2 ${isDark ? 'border-white' : 'border-black'}`}
-            style={{ width: 200 + i * 220, height: 200 + i * 220 }}
-            animate={{ scale: [1, 1.05, 1], opacity: [0.4, 0.15, 0.4] }}
-            transition={{ repeat: Infinity, duration: 4, delay: i * 0.6, ease: 'easeInOut' }}
-          />
-        ))}
-      </div>
+  // Painel da esquerda (papel) e da direita (NFC): no tema claro branco × preto; no escuro, invertido.
+  const paperPanel = isDark ? 'bg-[#1d1d1f] text-white' : 'bg-white text-[#1d1d1f]';
+  const nfcPanel = isDark ? 'bg-white text-[#1d1d1f]' : 'bg-[#1d1d1f] text-white';
+  const paperText = isDark ? 'text-[#a1a1a6]' : 'text-[#6e6e73]';
+  const nfcText = isDark ? 'text-[#424245]' : 'text-[#d2d2d7]';
 
-      <div className="max-w-7xl mx-auto px-6 relative">
-        <div className="text-center mb-14">
-          <p className="eyebrow text-[#0071e3] mb-3">Papel vs. NFC</p>
-          <h2 className="h2-apple">Seu contato, salvo em segundos. Sem papel, sem perdas.</h2>
-          <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mt-2`}>
-            Basta aproximar o AirNext do celular de qualquer pessoa: seu cartão digital abre na hora e o contato é salvo automaticamente — sem imprimir, sem app e sem correr o risco de acabar.
+  return (
+    <section className={`relative overflow-hidden py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-black text-white' : 'bg-[#f5f5f7] text-[#1d1d1f]'}`}>
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="mx-auto mb-12 max-w-3xl text-center md:mb-16">
+          <p className={`mb-2 text-[19px] font-semibold ${isDark ? 'text-[#86868b]' : 'text-[#6e6e73]'}`}>Papel vs. NFC</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold leading-[1.08] tracking-tight">
+            Seu contato, salvo em segundos.<br />Sem papel, sem perdas.
+          </h2>
+          <p className={`mx-auto mt-5 max-w-2xl text-[19px] leading-snug ${isDark ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
+            Aproxime o AirNext do celular de qualquer pessoa: seu cartão digital abre na hora e o contato é salvo automaticamente.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-          {/* Cartão de papel tradicional */}
-          <div className={`rounded-[28px] p-7 md:p-9 border ${isDark ? 'bg-[#0a0a0a] border-white/10' : 'bg-white border-gray-200'}`}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${isDark ? 'bg-white/5 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>
-                <CreditCard size={20} />
-              </div>
-              <h3 className={`text-[17px] font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Cartão de papel tradicional</h3>
-            </div>
-            <ul className="space-y-4">
-              {PAPER_PAINS.map((p, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-red-500/10 text-red-400' : 'bg-red-50 text-red-500'}`}>
-                    <X size={12} strokeWidth={3} />
-                  </span>
-                  <span className={`text-[14px] leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-600'}`}>{p}</span>
+        {/* Dois painéis lado a lado, no mesmo bloco arredondado */}
+        <div className={`grid overflow-hidden rounded-[32px] md:grid-cols-2 ${isDark ? 'ring-1 ring-white/10' : 'shadow-[0_1px_2px_rgba(0,0,0,0.04)]'}`}>
+          <div className={`flex flex-col p-8 md:p-12 ${paperPanel}`}>
+            <span className="mb-8 flex h-14 w-14 items-center justify-center rounded-full bg-[#ff9f0a] text-white"><CreditCard size={26} /></span>
+            <h3 className="text-[28px] font-semibold leading-tight tracking-tight sm:text-[32px]">Cartão de papel tradicional</h3>
+            <ul className="mt-8 space-y-4">
+              {PAPER_PAINS.map((p) => (
+                <li key={p} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#ff3b30]/10 text-[#ff3b30]"><X size={12} strokeWidth={3} /></span>
+                  <span className={`text-[16px] leading-snug ${paperText}`}>{p}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Cartão digital AirNext (NFC) */}
-          <div className={`rounded-[28px] p-7 md:p-9 border relative overflow-hidden ${isDark ? 'bg-gradient-to-b from-[#0071e3]/10 to-[#0a0a0a] border-[#0071e3]/30' : 'bg-white border-[#0071e3]/20'}`}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-[#0071e3]/15 text-[#0071e3]">
-                <Nfc size={20} />
-              </div>
-              <h3 className={`text-[17px] font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Cartão digital AirNext</h3>
-            </div>
-            <ul className="space-y-4">
-              {NFC_GAINS.map((g, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-[#0071e3]/15 text-[#0071e3]">
-                    <Check size={12} strokeWidth={3} />
-                  </span>
-                  <span className={`text-[14px] leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{g}</span>
+          <div className={`flex flex-col p-8 md:p-12 ${nfcPanel}`}>
+            <span className="mb-8 flex h-14 w-14 items-center justify-center rounded-full bg-[#0a84ff] text-white"><Nfc size={26} /></span>
+            <h3 className="text-[28px] font-semibold leading-tight tracking-tight sm:text-[32px]">Cartão digital AirNext</h3>
+            <ul className="mt-8 space-y-4">
+              {NFC_GAINS.map((g) => (
+                <li key={g} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#34c759] text-white"><Check size={12} strokeWidth={3} /></span>
+                  <span className={`text-[16px] leading-snug ${nfcText}`}>{g}</span>
                 </li>
               ))}
             </ul>
           </div>
         </div>
 
-        {/* 3 passos rápidos: aproxime, abra, salve */}
-        <div className="grid sm:grid-cols-3 gap-4 md:gap-6 mt-10">
+        {/* Aproxime · Abre na hora · Contato salvo */}
+        <div className="mt-14 grid gap-10 sm:grid-cols-3 sm:gap-6 md:mt-20">
           {[
-            { icon: <Smartphone size={20} />, title: 'Aproxime', desc: 'Encoste o cartão, tag ou pulseira AirNext no celular da outra pessoa.' },
-            { icon: <Zap size={20} />, title: 'Abre na hora', desc: 'O perfil digital abre sozinho, sem instalar nenhum aplicativo.' },
-            { icon: <Send size={20} />, title: 'Contato salvo', desc: 'Nome, foto, telefone e links vão direto para a agenda em um toque.' },
-          ].map((step, i) => (
-            <div key={i} className={`rounded-[24px] p-6 border text-center ${isDark ? 'bg-[#0a0a0a] border-white/10' : 'bg-white border-gray-100'}`}>
-              <div className="w-11 h-11 mx-auto rounded-2xl flex items-center justify-center bg-[#0071e3]/15 text-[#0071e3] mb-4">
-                {step.icon}
-              </div>
-              <h4 className={`text-[15px] font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{step.title}</h4>
-              <p className={`text-[13px] leading-relaxed ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>{step.desc}</p>
+            { icon: <Smartphone size={26} />, color: '#0a84ff', title: 'Aproxime', desc: 'Encoste o cartão, tag ou pulseira AirNext no celular da outra pessoa.' },
+            { icon: <Zap size={26} />, color: '#ff9f0a', title: 'Abre na hora', desc: 'O perfil digital abre sozinho, sem instalar nenhum aplicativo.' },
+            { icon: <Send size={26} />, color: '#30d158', title: 'Contato salvo', desc: 'Nome, foto, telefone e links vão direto para a agenda em um toque.' },
+          ].map((step) => (
+            <div key={step.title} className="text-center">
+              <span className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ background: step.color }}>{step.icon}</span>
+              <h4 className="mb-2 text-[21px] font-semibold tracking-tight">{step.title}</h4>
+              <p className={`mx-auto max-w-[28ch] text-[15px] leading-snug ${isDark ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>{step.desc}</p>
             </div>
           ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function DeviceCompatibilitySection({ isDark }: { isDark: boolean }) {
-  const [deviceSearch, setDeviceSearch] = useState('');
-  const [expanded, setExpanded] = useState(false);
-  
-  const allDevicesData = {
-    'Apple': { icon: <Smartphone size={24} />, devices: [
-      { name: 'iPhone 16 Pro Max', nfc: true, qr: true },
-      { name: 'iPhone 16 Pro', nfc: true, qr: true },
-      { name: 'iPhone 16', nfc: true, qr: true },
-      { name: 'iPhone 15 Pro Max', nfc: true, qr: true },
-      { name: 'iPhone 15 Pro', nfc: true, qr: true },
-      { name: 'iPhone 15', nfc: true, qr: true },
-      { name: 'iPhone 14 Pro Max', nfc: true, qr: true },
-      { name: 'iPhone 14', nfc: true, qr: true },
-      { name: 'iPhone 13 Pro', nfc: true, qr: true },
-      { name: 'iPhone 13', nfc: true, qr: true },
-      { name: 'iPhone SE (3ª geração)', nfc: true, qr: true },
-      { name: 'iPhone 12 Pro Max', nfc: true, qr: true },
-      { name: 'iPhone 12', nfc: true, qr: true },
-      { name: 'iPhone 11 Pro Max', nfc: true, qr: true },
-      { name: 'iPhone 11', nfc: true, qr: true },
-      { name: 'iPhone XR', nfc: true, qr: true },
-      { name: 'iPhone XS', nfc: true, qr: true },
-      { name: 'iPhone X', nfc: true, qr: true },
-      { name: 'iPhone 8 Plus', nfc: true, qr: true },
-      { name: 'iPhone 8', nfc: true, qr: true },
-      { name: 'iPhone 7 Plus', nfc: true, qr: true },
-      { name: 'iPhone 7', nfc: true, qr: true },
-      { name: 'iPhone 6s / SE (1ª geração)', nfc: false, qr: true },
-      { name: 'iPhone 6 ou anterior', nfc: false, qr: true },
-      { name: 'Apple Watch Series 9', nfc: true, qr: false },
-      { name: 'Apple Watch Ultra 2', nfc: true, qr: false },
-      { name: 'Apple Watch Series 3 a 6', nfc: true, qr: false },
-      { name: 'iPad Pro (todas gerações)', nfc: false, qr: true },
-      { name: 'iPad Air', nfc: false, qr: true },
-      { name: 'iPad Mini', nfc: false, qr: true },
-      { name: 'iPad (6ª geração ou superior)', nfc: false, qr: true },
-      { name: 'MacBook Pro', nfc: false, qr: true },
-      { name: 'MacBook Air', nfc: false, qr: true },
-      { name: 'iMac', nfc: false, qr: true },
-    ]},
-    'Samsung': { icon: <Smartphone size={24} />, devices: [
-      { name: 'Galaxy S24 Ultra', nfc: true, qr: true },
-      { name: 'Galaxy S24+', nfc: true, qr: true },
-      { name: 'Galaxy S24', nfc: true, qr: true },
-      { name: 'Galaxy S23 Ultra', nfc: true, qr: true },
-      { name: 'Galaxy Z Fold 6', nfc: true, qr: true },
-      { name: 'Galaxy Z Flip 6', nfc: true, qr: true },
-      { name: 'Galaxy A55 5G', nfc: true, qr: true },
-      { name: 'Galaxy A35 5G', nfc: true, qr: true },
-      { name: 'Galaxy A15', nfc: true, qr: true },
-      { name: 'Galaxy A05', nfc: false, qr: true },
-      { name: 'Galaxy S22 Ultra', nfc: true, qr: true },
-      { name: 'Galaxy S21', nfc: true, qr: true },
-      { name: 'Galaxy S20', nfc: true, qr: true },
-      { name: 'Galaxy Note 20 Ultra', nfc: true, qr: true },
-      { name: 'Galaxy Note 10', nfc: true, qr: true },
-      { name: 'Galaxy S10', nfc: true, qr: true },
-      { name: 'Galaxy S9', nfc: true, qr: true },
-      { name: 'Galaxy A54', nfc: true, qr: true },
-      { name: 'Galaxy A20s', nfc: true, qr: true },
-      { name: 'Galaxy J7 (2017) ou anterior', nfc: false, qr: true },
-      { name: 'Galaxy Tab S9', nfc: false, qr: true },
-      { name: 'Galaxy Tab A (todas)', nfc: false, qr: true },
-      { name: 'Galaxy Watch 6', nfc: true, qr: false },
-      { name: 'Galaxy Watch 6 Classic', nfc: true, qr: false },
-      { name: 'Galaxy Watch 4 / 5', nfc: true, qr: false },
-      { name: 'Galaxy Book 4', nfc: false, qr: true },
-    ]},
-    'Google': { icon: <Smartphone size={24} />, devices: [
-      { name: 'Pixel 9 Pro XL', nfc: true, qr: true },
-      { name: 'Pixel 9 Pro', nfc: true, qr: true },
-      { name: 'Pixel 9', nfc: true, qr: true },
-      { name: 'Pixel 8 Pro', nfc: true, qr: true },
-      { name: 'Pixel 8', nfc: true, qr: true },
-      { name: 'Pixel 7a', nfc: true, qr: true },
-      { name: 'Pixel Fold', nfc: true, qr: true },
-      { name: 'Pixel 6 Pro', nfc: true, qr: true },
-      { name: 'Pixel 6', nfc: true, qr: true },
-      { name: 'Pixel 5', nfc: true, qr: true },
-      { name: 'Pixel 4a', nfc: true, qr: true },
-      { name: 'Pixel 3 ou anterior', nfc: true, qr: true },
-      { name: 'Pixel Tablet', nfc: false, qr: true },
-      { name: 'Pixel Watch 3', nfc: true, qr: false },
-      { name: 'Pixel Watch 2', nfc: true, qr: false },
-      { name: 'Chromebook (todos)', nfc: false, qr: true },
-    ]},
-    'Xiaomi': { icon: <Smartphone size={24} />, devices: [
-      { name: 'Xiaomi 14 Ultra', nfc: true, qr: true },
-      { name: 'Xiaomi 14 Pro', nfc: true, qr: true },
-      { name: 'Xiaomi 14', nfc: true, qr: true },
-      { name: 'Xiaomi 13T Pro', nfc: true, qr: true },
-      { name: 'Xiaomi 13T', nfc: true, qr: true },
-      { name: 'Redmi Note 13 Pro+', nfc: true, qr: true },
-      { name: 'Redmi Note 13', nfc: false, qr: true },
-      { name: 'Redmi Note 9', nfc: false, qr: true },
-      { name: 'Redmi Note 8', nfc: false, qr: true },
-      { name: 'Mi 11', nfc: true, qr: true },
-      { name: 'Mi 9', nfc: true, qr: true },
-      { name: 'Mi A2 / A1', nfc: false, qr: true },
-      { name: 'POCO F5 Pro', nfc: true, qr: true },
-      { name: 'POCO F5', nfc: true, qr: true },
-      { name: 'POCO X6', nfc: true, qr: true },
-      { name: 'POCO C65', nfc: false, qr: true },
-      { name: 'Xiaomi Pad 6', nfc: false, qr: true },
-    ]},
-    'Motorola': { icon: <Smartphone size={24} />, devices: [
-      { name: 'Edge 50 Pro', nfc: true, qr: true },
-      { name: 'Edge 50 Fusion', nfc: true, qr: true },
-      { name: 'Edge 50 Neo', nfc: true, qr: true },
-      { name: 'Edge 40 Pro', nfc: true, qr: true },
-      { name: 'Razr 50 Ultra', nfc: true, qr: true },
-      { name: 'Razr 40 Ultra', nfc: true, qr: true },
-      { name: 'Moto G84', nfc: true, qr: true },
-      { name: 'Moto G54', nfc: true, qr: true },
-      { name: 'Moto G34', nfc: false, qr: true },
-      { name: 'Moto G14', nfc: false, qr: true },
-      { name: 'Moto G7', nfc: true, qr: true },
-      { name: 'Moto G6', nfc: false, qr: true },
-      { name: 'Moto Z3 / Z2', nfc: true, qr: true },
-      { name: 'Moto E (5ª geração ou anterior)', nfc: false, qr: true },
-    ]},
-    'OnePlus': { icon: <Smartphone size={24} />, devices: [
-      { name: 'OnePlus 12', nfc: true, qr: true },
-      { name: 'OnePlus 12R', nfc: true, qr: true },
-      { name: 'OnePlus 11', nfc: true, qr: true },
-      { name: 'OnePlus Nord 4', nfc: true, qr: true },
-      { name: 'OnePlus Nord 3', nfc: true, qr: true },
-      { name: 'OnePlus 9', nfc: true, qr: true },
-      { name: 'OnePlus 7T', nfc: true, qr: true },
-      { name: 'OnePlus 6', nfc: false, qr: true },
-      { name: 'OnePlus Pad', nfc: false, qr: true },
-    ]},
-    'Huawei': { icon: <Smartphone size={24} />, devices: [
-      { name: 'Huawei Pura 70 Ultra', nfc: true, qr: true },
-      { name: 'Huawei Pura 70 Pro', nfc: true, qr: true },
-      { name: 'Huawei P60 Pro', nfc: true, qr: true },
-      { name: 'Huawei Mate 60 Pro', nfc: true, qr: true },
-      { name: 'Huawei Nova 12', nfc: true, qr: true },
-      { name: 'Huawei P30 / P20', nfc: true, qr: true },
-      { name: 'Huawei Mate 20', nfc: true, qr: true },
-      { name: 'Huawei P Smart (todas)', nfc: false, qr: true },
-      { name: 'Huawei MatePad Pro', nfc: false, qr: true },
-    ]},
-    'Realme': { icon: <Smartphone size={24} />, devices: [
-      { name: 'Realme GT 5 Pro', nfc: true, qr: true },
-      { name: 'Realme GT 5', nfc: true, qr: true },
-      { name: 'Realme 12 Pro+', nfc: true, qr: true },
-      { name: 'Realme 12', nfc: false, qr: true },
-      { name: 'Realme 8 / 7', nfc: false, qr: true },
-      { name: 'Realme C67', nfc: false, qr: true },
-      { name: 'Realme C25 ou anterior', nfc: false, qr: true },
-    ]},
-    'LG': { icon: <Smartphone size={24} />, devices: [
-      { name: 'LG Velvet', nfc: true, qr: true },
-      { name: 'LG G8 ThinQ', nfc: true, qr: true },
-      { name: 'LG G7 ThinQ', nfc: true, qr: true },
-      { name: 'LG K52 / K42', nfc: false, qr: true },
-      { name: 'LG K10 (2017) ou anterior', nfc: false, qr: true },
-    ]},
-    'Nokia': { icon: <Smartphone size={24} />, devices: [
-      { name: 'Nokia X30 5G', nfc: true, qr: true },
-      { name: 'Nokia G60', nfc: true, qr: true },
-      { name: 'Nokia 8.1', nfc: true, qr: true },
-      { name: 'Nokia 6.1 ou anterior', nfc: false, qr: true },
-    ]},
-  };
-
-  const getFilteredBrands = () => {
-    if (!deviceSearch.trim()) return Object.entries(allDevicesData);
-    const q = deviceSearch.toLowerCase();
-    return Object.entries(allDevicesData).filter(([_, data]) =>
-      data.devices.some(d => d.name.toLowerCase().includes(q))
-    ).map(([brand, data]) => [
-      brand,
-      { ...data, devices: data.devices.filter(d => d.name.toLowerCase().includes(q)) }
-    ] as const);
-  };
-
-  const filteredBrands = getFilteredBrands();
-  const totalDevices = Object.values(allDevicesData).reduce((acc, b) => acc + b.devices.length, 0);
-  const totalBrands = Object.keys(allDevicesData).length;
-
-  return (
-    <section id="dispositivos" className={`py-20 md:py-28 transition-colors duration-500 ${isDark ? 'bg-[#121212] text-white' : 'bg-[#f5f5f7] text-gray-900'}`}>
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-10">
-          <p className="eyebrow text-[#0071e3] mb-3">Dispositivos Compatíveis</p>
-          <h2 className={`h2-apple mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Feito para o ecossistema moderno.</h2>
-          <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-500'} max-w-2xl mx-auto mb-8`}>O AirNext é universal. Compatível com dispositivos Apple, Android e leitores tradicionais.</p>
-
-          {/* Barra de busca sempre visível — a lupa fica acessível mesmo antes de expandir a lista */}
-          <div className={`max-w-2xl mx-auto rounded-[24px] border p-4 sm:p-6 flex flex-col gap-5 ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-200 shadow-sm'}`}>
-            <div className="flex flex-col sm:flex-row items-center gap-5 justify-between">
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-blue-500/15 text-blue-300' : 'bg-blue-50 text-blue-600'}`}>
-                  <Smartphone size={22} />
-                </div>
-                <div className="text-left">
-                  <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{totalDevices}+ dispositivos testados</p>
-                  <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{totalBrands} marcas · NFC e QR Code</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setExpanded(v => !v)}
-                className={`flex-shrink-0 w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition ${
-                  isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                }`}
-              >
-                {expanded ? 'Ocultar lista' : 'Ver dispositivos compatíveis'}
-                <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                  <ChevronDown size={14} />
-                </motion.span>
-              </button>
-            </div>
-
-            {/* Lupa/busca — sempre disponível, digitar já abre a lista de resultados */}
-            <div className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl border transition-all duration-300 ${
-              isDark
-                ? 'bg-[#121212] border-white/10 focus-within:border-[#0071e3] focus-within:ring-2 focus-within:ring-blue-500/20'
-                : 'bg-[#f5f5f7] border-gray-200 focus-within:border-[#0071e3] focus-within:ring-2 focus-within:ring-blue-100/50'
-            }`}>
-              <Search size={18} className="text-gray-400 flex-shrink-0" />
-              <input aria-label="Pesquisar dispositivo"
-                type="text"
-                placeholder='Pesquisar dispositivo... Ex: "iPhone 16" ou "Galaxy S24"'
-                value={deviceSearch}
-                onChange={(e) => { setDeviceSearch(e.target.value); if (e.target.value && !expanded) setExpanded(true); }}
-                onFocus={() => setExpanded(true)}
-                className={`w-full bg-transparent text-sm font-medium placeholder:text-gray-400 focus:outline-none ${isDark ? 'text-white' : 'text-gray-900'}`}
-              />
-              {deviceSearch && (
-                <button onClick={() => setDeviceSearch('')} className="p-1.5 rounded-full hover:bg-gray-200/20 transition flex-shrink-0">
-                  <X size={16} className="text-gray-400" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <AnimatePresence>
-          {expanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden"
-            >
-              {/* Results Grid */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 pt-8 max-w-7xl mx-auto">
-                {filteredBrands.map(([brand, data]) => (
-                  <div key={brand} className={`p-6 rounded-[28px] ${isDark ? 'bg-[#050505] border-white/10' : 'bg-white border-gray-100'} border hover:shadow-md transition-all`}>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`w-12 h-12 rounded-2xl ${isDark ? 'bg-[#121212] text-gray-200' : 'bg-[#f5f5f7] text-gray-700'} shadow-sm flex items-center justify-center`}>
-                        {data.icon}
-                      </div>
-                      <div>
-                        <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{brand}</p>
-                        <p className={`text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-500'} uppercase tracking-wider font-semibold`}>{data.devices.length} dispositivos</p>
-                      </div>
-                    </div>
-                    
-                    <div className={`border-t ${isDark ? 'border-white/5' : 'border-gray-100'} pt-4 space-y-1.5 max-h-[260px] overflow-y-auto pr-1 no-scrollbar`}>
-                      {data.devices.map(d => (
-                        <div key={d.name} className={`flex items-center justify-between p-2.5 rounded-xl text-xs transition ${
-                          isDark ? 'hover:bg-white/5' : 'hover:bg-gray-50'
-                        }`}>
-                          <span className={`font-medium truncate pr-2 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>{d.name}</span>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {d.nfc && (
-                              <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-bold ${isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-50 text-blue-700'} uppercase tracking-wider`}>
-                                <Nfc size={10} /> NFC
-                              </span>
-                            )}
-                            {d.qr && (
-                              <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-[9px] font-bold ${isDark ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-50 text-emerald-700'} uppercase tracking-wider`}>
-                                <QrCode size={10} /> QR
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {filteredBrands.length === 0 && (
-                <div className={`text-center py-16 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <Globe size={48} className="text-gray-400 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-bold mb-2">Nenhum dispositivo encontrado</p>
-                  <p className="text-sm">Tente pesquisar por um modelo diferente. Ex: "iPhone", "Galaxy", "Pixel".</p>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Info Banner — Universal Compatibility Notice (always visible, compact) */}
-        <div className={`mt-10 rounded-[28px] p-8 md:p-12 border relative overflow-hidden ${
-          isDark ? 'bg-blue-950/40 border-white/10' : 'bg-blue-50 border-blue-100/60'
-        }`}>
-          
-          <div className="relative grid md:grid-cols-3 gap-6 items-center">
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-600'}`}>
-                  <Zap size={20} />
-                </div>
-                <p className={`eyebrow ${isDark ? 'text-blue-300' : 'text-[#0071e3]'}`}>Compatibilidade Universal</p>
-              </div>
-              <h3 className={`text-xl md:text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                Funciona em todos os dispositivos com NFC e QR Code.
-              </h3>
-              <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                Se o seu dispositivo não aparece na lista acima, não se preocupe — ele provavelmente também é compatível.
-                Consulte as especificações do seu aparelho ou entre em contato direto com o fabricante para confirmar
-                se o seu dispositivo possui o chip <strong>NFC</strong>. <span className={isDark ? 'text-blue-300' : 'text-[#0071e3]'}>O leitor de QR Code está presente em 100% dos smartphones, tablets e notebooks modernos.</span>
-              </p>
-            </div>
-            <div className="flex md:flex-col gap-3">
-              <div className={`flex-1 rounded-2xl p-4 text-center border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100'}`}>
-                <Nfc size={24} className="text-blue-500 mx-auto mb-2" />
-                <p className={`text-[10px] uppercase tracking-widest font-bold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>NFC</p>
-                <p className={`text-xs mt-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>Maioria dos smartphones modernos</p>
-              </div>
-              <div className={`flex-1 rounded-2xl p-4 text-center border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-gray-100'}`}>
-                <QrCode size={24} className="text-emerald-500 mx-auto mb-2" />
-                <p className={`text-[10px] uppercase tracking-widest font-bold ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>QR Code</p>
-                <p className={`text-xs mt-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>100% de todos os celulares</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>

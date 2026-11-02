@@ -6,17 +6,20 @@ import {
   ReactNode,
   useCallback,
   useMemo,
+  useRef,
 } from 'react';
 
 import { supabase } from '../lib/supabase';
 import {
   EMPTY_CONSENT_STATUS,
   flushPendingConsents,
+  flushMetadataConsents,
   getConsentStatus,
   hasCurrentRequiredConsents,
   type ConsentStatus,
 } from '../lib/consents';
 import { mapProduct } from '../lib/mapProduct';
+import { accountFromMetadata, accountToMetadata, type AccountInput } from '../lib/account';
 import { GOOGLE_URL_HELP, isValidGoogleReviewUrl, normalizeGoogleReviewUrl } from '../lib/googleReview';
 import { getPublicProfile, recordVisit } from '../lib/publicApi';
 import { generateActivationCode } from '../lib/adminUtils';
@@ -91,7 +94,11 @@ interface Ctx {
   adminDataLoaded: boolean;
 
   login: (email: string, password: string) => Promise<any>;
-  register: (name: string, email: string, password: string) => Promise<any>;
+  register: (name: string, email: string, password: string, account?: AccountInput, consent?: { marketing: boolean }) => Promise<any>;
+  /** Atualiza nome, sobrenome, telefone, idade e quem gerencia (user_metadata do Supabase). */
+  updateAccount: (account: AccountInput) => Promise<{ ok: boolean; error?: any }>;
+  /** Envia e-mail de redefinição de senha para o e-mail da conta. */
+  sendPasswordReset: () => Promise<{ ok: boolean; error?: any }>;
   loginWithGoogle: () => Promise<any>;
   logout: () => Promise<void>;
 
@@ -235,6 +242,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [adminDataLoaded, setAdminDataLoaded] = useState(false);
   const [blockedReason, setBlockedReason] = useState<string | null>(null);
   const [consentStatus, setConsentStatus] = useState<ConsentStatus>(EMPTY_CONSENT_STATUS);
+  // Id do usuário cujos dados já foram carregados nesta sessão. Evita recarregar tudo (e resetar
+  // o editor de perfil) quando o Supabase reemite SIGNED_IN/TOKEN_REFRESHED ao voltar para a aba.
+  const loadedUserIdRef = useRef<string | null>(null);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -294,16 +304,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw err;
       }
     }
+
+    // Define o usuário já aqui, antes de a tela navegar para /dashboard. Sem isso, a rota protegida
+    // enxergava "sem usuário" por um instante (o listener de auth ainda estava carregando os dados),
+    // mandava de volta para /login e a página parecia recarregar.
+    if (data.user) {
+      const su = data.user;
+      const u: User = {
+        id: su.id,
+        ...accountFromMetadata(su.user_metadata),
+        email: su.email || '',
+        role,
+        createdAt: (su.created_at || '').slice(0, 10),
+      };
+      // Mostra o "carregando" do ConsentGate até o listener terminar de buscar os consentimentos.
+      if (loadedUserIdRef.current !== u.id) setConsentStatus(EMPTY_CONSENT_STATUS);
+      setUser(prev => (prev && prev.id === u.id ? prev : u));
+      setLoading(false);
+    }
     return data;
   }, [checkAccountBlocked]);
 
-  const register = useCallback(async (name: string, email: string, password: string) => {
+  const register = useCallback(async (name: string, email: string, password: string, account?: AccountInput, consent?: { marketing: boolean }) => {
+    // Com `account`, grava nome/sobrenome/telefone/idade/quem gerencia junto com o cadastro.
+    const meta = account ? accountToMetadata(account) : { name };
+    // Guarda o aceite da Política e dos Termos no usuário: vale mesmo se o e-mail for confirmado em outro aparelho.
+    const metaWithConsent = consent
+      ? { ...meta, consent_accepted: { privacy: true, terms: true, marketing: !!consent.marketing, at: new Date().toISOString() } }
+      : meta;
     const { data, error } = await supabase.auth.signUp({
-      email, password, options: { data: { name } },
+      email, password,
+      // Depois de confirmar o e-mail, o link abre /confirmado: com a sessão já criada,
+      // o cliente cai direto na própria conta (/dashboard/conta), sem passar pela landing page.
+      options: { data: metaWithConsent, emailRedirectTo: `${window.location.origin}/confirmado` },
     });
     if (error) throw error;
     return data;
   }, []);
+
+  const updateAccount = useCallback(async (account: AccountInput) => {
+    const { data, error } = await supabase.auth.updateUser({ data: accountToMetadata(account) });
+    if (error) return { ok: false, error };
+    const acc = accountFromMetadata(data.user?.user_metadata);
+    setUser(prev => (prev ? { ...prev, ...acc } : prev));
+    return { ok: true };
+  }, []);
+
+  const sendPasswordReset = useCallback(async () => {
+    if (!user?.email) return { ok: false, error: new Error('Sem e-mail na conta') };
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      redirectTo: `${window.location.origin}/redefinir-senha`,
+    });
+    return error ? { ok: false, error } : { ok: true };
+  }, [user?.email]);
 
   // Login social com Google via Supabase Auth (OAuth). Basta habilitar o
   // provider "Google" no painel do Supabase (Authentication > Providers) e
@@ -331,6 +384,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     clearTabSessionNotified();
+    loadedUserIdRef.current = null;
     setUser(null); setAllProducts([]); setGoogleProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
     setAdminUsers([]); setAdminProducts([]); setFeedbacks([]); setAdminDataLoaded(false);
     setConsentStatus({ ...EMPTY_CONSENT_STATUS, loading: false });
@@ -533,10 +587,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listagem de usuários via `profiles` (dedupe por user_id) — não há
     // forma client-safe de listar usuários do Supabase Auth diretamente.
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_id, name, email, created_at');
-      if (error) throw error;
+      // Preferência: RPC admin_list_users (todas as contas, mesmo sem cartão).
+      // Se o script sql/21 ainda não foi rodado, cai para `profiles`.
+      const rpc = await supabase.rpc('admin_list_users');
+      let data: any[] | null = rpc.error ? null : (rpc.data as any[] | null);
+      if (!data) {
+        const fallback = await supabase.from('profiles').select('user_id, name, email, created_at');
+        if (fallback.error) throw fallback.error;
+        data = fallback.data as any[] | null;
+      }
       const seen = new Set<string>();
       const users: User[] = [];
       for (const row of data ?? []) {
@@ -648,6 +707,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         cancelled: 'Este produto foi cancelado. Fale com o suporte AirNext.',
         expired: 'Este produto está expirado. Fale com o suporte AirNext.',
         not_authenticated: 'Usuário não autenticado',
+        too_many_attempts: 'Muitas tentativas com código inválido. Aguarde alguns minutos e tente novamente.',
       };
       return { ok: false, error: reasons[data?.reason as string] || 'Não foi possível ativar o produto' };
     }
@@ -903,6 +963,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (!session?.user) {
+        loadedUserIdRef.current = null;
         setUser(null); setAllProducts([]); setGoogleProducts([]); setVisits([]); setNotifications([]); setHasProfile(null);
         setAdminUsers([]); setAdminProducts([]); setFeedbacks([]); setAdminDataLoaded(false);
         setConsentStatus({ ...EMPTY_CONSENT_STATUS, loading: false });
@@ -912,11 +973,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const u: User = {
         id: session.user.id,
-        name: session.user.user_metadata?.name || '',
+        ...accountFromMetadata(session.user.user_metadata),
         email: session.user.email || '',
         role: session.user.app_metadata?.role === 'ADMIN' ? 'ADMIN' : 'USER',
         createdAt: session.user.created_at.slice(0, 10),
       };
+
+      // Mesmo usuário já carregado e o evento é só uma renovação/reemissão (ex.: voltar para a aba):
+      // não busca tudo de novo. Recarregar trocava os dados do perfil e "reiniciava" o editor.
+      if (loadedUserIdRef.current === u.id && event !== 'INITIAL_SESSION' && event !== 'USER_UPDATED') {
+        setUser(prev => (prev && prev.id === u.id ? prev : u));
+        setLoading(false);
+        return;
+      }
 
       // Cobre login social (Google) e restauração de sessão existente (F5),
       // casos que não passam pela checagem síncrona feita em login(). Sem
@@ -936,9 +1005,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      setUser(u);
+      setUser(prev => (prev && prev.id === u.id ? prev : u));
 
       await loadUserData(u.id);
+      loadedUserIdRef.current = u.id;
       // loadAdminData NÃO roda mais aqui — é carregado sob demanda quando o
       // admin efetivamente entra em /admin (ver AdminLayout.tsx).
 
@@ -946,7 +1016,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // se a versão atual dos documentos obrigatórios está aceita.
       try {
         const flushed = await flushPendingConsents(u.id);
-        const status = flushed || (await getConsentStatus(u.id));
+        let status = flushed || (await getConsentStatus(u.id));
+        if (!status.requiredOk && !flushed) {
+          // Logo depois do login a primeira leitura pode vir vazia (token ainda assentando): tenta de novo.
+          await new Promise((r) => setTimeout(r, 700));
+          if (!cancelled) status = await getConsentStatus(u.id);
+        }
+        if (!status.requiredOk) {
+          const viaMeta = await flushMetadataConsents(u.id, session.user.user_metadata);
+          if (viaMeta) status = viaMeta;
+        }
         if (!cancelled) setConsentStatus(status);
       } catch {
         if (!cancelled) setConsentStatus({ ...EMPTY_CONSENT_STATUS, loading: false });
@@ -1049,7 +1128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading, hasProfile, adminUsers, adminProducts, feedbacks, adminDataLoaded,
     blockedReason, clearBlockedReason,
     consentStatus, refreshConsents,
-    login, register, loginWithGoogle, logout, activateProduct, updateGoogleRedirect, setupProfile,
+    login, register, updateAccount, sendPasswordReset, loginWithGoogle, logout, activateProduct, updateGoogleRedirect, setupProfile,
     updateProfile, updateTheme, updateVisibility, getPublicProfile, loadProducts, loadAdminData,
     markNotificationsRead, deleteNotification, clearAllNotifications, requestAccountDeletion, recordVisit,
     adminCreateBatch, adminBlockProduct,
@@ -1057,7 +1136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user, allProducts, googleProducts, visits, notifications, unreadCount, loading, hasProfile,
     adminUsers, adminProducts, feedbacks, adminDataLoaded, blockedReason, clearBlockedReason,
     consentStatus, refreshConsents,
-    login, register, loginWithGoogle, logout, activateProduct, updateGoogleRedirect, setupProfile, updateProfile,
+    login, register, updateAccount, sendPasswordReset, loginWithGoogle, logout, activateProduct, updateGoogleRedirect, setupProfile, updateProfile,
     updateTheme, updateVisibility, loadProducts, loadAdminData,
     markNotificationsRead, deleteNotification, clearAllNotifications, requestAccountDeletion,
     adminCreateBatch, adminBlockProduct,

@@ -1,0 +1,75 @@
+# AirNext — Hostinger (Apache/LiteSpeed)
+RewriteEngine On
+
+# 0) (removido) O Instagram agora também segue o index.html na página inicial, com a og-image.png.
+
+# 1) Robôs de prévia (WhatsApp, Instagram/Facebook, Telegram, LinkedIn, X, Discord, iMessage…)
+#    recebem o HTML com as tags Open Graph do perfil (share.php).
+RewriteCond %{HTTP_USER_AGENT} (whatsapp|facebookexternalhit|facebot|meta-externalagent|instagram|twitterbot|telegrambot|linkedinbot|slackbot|discord|pinterest|skypeuripreview|snapchat|embedly|redditbot|iframely|viber|vkshare|bitlybot|tumblr|applebot|googlebot|bingbot|imessage|linkpreview) [NC]
+RewriteRule ^(u|p)/([A-Za-z0-9_-]+)/?$ share.php?p=$1&slug=$2 [L,QSA]
+
+# 2) Agentes de IA: quem pede "Accept: text/markdown" recebe a versão em Markdown da página
+#    (bem menos tokens que o HTML). Navegadores nunca enviam esse tipo, então nada muda para pessoas.
+#    Mantenha public/index.md, sobre.md e contato.md em sincronia com as páginas.
+RewriteCond %{HTTP:Accept} text/markdown [NC]
+RewriteRule ^$ index.md [L]
+RewriteCond %{HTTP:Accept} text/markdown [NC]
+RewriteRule ^sobre/?$ sobre.md [L]
+RewriteCond %{HTTP:Accept} text/markdown [NC]
+RewriteRule ^contato/?$ contato.md [L]
+
+# 3) Servidor MCP (JSON-RPC) em https://airnext.com.br/mcp  →  mcp.php
+RewriteRule ^mcp/?$ mcp.php [L]
+
+# 4) Site React (SPA): SÓ as rotas que existem abrem o index.html (status 200).
+#    Qualquer outro endereço que não seja arquivo/pasta real cai no ErrorDocument 404 (status 404 de verdade).
+#    ➜ Criou uma rota nova em src/App.tsx? Adicione o prefixo na lista abaixo.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^/(?:(?:suporte|sobre|contato|politica-de-privacidade|termos-de-uso|politica-de-cookies|login|register|onboarding|painel-imagens|ativar|a)/?|(?:produto|u|p|n|a|ativar)/[^/]+/?|(?:dashboard|admin|admin-legacy)(?:/.*)?)$ [NC]
+RewriteRule ^ /index.html [L]
+
+# 5) Página 404 própria (estática, em português) — devolvida com status 404.
+ErrorDocument 404 /404.html
+
+# ---- Cabeçalhos e tipos ------------------------------------------------------------------------
+# Charset também no cabeçalho HTTP (reforça o <meta charset> do HTML).
+AddDefaultCharset UTF-8
+AddType "text/markdown; charset=UTF-8" .md
+AddType "application/json; charset=UTF-8" .json
+
+<IfModule mod_headers.c>
+  # Segurança (todas as respostas). Valores conservadores, que não quebram login com popup, GA, Supabase nem fontes.
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Cache: arquivos do Vite têm hash no nome (mudam de nome quando mudam de conteúdo) → 1 ano, sem revalidar.
+  <If "%{REQUEST_URI} =~ m#^/assets/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  # Imagens/fontes/vídeos soltos em /public (nome fixo): 7 dias.
+  <FilesMatch "\.(webp|png|jpe?g|gif|svg|ico|avif|woff2?|mp4|webm)$">
+    Header setifempty Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  # A página em si nunca fica presa em cache: assim cada deploy aparece na hora.
+  <FilesMatch "^index\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+
+  # Link (RFC 8288) em todas as respostas do site React: aponta para llms.txt, o catálogo de IA e o MCP Server Card.
+  <FilesMatch "^index\.html$">
+    Header set Link "</llms.txt>; rel=\"describedby\"; type=\"text/plain\", </.well-known/ai-catalog.json>; rel=\"describedby\"; type=\"application/json\", </.well-known/mcp/server-card.json>; rel=\"service-desc\"; type=\"application/json\""
+    Header merge Vary "Accept"
+  </FilesMatch>
+
+  # A mesma URL tem duas versões (HTML e Markdown): caches precisam saber que dependem do Accept.
+  <FilesMatch "\.md$">
+    Header merge Vary "Accept"
+  </FilesMatch>
+
+  # Arquivos públicos para agentes: leitura liberada para qualquer origem.
+  <FilesMatch "^(server-card\.json|ai-catalog\.json|llms\.txt|mcp-data\.json)$">
+    Header set Access-Control-Allow-Origin "*"
+  </FilesMatch>
+</IfModule>

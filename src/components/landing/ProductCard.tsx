@@ -24,18 +24,29 @@ interface Props {
   badgeLabel?: string;
   onOpen: () => void;
   onAdd: () => void;
-  onPersonalize: () => void;
+  onPersonalize?: () => void;
 }
+
+// Cada galeria recebe um "lugar" próprio: tempo de espera inicial e intervalo ligeiramente diferentes.
+// Antes todas usavam exatamente 3200 ms desde a montagem e trocavam de foto juntas, no mesmo instante.
+let cycleSlots = 0;
 
 /** Fotos em rotação suave (cards com galeria). */
 export function ProductImageCycle({ images, alt }: { images: string[]; alt: string }) {
   const [i, setI] = useState(0);
+  const [slot] = useState(() => cycleSlots++);
   useEffect(() => {
     if (images.length < 2) return;
     if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const t = setInterval(() => setI(v => (v + 1) % images.length), 3200);
-    return () => clearInterval(t);
-  }, [images.length]);
+    const period = 3200 + (slot % 5) * 330;      // 3200, 3530, 3860, 4190, 4520 ms
+    const firstDelay = 500 + (slot % 4) * 850;   // começam em momentos diferentes
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const start = setTimeout(() => {
+      setI(v => (v + 1) % images.length);
+      interval = setInterval(() => setI(v => (v + 1) % images.length), period);
+    }, firstDelay + period - 500);
+    return () => { clearTimeout(start); if (interval) clearInterval(interval); };
+  }, [images.length, slot]);
   return (
     <>
       {images.map((src, idx) => (
@@ -62,7 +73,7 @@ export function ProductImageCycle({ images, alt }: { images: string[]; alt: stri
  * o mesmo espaçamento, altura (esticada pelo Swiper, sem altura fixa), efeitos
  * de hover e hierarquia tipográfica.
  */
-export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, badgeLabel, onOpen, onAdd, onPersonalize }: Props) {
+export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, badgeLabel, onOpen, onAdd }: Props) {
   return (
     <motion.article
       whileHover={{ y: -6 }}
@@ -123,12 +134,12 @@ export default function ProductCard({ product: p, isDark, imgSrc, imgLoading, ba
             ) : null}
           </p>
           <button
-            onClick={(e) => { e.stopPropagation(); if (p.combo) onAdd(); else onPersonalize(); }}
+            onClick={(e) => { e.stopPropagation(); onAdd(); }}
             className={`hidden lg:inline-flex items-center gap-1 text-[12px] font-semibold whitespace-nowrap transition-colors ${
               isDark ? 'text-white hover:text-[#4da3ff]' : 'text-gray-900 hover:text-[#0071e3]'
             }`}
           >
-            {p.combo ? 'Quero o combo' : 'Personalizar'}
+            {p.combo ? 'Quero o combo' : 'Comprar'}
             <ChevronRight size={13} className="transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>

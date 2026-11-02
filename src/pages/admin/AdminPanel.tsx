@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Loader2, ShoppingBag, X, PackageCheck } from 'lucide-react';
 import { Sidebar } from '@/components/admin/layout/Sidebar';
 import { Header } from '@/components/admin/layout/Header';
+import { MobileBottomNav } from '@/components/admin/layout/MobileBottomNav';
 import { ToastContainer } from '@/components/admin/ui/ToastContainer';
 import { DashboardView } from '@/components/admin/modules/DashboardView';
 import { CustomersView } from '@/components/admin/modules/CustomersView';
@@ -20,14 +21,22 @@ import { AnalyticsView } from '@/components/admin/modules/AnalyticsView';
 import { SettingsView } from '@/components/admin/modules/SettingsView';
 import { GuideView } from '@/components/admin/modules/GuideView';
 import { OrdersView } from '@/components/admin/modules/OrdersView';
+import { StickersView } from '@/components/admin/modules/StickersView';
 import { FeedbacksView } from '@/components/admin/modules/FeedbacksView';
 import { useSiteFeedbacks } from '@/hooks/useSiteFeedbacks';
 import { useAdminData } from '@/hooks/useAdminData';
 import { useOrders } from '@/hooks/useOrders';
+import { useQrStickers } from '@/hooks/useQrStickers';
 import { useActivationAlerts, type ActivationAlert } from '@/hooks/useActivationAlerts';
 import type { Order } from '@/lib/orders';
 import { useAuth } from '@/contexts/AuthContext';
-import type { AdminModule, Customer, Lot } from '@/types/admin';
+import { ADMIN_MODULES, type AdminModule, type Customer, type Lot } from '@/types/admin';
+
+/** Lê o módulo do endereço (ex.: /admin#pedidos → abre direto em Pedidos). */
+const moduleFromHash = (): AdminModule | null => {
+  const h = window.location.hash.replace('#', '') as AdminModule;
+  return ADMIN_MODULES.includes(h) ? h : null;
+};
 
 const moduleTitles: Record<AdminModule, { title: string; subtitle?: string }> = {
   dashboard: { title: 'Dashboard', subtitle: 'Visão executiva da plataforma' },
@@ -38,7 +47,8 @@ const moduleTitles: Record<AdminModule, { title: string; subtitle?: string }> = 
   lots: { title: 'Lotes', subtitle: 'Geração e controle de lotes' },
   google: { title: 'AirNext Google', subtitle: 'Plaquinhas de avaliação do Google — lotes, ativações e links' },
   nfc: { title: 'Programador NFC', subtitle: 'Gravação física dos chips NFC' },
-  labels: { title: 'Etiquetas (QR)', subtitle: 'Imprima QR + código juntos, na mesma ordem' },
+  labels: { title: 'Etiquetas & Gravação', subtitle: 'Escaneie o QR, confira o produto, grave o chip e imprima — tudo numa aba só' },
+  stickers: { title: 'Adesivos QR', subtitle: 'QR Codes marcados como adesivo e quais já foram baixados' },
   validity: { title: 'Validade', subtitle: 'Controle de vencimentos e renovações' },
   notifications: { title: 'Notificações', subtitle: 'Central de notificações em tempo real' },
   analytics: { title: 'Analytics', subtitle: 'Estatísticas e indicadores' },
@@ -57,7 +67,7 @@ const moduleTitles: Record<AdminModule, { title: string; subtitle?: string }> = 
  */
 export default function AdminPanel() {
   const { logout } = useAuth();
-  const [module, setModule] = useState<AdminModule>('dashboard');
+  const [module, setModule] = useState<AdminModule>(() => moduleFromHash() ?? 'dashboard');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [detailCustomerId, setDetailCustomerId] = useState<string | null>(null);
   const [detailProductId, setDetailProductId] = useState<string | null>(null);
@@ -74,7 +84,7 @@ export default function AdminPanel() {
   const [orderAlerts, setOrderAlerts] = useState<Order[]>([]);
   const {
     orders, loading: ordersLoading, error: ordersError, unseen: unseenOrders,
-    setStatus: setOrderStatus, markSeen: markOrderSeen, finalize: finalizeOrder, reopen: reopenOrder, saveNotes: saveOrderNotes, remove: removeOrder,
+    setStatus: setOrderStatus, markSeen: markOrderSeen, finalize: finalizeOrder, reopen: reopenOrder, saveNotes: saveOrderNotes, saveShipping: saveOrderShipping, remove: removeOrder,
   } = useOrders((o) => {
     setOrderAlerts((prev) => [o, ...prev].slice(0, 3));
     window.setTimeout(() => setOrderAlerts((prev) => prev.filter((x) => x.id !== o.id)), 15000);
@@ -82,13 +92,6 @@ export default function AdminPanel() {
 
   // Feedbacks do site (gestão + publicação na landing)
   const siteFeedbacks = useSiteFeedbacks();
-
-  // Contador no título da aba: "(2) Novo pedido"
-  useEffect(() => {
-    const base = 'AirNext Admin';
-    document.title = unseenOrders > 0 ? `(${unseenOrders}) Novo pedido · ${base}` : base;
-    return () => { document.title = base; };
-  }, [unseenOrders]);
 
   const {
     user,
@@ -113,6 +116,7 @@ export default function AdminPanel() {
     deleteProduct,
     duplicateProduct,
     transferProduct,
+    moveProductToLot,
     renewProduct,
     blockProduct,
     createLot,
@@ -125,6 +129,8 @@ export default function AdminPanel() {
     createGoogleLot,
     deleteGoogleLot,
     setGoogleRedirect,
+    duplicateGoogleProduct,
+    transferGoogleProduct,
     googleScans,
     reloadGoogleScans,
     updateNotification,
@@ -136,6 +142,44 @@ export default function AdminPanel() {
     refreshProducts,
     removeToast,
   } = useAdminData();
+
+  // QR Codes marcados como adesivo (e se já foram baixados)
+  const qrStickers = useQrStickers();
+  const stickersToDownload = useMemo(
+    () => (qrStickers.error ? 0 : qrStickers.rows.filter((r) => !r.downloaded_at).length), // sem tabela: não polui o menu
+    [qrStickers.rows, qrStickers.error],
+  );
+
+  // Navegação pelo endereço: F5 mantém a página e o botão Voltar do navegador funciona.
+  const firstNav = useRef(true);
+  useEffect(() => {
+    if (moduleFromHash() !== module) {
+      // Na primeira carga troca o endereço sem criar entrada extra no histórico.
+      window.history[firstNav.current ? 'replaceState' : 'pushState'](null, '', `#${module}`);
+    }
+    firstNav.current = false;
+  }, [module]);
+
+  // Título da aba: "(2) Novo pedido · Pedidos · AirNext Admin"
+  useEffect(() => {
+    const base = `${moduleTitles[module].title} · AirNext Admin`;
+    document.title = unseenOrders > 0 ? `(${unseenOrders}) Novo pedido · ${base}` : base;
+    return () => { document.title = 'AirNext Admin'; };
+  }, [module, unseenOrders]);
+  useEffect(() => {
+    const onNav = () => {
+      const m = moduleFromHash();
+      if (!m) return;
+      setDetailCustomerId(null);
+      setDetailProductId(null);
+      setProductsLotFilter(null);
+      setModule(m);
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener('popstate', onNav);
+    window.addEventListener('hashchange', onNav);
+    return () => { window.removeEventListener('popstate', onNav); window.removeEventListener('hashchange', onNav); };
+  }, []);
 
   // Aviso de produto ativado por um cliente (aparece em qualquer módulo do painel)
   const [activationCards, setActivationCards] = useState<ActivationAlert[]>([]);
@@ -247,6 +291,8 @@ export default function AdminPanel() {
           }}
           onDuplicate={duplicateProduct}
           onTransfer={transferProduct}
+          lots={lots}
+          onMove={moveProductToLot}
           onRenew={renewProduct}
           onBlock={blockProduct}
         />
@@ -267,7 +313,18 @@ export default function AdminPanel() {
             onFinalize={finalizeOrder}
             onReopen={reopenOrder}
             onSaveNotes={saveOrderNotes}
+            onSaveShipping={saveOrderShipping}
             onDelete={removeOrder}
+          />
+        );
+      case 'stickers':
+        return (
+          <StickersView
+            stickers={qrStickers}
+            products={products}
+            lots={lots}
+            appUrl={appUrl}
+            onOpenLabels={() => handleNavigate('labels')}
           />
         );
       case 'feedbacks':
@@ -309,10 +366,12 @@ export default function AdminPanel() {
             products={productsLotFilter ? stdProducts.filter((p) => p.lotId === productsLotFilter) : stdProducts}
             customers={customers}
             lots={stdLots.map((l) => ({ id: l.id, code: l.code }))}
+            allLots={lots}
             onView={setDetailProductId}
             onDelete={deleteProduct}
             onDuplicate={duplicateProduct}
             onTransfer={transferProduct}
+            onMove={moveProductToLot}
             onRenew={renewProduct}
             onBlock={blockProduct}
             onCreate={createProduct}
@@ -336,6 +395,12 @@ export default function AdminPanel() {
                 onProgramLot={handleProgramLot}
                 onProgramProduct={handleProgramProduct}
                 onReloadScans={reloadGoogleScans}
+                stdLots={stdLots}
+                onDeleteProduct={deleteProduct}
+                onDuplicateProduct={duplicateGoogleProduct}
+                onTransferProduct={transferGoogleProduct}
+                allLots={lots}
+                onMoveProduct={moveProductToLot}
               />
             )}
           </div>
@@ -358,6 +423,7 @@ export default function AdminPanel() {
             activationAlerts={activationAlerts}
             onMarkActivationsSeen={markActivationsSeen}
             onViewLotProducts={handleViewLotProducts}
+            onMoveProduct={moveProductToLot}
           />
         );
       case 'nfc':
@@ -378,7 +444,7 @@ export default function AdminPanel() {
           />
         );
       case 'labels':
-        return <LabelsView products={products} lots={lots} appUrl={appUrl} />;
+        return <LabelsView products={products} lots={lots} appUrl={appUrl} stickers={qrStickers} onProgram={programNFC} />;
       case 'validity':
         return <ValidityView products={stdProducts} customers={customers} onRenew={renewProduct} />;
       case 'notifications':
@@ -423,7 +489,7 @@ export default function AdminPanel() {
         userName={user?.name}
         userEmail={user?.email}
         onLogout={handleLogout}
-        badges={{ orders: unseenOrders, feedbacks: siteFeedbacks.pending, lots: unseenActivations }}
+        badges={{ orders: unseenOrders, stickers: stickersToDownload, feedbacks: siteFeedbacks.pending, lots: unseenActivations }}
       />
       <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
         <Header
@@ -436,12 +502,18 @@ export default function AdminPanel() {
           onNavigate={handleNavigate}
           onResolveNotification={(id) => updateNotification(id, { status: 'Resolvido', resolvedAt: new Date().toISOString() })}
         />
-        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0">
           {renderContent()}
         </main>
       </div>
+      <MobileBottomNav
+        active={module}
+        onNavigate={handleNavigate}
+        onLogout={handleLogout}
+        badges={{ orders: unseenOrders, stickers: stickersToDownload, feedbacks: siteFeedbacks.pending, lots: unseenActivations }}
+      />
       {/* Aviso de novo pedido */}
-      <div className="pointer-events-none fixed right-4 top-4 z-[100] flex w-[min(92vw,360px)] flex-col gap-2">
+      <div className="pointer-events-none fixed right-3 top-3 z-[100] flex w-[min(92vw,360px)] flex-col gap-2 sm:right-4 sm:top-4">
         {orderAlerts.map((o) => (
           <div key={o.id} className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-indigo-500/40 bg-zinc-900/95 p-4 shadow-2xl backdrop-blur">
             <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">

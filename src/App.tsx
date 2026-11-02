@@ -1,32 +1,60 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Suspense, lazy, useEffect } from 'react';
+import { supabase } from './lib/supabase';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
 import SmartProtected from './routes/SmartProtected';
 import { ConsentGate } from './components/legal/ConsentGate';
 import { SeoManager } from './components/Seo';
 import ScrollManager from './components/ScrollManager';
+import AnalyticsTracker from './components/AnalyticsTracker';
 import { FeedbackProvider } from './components/feedback';
 
 
-import LandingPage from './pages/LandingPage';
+import ScanLoader from './components/ScanLoader';
+import { startScanLookup } from './lib/scanPrefetch';
 
 // Layouts do painel só carregam quando alguém entra no painel (fora do caminho da landing).
 const DashboardLayout = lazy(() => import('./components/DashboardLayout'));
 const AdminLayout = lazy(() => import('./components/AdminLayout'));
 const ImageAdmin = lazy(() => import('./pages/ImageAdmin'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
-const NfcRedirect = lazy(() => import('./pages/NfcRedirect'));
+const StoreShell = lazy(() => import('./store/StoreShell'));
+const StorePage = lazy(() => import('./pages/StorePage'));
+const StoreProductPage = lazy(() => import('./pages/StoreProductPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+// Landing + sacola compartilhada com a loja (mesmo pacote, carregado sob demanda).
+const loadLanding = () => import('./pages/LandingRoute');
+const loadNfcRedirect = () => import('./pages/NfcRedirect');
+const loadPublicProfile = () => import('./pages/PublicProfile');
+// A landing é grande: fica fora do pacote principal para quem só escaneia uma placa abrir mais rápido.
+const LandingPage = lazy(loadLanding);
+const NfcRedirect = lazy(loadNfcRedirect);
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const ActivationPage = lazy(() => import('./pages/ActivationPage'));
-const PublicProfile = lazy(() => import('./pages/PublicProfile'));
+const PublicProfile = lazy(loadPublicProfile);
+
+// Começa cedo o que a página aberta vai precisar, em paralelo (em vez de uma espera depois da outra):
+//  • escanear placa (/n/…, /a/…): consulta ao banco + telas de redirecionamento e de perfil;
+//  • link de perfil (/u/…, /p/…): tela do perfil;
+//  • página inicial: a landing.
+if (typeof window !== 'undefined') {
+  const path = window.location.pathname;
+  if (/^\/(n|a)\/[^/]+/.test(path)) { startScanLookup(); void loadNfcRedirect(); void loadPublicProfile(); }
+  else if (/^\/(u|p)\/[^/]+/.test(path)) void loadPublicProfile();
+  else if (path === '/' || path === '') void loadLanding();
+}
 
 const DashboardHome = lazy(() => import('./pages/dashboard/DashboardHome'));
 const MyProducts = lazy(() => import('./pages/dashboard/MyProducts'));
 const GoogleProducts = lazy(() => import('./pages/dashboard/GoogleProducts'));
 const Statistics = lazy(() => import('./pages/dashboard/Statistics'));
 const SupportPage = lazy(() => import('./pages/dashboard/SupportPage'));
+const Account = lazy(() => import('./pages/dashboard/Account'));
 const Perfil = lazy(() => import('./pages/dashboard/Perfil'));
 
 const AdminHome = lazy(() => import('./pages/admin/AdminHome'));
@@ -40,6 +68,9 @@ const CookiesPolicyPage = lazy(() => import('./pages/CookiesPolicyPage'));
 const SupportTutorialsPage = lazy(() => import('./pages/SupportTutorialsPage'));
 
 function LoadingScreen() {
+  const { pathname } = useLocation();
+  // Caminho de escaneamento usa a mesma tela de espera da página do perfil (sem "piscar" entre telas diferentes).
+  if (/^\/(n|a|u|p)(\/|$)/.test(pathname)) return <ScanLoader />;
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface">
       <div className="flex flex-col items-center gap-3">
@@ -75,6 +106,11 @@ function Guest({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function ConfirmedRedirect() {
+  const { user } = useAuth();
+  return <Navigate to={user?.role === 'ADMIN' ? '/admin' : '/dashboard/conta'} replace />;
+}
+
 function OnboardingGuard({ children }: { children: React.ReactNode }) {
   const { user, hasProfile, loading } = useAuth();
   if (loading) return <LoadingScreen />;
@@ -99,6 +135,11 @@ function AuthenticatedRoutes() {
     <Routes>
       <Route path="/login" element={<Guest><LoginPage /></Guest>} />
       <Route path="/register" element={<Guest><RegisterPage /></Guest>} />
+      {/* Destino do link de confirmação de e-mail: leva o cliente para a própria conta */}
+      <Route path="/confirmado" element={<Protected><ConfirmedRedirect /></Protected>} />
+      <Route path="/recuperar-senha" element={<Guest><ForgotPasswordPage /></Guest>} />
+      {/* Sem Guest: o link do e-mail já abre uma sessão de recuperação */}
+      <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
       <Route path="/ativar" element={<Protected><ActivationPage /></Protected>} />
       <Route path="/ativar/:code" element={<Protected><ActivationPage /></Protected>} />
       <Route path="/onboarding" element={<OnboardingGuard><Onboarding /></OnboardingGuard>} />
@@ -110,6 +151,7 @@ function AuthenticatedRoutes() {
         <Route path="perfil/:productId" element={<Perfil />} />
         <Route path="estatisticas" element={<Statistics />} />
         <Route path="suporte" element={<SupportPage />} />
+        <Route path="conta" element={<Account />} />
       </Route>
 
       {/* Painel administrativo premium — substitui o admin simples anterior.
@@ -130,12 +172,39 @@ function AuthenticatedRoutes() {
   );
 }
 
+/**
+ * Rede de segurança do "recuperar senha": se o link do e-mail cair em qualquer outra página
+ * (ex.: a página inicial, quando a URL não está liberada no Supabase), leva para /redefinir-senha,
+ * onde a pessoa digita a nova senha.
+ */
+function RecoveryRedirect() {
+  const nav = useNavigate();
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (pathname === '/redefinir-senha') return;
+    if (typeof window !== 'undefined' && /type=recovery/.test(window.location.hash)) {
+      nav('/redefinir-senha', { replace: true });
+      return;
+    }
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') nav('/redefinir-senha', { replace: true });
+    });
+    return () => data.subscription.unsubscribe();
+  }, [pathname, nav]);
+  return null;
+}
+
 export default function App() {
+  useEffect(() => {
+    document.documentElement.classList.add('app-ready');
+  }, []);
   return (
     <ToastProvider>
       <Router>
       <SeoManager />
       <ScrollManager />
+      <RecoveryRedirect />
+      <AnalyticsTracker />
         <AuthProvider>
          <FeedbackProvider>
           <Suspense fallback={<LoadingScreen />}>
@@ -146,11 +215,19 @@ export default function App() {
 
               {/* Página "Saiba mais" de cada produto */}
               <Route path="/produto/:id" element={<ProductDetailPage />} />
+              <Route path="/loja" element={<StoreShell />}>
+                <Route index element={<StorePage />} />
+                <Route path=":id" element={<StoreProductPage />} />
+              </Route>
 
               {/* Documentos legais (públicos, design premium) */}
               <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
               <Route path="/termos-de-uso" element={<TermsOfUsePage />} />
               <Route path="/politica-de-cookies" element={<CookiesPolicyPage />} />
+
+              {/* Institucional: quem somos e contato (públicos, indexáveis) */}
+              <Route path="/sobre" element={<AboutPage />} />
+              <Route path="/contato" element={<ContactPage />} />
 
               {/* Suporte e tutoriais (público, indexável) */}
               <Route path="/suporte" element={<SupportTutorialsPage />} />

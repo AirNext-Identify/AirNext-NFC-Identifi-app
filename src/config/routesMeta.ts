@@ -17,11 +17,43 @@ export const ROUTES_META: RouteMeta[] = [
     type: 'website',
   },
   {
+    match: /^\/loja\/?$/,
+    title: 'Loja AirNext — cartões, tags e pulseiras NFC',
+    description:
+      'Compre cartões, tags e pulseiras NFC AirNext com perfil digital. Pix ou cartão em até 12x, frete grátis acima de R$150 e sem mensalidade.',
+    image: DEFAULT_OG_IMAGE,
+  },
+  {
+    match: /^\/loja\/[^/]+\/?$/,
+    title: 'Produto AirNext — comprar na loja',
+    description:
+      'Veja fotos, formatos e preço e compre o seu AirNext com Pix ou cartão em até 12x. Perfil digital NFC, sem app e sem mensalidade.',
+    image: DEFAULT_OG_IMAGE,
+  },
+  {
+    match: /^\/produto\/[^/]+\/?$/,
+    title: 'Conheça o produto AirNext',
+    description:
+      'Saiba como funciona, para quem é e o que vem em cada produto AirNext: cartões, tags e pulseiras NFC com perfil digital.',
+    image: DEFAULT_OG_IMAGE,
+  },
+  {
     match: /^\/suporte\/?$/,
     title: 'Suporte e tutoriais',
     description:
       'Vídeos tutoriais AirNext: como ativar o produto, usar NFC e QR Code, personalizar o perfil, pet, TEA e privacidade.',
     image: DEFAULT_OG_IMAGE,
+  },
+  {
+    match: /^\/sobre\/?$/,
+    title: 'Sobre a AirNext',
+    description:
+      'Conheça a AirNext: cartões, tags e pulseiras NFC com perfil digital, QR Code de reserva e privacidade conforme a LGPD.',
+  },
+  {
+    match: /^\/contato\/?$/,
+    title: 'Contato',
+    description: 'Fale com a AirNext por WhatsApp, e-mail ou telefone: vendas, suporte técnico e privacidade.',
   },
   {
     match: /^\/politica-de-privacidade\/?$/,

@@ -4,7 +4,8 @@ import {
   Package, Phone, Printer, RotateCcw, Search, Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/adminUtils';
-import { ORDER_STATUSES, isFinalized, type Order, type OrderStatus } from '@/lib/orders';
+import { ORDER_STATUSES, PAYMENT_LABEL, formatAddress, isFinalized, type Order, type OrderStatus } from '@/lib/orders';
+import { OrderShippingPanel, type SaveFields } from './OrderShippingPanel';
 import { downloadOrdersCsv, downloadReceiptPng, fmtPhone, printReceipt } from '@/lib/orderReceipt';
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
   onFinalize: (id: string) => void;
   onReopen: (id: string) => void;
   onSaveNotes: (id: string, notes: string) => void;
+  onSaveShipping: (id: string, fields: SaveFields) => void;
   onDelete: (id: string) => void;
 }
 
@@ -47,7 +49,7 @@ function waLink(phone: string | null, order: Order) {
   return `https://wa.me/${full}?text=${encodeURIComponent(msg)}`;
 }
 
-export function OrdersView({ orders, loading, error, onSetStatus, onMarkSeen, onFinalize, onReopen, onSaveNotes, onDelete }: Props) {
+export function OrdersView({ orders, loading, error, onSetStatus, onMarkSeen, onFinalize, onReopen, onSaveNotes, onSaveShipping, onDelete }: Props) {
   const [tab, setTab] = useState<Tab>('abertos');
   const [month, setMonth] = useState<string>('todos');
   const [statusFilter, setStatusFilter] = useState<'todos' | OrderStatus>('todos');
@@ -295,6 +297,41 @@ export function OrdersView({ orders, loading, error, onSetStatus, onMarkSeen, on
                             ))}
                           </div>
 
+                          {(o.recipient_name || o.shipping_address || o.payment_method || o.customer_email || o.tracking_code) && (
+                            <div className="grid gap-3 rounded-xl bg-zinc-950/60 p-3 text-sm text-zinc-300 sm:grid-cols-2">
+                              {o.recipient_name && (
+                                <div>
+                                  <p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-zinc-500">Quem recebe</p>
+                                  {o.recipient_name}{o.recipient_phone ? <span className="text-zinc-500"> · {fmtPhone(o.recipient_phone)}</span> : null}
+                                </div>
+                              )}
+                              {o.payment_method && (
+                                <div>
+                                  <p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-zinc-500">Pagamento</p>
+                                  {PAYMENT_LABEL[o.payment_method] ?? o.payment_method}
+                                </div>
+                              )}
+                              {o.shipping_address && (
+                                <div className="sm:col-span-2">
+                                  <p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-zinc-500">Endereço de entrega</p>
+                                  {formatAddress(o.shipping_address)}
+                                </div>
+                              )}
+                              {o.tracking_code && (
+                                <div className="sm:col-span-2">
+                                  <p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-zinc-500">Rastreio</p>
+                                  {o.carrier ? `${o.carrier} · ` : ''}{o.tracking_code}
+                                </div>
+                              )}
+                              {o.customer_email && (
+                                <div className="sm:col-span-2">
+                                  <p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-zinc-500">E-mail</p>
+                                  {o.customer_email}
+                                </div>
+                              )}
+                            </div>
+                          )}
+
                           {o.notes && (
                             <div className="whitespace-pre-wrap rounded-xl bg-zinc-950/60 p-3 text-sm text-zinc-300">
                               <p className="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">Observações do cliente</p>
@@ -324,6 +361,8 @@ export function OrdersView({ orders, loading, error, onSetStatus, onMarkSeen, on
                               />
                             </label>
                           </div>
+
+                          {fin && <OrderShippingPanel order={o} onSave={onSaveShipping} />}
 
                           {/* Ação principal */}
                           {!fin && o.status !== 'cancelado' && (

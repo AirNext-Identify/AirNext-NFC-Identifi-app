@@ -220,6 +220,8 @@ export function useAdminData() {
   const [loading, setLoading] = useState(true);
   const [profileRows, setProfileRows] = useState<any[]>([]);
   const [customerProfileRows, setCustomerProfileRows] = useState<any[]>([]);
+  // Contas cadastradas (auth.users) via RPC admin_list_users — inclui quem ainda não criou cartão.
+  const [authUserRows, setAuthUserRows] = useState<any[]>([]);
   const [productRows, setProductRows] = useState<ProductRow[]>([]);
   const [lotRows, setLotRows] = useState<any[]>([]);
   const [nfcRows, setNfcRows] = useState<any[]>([]);
@@ -272,7 +274,7 @@ export function useAdminData() {
 
   const reloadAll = useCallback(async () => {
     setLoading(true);
-    const [profilesRes, custProfRes, productsRes, lotsRes, nfcRes, renewalsRes, logsRes, notifRes, settingsRes, visitsRes] = await Promise.all([
+    const [profilesRes, custProfRes, productsRes, lotsRes, nfcRes, renewalsRes, logsRes, notifRes, settingsRes, visitsRes, authUsersRes] = await Promise.all([
       supabase.from('profiles').select('user_id, name, email, created_at'),
       supabase.from('customer_profiles').select('*'),
       supabase.from('products').select(PRODUCT_SELECT).order('created_at', { ascending: false }),
@@ -283,6 +285,7 @@ export function useAdminData() {
       supabase.from('admin_notifications').select('*').order('sent_at', { ascending: false }),
       supabase.from('app_settings').select('key, value').eq('key', 'nfc_base_url').maybeSingle(),
       supabase.from('visits').select('id, product_id, type, action, city, device, created_at').order('created_at', { ascending: false }).limit(5000),
+      supabase.rpc('admin_list_users'),
     ]);
 
     // Banco ainda sem a migração sql/10_airnext_google.sql (colunas product_line /
@@ -315,6 +318,13 @@ export function useAdminData() {
       setAppUrl(String(settingsRes.data.value).replace(/\/$/, ''));
     }
 
+    // admin_list_users vem de sql/21_admin_clientes_e_etiquetas.sql. Sem ela o painel
+    // continua funcionando, mas só enxerga clientes que já têm cartão/CRM.
+    if (authUsersRes.error) {
+      console.warn('admin_list_users indisponível (rode sql/21_admin_clientes_e_etiquetas.sql):', authUsersRes.error.message);
+      addToast('Lista completa de clientes indisponível: rode o script sql/21_admin_clientes_e_etiquetas.sql no Supabase.', 'error');
+    }
+
     if (loadErrors.length > 0) {
       addToast(`Falha ao carregar dados do painel (${loadErrors.length} tabela(s)). Veja o console para detalhes.`, 'error');
     }
@@ -324,6 +334,7 @@ export function useAdminData() {
 
     setProfileRows(profilesRes.data || []);
     setCustomerProfileRows(custProfRes.data || []);
+    setAuthUserRows(authUsersRes.error ? [] : ((authUsersRes.data as any[]) || []));
     setProductRows(products);
     setLotRows(lots);
     setNfcRows(nfcRes.data || []);
@@ -412,9 +423,29 @@ export function useAdminData() {
       if (!byUser.has(userId)) byUser.set(userId, { user_id: userId, name: '', email: crmByUser.get(userId)?.email || '', created_at: crmByUser.get(userId)?.created_at });
     }
 
+    // Contas cadastradas (auth.users): entram mesmo sem cartão público nem CRM, e
+    // completam nome/e-mail/telefone/data de cadastro de quem já está na lista.
+    const authByUser = new Map<string, any>();
+    for (const a of authUserRows) {
+      if (!a.user_id) continue;
+      authByUser.set(a.user_id, a);
+      const existing = byUser.get(a.user_id);
+      if (!existing) {
+        byUser.set(a.user_id, { user_id: a.user_id, name: a.name || '', email: a.email || '', created_at: a.created_at });
+      } else {
+        byUser.set(a.user_id, {
+          ...existing,
+          name: existing.name || a.name || '',
+          email: existing.email || a.email || '',
+          created_at: a.created_at || existing.created_at,
+        });
+      }
+    }
+
     const list: Customer[] = [];
     for (const [userId, profile] of byUser.entries()) {
       const crm = crmByUser.get(userId);
+      const authInfo = authByUser.get(userId);
       const ownProducts = productsByUser.get(userId) || [];
       const activatedProducts = ownProducts.filter((p) => p.status === 'ATIVO');
       const firstActivationAt = activatedProducts
@@ -438,8 +469,8 @@ export function useAdminData() {
         id: userId,
         name: profile.name || crm?.company || 'Cliente sem nome',
         company: crm?.company || '',
-        phone: crm?.phone || '',
-        email: profile.email || crm?.email || '',
+        phone: crm?.phone || authInfo?.phone || '',
+        email: profile.email || crm?.email || authInfo?.email || '',
         document: crm?.document || '',
         address: crm?.address && Object.keys(crm.address).length ? { ...emptyAddress, ...crm.address } : emptyAddress,
         plan: crm?.plan || 'Starter',
@@ -457,7 +488,7 @@ export function useAdminData() {
     }
 
     return list.sort((a, b) => (b.registeredAt || '').localeCompare(a.registeredAt || ''));
-  }, [profileRows, customerProfileRows, productRows]);
+  }, [profileRows, customerProfileRows, authUserRows, productRows]);
 
   // ─── Estatísticas do Dashboard ──────────────────────────────────────────
   // Plaquinhas AirNext Google têm gestão própria (aba "AirNext Google"): ficam de fora
@@ -834,8 +865,8 @@ export function useAdminData() {
         setProductRows((prev) => prev.map((p) => (p.id === productId ? { ...p, user_id: null, status: 'DISPONIVEL', activated_at: null, expires_at: null } : p)));
       }
 
-      await addLog('Troca de cliente', 'Product', productId, `Produto transferido para cliente ${customerId || 'nenhum (desvinculado)'}.`);
-      addToast('Produto transferido com sucesso.', 'success');
+      await addLog('Troca de cliente', 'Product', productId, `Produto ${product.code} ${customerId ? `transferido para o cliente ${customerId}` : 'desvinculado do cliente (voltou para Disponível)'}.`);
+      addToast(customerId ? 'Produto transferido com sucesso.' : 'Produto desvinculado: voltou para Disponível.', 'success');
     },
     [productRows, addLog, addToast]
   );
@@ -1143,6 +1174,267 @@ export function useAdminData() {
       return true;
     },
     [addLog, addToast]
+  );
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // AIRNEXT GOOGLE — edição completa de uma plaquinha (mesmo modelo da seção
+  // Produtos: duplicar, transferir cliente, mover de lote / converter linha).
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /** Soma/subtrai os contadores de um lote mantendo-os coerentes (nunca negativos). */
+  const adjustLotCounters = useCallback(
+    async (lotId: string | null | undefined, delta: { used?: number; available?: number; quantity?: number }) => {
+      if (!lotId) return;
+      const lot = lotRows.find((l) => l.id === lotId);
+      if (!lot) return;
+      const patch = {
+        used_quantity: Math.max(0, (lot.used_quantity || 0) + (delta.used || 0)),
+        available_quantity: Math.max(0, (lot.available_quantity || 0) + (delta.available || 0)),
+        quantity: Math.max(1, (lot.quantity || 0) + (delta.quantity || 0)),
+      };
+      const { error } = await supabase.from('lots').update(patch).eq('id', lotId);
+      if (error) {
+        console.error('Falha ao atualizar contadores do lote:', error);
+        return;
+      }
+      setLotRows((prev) => prev.map((l) => (l.id === lotId ? { ...l, ...patch } : l)));
+    },
+    [lotRows]
+  );
+
+  // Duplica uma plaquinha Google: novo UUID (QR) e novo código ANG-…, no mesmo lote.
+  const duplicateGoogleProduct = useCallback(
+    async (id: string) => {
+      const source = productRows.find((p) => p.id === id);
+      if (!source) return;
+      const chipExpected = !!source.programmed_at || source.status === 'NAO_PROGRAMADO';
+      const row = {
+        code: generateUnique(() => generateActivationCode(GOOGLE_CODE_PREFIX), usedActivationCodes.current),
+        nfc_uuid: generateUnique(generateUUID, usedNfcUuids.current),
+        internal_code: generateUnique(() => generateInternalCode(GOOGLE_CODE_PREFIX, 1), usedInternalCodes.current),
+        status: chipExpected ? 'NAO_PROGRAMADO' : 'DISPONIVEL',
+        product_line: 'GOOGLE',
+        visibility: 'hidden',
+        lot_id: source.lot_id,
+        lote_name: source.lote_name,
+        created_at: new Date().toISOString(),
+      };
+      const { data: inserted, error } = await supabase.from('products').insert(row).select(PRODUCT_SELECT).single();
+      if (error || !inserted) {
+        console.error('Falha ao duplicar plaquinha Google:', error);
+        addToast(`Não foi possível duplicar a plaquinha: ${error?.message || 'erro desconhecido'}`, 'error');
+        return;
+      }
+      setProductRows((prev) => [inserted as ProductRow, ...prev]);
+      await adjustLotCounters(source.lot_id, { available: 1, quantity: 1 });
+      await addLog('Cadastro', 'Product', inserted.id, `Plaquinha Google duplicada a partir de ${source.code} — novo código ${row.code} e novo QR.`);
+      addToast(`Plaquinha duplicada — novo código ${row.code}.`, 'success');
+    },
+    [productRows, adjustLotCounters, addLog, addToast]
+  );
+
+  // Transfere (ou desvincula) uma plaquinha Google de um cliente. Para ativar em
+  // nome do cliente é obrigatório um link de avaliações do Google válido —
+  // o mesmo que o cliente informaria na ativação.
+  const transferGoogleProduct = useCallback(
+    async (productId: string, customerId: string | undefined, url?: string): Promise<boolean> => {
+      const product = productRows.find((p) => p.id === productId);
+      if (!product) return false;
+
+      if (customerId) {
+        const clean = normalizeGoogleReviewUrl(url || product.redirect_url || '');
+        if (!isValidGoogleReviewUrl(clean)) {
+          addToast(GOOGLE_URL_HELP, 'error');
+          return false;
+        }
+        const activatedAt = product.activated_at || new Date().toISOString();
+        const { error } = await supabase
+          .from('products')
+          .update({ user_id: customerId, status: 'ATIVO', activated_at: activatedAt, redirect_url: clean })
+          .eq('id', productId);
+        if (error) {
+          console.error('Falha ao transferir plaquinha Google:', error);
+          addToast(`Não foi possível transferir a plaquinha: ${error.message}`, 'error');
+          return false;
+        }
+        setProductRows((prev) => prev.map((p) => (p.id === productId ? { ...p, user_id: customerId, status: 'ATIVO', activated_at: activatedAt, redirect_url: clean } : p)));
+      } else {
+        const { error } = await supabase
+          .from('products')
+          .update({ user_id: null, status: 'DISPONIVEL', activated_at: null, expires_at: null, redirect_url: null })
+          .eq('id', productId);
+        if (error) {
+          console.error('Falha ao desvincular plaquinha Google:', error);
+          addToast(`Não foi possível desvincular a plaquinha: ${error.message}`, 'error');
+          return false;
+        }
+        setProductRows((prev) => prev.map((p) => (p.id === productId ? { ...p, user_id: null, status: 'DISPONIVEL', activated_at: null, expires_at: null, redirect_url: null } : p)));
+      }
+
+      await addLog('Troca de cliente', 'Product', productId, `Plaquinha Google ${product.code} ${customerId ? `transferida para o cliente ${customerId}` : 'desvinculada do cliente'}.`);
+      addToast(customerId ? 'Plaquinha transferida com sucesso.' : 'Plaquinha desvinculada do cliente.', 'success');
+      return true;
+    },
+    [productRows, addLog, addToast]
+  );
+
+  // ---------------------------------------------------------------------------
+  // MOVER PRODUTO — um único fluxo para qualquer produto, qualquer lote e qualquer cliente.
+  //
+  //  • Lote padrão  → lote padrão   : só troca o lote.
+  //  • Lote Google  → lote Google   : só troca o lote.
+  //  • Padrão       → Google        : vira plaquinha de avaliações (product_line = GOOGLE).
+  //        Se tiver cliente, precisa de um link de avaliações do Google válido (o mesmo que
+  //        o cliente informaria na ativação). O PERFIL (profile_data, categoria, slug, tema)
+  //        NÃO é apagado: fica guardado e a página pública é ocultada enquanto for Google.
+  //        Google não tem validade, então expires_at é zerado.
+  //  • Google       → Padrão        : vira produto padrão (product_line = STANDARD).
+  //        O link de avaliações é apagado (o banco só aceita link em produto Google). O cliente
+  //        é mantido, com o mesmo QR e código, e o perfil guardado volta a aparecer.
+  //  • Cliente (opcional): manter (padrão), trocar por outro cliente ou desvincular.
+  //  • Produto SEM cliente pode, se quiser, receber novo QR/código no formato do lote de destino.
+  //    Produto COM cliente nunca troca QR/código (a peça física já está com ele).
+  // ---------------------------------------------------------------------------
+  const moveProductToLot = useCallback(
+    async (
+      productId: string,
+      targetLotId: string,
+      opts: {
+        /** undefined = mantém o cliente atual · null = desvincula · string = transfere p/ esse cliente */
+        customerId?: string | null;
+        /** Link de avaliações do Google (obrigatório quando o produto vai ficar com cliente em lote Google). */
+        redirectUrl?: string;
+        /** Só para produto sem cliente que muda de linha: gera novo QR Code e novo código. */
+        newIdentity?: boolean;
+      } = {}
+    ): Promise<boolean> => {
+      const product = productRows.find((p) => p.id === productId);
+      const target = lotRows.find((l) => l.id === targetLotId);
+      if (!product || !target) {
+        addToast('Produto ou lote de destino não encontrado.', 'error');
+        return false;
+      }
+
+      const fromGoogle = product.product_line === 'GOOGLE';
+      const toGoogle = target.product_line === 'GOOGLE';
+      const lineChanged = fromGoogle !== toGoogle;
+
+      // Cliente final
+      let finalUser: string | null = product.user_id;
+      if (opts.customerId === null) finalUser = null;
+      else if (typeof opts.customerId === 'string' && opts.customerId) finalUser = opts.customerId;
+      const customerChanged = finalUser !== product.user_id;
+
+      if (product.lot_id === target.id && !customerChanged) {
+        addToast('O produto já está nesse lote.', 'info');
+        return false;
+      }
+
+      const oldCode = product.code || '';
+      const oldLotCode = lotRows.find((l) => l.id === product.lot_id)?.code || 'sem lote';
+      const hadChip = !!product.programmed_at;
+      const patch: Record<string, any> = { lot_id: target.id, lote_name: target.code };
+
+      // 1) Cliente ---------------------------------------------------------------
+      if (customerChanged) {
+        if (finalUser) {
+          patch.user_id = finalUser;
+          patch.status = 'ATIVO';
+          patch.activated_at = product.activated_at || new Date().toISOString();
+        } else {
+          patch.user_id = null;
+          patch.status = 'DISPONIVEL';
+          patch.activated_at = null;
+          patch.expires_at = null;
+        }
+      }
+
+      // 2) Linha (Google ⇄ padrão) ----------------------------------------------
+      if (lineChanged) {
+        if (toGoogle) {
+          patch.product_line = 'GOOGLE';
+          patch.visibility = 'hidden'; // a página de perfil não pode aparecer enquanto for plaquinha Google
+          patch.expires_at = null; // QR Google é permanente
+          if (finalUser && (patch.status ?? product.status) === 'EXPIRADO') patch.status = 'ATIVO';
+        } else {
+          patch.product_line = 'STANDARD';
+          patch.redirect_url = null; // o banco só aceita redirect_url em produto Google
+          patch.visibility = 'public';
+        }
+
+        // Novo QR/código: só para produto que nenhum cliente tem.
+        if (opts.newIdentity && !finalUser) {
+          patch.nfc_uuid = generateUnique(generateUUID, usedNfcUuids.current);
+          patch.code = generateUnique(
+            () => (toGoogle ? generateActivationCode(GOOGLE_CODE_PREFIX) : generateActivationCode()),
+            usedActivationCodes.current
+          );
+          patch.internal_code = generateUnique(
+            () => generateInternalCode(toGoogle ? GOOGLE_CODE_PREFIX : 'AIR', 1),
+            usedInternalCodes.current
+          );
+          if (hadChip) {
+            patch.programmed_at = null;
+            patch.programmed_by = null;
+            patch.programmed_by_name = null;
+            patch.chip_serial_number = null;
+            patch.status = 'NAO_PROGRAMADO';
+          }
+        }
+      }
+
+      // 3) Destino Google com cliente → link de avaliações válido é obrigatório ------
+      if (toGoogle) {
+        if (!finalUser) {
+          patch.redirect_url = null;
+        } else if (lineChanged || customerChanged) {
+          const clean = normalizeGoogleReviewUrl(opts.redirectUrl || product.redirect_url || '');
+          if (!isValidGoogleReviewUrl(clean)) {
+            addToast(GOOGLE_URL_HELP, 'error');
+            return false;
+          }
+          patch.redirect_url = clean;
+        }
+      }
+
+      const { error } = await supabase.from('products').update(patch).eq('id', productId);
+      if (error) {
+        console.error('Falha ao mover produto:', error);
+        addToast(`Não foi possível mover o produto: ${error.message}`, 'error');
+        return false;
+      }
+      setProductRows((prev) => prev.map((p) => (p.id === productId ? { ...p, ...patch } : p)));
+
+      // Contadores: sai do lote antigo, entra no novo.
+      const wasUsed = product.status !== 'NAO_PROGRAMADO';
+      const isUsed = (patch.status ?? product.status) !== 'NAO_PROGRAMADO';
+      if (product.lot_id !== target.id) {
+        await adjustLotCounters(product.lot_id, wasUsed ? { used: -1, quantity: -1 } : { available: -1, quantity: -1 });
+        await adjustLotCounters(target.id, isUsed ? { used: 1, quantity: 1 } : { available: 1, quantity: 1 });
+      }
+
+      const kind = lineChanged ? (toGoogle ? 'passou a ser AirNext Google' : 'passou a ser produto padrão') : 'mudou de lote';
+      const idNote = patch.nfc_uuid ? ` Novo código ${patch.code} e novo QR Code.${hadChip ? ' Gravação do chip zerada.' : ''}` : ' Mesmo QR Code e mesmo código.';
+      const profileNote = product.slug || product.category ? ' Perfil preservado.' : '';
+      await addLog('Edição', 'Product', productId, `Produto ${oldCode} ${kind}: lote ${oldLotCode} → ${target.code}.${lineChanged ? idNote : ''}${profileNote}`);
+      if (customerChanged) {
+        await addLog('Troca de cliente', 'Product', productId, `Produto ${oldCode} ${finalUser ? `transferido para o cliente ${finalUser}` : 'desvinculado do cliente'} ao mover para o lote ${target.code}.`);
+      }
+      addToast(`Produto ${lineChanged ? (toGoogle ? 'convertido para AirNext Google' : 'convertido para produto padrão') : 'movido'} — lote ${target.code}.`, 'success');
+      return true;
+    },
+    [productRows, lotRows, adjustLotCounters, addLog, addToast]
+  );
+
+  // Compatibilidade com as telas antigas (Produtos / Google): ambas agora usam o fluxo único acima.
+  const moveProduct = useCallback(
+    (productId: string, targetLotId: string) => moveProductToLot(productId, targetLotId),
+    [moveProductToLot]
+  );
+  const moveGoogleProduct = useCallback(
+    (productId: string, targetLotId: string, _toStandard?: boolean, keepIdentity = true) =>
+      moveProductToLot(productId, targetLotId, { newIdentity: !keepIdentity }),
+    [moveProductToLot]
   );
 
   // Edita metadados do lote (código, descrição, fornecedor, observações).
@@ -1621,6 +1913,11 @@ export function useAdminData() {
     createGoogleLot,
     deleteGoogleLot,
     setGoogleRedirect,
+    duplicateGoogleProduct,
+    transferGoogleProduct,
+    moveGoogleProduct,
+    moveProduct,
+    moveProductToLot,
     googleScans,
     reloadGoogleScans,
     reloadVisits,

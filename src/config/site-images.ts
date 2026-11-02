@@ -130,16 +130,16 @@ export const SITE_IMAGE_SLOTS: ImageSlot[] = [
 
 // ----------------------------------------------------------------------------
 // Vídeos do site — mesmo esquema de "slot" das imagens, cada um com sua
-// própria chave. Hoje só tem o vídeo da seção "Veja a mágica acontecer", mas
+// própria chave. Hoje só tem o vídeo do botão "Assistir ao vídeo", mas
 // dá pra adicionar outros aqui no futuro seguindo o mesmo padrão.
 // ----------------------------------------------------------------------------
 export const SITE_VIDEO_SLOTS: ImageSlot[] = [
   {
     id: 'video-demo',
-    label: 'Vídeo "Veja a mágica acontecer"',
+    label: 'Vídeo do botão "Assistir ao vídeo" (Destaques)',
     context: 'Vídeos do site',
     recommendedSize: 'Formato 16:9 — MP4 (H.264), ideal até 8MB',
-    note: 'Vídeo em loop, sem áudio, exibido na seção de demonstração da home. Prefira um clipe curto (5–15s) que fique bom repetindo.',
+    note: 'Abre em tela cheia ao clicar em "Assistir ao vídeo" na seção Destaques da home. Prefira um clipe curto (5–15s) que fique bom repetindo.',
     defaultUrl: 'https://assets.mixkit.co/videos/preview/mixkit-network-connection-lines-and-dots-31580-large.mp4',
     type: 'video',
   },

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import {
-  ArrowRight, BarChart3, Camera, Check, ChevronDown, Globe, MapPin, MessageCircle,
+  BarChart3, Camera, Check, ChevronDown, ChevronRight, Globe, MapPin, MessageCircle,
   Nfc, Palette, QrCode, Star, UtensilsCrossed, Wallet, Wifi, X,
 } from 'lucide-react';
+import AppleCarousel from './AppleCarousel';
 import { STAND_GOOGLE_NFC_IMG, STAND_POSTO_IMG, STAND_BALCAO_IMG } from '../../lib/productImages';
 
 interface Props {
@@ -241,78 +242,64 @@ function StandChapters() {
   );
 }
 
-/* ───────────────────────── Seção 3 — O que muda no negócio ───────────────────────── */
+/* ───────────────────────── Seção 3 — O que muda no negócio (carrossel estilo Apple) ───────────────────────── */
+const CARD = 'flex min-h-[460px] w-full flex-col rounded-[28px] p-7 sm:min-h-[520px] sm:p-9';
+
 function StandChange() {
   return (
-    <section className="relative bg-black text-white py-20 md:py-32 overflow-hidden">
-      
-      <div className="relative max-w-6xl mx-auto px-6">
+    <section className="relative bg-[#f5f5f7] text-[#1d1d1f] py-20 md:py-28 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
-          className="text-center max-w-3xl mx-auto mb-14 md:mb-20"
+          className="mb-10 md:mb-12"
         >
-          <p className="eyebrow text-[#8ab4f8] mb-4">O que muda no seu negócio</p>
-          <h2 className="h2-apple">Pequeno no balcão.<br />Grande no resultado.</h2>
+          <p className="text-[19px] font-semibold text-[#6e6e73] mb-2">O que muda no seu negócio</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold tracking-tight leading-[1.08]">Pequeno no balcão.<br />Grande no resultado.</h2>
         </motion.div>
-
-        <div className="grid md:grid-cols-2 gap-5 md:gap-6 mb-5 md:mb-6">
-          <motion.div
-            initial={{ opacity: 0, x: -28 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.7 }}
-            className="rounded-[28px] p-7 md:p-9 bg-white/[0.03] border border-white/10"
-          >
-            <p className="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 mb-6">Sem o Stand</p>
-            <ul className="space-y-4">
-              {BEFORE.map((t) => (
-                <li key={t} className="flex gap-3 text-[15px] text-gray-400 leading-snug">
-                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-white/10 flex items-center justify-center"><X size={12} className="text-gray-500" /></span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 28 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="rounded-[28px] p-7 md:p-9 bg-[#0b1a33] border border-[#4285f4]/30 shadow-md"
-          >
-            <p className="text-xs font-bold tracking-[0.2em] uppercase text-[#8ab4f8] mb-6">Com o AirNext Stand</p>
-            <ul className="space-y-4">
-              {AFTER.map((t) => (
-                <li key={t} className="flex gap-3 text-[15px] text-white leading-snug">
-                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-[#4285f4] flex items-center justify-center"><Check size={12} className="text-white" /></span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        </div>
-
-        <div className="grid sm:grid-cols-3 gap-5 md:gap-6">
-          {IMPACT.map(({ icon: Icon, title, text }, i) => (
-            <motion.div
-              key={title}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="rounded-[24px] p-6 bg-white/[0.04] border border-white/10"
-            >
-              <span className="w-11 h-11 rounded-2xl bg-white/10 text-[#8ab4f8] flex items-center justify-center mb-4"><Icon size={20} /></span>
-              <h3 className="text-lg font-semibold mb-1.5">{title}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{text}</p>
-            </motion.div>
-          ))}
-        </div>
       </div>
+
+      <AppleCarousel label="O que muda com o AirNext Stand">
+        <div className={`${CARD} bg-white`}>
+          <p className="text-[15px] font-semibold text-[#6e6e73] mb-2">Sem o Stand</p>
+          <h3 className="text-[28px] font-semibold leading-tight tracking-tight mb-8">Tudo espalhado.</h3>
+          <ul className="space-y-4 mt-auto">
+            {BEFORE.map((t) => (
+              <li key={t} className="flex gap-3 text-[15px] text-[#6e6e73] leading-snug">
+                <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-[#ff3b30]/10 flex items-center justify-center"><X size={12} className="text-[#ff3b30]" /></span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className={`${CARD} bg-[#1d1d1f] text-white`}>
+          <p className="text-[15px] font-semibold text-[#86868b] mb-2">Com o AirNext Stand</p>
+          <h3 className="text-[28px] font-semibold leading-tight tracking-tight mb-8">Tudo em um toque.</h3>
+          <ul className="space-y-4 mt-auto">
+            {AFTER.map((t) => (
+              <li key={t} className="flex gap-3 text-[15px] text-white leading-snug">
+                <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-[#34c759] flex items-center justify-center"><Check size={12} className="text-white" /></span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {IMPACT.map(({ icon: Icon, title, text }, i) => {
+          const dark = i === 1;
+          const color = ['#ff9f0a', '#0a84ff', '#30d158'][i];
+          return (
+            <div key={title} className={`${CARD} ${dark ? 'bg-[#1d1d1f] text-white' : 'bg-white'}`}>
+              <h3 className="text-[32px] sm:text-[36px] font-semibold leading-[1.08] tracking-tight">{title}</h3>
+              <p className={`mt-4 text-[17px] leading-snug ${dark ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>{text}</p>
+              <span className="mt-auto flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ background: color }}><Icon size={26} /></span>
+            </div>
+          );
+        })}
+      </AppleCarousel>
     </section>
   );
 }
@@ -322,26 +309,25 @@ function StandIntegrations({ whatsapp, onBuy }: Props) {
   const msg = encodeURIComponent('Olá! Quero saber mais sobre o AirNext Stand para o meu negócio.');
 
   return (
-    <section className="relative bg-[#050505] text-white py-20 md:py-32 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="relative bg-white text-[#1d1d1f] py-20 md:py-28 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
-          className="max-w-3xl mb-10 md:mb-14"
+          className="max-w-3xl mb-10 md:mb-12"
         >
-          <p className="eyebrow text-[#8ab4f8] mb-4">Tudo integrado</p>
-          <h2 className="h2-apple mb-4">Uma inovação que conecta o seu negócio ao que o cliente já usa.</h2>
-          <p className="text-lg text-gray-400 leading-relaxed">
+          <p className="text-[19px] font-semibold text-[#6e6e73] mb-2">Tudo integrado</p>
+          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold tracking-tight leading-[1.08] mb-4">Uma inovação que conecta o seu negócio ao que o cliente já usa.</h2>
+          <p className="text-[19px] text-[#6e6e73] leading-snug">
             O Stand não é só uma placa: é a porta de entrada para os canais do seu negócio. Deslize e veja o que cabe em um toque.
           </p>
         </motion.div>
       </div>
 
       <div
-        className="flex gap-4 md:gap-5 overflow-x-auto snap-x snap-mandatory px-6 md:px-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))] pb-6"
-        style={{ scrollbarWidth: 'none' }}
+        className="flex gap-4 md:gap-5 overflow-x-auto snap-x snap-mandatory px-6 md:px-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] scroll-pl-6 md:scroll-pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         role="list"
         aria-label="Integrações do AirNext Stand"
       >
@@ -349,46 +335,45 @@ function StandIntegrations({ whatsapp, onBuy }: Props) {
           <div
             key={name}
             role="listitem"
-            className="snap-start flex-shrink-0 w-[72vw] sm:w-[300px] rounded-[28px] p-7 bg-white/[0.04] border border-white/10 hover:bg-white/[0.07] transition-colors"
+            className="snap-start flex-shrink-0 w-[72vw] sm:w-[300px] min-h-[260px] flex flex-col rounded-[28px] p-7 bg-[#f5f5f7]"
           >
-            <span className="w-14 h-14 rounded-2xl flex items-center justify-center mb-8" style={{ backgroundColor: `${color}26`, color }}>
+            <h3 className="text-[24px] font-semibold tracking-tight mb-2">{name}</h3>
+            <p className="text-[16px] text-[#6e6e73] leading-snug">{text}</p>
+            <span className="mt-auto w-14 h-14 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: color }}>
               <Icon size={26} />
             </span>
-            <h3 className="text-xl font-semibold mb-2">{name}</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">{text}</p>
           </div>
         ))}
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 mt-14 md:mt-20">
-        <div className="rounded-[36px] p-8 md:p-14 text-center bg-[#0b1a33] border border-white/10 relative overflow-hidden">
-          
-          <div className="relative">
-            <div className="flex items-center justify-center gap-3 text-[#8ab4f8] mb-5" aria-hidden="true">
-              <Nfc size={22} /><QrCode size={22} /><Palette size={22} />
-            </div>
-            <h3 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-[-0.03em] leading-tight mb-4">
-              Leve o AirNext Stand<br className="hidden sm:block" /> para o seu balcão.
-            </h3>
-            <p className="text-gray-400 max-w-xl mx-auto mb-8">
-              Pagamento único, sem app e sem mensalidade. Personalize com a sua logo e comece a receber avaliações no Google.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <button
-                onClick={onBuy}
-                className="inline-flex items-center gap-2 bg-[#0071e3] text-white px-7 py-3.5 rounded-full text-sm font-bold hover:bg-[#0077ed] active:scale-[0.98] transition shadow-xl shadow-blue-500/20"
-              >
-                Quero o meu Stand <ArrowRight size={16} />
-              </button>
-              <a
-                href={`https://wa.me/${whatsapp}?text=${msg}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full text-sm font-bold border border-white/20 hover:bg-white/10 transition"
-              >
-                <MessageCircle size={16} /> Falar no WhatsApp
-              </a>
-            </div>
+      <div className="max-w-6xl mx-auto px-6 mt-14 md:mt-20">
+        <div className="rounded-[32px] px-6 py-14 md:py-20 text-center bg-[#f5f5f7]">
+          <div className="flex items-center justify-center gap-3 mb-6" aria-hidden="true">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0a84ff] text-white"><Nfc size={20} /></span>
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1d1d1f] text-white"><QrCode size={20} /></span>
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#bf5af2] text-white"><Palette size={20} /></span>
+          </div>
+          <h3 className="text-[clamp(2rem,4.5vw,3.25rem)] font-semibold tracking-tight leading-[1.1] mb-4">
+            Leve o AirNext Stand<br className="hidden sm:block" /> para o seu balcão.
+          </h3>
+          <p className="text-[19px] text-[#6e6e73] max-w-xl mx-auto mb-8 leading-snug">
+            Pagamento único, sem app e sem mensalidade. Personalize com a sua logo e comece a receber avaliações no Google.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={onBuy}
+              className="rounded-full bg-[#0071e3] px-7 py-3 text-[17px] font-medium text-white transition-colors hover:bg-[#0077ed]"
+            >
+              Comprar
+            </button>
+            <a
+              href={`https://wa.me/${whatsapp}?text=${msg}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full px-5 py-3 text-[17px] font-medium text-[#0066cc] hover:underline"
+            >
+              Falar no WhatsApp <ChevronRight size={18} />
+            </a>
           </div>
         </div>
       </div>

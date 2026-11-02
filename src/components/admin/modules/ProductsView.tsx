@@ -12,6 +12,7 @@ import {
   Radio,
   QrCode,
   Download,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { SearchBar } from '@/components/admin/ui/SearchBar';
@@ -19,7 +20,8 @@ import { Badge } from '@/components/admin/ui/Badge';
 import { Modal } from '@/components/admin/ui/Modal';
 import { EmptyState } from '@/components/admin/ui/EmptyState';
 import { cn, exportCSV, formatDate, getValidityStatus } from '@/lib/adminUtils';
-import type { Customer, Product, ProductStatus } from '@/types/admin';
+import { MoveProductModal, type MoveProductOptions } from '@/components/admin/modules/MoveProductModal';
+import type { Customer, Lot, Product, ProductStatus } from '@/types/admin';
 
 interface ProductsViewProps {
   products: Product[];
@@ -29,6 +31,10 @@ interface ProductsViewProps {
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onTransfer: (productId: string, customerId: string | undefined) => void;
+  /** Move o produto para QUALQUER lote (padrão ou Google) e, se quiser, para outro cliente. */
+  onMove?: (productId: string, targetLotId: string, opts: MoveProductOptions) => Promise<boolean> | boolean | void;
+  /** Todos os lotes (padrão + Google): destinos possíveis do "Mover". */
+  allLots?: Lot[];
   onRenew: (productId: string, customerId: string, years: number) => void;
   onBlock: (productId: string, blocked: boolean) => void;
   onCreate: (data: Partial<Product>) => void;
@@ -50,6 +56,8 @@ export function ProductsView({
   onDelete,
   onDuplicate,
   onTransfer,
+  onMove,
+  allLots = [],
   onRenew,
   onBlock,
   onCreate,
@@ -63,6 +71,7 @@ export function ProductsView({
   const [page, setPage] = useState(1);
   const [actionMenu, setActionMenu] = useState<string | null>(null);
   const [transferModal, setTransferModal] = useState<Product | null>(null);
+  const [moveModal, setMoveModal] = useState<Product | null>(null);
   const [renewModal, setRenewModal] = useState<Product | null>(null);
   const [createModal, setCreateModal] = useState(false);
   const [qrModalProduct, setQrModalProduct] = useState<Product | null>(null);
@@ -193,6 +202,7 @@ export function ProductsView({
                           onDelete={onDelete}
                           onBlock={onBlock}
                           onTransferRequest={setTransferModal}
+                          onMoveRequest={onMove ? setMoveModal : undefined}
                           onProgramProduct={onProgramProduct}
                           onActivateQr={onActivateQr}
                           onShowQr={setQrModalProduct}
@@ -227,6 +237,7 @@ export function ProductsView({
                       onDelete={onDelete}
                       onBlock={onBlock}
                       onTransferRequest={setTransferModal}
+                          onMoveRequest={onMove ? setMoveModal : undefined}
                           onProgramProduct={onProgramProduct}
                       onActivateQr={onActivateQr}
                       onShowQr={setQrModalProduct}
@@ -261,6 +272,9 @@ export function ProductsView({
         </div>
       )}
 
+      {moveModal && onMove && (
+        <MoveProductModal key={moveModal.id} product={moveModal} lots={allLots} customers={customers} onClose={() => setMoveModal(null)} onMove={onMove} />
+      )}
       <TransferModal isOpen={!!transferModal} product={transferModal} customers={customers} onClose={() => setTransferModal(null)} onTransfer={(customerId) => { onTransfer(transferModal!.id, customerId); setTransferModal(null); }} />
       <RenewModal isOpen={!!renewModal} product={renewModal} onClose={() => setRenewModal(null)} onRenew={(years) => { onRenew(renewModal!.id, renewModal!.customerId || customers[0].id, years); setRenewModal(null); }} />
       <CreateProductModal isOpen={createModal} lots={lots} onClose={() => setCreateModal(false)} onCreate={(data) => { onCreate(data); setCreateModal(false); }} />
@@ -296,6 +310,7 @@ function ProductActionsMenu({
   onDelete,
   onBlock,
   onTransferRequest,
+  onMoveRequest,
   onRenewRequest,
   onProgramProduct,
   onActivateQr,
@@ -310,6 +325,7 @@ function ProductActionsMenu({
   onDelete: (id: string) => void;
   onBlock: (id: string, blocked: boolean) => void;
   onTransferRequest: (product: Product) => void;
+  onMoveRequest?: (product: Product) => void;
   onRenewRequest: (product: Product) => void;
   onProgramProduct?: (id: string) => void;
   onActivateQr?: (id: string) => void;
@@ -342,6 +358,9 @@ function ProductActionsMenu({
           <ActionItem icon={QrCode} label="Ver QR Code" onClick={() => { onShowQr(product); closeMenu(); }} />
           <ActionItem icon={Copy} label="Duplicar" onClick={() => { onDuplicate(product.id); closeMenu(); }} />
           <ActionItem icon={UserPlus} label="Transferir cliente" onClick={() => { onTransferRequest(product); closeMenu(); }} />
+          {onMoveRequest && (
+            <ActionItem icon={ArrowRightLeft} label="Mover (lote / cliente)" onClick={() => { onMoveRequest(product); closeMenu(); }} />
+          )}
           <ActionItem icon={RefreshCw} label="Renovar validade" onClick={() => { onRenewRequest(product); closeMenu(); }} />
           <div className="my-1 border-t border-zinc-800" />
           {product.status === 'Bloqueado' ? (
@@ -357,18 +376,41 @@ function ProductActionsMenu({
 }
 
 function TransferModal({ isOpen, product, customers, onClose, onTransfer }: { isOpen: boolean; product: Product | null; customers: Customer[]; onClose: () => void; onTransfer: (id: string | undefined) => void }) {
-  const [selected, setSelected] = useState<string>('');
   if (!isOpen || !product) return null;
+  // key: o estado do modal recomeça a cada produto (antes ele "lembrava" o cliente do produto anterior).
+  return <TransferModalBody key={product.id} product={product} customers={customers} onClose={onClose} onTransfer={onTransfer} />;
+}
+
+function TransferModalBody({ product, customers, onClose, onTransfer }: { product: Product; customers: Customer[]; onClose: () => void; onTransfer: (id: string | undefined) => void }) {
+  // Começa no cliente ATUAL do produto (e não em "Nenhum cliente"), para um clique
+  // sem querer não desvincular o produto e derrubar o perfil de quem já o usa.
+  const [selected, setSelected] = useState<string>(product.customerId || '');
+  const unlinking = !selected;
+  const currentName = customers.find((c) => c.id === product.customerId)?.name;
   return (
     <Modal isOpen onClose={onClose} title="Transferir produto">
-      <p className="mb-3 text-sm text-zinc-400">Transferir <strong className="text-zinc-200">{product.internalCode}</strong> para outro cliente.</p>
-      <select value={selected} onChange={(e) => setSelected(e.target.value)} className="mb-4 h-10 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none">
-        <option value="">Nenhum cliente</option>
+      <p className="mb-3 text-sm text-zinc-400">
+        Transferir <strong className="text-zinc-200">{product.internalCode}</strong> ({product.activationCode}) para outro cliente.
+        {currentName && <> Cliente atual: <strong className="text-zinc-200">{currentName}</strong>.</>}
+      </p>
+      <select value={selected} onChange={(e) => setSelected(e.target.value)} className="mb-3 h-10 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 outline-none">
+        <option value="">Nenhum cliente (desvincular)</option>
         {customers.map((c) => <option key={c.id} value={c.id}>{c.name} — {c.company}</option>)}
       </select>
+      {unlinking && (
+        <p className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+          Sem cliente, o produto volta para “Disponível”, a validade é apagada e o perfil deixa de abrir ao escanear ou aproximar o chip.
+        </p>
+      )}
       <div className="flex justify-end gap-2">
         <button onClick={onClose} className="rounded-xl px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800">Cancelar</button>
-        <button onClick={() => onTransfer(selected || undefined)} className="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600">Transferir</button>
+        <button
+          onClick={() => onTransfer(selected || undefined)}
+          disabled={selected === (product.customerId || '')}
+          className={cn('rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:opacity-40', unlinking ? 'bg-red-500 hover:bg-red-600' : 'bg-indigo-500 hover:bg-indigo-600')}
+        >
+          {unlinking ? 'Desvincular' : 'Transferir'}
+        </button>
       </div>
     </Modal>
   );
