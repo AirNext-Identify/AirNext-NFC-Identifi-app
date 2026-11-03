@@ -7,10 +7,14 @@ O site público é uma landing page em português do Brasil (pt-BR). Os preços 
 ## Site e produtos
 
 - [Página inicial](https://airnext.com.br/): visão geral da AirNext, linhas de produtos, galeria e perguntas frequentes.
-- [Produtos](https://airnext.com.br/#produtos): cartões, tags, pulseiras e kits NFC com preço e botão para personalizar.
+- [Produtos](https://airnext.com.br/#produtos): cartões, tags, pulseiras e kits NFC com preço.
 - [Funcionalidades](https://airnext.com.br/#funcionalidades): o que o perfil digital faz (links, contatos, WhatsApp, pet, kids, TEA, negócios).
-- [Personalizador](https://airnext.com.br/#personalizado): configurador ao vivo com linha, formato, cor e foto de frente e verso.
 - [Perguntas frequentes](https://airnext.com.br/#faq): respostas curtas sobre NFC, QR Code, compatibilidade com iPhone e Android e mensalidade.
+
+## Empresa e contato
+
+- [Sobre a AirNext](https://airnext.com.br/sobre): o que é a AirNext, como funciona e quem está por trás (AirNext Tecnologia LTDA).
+- [Contato](https://airnext.com.br/contato): WhatsApp e telefone +55 47 99628-7761, e-mail contato@airnext.com.br, Instagram @airnext.com.br.
 
 ## Suporte
 
@@ -21,6 +25,11 @@ O site público é uma landing page em português do Brasil (pt-BR). Os preços 
 - [Política de Privacidade](https://airnext.com.br/politica-de-privacidade): como os dados pessoais são tratados (LGPD).
 - [Termos de Uso](https://airnext.com.br/termos-de-uso): regras de uso da plataforma e dos produtos.
 - [Política de Cookies](https://airnext.com.br/politica-de-cookies): cookies usados no site e como gerenciar o consentimento.
+
+## Para agentes
+
+- [Página inicial em Markdown](https://airnext.com.br/index.md): produtos, preços e perguntas frequentes (também em `/` com `Accept: text/markdown`).
+- [MCP Server Card](https://airnext.com.br/.well-known/mcp/server-card.json): servidor MCP somente leitura em https://airnext.com.br/mcp.
 
 ## Opcional
 

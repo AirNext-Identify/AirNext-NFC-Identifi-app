@@ -899,18 +899,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const { error } = await supabase
-        .from('deletion_requests')
-        .insert({
-          user_id: user.id,
-          email: user.email,
-          requested_at: new Date().toISOString(),
-          status: 'pending',
-        });
+      // Exclusão REAL: a função delete_my_account (sql/28_excluir_minha_conta.sql) apaga os dados
+      // e a conta de login no banco. Antes isto só gravava um pedido "pending" e a conta continuava.
+      const { error } = await supabase.rpc('delete_my_account');
 
       if (error) {
-        console.error('Erro ao criar solicitação:', error);
-        return { ok: false, error: error.message };
+        console.error('Erro ao excluir conta:', error);
+        const msg = error.message || '';
+        const missing = error.code === 'PGRST202' || (/delete_my_account/i.test(msg) && /could not find|does not exist|schema cache/i.test(msg));
+        return {
+          ok: false,
+          error: missing
+            ? 'Função de exclusão não instalada no banco. Rode o arquivo sql/28_excluir_minha_conta.sql no SQL Editor do Supabase.'
+            : msg || 'Erro ao excluir conta.',
+        };
       }
 
       await logout();

@@ -17,6 +17,7 @@ import { LabelsView } from '@/components/admin/modules/LabelsView';
 import { ValidityView } from '@/components/admin/modules/ValidityView';
 import { NotificationsView } from '@/components/admin/modules/NotificationsView';
 import { NotifyModal } from '@/components/admin/modules/NotifyModal';
+import PushPrompt from '@/components/PushPrompt';
 import { AnalyticsView } from '@/components/admin/modules/AnalyticsView';
 import { SettingsView } from '@/components/admin/modules/SettingsView';
 import { GuideView } from '@/components/admin/modules/GuideView';
@@ -573,6 +574,7 @@ export default function AdminPanel() {
         }}
       />
       <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <PushPrompt />
       <NotifyModal
         isOpen={!!notifyTarget}
         onClose={() => setNotifyTarget(null)}

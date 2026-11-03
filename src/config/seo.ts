@@ -17,7 +17,7 @@ export const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '').replace(/\/$/, '')
 export const SITE_NAME = 'AirNext';
 export const SITE_TAGLINE = 'Conecta o físico ao digital';
 export const SITE_DESCRIPTION =
-  'NFC + QR Code em um único perfil: links, contato e muito mais. Feito para negócios, pets e pessoas. Saiba mais.';
+  'Soluções em NFC para negócios, pets e pessoas: cartão de visita NFC, tags inteligentes e placas de avaliação que centralizam suas informações em um só perfil.';
 
 export const SITE_KEYWORDS = [
   'AirNext',
@@ -35,7 +35,7 @@ export const SITE_KEYWORDS = [
   'Google Preferred Sources',
 ].join(', ');
 
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-airnext-logo.jpg`;
 export const TWITTER_HANDLE = '@airnext';
 
 export type SeoProps = {

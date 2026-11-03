@@ -68,8 +68,8 @@ export default function SupportPage() {
   };
 
   const handleDelete = async () => {
-    if (deleteConfirm !== 'EXCLUIR CONTA') {
-      toast.show('Digite exatamente "EXCLUIR CONTA" para confirmar.', 'error');
+    if (deleteConfirm.trim().toUpperCase() !== 'EXCLUIR CONTA') {
+      toast.show('Digite "excluir conta" para confirmar.', 'error');
       return;
     }
     setDeleting(true);
@@ -241,7 +241,7 @@ export default function SupportPage() {
                 ← Voltar
               </button>
               <button onClick={handleDelete}
-                disabled={deleting || deleteConfirm !== 'EXCLUIR CONTA'}
+                disabled={deleting || deleteConfirm.trim().toUpperCase() !== 'EXCLUIR CONTA'}
                 className="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-40 text-sm font-black text-white transition-all flex items-center justify-center gap-2">
                 {deleting ? <><Loader2 className="h-4 w-4 animate-spin" /> Excluindo...</> : <><Trash2 className="h-4 w-4" /> Excluir Conta</>}
               </button>

@@ -40,7 +40,7 @@ export const RATING_LABELS = ['Ruim', 'Poderia melhorar', 'Bom', 'Muito bom', 'E
 
 /** Rotas onde NÃO mostramos nada (cartões públicos de clientes, login, admin etc.). */
 export function isFeedbackHiddenRoute(pathname: string): boolean {
-  const roots = ['/u', '/p', '/n', '/a', '/admin', '/admin-legacy', '/painel-imagens', '/login', '/register', '/onboarding'];
+  const roots = ['/u', '/p', '/n', '/a', '/admin', '/admin-legacy', '/dashboard', '/painel-imagens', '/login', '/register', '/onboarding'];
   return roots.some(r => pathname === r || pathname.startsWith(r + '/'));
 }
 

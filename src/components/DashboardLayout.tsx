@@ -4,6 +4,7 @@ import { LayoutDashboard, Package, BarChart3, LogOut, Menu, Zap, HelpCircle, Bel
 import { useState, useEffect, useRef } from 'react';
 import Logo from './Logo';
 import NotificationCenter from './NotificationCenter';
+import PushPrompt from './PushPrompt';
 import { useToast } from './Toast';
 import { WelcomeTour, HelpFab } from './dashboard/WelcomeTour';
 
@@ -201,6 +202,7 @@ export default function DashboardLayout() {
       </div>
 
       <NotificationCenter open={notifOpen} onClose={() => setNotifOpen(false)} />
+      <PushPrompt />
       <WelcomeTour open={tourOpen} firstName={user?.firstName || user?.name?.split(' ')[0]} onClose={closeTour} />
       {!tourOpen && <HelpFab pulse={!tourDone} onStartTour={() => setTourOpen(true)} />}
     </div>

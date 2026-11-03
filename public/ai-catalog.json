@@ -18,6 +18,20 @@
       "type": "application/xml",
       "url": "https://airnext.com.br/sitemap.xml",
       "description": "Lista das páginas públicas do site AirNext para rastreadores e agentes."
+    },
+    {
+      "identifier": "urn:ai:airnext.com.br:mcp:server-card",
+      "displayName": "MCP Server Card da AirNext",
+      "type": "application/json",
+      "url": "https://airnext.com.br/.well-known/mcp/server-card.json",
+      "description": "Descreve o servidor MCP somente leitura da AirNext (produtos e preços, perguntas frequentes e contatos) e o endereço https://airnext.com.br/mcp."
+    },
+    {
+      "identifier": "urn:ai:airnext.com.br:knowledge:homepage-markdown",
+      "displayName": "Página inicial em Markdown",
+      "type": "text/markdown",
+      "url": "https://airnext.com.br/index.md",
+      "description": "Versão em Markdown da página inicial, com produtos, preços e perguntas frequentes. Também servida em https://airnext.com.br/ para quem envia Accept: text/markdown."
     }
   ]
 }

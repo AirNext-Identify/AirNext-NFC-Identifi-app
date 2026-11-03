@@ -19,7 +19,6 @@ import { LOGO_ON_DARK, LOGO_ON_LIGHT } from '../components/BrandLogo';
 import SacolaDrawer from '../components/store/SacolaDrawer';
 import { useStore } from '../store/StoreContext';
 import { usePublicFeedbacks } from '../hooks/usePublicFeedbacks';
-// (Abertura animada desativada p/ desempenho: para reativar, reimporte ../components/splash/SplashScreen e renderize <SplashScreen /> no topo da landing.)
 import { useFeedbackTheme, FeedbackLink, GOOGLE_REVIEW_URL } from '../components/feedback';
 const ProductShowcase = lazy(() => import('../components/landing/ProductShowcase'));
 const GooglePlaquesSection = lazy(() => import('../components/landing/GooglePlaquesSection'));
@@ -482,6 +481,8 @@ export default function LandingPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalFormatId, setModalFormatId] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  // A navbar do desktop é clara enquanto está sobre o hero branco (topo da página); escura só no tema escuro, depois de rolar.
+  const navDark = isDark && scrolled;
   // Posição vertical da navbar no mobile: começa logo abaixo da faixa de aviso e
   // "gruda" no topo (top: 0) quando a faixa sai da tela — igual ao apple.com.
   const [navTop, setNavTop] = useState(0);
@@ -942,14 +943,14 @@ export default function LandingPage() {
         className={`fixed z-50 inset-x-0 top-[var(--nav-top)] md:top-4 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[95%] md:max-w-7xl transition-[background-color,box-shadow,border-color] duration-300 group/nav
           bg-black/90 backdrop-blur-xl border-b border-white/10 pt-[env(safe-area-inset-top)] md:pt-0 md:border-b-0 md:rounded-full md:border ${
           scrolled
-            ? `${isDark ? 'md:bg-[#0a0a0a]/80 md:border-white/10' : 'md:bg-white/80 md:border-gray-200/70'} md:backdrop-blur-2xl md:shadow-md`
-            : `${isDark ? 'md:bg-white/[0.04] md:border-white/10' : 'md:bg-white/50 md:border-gray-200/40'} md:backdrop-blur-md`
+            ? `${navDark ? 'md:bg-[#0a0a0a]/80 md:border-white/10' : 'md:bg-white/80 md:border-gray-200/70'} md:backdrop-blur-2xl md:shadow-md`
+            : `${navDark ? 'md:bg-white/[0.04] md:border-white/10' : 'md:bg-white/50 md:border-gray-200/40'} md:backdrop-blur-md`
         }`}
       >
         <div className="relative px-4 md:px-6 h-[52px] md:h-[68px] flex items-center justify-between gap-3 md:gap-4">
           {/* Logo: no mobile a barra é sempre escura, então o "Air" fica branco */}
           <span className="md:hidden relative top-[3px]"><Logo size="sm" dark /></span>
-          <span className="hidden md:block relative top-[3px]"><Logo size="md" dark={isDark} /></span>
+          <span className="hidden md:block relative top-[3px]"><Logo size="md" dark={navDark} /></span>
 
           {/* Center nav links with animated underline on hover */}
           <div className="hidden xl:flex items-center gap-1">
@@ -965,7 +966,7 @@ export default function LandingPage() {
                 href={l.href}
                 onClick={(e) => goToSection(e, l.href)}
                 className={`relative px-3.5 py-2 text-[12.5px] font-semibold tracking-tight rounded-full transition-colors ${
-                  isDark ? 'text-gray-400 hover:text-white hover:bg-white/[0.06]' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-900/[0.04]'
+                  navDark ? 'text-gray-400 hover:text-white hover:bg-white/[0.06]' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-900/[0.04]'
                 }`}
               >
                 {l.label}
@@ -978,7 +979,7 @@ export default function LandingPage() {
             <button
               onClick={() => setIsDark(!isDark)}
               className={`hidden md:flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold border transition-all flex-shrink-0 ${
-                isDark ? 'bg-white/[0.06] border-white/10 text-yellow-300 hover:bg-white/10' : 'bg-gray-900/[0.04] border-gray-200 text-gray-700 hover:bg-gray-900/[0.08]'
+                navDark ? 'bg-white/[0.06] border-white/10 text-yellow-300 hover:bg-white/10' : 'bg-gray-900/[0.04] border-gray-200 text-gray-700 hover:bg-gray-900/[0.08]'
               }`}
               aria-label="Alternar tema"
             >
@@ -994,12 +995,12 @@ export default function LandingPage() {
             </Link>
 
             {/* Busca */}
-            <button onClick={() => setSearchOpen(true)} className={`flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`} aria-label="Buscar">
+            <button onClick={() => setSearchOpen(true)} className={`flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${navDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`} aria-label="Buscar">
               <Search size={18} />
             </button>
 
             {/* Sacola */}
-            <button onClick={() => setCartOpen(true)} className={`relative flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`} aria-label="Sacola">
+            <button onClick={() => setCartOpen(true)} className={`relative flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${navDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`} aria-label="Sacola">
               <ShoppingBag size={18} />
               {store.count > 0 && (
                 <span className="absolute top-1 right-1 bg-[#0071e3] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
@@ -1013,16 +1014,16 @@ export default function LandingPage() {
               to="/login"
               title="Login"
               aria-label="Login"
-              className={`flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`}
+              className={`flex-shrink-0 p-2.5 rounded-full transition-all text-white/90 active:bg-white/10 ${navDark ? 'md:text-gray-300 md:hover:bg-white/10' : 'md:text-gray-700 md:hover:bg-gray-900/[0.06]'}`}
             >
               <UserRound size={18} />
             </Link>
 
             {/* Divider */}
-            <div className={`hidden md:block w-px h-6 mx-0.5 flex-shrink-0 ${isDark ? 'bg-white/10' : 'bg-gray-200'}`} />
+            <div className={`hidden md:block w-px h-6 mx-0.5 flex-shrink-0 ${navDark ? 'bg-white/10' : 'bg-gray-200'}`} />
 
             {/* Menu (dois tracinhos) */}
-            <button onClick={() => setMobileOpen(true)} className={`xl:hidden flex-shrink-0 p-2.5 md:w-10 md:h-10 md:p-0 rounded-full flex items-center justify-center transition-all text-white/90 active:bg-white/10 ${isDark ? 'md:bg-white/[0.08] md:text-white md:hover:bg-white/[0.14]' : 'md:bg-gray-900/[0.06] md:text-gray-900 md:hover:bg-gray-900/[0.1]'}`} aria-label="Abrir menu">
+            <button onClick={() => setMobileOpen(true)} className={`xl:hidden flex-shrink-0 p-2.5 md:w-10 md:h-10 md:p-0 rounded-full flex items-center justify-center transition-all text-white/90 active:bg-white/10 ${navDark ? 'md:bg-white/[0.08] md:text-white md:hover:bg-white/[0.14]' : 'md:bg-gray-900/[0.06] md:text-gray-900 md:hover:bg-gray-900/[0.1]'}`} aria-label="Abrir menu">
               <MenuLines size={18} />
             </button>
           </div>

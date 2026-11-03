@@ -148,7 +148,7 @@ function Phone({ p }: { p: MV }) {
 
   // sombra no chão: aperta e escurece conforme o celular desce
   const shadowScale = useTransform(z, [6, 200], [0.98, 1.22]);
-  const shadowOp = useTransform(z, [6, 200], [0.7, 0.22]);
+  const shadowOp = useTransform(z, [6, 200], [0.38, 0.12]);
 
   return (
     <>
@@ -219,7 +219,7 @@ function Tag({ p }: { p: MV }) {
   const glow = useTransform(
     p,
     [0.6, 0.7],
-    ['0 30px 80px -20px rgba(0,0,0,.8), 0 0 0px 0px rgba(90,200,250,0)', '0 30px 80px -20px rgba(0,0,0,.8), 0 0 70px 8px rgba(90,200,250,.5)']
+    ['0 30px 70px -22px rgba(0,25,70,.45), 0 0 0px 0px rgba(90,200,250,0)', '0 30px 70px -22px rgba(0,25,70,.45), 0 0 60px 6px rgba(90,200,250,.45)']
   );
 
   return (
@@ -292,12 +292,12 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
   const cueOp = useTransform(p, [0, 0.07], [1, 0]);
 
   const btnPrimary =
-    'group inline-flex items-center gap-3 rounded-full bg-white px-6 py-3 text-[15px] font-semibold text-black shadow-xl transition hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5ac8fa]';
+    'group inline-flex items-center gap-3 rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(0,113,227,0.8)] transition hover:bg-[#0077ed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]';
   const btnGhost =
-    'inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-[15px] font-semibold text-white backdrop-blur transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5ac8fa]';
+    'inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-6 py-3 text-[15px] font-semibold text-[#1d1d1f] transition hover:bg-black/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]';
 
   return (
-    <section id="top" aria-label="AirNext: cartões, tags e pulseiras NFC com QR Code" className="relative bg-[#050507] text-white">
+    <section id="top" aria-label="AirNext: cartões, tags e pulseiras NFC com QR Code" className="relative bg-[#fbfbfd] text-[#1d1d1f]">
       <div ref={wrapRef} className={reduce ? 'relative' : 'relative h-[320svh] lg:h-[340svh]'}>
         <div className={`${reduce ? 'relative min-h-[100svh]' : 'sticky top-0 h-[100svh]'} overflow-hidden`}>
           {/* fundo */}
@@ -306,14 +306,14 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                'radial-gradient(60% 50% at 75% 55%, rgba(0,113,227,.22) 0%, rgba(0,113,227,0) 70%), radial-gradient(50% 40% at 10% 0%, rgba(90,200,250,.08) 0%, rgba(90,200,250,0) 70%)',
+                'radial-gradient(60% 50% at 75% 55%, rgba(0,113,227,.12) 0%, rgba(0,113,227,0) 70%), radial-gradient(50% 40% at 10% 0%, rgba(90,200,250,.14) 0%, rgba(90,200,250,0) 70%)',
             }}
           />
 
           <div className="relative mx-auto grid h-full max-w-[1400px] grid-rows-[auto_minmax(0,1fr)] pt-[76px] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:grid-rows-1 lg:pt-0">
             {/* texto */}
             <div className="relative z-10 flex flex-col justify-center px-6 pb-2 text-center lg:px-10 lg:pb-0 lg:pl-[max(2rem,5vw)] lg:text-left">
-              <p className="mx-auto mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-xs font-medium text-sky-200 backdrop-blur lg:mx-0 lg:mb-5 lg:text-sm">
+              <p className="mx-auto mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-3.5 py-1.5 text-xs font-medium text-[#0071e3] backdrop-blur lg:mx-0 lg:mb-5 lg:text-sm">
                 <Nfc size={13} className="text-[#5ac8fa]" /> NFC + QR Code · Tecnologia Premium
               </p>
 
@@ -323,17 +323,17 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
                 <motion.span className="block" style={{ opacity: w3 }}>e pets.</motion.span>
               </h1>
 
-              <p className="mx-auto mt-3 max-w-md text-[15px] font-medium leading-snug text-gray-300 lg:mx-0 lg:mt-6 lg:max-w-xl lg:text-xl lg:leading-relaxed">
+              <p className="mx-auto mt-3 max-w-md text-[15px] font-medium leading-snug text-[#424245] lg:mx-0 lg:mt-6 lg:max-w-xl lg:text-xl lg:leading-relaxed">
                 Um toque e seu perfil digital abre no celular de quem você encontra.
               </p>
-              <p className="ai-definition mt-4 hidden max-w-xl text-base leading-relaxed text-gray-400 md:block">
+              <p className="ai-definition mt-4 hidden max-w-xl text-base leading-relaxed text-[#6e6e73] md:block">
                 Cartões, tags e pulseiras NFC. Sem app, sem bateria, sem complicação.
               </p>
 
               <div className="mt-4 flex flex-wrap justify-center gap-3 lg:mt-8 lg:justify-start">
                 <Link to="/loja" className={btnPrimary}>
                   Explorar Produtos
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 transition group-hover:bg-black/20">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 transition group-hover:bg-white/30">
                     <ChevronDown size={14} />
                   </span>
                 </Link>
@@ -355,7 +355,7 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
                     className="absolute rounded-full"
                     style={{
                       left: -450, top: -450 + TAG_Y, width: 900, height: 900, z: -2, opacity: padOp,
-                      background: 'radial-gradient(circle, rgba(0,113,227,.4) 0%, rgba(0,113,227,.12) 38%, rgba(0,113,227,0) 68%)',
+                      background: 'radial-gradient(circle, rgba(0,113,227,.16) 0%, rgba(0,113,227,.06) 38%, rgba(0,113,227,0) 68%)',
                     }}
                   />
                   <Tag p={p} />
@@ -372,7 +372,7 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
                 className="pointer-events-none absolute left-1/2 top-[4%] -translate-x-1/2"
                 style={{ opacity: chipOp, y: chipY }}
               >
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg backdrop-blur-xl">
+                <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-3.5 py-1.5 text-xs font-semibold text-[#1d1d1f] shadow-lg backdrop-blur-xl">
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
                   Tag NFC detectada
                 </span>
@@ -382,7 +382,7 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
 
           {/* dica de rolagem */}
           {!reduce && (
-            <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-1 text-xs text-white/60" style={{ opacity: cueOp }}>
+            <motion.div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-4 flex flex-col items-center gap-1 text-xs text-[#6e6e73]" style={{ opacity: cueOp }}>
               Role para aproximar
               <ChevronDown size={16} className="animate-bounce" />
             </motion.div>
@@ -391,7 +391,7 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
       </div>
 
       {/* texto completo no celular (no palco, só cabe a versão curta) */}
-      <p className="ai-definition mx-auto max-w-xl px-6 pb-10 pt-6 text-center text-[15px] leading-relaxed text-gray-400 md:hidden">
+      <p className="ai-definition mx-auto max-w-xl px-6 pb-10 pt-6 text-center text-[15px] leading-relaxed text-[#6e6e73] md:hidden">
         Cartões, tags e pulseiras NFC. Sem app, sem bateria, sem complicação.
       </p>
     </section>

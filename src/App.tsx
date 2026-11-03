@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useRef } from 'react';
 import { supabase } from './lib/supabase';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './components/Toast';
@@ -194,6 +194,33 @@ function RecoveryRedirect() {
   return null;
 }
 
+/**
+ * Rede de segurança do login/cadastro: se o link de confirmação de e-mail (ou o retorno do Google) cair na
+ * PÁGINA INICIAL (acontece quando a URL não está liberada em Authentication → URL Configuration no Supabase),
+ * a pessoa já está logada mas ficava na home. Aqui ela é levada para a conta dela (admin → /admin).
+ */
+function AuthCallbackRedirect() {
+  const nav = useNavigate();
+  const { pathname } = useLocation();
+  const { user, loading } = useAuth();
+  const pending = useRef<'signup' | 'login' | null>(
+    typeof window !== 'undefined' &&
+    window.location.pathname === '/' &&
+    !/type=recovery/.test(window.location.hash) &&
+    (/access_token=/.test(window.location.hash) || /[?&]code=/.test(window.location.search))
+      ? (/type=signup/.test(window.location.hash) ? 'signup' : 'login')
+      : null
+  );
+  useEffect(() => {
+    if (!pending.current || loading || !user) return;
+    const kind = pending.current;
+    pending.current = null;
+    if (pathname !== '/') return;
+    nav(user.role === 'ADMIN' ? '/admin' : kind === 'signup' ? '/dashboard/conta' : '/dashboard', { replace: true });
+  }, [user, loading, pathname, nav]);
+  return null;
+}
+
 export default function App() {
   useEffect(() => {
     document.documentElement.classList.add('app-ready');
@@ -206,6 +233,7 @@ export default function App() {
       <RecoveryRedirect />
       <AnalyticsTracker />
         <AuthProvider>
+         <AuthCallbackRedirect />
          <FeedbackProvider>
           <Suspense fallback={<LoadingScreen />}>
             <Routes>

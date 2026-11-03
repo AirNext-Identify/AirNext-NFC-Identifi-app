@@ -1,6 +1,7 @@
 import { X, Bell, Activity, LogIn, CheckCheck, Trash2, XCircle } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth, AppNotification } from '../contexts/AuthContext';
+import PushToggle from './PushToggle';
 
 function timeAgo(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -83,6 +84,8 @@ export default function NotificationCenter({
             <X className="h-5 w-5" />
           </button>
         </div>
+
+        <PushToggle />
 
         <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
           <div className="flex gap-1.5">

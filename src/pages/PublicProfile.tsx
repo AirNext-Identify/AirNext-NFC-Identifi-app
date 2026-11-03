@@ -276,15 +276,16 @@ export default function PublicProfile() {
       setLoading(true);
       const p = await getPublicProfile(slug);
       if (!p) { setIsPrivate(true); setLoading(false); return; }
-      await ensureFontReady(p.profileData?.__fontFamily);
+      // Mostra o perfil na hora; a fonte personalizada carrega em segundo plano (font-display: swap).
       setProduct(p);
       setLoading(false);
+      void ensureFontReady(p.profileData?.__fontFamily);
       if (!visitRecorded.current) {
         visitRecorded.current = true;
         const params = new URLSearchParams(window.location.search);
         const via = params.get('via');
         const type: 'nfc' | 'qr' | 'link' = via === 'qr' ? 'qr' : via === 'nfc' ? 'nfc' : 'link';
-        await recordVisit(p.id, type, 'view');
+        void recordVisit(p.id, type, 'view');
       }
     };
     load();
