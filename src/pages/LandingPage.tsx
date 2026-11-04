@@ -956,7 +956,7 @@ export default function LandingPage() {
           <div className="hidden xl:flex items-center gap-1">
             <Link
               to="/loja"
-              className="relative mr-1 inline-flex h-9 items-center gap-1.5 rounded-full bg-[#0071e3] px-4 text-[12.5px] font-semibold tracking-tight text-white shadow-[0_6px_16px_-8px_rgba(0,113,227,0.9)] transition duration-200 hover:-translate-y-px hover:bg-[#0077ed] active:translate-y-0 active:scale-95"
+              className={`relative mr-1 inline-flex h-9 items-center gap-1.5 rounded-full ${navDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-[#1d1d1f] text-white hover:bg-black'} px-4 text-[12.5px] font-semibold tracking-tight shadow-[0_6px_16px_-8px_rgba(0,0,0,0.5)] transition duration-200 hover:-translate-y-px active:translate-y-0 active:scale-95`}
             >
               <ShoppingBag size={14} aria-hidden="true" /> Loja
             </Link>
@@ -989,7 +989,7 @@ export default function LandingPage() {
             {/* Loja — atalho sempre visível a partir do tablet */}
             <Link
               to="/loja"
-              className="hidden md:inline-flex xl:hidden items-center gap-1.5 h-9 px-4 rounded-full bg-[#0071e3] text-white text-xs font-semibold shadow-[0_6px_16px_-8px_rgba(0,113,227,0.9)] hover:bg-[#0077ed] hover:-translate-y-px active:translate-y-0 active:scale-95 transition duration-200 flex-shrink-0"
+              className={`hidden md:inline-flex xl:hidden items-center gap-1.5 h-9 px-4 rounded-full ${navDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-[#1d1d1f] text-white hover:bg-black'} text-xs font-semibold shadow-[0_6px_16px_-8px_rgba(0,0,0,0.5)] hover:-translate-y-px active:translate-y-0 active:scale-95 transition duration-200 flex-shrink-0`}
             >
               <ShoppingBag size={14} /> Loja
             </Link>

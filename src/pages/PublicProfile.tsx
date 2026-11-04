@@ -250,6 +250,14 @@ export default function PublicProfile() {
   const depRef = useRef<HTMLDivElement>(null);
   const [showPix, setShowPix] = useState(false);
   const [showWifi, setShowWifi] = useState(false);
+  const [inAppHelp, setInAppHelp] = useState(false);
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  const isInApp = /Instagram|FBAN|FBAV|FB_IAB|Messenger|TikTok|musical_ly|Snapchat|LinkedInApp|Line\//i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  const openInChrome = () => {
+    const { host, pathname, search } = window.location;
+    window.location.href = `intent://${host}${pathname}${search}#Intent;scheme=https;package=com.android.chrome;end`;
+  };
   const [showHorarios, setShowHorarios] = useState(false);
   const [showWifiPass, setShowWifiPass] = useState(false);
   const [showApoioTEA, setShowApoioTEA] = useState(true);
@@ -546,6 +554,7 @@ export default function PublicProfile() {
 
   const saveContact = async () => {
     trackClick('save_contact');
+    if (isInApp) { setInAppHelp(true); return; }
     const photoB64 = d.foto ? await prefetchVcardPhoto(d.foto) : null;
     const vName = vcard.nome || name;
     const vOrg = vcard.empresa || d.nomeEmpresa || '';
@@ -579,11 +588,15 @@ export default function PublicProfile() {
 
     const v = lines.map(foldVcardLine).join('\r\n') + '\r\n';
     const blob = new Blob([v], { type: 'text/vcard;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    a.href = url;
     a.download = `${vName || name || 'contato'}.vcf`;
+    document.body.appendChild(a);
     a.click();
-    toast.show('Contato salvo!', 'success');
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast.show('Contato baixado!', 'success');
     fireConfetti();
   };
 
@@ -2395,6 +2408,37 @@ export default function PublicProfile() {
           </div>
         </div>
       </div>
+
+      {/* ── AVISO: navegador interno (Instagram etc.) bloqueia o download do contato ── */}
+      {inAppHelp && (
+        <Modal isOpen={inAppHelp} onClose={() => setInAppHelp(false)}>
+          <div className="text-center p-6">
+            <p className="text-white font-bold text-lg mb-2">Abra no navegador para salvar</p>
+            <p className="text-zinc-400 text-sm mb-5">
+              O navegador do Instagram bloqueia o download de contatos.{' '}
+              {isAndroid
+                ? 'Toque no botão abaixo para abrir no Chrome.'
+                : 'Toque nos três pontinhos (⋯) e escolha "Abrir no Safari".'}
+            </p>
+            <div className="flex flex-col gap-2">
+              {isAndroid && (
+                <button
+                  onClick={openInChrome}
+                  className="w-full py-3 rounded-full bg-white text-black text-sm font-bold active:scale-95 transition-all"
+                >
+                  Abrir no Chrome
+                </button>
+              )}
+              <button
+                onClick={() => { navigator.clipboard?.writeText(window.location.href); toast.show('Link copiado!', 'success'); }}
+                className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 rounded-full text-sm text-zinc-300 hover:text-white border border-white/10 transition-all"
+              >
+                <Copy className="h-3.5 w-3.5" /> Copiar link
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* ── QR MODAL ── */}
       {showQR && (

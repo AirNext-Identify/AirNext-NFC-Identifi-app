@@ -57,7 +57,7 @@ function Header() {
   }, []);
   const icon = 'relative flex h-10 w-10 items-center justify-center rounded-full text-white/85 transition hover:bg-white/10 hover:text-white active:scale-95';
   return (
-    <header className={`sticky top-0 z-40 border-b backdrop-blur-xl transition-colors ${scrolled ? 'border-white/10 bg-[#161617]/90' : 'border-transparent bg-[#161617]/80'}`}>
+    <header className={`sticky top-0 z-40 border-b backdrop-blur-xl transition-colors ${scrolled ? 'border-white/10 bg-black/95' : 'border-transparent bg-black/90'}`}>
       <div className="mx-auto flex h-[52px] max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <div className="flex items-center"><BrandLogo to="/" size="sm" dark /></div>
         <nav className="hidden items-center gap-1 md:flex" aria-label="Principal">

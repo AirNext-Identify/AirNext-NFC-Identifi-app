@@ -5,7 +5,7 @@ import {
 } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { Camera, ChevronDown, Globe, MessageCircle, Nfc, Play, UserPlus } from 'lucide-react';
+import { Camera, ChevronDown, Globe, MessageCircle, Nfc, Play, Star, UserPlus } from 'lucide-react';
 
 /**
  * Hero da landing — "NFC conecta pessoas, negócios e pets."
@@ -68,13 +68,13 @@ function PhoneScreen({ p }: { p: MV }) {
   ];
 
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 38, background: '#04070f' }}>
+    <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: 38, background: '#000' }}>
       {/* papel de parede */}
       <div
         className="absolute inset-0"
-        style={{ background: 'radial-gradient(120% 70% at 30% 0%, #0a3d7a 0%, #08203f 45%, #04070f 100%)' }}
+        style={{ background: 'radial-gradient(120% 70% at 30% 0%, #1f1f23 0%, #0c0c0e 45%, #000 100%)' }}
       />
-      <div className="absolute -right-16 top-1/3 h-56 w-56 rounded-full bg-[#5ac8fa]/20 blur-3xl" />
+      <div className="absolute -right-16 top-1/3 h-56 w-56 rounded-full bg-white/[0.06] blur-3xl" />
 
       {/* tela de bloqueio */}
       <motion.div className="absolute inset-0 text-white" style={{ opacity: lockOp }}>
@@ -114,12 +114,12 @@ function PhoneScreen({ p }: { p: MV }) {
           <div className="flex h-[76px] w-[76px] items-center justify-center rounded-full bg-gradient-to-br from-[#0071e3] to-[#5ac8fa] text-[30px] font-bold ring-4 ring-white/15">
             A
           </div>
-          <span className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#08203f] bg-emerald-500">
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-[#0c0c0e] bg-emerald-500">
             <Nfc size={12} />
           </span>
         </div>
         <p className="mt-3 text-[19px] font-semibold leading-tight">Ana Souza</p>
-        <p className="text-[12px] text-sky-200/70">Designer de Produto</p>
+        <p className="text-[12px] text-white/55">Designer de Produto</p>
 
         <div className="mt-5 w-full space-y-2">
           {links.map((l) => (
@@ -131,6 +131,9 @@ function PhoneScreen({ p }: { p: MV }) {
         </div>
         <div className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3 text-[13px] font-semibold text-zinc-950">
           <UserPlus size={15} /> Salvar contato
+        </div>
+        <div className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/[0.09] py-3 text-[13px] font-semibold text-white backdrop-blur">
+          <Star size={15} className="fill-amber-400 text-amber-400" /> Avaliar no Google
         </div>
       </motion.div>
     </div>
@@ -174,25 +177,25 @@ function Phone({ p }: { p: MV }) {
             className="absolute inset-0"
             style={{
               borderRadius: 46,
-              background: i % 2 ? '#6b6f78' : '#3b3e45',
+              background: i % 2 ? '#4a4a50' : '#1c1c1f',
               transform: `translateZ(${-i}px)`,
             }}
           />
         ))}
         {/* botões laterais */}
-        <div className="absolute -right-[2px] top-32 h-16 w-[3px] rounded-r bg-[#7b7f88]" style={{ transform: 'translateZ(-3px)' }} />
-        <div className="absolute -left-[2px] top-28 h-9 w-[3px] rounded-l bg-[#7b7f88]" style={{ transform: 'translateZ(-3px)' }} />
-        <div className="absolute -left-[2px] top-44 h-12 w-[3px] rounded-l bg-[#7b7f88]" style={{ transform: 'translateZ(-3px)' }} />
+        <div className="absolute -right-[2px] top-32 h-16 w-[3px] rounded-r bg-[#2b2b2f]" style={{ transform: 'translateZ(-3px)' }} />
+        <div className="absolute -left-[2px] top-28 h-9 w-[3px] rounded-l bg-[#2b2b2f]" style={{ transform: 'translateZ(-3px)' }} />
+        <div className="absolute -left-[2px] top-44 h-12 w-[3px] rounded-l bg-[#2b2b2f]" style={{ transform: 'translateZ(-3px)' }} />
 
         {/* frente: moldura + tela */}
         <div
           className="absolute inset-0"
           style={{
             borderRadius: 46,
-            background: 'linear-gradient(145deg,#8a8e97 0%,#2a2c31 40%,#5d6068 100%)',
+            background: 'linear-gradient(145deg,#6a6a70 0%,#121214 42%,#4a4a50 100%)',
             padding: 3,
             transform: 'translateZ(1px)',
-            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.18)',
+            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.28), 0 0 0 1px rgba(255,255,255,.10), 0 18px 40px -12px rgba(0,0,0,.7)',
           }}
         >
           <div className="relative h-full w-full bg-black" style={{ borderRadius: 43, padding: 8 }}>
@@ -228,23 +231,23 @@ function Tag({ p }: { p: MV }) {
       style={{
         left: -CARD_W / 2, top: -CARD_H / 2 + TAG_Y, width: CARD_W, height: CARD_H,
         borderRadius: 30, z: 2, rotateZ, boxShadow: glow,
-        background: 'linear-gradient(135deg,#10234a 0%,#071022 55%,#0b2f5c 100%)',
+        background: 'linear-gradient(135deg,#1d1d20 0%,#050506 55%,#17171a 100%)',
         border: '1px solid rgba(255,255,255,.14)',
       }}
     >
       <div className="absolute inset-0" style={{ background: 'linear-gradient(115deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 38%)' }} />
       <div className="absolute left-8 top-7 flex items-center gap-3">
-        <span className="font-lobster text-[40px] leading-none tracking-wide">AirNext</span>
+        <span className="font-lobster text-[30px] leading-none tracking-wide">AirNext</span>
       </div>
       <div className="absolute right-8 top-7 flex h-12 w-12 items-center justify-center rounded-full bg-[#0071e3]/25 ring-1 ring-[#5ac8fa]/50">
         <Nfc size={24} className="text-[#5ac8fa]" />
       </div>
-      <div className="absolute bottom-8 left-8 rounded-2xl bg-white p-2.5">
-        <QRCodeSVG value="https://airnext.com.br" size={104} level="M" aria-label="QR Code que leva ao site da AirNext" />
+      <div className="absolute bottom-8 left-8 rounded-xl bg-white p-1.5">
+        <QRCodeSVG value="https://airnext.com.br" size={64} level="M" aria-label="QR Code que leva ao site da AirNext" />
       </div>
-      <div className="absolute bottom-8 right-8 text-right leading-tight">
-        <p className="text-[22px] font-semibold">Aproxime</p>
-        <p className="text-[15px] text-sky-200/70">ou escaneie o QR Code</p>
+      <div className="absolute bottom-8 right-6 text-right leading-tight">
+        <p className="text-[20px] font-semibold">Aproxime</p>
+        <p className="text-[13px] text-white/60">ou escaneie<br />o QR Code</p>
       </div>
     </motion.div>
   );
@@ -292,9 +295,9 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
   const cueOp = useTransform(p, [0, 0.07], [1, 0]);
 
   const btnPrimary =
-    'group inline-flex items-center gap-3 rounded-full bg-[#0071e3] px-6 py-3 text-[15px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(0,113,227,0.8)] transition hover:bg-[#0077ed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]';
+    'group inline-flex items-center gap-3 rounded-full bg-[#1d1d1f] px-6 py-3 text-[15px] font-semibold text-white shadow-[0_10px_24px_-12px_rgba(0,0,0,0.6)] transition hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d1d1f]';
   const btnGhost =
-    'inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-6 py-3 text-[15px] font-semibold text-[#1d1d1f] transition hover:bg-black/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0071e3]';
+    'inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-6 py-3 text-[15px] font-semibold text-[#1d1d1f] transition hover:bg-black/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d1d1f]';
 
   return (
     <section id="top" aria-label="AirNext: cartões, tags e pulseiras NFC com QR Code" className="relative bg-[#fbfbfd] text-[#1d1d1f]">
@@ -313,7 +316,7 @@ export default function HeroScroll3D({ isDark: _isDark }: { isDark?: boolean }) 
           <div className="relative mx-auto grid h-full max-w-[1400px] grid-rows-[auto_minmax(0,1fr)] pt-[76px] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:grid-rows-1 lg:pt-0">
             {/* texto */}
             <div className="relative z-10 flex flex-col justify-center px-6 pb-2 text-center lg:px-10 lg:pb-0 lg:pl-[max(2rem,5vw)] lg:text-left">
-              <p className="mx-auto mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-3.5 py-1.5 text-xs font-medium text-[#0071e3] backdrop-blur lg:mx-0 lg:mb-5 lg:text-sm">
+              <p className="mx-auto mb-3 inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-3.5 py-1.5 text-xs font-medium text-[#1d1d1f] backdrop-blur lg:mx-0 lg:mb-5 lg:text-sm">
                 <Nfc size={13} className="text-[#5ac8fa]" /> NFC + QR Code · Tecnologia Premium
               </p>
 
